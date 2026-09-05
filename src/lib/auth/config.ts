@@ -83,5 +83,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   trustHost: true,
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'proventa_default_auth_secret_session_key_32chars_min_2026',
 });
