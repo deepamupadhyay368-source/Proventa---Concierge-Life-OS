@@ -51,3 +51,38 @@ export function generateNumericOTP(digits = 6): string {
   const random = parseInt(randomBytes(4).toString('hex'), 16);
   return String(min + (random % (max - min))).padStart(digits, '0');
 }
+
+/**
+ * AES-256-GCM authenticated encryption for sensitive PII & credentials at rest
+ */
+const ALGORITHM = 'aes-256-gcm';
+
+function getEncryptionKey(): Buffer {
+  const secret = process.env.ENCRYPTION_KEY || process.env.AUTH_SECRET || 'proventa_secure_symmetric_encryption_key_32bytes!';
+  return createHash('sha256').update(secret).digest();
+}
+
+export function encryptData(text: string): string {
+  const iv = randomBytes(12);
+  const cipher = require('crypto').createCipheriv(ALGORITHM, getEncryptionKey(), iv);
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  const authTag = cipher.getAuthTag();
+  return `${iv.toString('hex')}:${authTag.toString('hex')}:${encrypted}`;
+}
+
+export function decryptData(cipherText: string): string | null {
+  try {
+    const [ivHex, authTagHex, encrypted] = cipherText.split(':');
+    if (!ivHex || !authTagHex || !encrypted) return null;
+    const iv = Buffer.from(ivHex, 'hex');
+    const authTag = Buffer.from(authTagHex, 'hex');
+    const decipher = require('crypto').createDecipheriv(ALGORITHM, getEncryptionKey(), iv);
+    decipher.setAuthTag(authTag);
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch {
+    return null;
+  }
+}
