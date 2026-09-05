@@ -1,85 +1,92 @@
-import { CheckCircle2, ShieldCheck, Clock, Users, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Clock, Users, ArrowRight, Sparkles, PhoneCall } from 'lucide-react';
 import Link from 'next/link';
 
 export function AIHumanSection() {
   return (
-    <section className="py-24 bg-[#fafaf9] border-t border-neutral-200">
+    <section className="py-28 bg-[#f5f3ef]/60 border-t border-[#e8e2d8]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2 block">
-              The Proventa Standard
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-neutral-900 mb-6 leading-tight">
-              Smart Technology.<br />Real Human Care.
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full luxury-pill text-[11px] font-medium text-[#6d5941] mb-4">
+              <span>THE PROVENTA STANDARD</span>
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-serif font-normal tracking-tight text-[#141312] mb-6 leading-tight">
+              Intelligent Synthesis. <br />
+              <span className="italic font-normal text-[#8a7053]">Devoted Human Care.</span>
             </h2>
-            <p className="text-base sm:text-lg text-neutral-700 leading-relaxed mb-6 font-medium">
-              Pure AI chat bots make mistakes and can’t call venues. Traditional agencies are slow and rigid. Proventa gives you the speed of modern technology with dedicated human concierges on the ground in Ahmedabad.
+            <p className="text-base sm:text-lg text-[#5a4937] leading-relaxed mb-8 font-sans">
+              Algorithmic chatbots hallucinate and cannot personally liaise with restaurant proprietors or hotel directors. Traditional travel desks are rigid and slow. Proventa pairs instant cognitive parsing with seasoned concierges resident in Ahmedabad.
             </p>
 
-            <div className="space-y-4 mb-8">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-neutral-900 mt-0.5 shrink-0" />
+            <div className="space-y-4 mb-10">
+              <div className="flex items-start gap-3.5">
+                <div className="w-5 h-5 rounded-full bg-[#e8e2d8] flex items-center justify-center text-[#6d5941] mt-0.5 shrink-0">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900">Instant Understanding</h3>
-                  <p className="text-xs text-neutral-600">Your requests are parsed immediately without filling out rigid web forms.</p>
+                  <h3 className="text-sm font-semibold text-[#141312]">Instant Natural Comprehension</h3>
+                  <p className="text-xs text-[#6e6b65] mt-0.5">Simply articulate what you require in natural language—no cumbersome forms or multi-step pickers.</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-neutral-900 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-3.5">
+                <div className="w-5 h-5 rounded-full bg-[#e8e2d8] flex items-center justify-center text-[#6d5941] mt-0.5 shrink-0">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900">Real Human Verification</h3>
-                  <p className="text-xs text-neutral-600">Our concierges speak directly with venue managers in Ahmedabad to guarantee availability.</p>
+                  <h3 className="text-sm font-semibold text-[#141312]">Direct Ground Verification in Ahmedabad</h3>
+                  <p className="text-xs text-[#6e6b65] mt-0.5">Our concierges speak personally with managers to guarantee table alcoves, bespoke menus, and exact timings.</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="h-5 w-5 text-neutral-900 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-3.5">
+                <div className="w-5 h-5 rounded-full bg-[#e8e2d8] flex items-center justify-center text-[#6d5941] mt-0.5 shrink-0">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </div>
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900">Zero Unapproved Actions</h3>
-                  <p className="text-xs text-neutral-600">You review the final details and exact pricing before any payment or booking happens.</p>
+                  <h3 className="text-sm font-semibold text-[#141312]">Absolute Approval Sovereign</h3>
+                  <p className="text-xs text-[#6e6b65] mt-0.5">Every detail and exact expenditure requires your one-tap review. Nothing is booked or committed autonomously.</p>
                 </div>
               </div>
             </div>
 
             <Link
               href="/how-it-works"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-neutral-900 text-white font-bold text-sm hover:bg-neutral-800 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#1f1b16] text-[#faf8f5] font-medium text-sm hover:bg-[#332d26] transition-all shadow-sm"
             >
-              <span>See How It Works</span>
+              <span>Explore The Operating Model</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="space-y-6">
-            <div className="p-8 rounded-2xl bg-white border border-neutral-200 shadow-sm">
+            <div className="luxury-card p-8 rounded-2xl">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-neutral-900 text-white flex items-center justify-center font-black text-lg">
-                  AI
+                <div className="w-12 h-12 rounded-xl bg-[#ede8df] text-[#6d5941] flex items-center justify-center font-serif font-bold text-lg border border-[#e8e2d8]">
+                  <Sparkles className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Instant Options</h3>
-                  <p className="text-xs text-neutral-500">Speed &amp; Organization</p>
+                  <h3 className="text-base font-serif font-medium text-[#141312]">Cognitive Intelligence Layer</h3>
+                  <p className="text-xs text-[#8a7053] font-medium">Speed &amp; Synthesis</p>
                 </div>
               </div>
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                Interprets your preferences, checks schedules, and filters the top choices in seconds so you don’t have to search through dozens of apps.
+              <p className="text-xs sm:text-sm text-[#6e6b65] leading-relaxed">
+                Parses calendar schedules, filters fine dining availability, aligns family dietary preferences, and structures options within moments so you never scroll endless apps.
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl bg-white border-2 border-neutral-900 shadow-md">
+            <div className="p-8 rounded-2xl bg-gradient-to-b from-[#1f1b16] to-[#141312] text-[#faf8f5] shadow-xl border border-[#3a342c]">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-neutral-100 border border-neutral-300 text-neutral-900 flex items-center justify-center font-bold">
-                  <Users className="h-6 w-6" />
+                <div className="w-12 h-12 rounded-xl bg-[#2e2720] border border-[#4a4034] text-[#ddc8a9] flex items-center justify-center">
+                  <PhoneCall className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-neutral-900">Human Concierge</h3>
-                  <p className="text-xs text-neutral-500">Local Relationships &amp; Accountability</p>
+                  <h3 className="text-base font-serif font-medium text-white">Dedicated Human Concierge</h3>
+                  <p className="text-xs text-[#b09a78] font-medium">Local Influence &amp; Accountability</p>
                 </div>
               </div>
-              <p className="text-sm text-neutral-600 leading-relaxed">
-                Our team in Ahmedabad picks up the phone, confirms table preferences, negotiates special requests, and verifies everything before presenting it to you.
+              <p className="text-xs sm:text-sm text-[#b8b4ad] leading-relaxed">
+                A resident concierge in Ahmedabad dials the venue director, secures the preferred alcove, negotiates personal terms, and sends you a refined summary card for approval.
               </p>
             </div>
           </div>

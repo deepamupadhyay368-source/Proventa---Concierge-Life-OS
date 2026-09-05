@@ -2,53 +2,54 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
 
 export function PublicNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-neutral-200/80">
+    <header className="fixed top-0 left-0 right-0 z-50 luxury-glass border-b border-brand-200/60 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <span className="text-2xl font-black tracking-tight text-neutral-900">
-              PROVENTA
+          <Link href="/" className="flex items-center gap-3.5 group">
+            <span className="text-2xl sm:text-3xl font-serif tracking-tight text-neutral-900 font-normal">
+              Proventa
             </span>
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-bold tracking-wider bg-neutral-900 text-white uppercase">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-brand-50 text-brand-800 border border-brand-200/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
               Ahmedabad
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/how-it-works" className="text-sm font-semibold text-neutral-600 hover:text-neutral-900 transition-colors">
+          <nav className="hidden md:flex items-center gap-9">
+            <Link href="/how-it-works" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
               How It Works
             </Link>
-            <Link href="/what-we-handle" className="text-sm font-semibold text-neutral-600 hover:text-neutral-900 transition-colors">
+            <Link href="/what-we-handle" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
               Services
             </Link>
-            <Link href="/about" className="text-sm font-semibold text-neutral-600 hover:text-neutral-900 transition-colors">
-              About
+            <Link href="/about" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
+              Philosophy
             </Link>
-            <Link href="/faq" className="text-sm font-semibold text-neutral-600 hover:text-neutral-900 transition-colors">
+            <Link href="/faq" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
               FAQ
             </Link>
           </nav>
 
           {/* Right Side CTAs */}
-          <div className="hidden md:flex items-center gap-5">
-            <Link href="/sign-in" className="text-sm font-semibold text-neutral-700 hover:text-neutral-900 transition-colors">
-              Sign In
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/sign-in" className="text-xs uppercase tracking-widest font-semibold text-neutral-700 hover:text-neutral-950 transition-colors">
+              Member Sign In
             </Link>
 
             <Link
               href="/wave1"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-bold hover:bg-neutral-800 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-[#faf8f5] text-xs font-semibold tracking-wider uppercase hover:bg-brand-950 transition-all shadow-sm hover:shadow-md"
             >
               <span>Join Wave 1</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-3.5 w-3.5 text-brand-300" />
             </Link>
           </div>
 
@@ -65,49 +66,49 @@ export function PublicNav() {
 
       {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden bg-white border-b border-neutral-200 px-4 pt-3 pb-6 space-y-3">
+        <div className="md:hidden bg-[#faf8f5] border-b border-brand-200 px-6 pt-4 pb-8 space-y-4">
           <Link
             href="/how-it-works"
             onClick={() => setOpen(false)}
-            className="block py-2 text-base font-bold text-neutral-900"
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
           >
             How It Works
           </Link>
           <Link
             href="/what-we-handle"
             onClick={() => setOpen(false)}
-            className="block py-2 text-base font-bold text-neutral-900"
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
           >
-            Services
+            Curated Services
           </Link>
           <Link
             href="/about"
             onClick={() => setOpen(false)}
-            className="block py-2 text-base font-bold text-neutral-900"
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
           >
-            About
+            Philosophy
           </Link>
           <Link
             href="/faq"
             onClick={() => setOpen(false)}
-            className="block py-2 text-base font-bold text-neutral-900"
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
           >
-            FAQ
+            Frequently Asked
           </Link>
-          <div className="pt-4 border-t border-neutral-100 flex flex-col gap-3">
+          <div className="pt-4 border-t border-brand-200 flex flex-col gap-3">
             <Link
               href="/sign-in"
               onClick={() => setOpen(false)}
-              className="text-center py-2.5 text-sm font-bold text-neutral-900 border border-neutral-200 rounded-xl"
+              className="text-center py-3 text-xs uppercase tracking-widest font-bold text-neutral-900 border border-brand-300 rounded-xl"
             >
-              Sign In
+              Member Sign In
             </Link>
             <Link
               href="/wave1"
               onClick={() => setOpen(false)}
-              className="text-center py-3 text-sm font-bold bg-neutral-900 text-white rounded-xl shadow-sm"
+              className="text-center py-3.5 text-xs uppercase tracking-widest font-bold bg-neutral-900 text-white rounded-xl shadow-sm"
             >
-              Join Wave 1
+              Request Wave 1 Access
             </Link>
           </div>
         </div>

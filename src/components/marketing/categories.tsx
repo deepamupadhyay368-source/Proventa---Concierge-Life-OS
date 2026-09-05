@@ -69,15 +69,17 @@ const CATEGORIES = [
 
 export function CategoriesSection() {
   return (
-    <section className="py-24 bg-white border-t border-neutral-200">
+    <section className="py-28 bg-[#faf8f5] border-t border-[#e8e2d8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mb-16">
-          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Our Capabilities</p>
-          <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-neutral-900 mb-4">
-            Everything You Need Handled.
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full luxury-pill text-[11px] font-medium text-[#6d5941] mb-4">
+            <span>DISCREET CAPABILITIES</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-serif font-normal tracking-tight text-[#141312] mb-4">
+            Everything You Need Handled. <span className="italic font-normal text-[#8a7053]">Flawlessly.</span>
           </h2>
-          <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
-            From the hardest restaurant tables in Ahmedabad to seamless travel, gifting, and daily errands. You ask once, and our local team takes care of the rest.
+          <p className="text-base sm:text-lg text-[#5a4937] leading-relaxed font-sans">
+            From the hardest restaurant reservations along SG Highway to private jet charters, rare gifting, and estate errands. One message to your concierge, and the matter is resolved.
           </p>
         </div>
 
@@ -87,30 +89,30 @@ export function CategoriesSection() {
             return (
               <div
                 key={idx}
-                className="p-8 rounded-2xl bg-white border border-neutral-200 hover:border-neutral-900 transition-all hover:shadow-md flex flex-col justify-between"
+                className="luxury-card p-8 rounded-2xl flex flex-col justify-between group hover:border-[#b09a78]/50 transition-all duration-300"
               >
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-900 mb-6">
-                    <Icon className="h-6 w-6" />
+                  <div className="w-12 h-12 rounded-xl bg-[#f5f3ef] border border-[#e8e2d8] flex items-center justify-center text-[#6d5941] group-hover:bg-[#1f1b16] group-hover:text-[#ddc8a9] transition-colors duration-300 mb-6">
+                    <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-xl font-bold text-neutral-900 mb-2">{cat.name}</h3>
-                  <p className="text-sm text-neutral-600 leading-relaxed mb-4">{cat.description}</p>
+                  <h3 className="text-lg font-serif font-medium text-[#141312] mb-2">{cat.name}</h3>
+                  <p className="text-xs sm:text-sm text-[#6e6b65] leading-relaxed mb-6 font-sans">{cat.description}</p>
                 </div>
 
-                <div className="pt-4 border-t border-neutral-100">
-                  <div className="flex flex-wrap gap-1.5 mb-4">
+                <div className="pt-4 border-t border-[#ede8df]">
+                  <div className="flex flex-wrap gap-1.5 mb-5">
                     {cat.examples.map((ex, i) => (
-                      <span key={i} className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-700">
+                      <span key={i} className="text-[11px] font-sans px-2.5 py-1 rounded-md bg-[#f5f3ef] text-[#5a4937] border border-[#e8e2d8]/60">
                         {ex}
                       </span>
                     ))}
                   </div>
                   <Link
                     href={cat.href}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-neutral-900 hover:text-neutral-600 transition-colors"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors"
                   >
-                    <span>Learn more</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <span>Explore service</span>
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </div>
               </div>

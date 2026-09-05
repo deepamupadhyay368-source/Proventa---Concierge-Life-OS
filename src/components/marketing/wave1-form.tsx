@@ -46,63 +46,69 @@ export function Wave1Form({ prefilledIntent }: { prefilledIntent?: string }) {
 
   if (submitted) {
     return (
-      <div className="text-center py-4">
-        <div className="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="text-center py-6">
+        <div className="w-14 h-14 bg-[#f5f3ef] border border-[#ddc8a9] rounded-full flex items-center justify-center mx-auto mb-5 text-[#6d5941]">
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-neutral-900 mb-2">You're on the list.</h2>
-        <p className="text-sm text-neutral-500 leading-relaxed">We'll reach out with an invitation when Wave 1 is ready for you. Keep an eye on your inbox.</p>
+        <h2 className="text-xl font-serif font-medium text-[#141312] mb-2">Application Received</h2>
+        <p className="text-xs sm:text-sm text-[#5a4937] leading-relaxed max-w-sm mx-auto font-sans">
+          Your details have been routed to our Ahmedabad concierge desk. We review cohort capacity weekly and will contact you directly via your preferred channel.
+        </p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {error && <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-700">{error}</div>}
+      {error && <div className="p-3.5 bg-red-50/80 border border-red-200 rounded-xl text-xs text-red-700 font-sans">{error}</div>}
 
       <div className="grid grid-cols-1 gap-4">
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Full name <span className="text-red-500">*</span></label>
-          <input type="text" className="w-full px-3 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900" {...register('name')} />
-          {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
+          <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">Full Name <span className="text-[#8a7053]">*</span></label>
+          <input type="text" placeholder="e.g. Yash Patel" className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans" {...register('name')} />
+          {errors.name && <p className="mt-1 text-xs text-red-600 font-sans">{errors.name.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Email <span className="text-red-500">*</span></label>
-          <input type="email" className="w-full px-3 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900" {...register('email')} />
-          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+          <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">Email Address <span className="text-[#8a7053]">*</span></label>
+          <input type="email" placeholder="name@domain.com" className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans" {...register('email')} />
+          {errors.email && <p className="mt-1 text-xs text-red-600 font-sans">{errors.email.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Mobile number</label>
-          <input type="tel" placeholder="+91 98765 43210" className="w-full px-3 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900" {...register('phone')} />
-          {errors.phone && <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>}
+          <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">Mobile Number (WhatsApp Enabled)</label>
+          <input type="tel" placeholder="+91 98765 43210" className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans" {...register('phone')} />
+          {errors.phone && <p className="mt-1 text-xs text-red-600 font-sans">{errors.phone.message}</p>}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">What would you use Proventa for?</label>
-          <textarea rows={3} placeholder="Tell us a bit about what you'd like help with..." className="w-full px-3 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900 resize-none" {...register('intendedUse')} />
+          <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">What should Proventa take off your plate?</label>
+          <textarea rows={3} placeholder="e.g. Fine dining reservations, weekend haveli getaways, client gifting, estate care..." className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans resize-none" {...register('intendedUse')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">How did you hear about Proventa?</label>
-          <input type="text" className="w-full px-3 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900" {...register('referralSource')} />
+          <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">Referral or Introduction</label>
+          <input type="text" placeholder="Member name, advisor, or private invitation" className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans" {...register('referralSource')} />
         </div>
       </div>
 
       {/* Consent */}
       <div className="flex items-start gap-3 pt-2">
-        <input type="checkbox" id="consent" className="mt-0.5 h-4 w-4 rounded border-neutral-300 text-neutral-900" {...register('consentGiven')} />
-        <label htmlFor="consent" className="text-xs text-neutral-500 leading-relaxed">
-          I agree to the <a href="/terms" className="underline">Terms of Service</a> and <a href="/privacy" className="underline">Privacy Policy</a>. I understand that registering does not guarantee an invitation.
+        <input type="checkbox" id="consent" className="mt-1 h-4 w-4 rounded border-[#ded7cc] text-[#1f1b16] focus:ring-[#6d5941]" {...register('consentGiven')} />
+        <label htmlFor="consent" className="text-xs text-[#6e6b65] leading-relaxed font-sans">
+          I consent to processing under DPDP Act 2023 and agree to the <a href="/terms" className="underline text-[#141312] hover:text-[#8a7053]">Terms</a> and <a href="/privacy" className="underline text-[#141312] hover:text-[#8a7053]">Privacy Policy</a>.
         </label>
       </div>
-      {errors.consentGiven && <p className="text-xs text-red-600">{errors.consentGiven.message}</p>}
+      {errors.consentGiven && <p className="text-xs text-red-600 font-sans">{errors.consentGiven.message}</p>}
 
-      <button type="submit" disabled={loading} className="w-full py-3 px-4 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
-        {loading ? 'Registering...' : 'Join Wave 1'}
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full py-4 px-6 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-md disabled:opacity-50 font-sans tracking-wide"
+      >
+        {loading ? 'Submitting Application...' : 'Request Wave 1 Membership'}
       </button>
     </form>
   );
