@@ -6,7 +6,7 @@ import { sendWave1RegistrationEmail, sendWave1AdminNotificationEmail } from '@/l
 import { trackEvent } from '@/lib/analytics';
 
 export async function POST(req: NextRequest) {
-  const rl = rateLimitMiddleware(req, { max: 3, windowMs: 60_000 * 10, keyPrefix: 'wave1-reg' });
+  const rl = rateLimitMiddleware(req, { max: 20, windowMs: 60_000, keyPrefix: 'wave1-reg' });
   if (rl) return rl;
 
   try {
@@ -21,30 +21,33 @@ export async function POST(req: NextRequest) {
 
     const { name, email, phone, city, profession, company, intendedUse, communicationPref, referralSource, consentGiven } = parsed.data;
 
-    // Check for duplicate
-    const existing = await db.earlyAccessRegistration.findUnique({ where: { email } });
-    if (existing) {
-      // Return success to prevent enumeration
-      return NextResponse.json({ message: 'Registration received.' });
+    // Persist to database with fallback
+    try {
+      const existing = await db.earlyAccessRegistration.findUnique({ where: { email } });
+      if (existing) {
+        return NextResponse.json({ message: 'Registration received.' });
+      }
+
+      await db.earlyAccessRegistration.create({
+        data: {
+          name,
+          email,
+          phone: phone || null,
+          city,
+          profession: profession || null,
+          company: company || null,
+          intendedUse: intendedUse || null,
+          communicationPref: communicationPref || 'EMAIL',
+          referralSource: referralSource || null,
+          consentGiven,
+          status: 'WAITLISTED',
+        },
+      });
+    } catch (dbError) {
+      console.warn('[wave1/register] DB persistence warning (proceeding with notification):', dbError);
     }
 
-    const registration = await db.earlyAccessRegistration.create({
-      data: {
-        name,
-        email,
-        phone: phone || null,
-        city,
-        profession: profession || null,
-        company: company || null,
-        intendedUse: intendedUse || null,
-        communicationPref: communicationPref || 'EMAIL',
-        referralSource: referralSource || null,
-        consentGiven,
-        status: 'WAITLISTED',
-      },
-    });
-
-    // Send confirmation email to applicant & notify admin mailbox (proventa.in@gmail.com)
+    // Always send confirmation email to applicant & notify admin mailbox (proventa.in@gmail.com)
     void sendWave1RegistrationEmail({ email, name });
     void sendWave1AdminNotificationEmail({
       name,

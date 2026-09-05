@@ -31,9 +31,17 @@ export default auth(async (req) => {
   const { nextUrl, auth: session } = req as NextRequest & { auth: { user?: { id?: string; roles?: string[] } } | null };
   const pathname = nextUrl.pathname;
 
-  const isPublic = PUBLIC_ROUTES.some(
-    (r) => pathname === r || pathname.startsWith('/api/auth') || pathname.startsWith('/_next') || pathname.startsWith('/services') || pathname.startsWith('/concierge')
-  );
+  const isPublic =
+    PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/wave1') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/services') ||
+    pathname.startsWith('/concierge') ||
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/robots.txt') ||
+    pathname.startsWith('/sitemap.xml') ||
+    pathname.startsWith('/site.webmanifest');
 
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
   const isLoggedIn = !!session?.user?.id;

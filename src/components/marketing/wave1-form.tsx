@@ -34,11 +34,11 @@ export function Wave1Form({ prefilledIntent }: { prefilledIntent?: string }) {
       if (res.ok) {
         setSubmitted(true);
       } else {
-        const json = await res.json();
-        setError(json.error ?? 'Something went wrong. Please try again.');
+        const json = await res.json().catch(() => ({}));
+        setError(json.error || 'Registration could not be completed. Please try again.');
       }
-    } catch {
-      setError('Something went wrong. Please try again.');
+    } catch (err: any) {
+      setError(err?.message || 'Network request failed. Please check your connection and try again.');
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { createRequestSchema } from '@/lib/validation/schemas';
@@ -68,10 +68,21 @@ export async function POST(req: NextRequest) {
       category: extracted.category,
     });
 
-    // 3. Find city (default to Ahmedabad)
-    const city = await db.city.findFirst({
+    // 3. Find or ensure Ahmedabad city
+    let city = await db.city.findFirst({
       where: { slug: 'ahmedabad' },
     });
+    if (!city) {
+      city = await db.city.create({
+        data: {
+          name: 'Ahmedabad',
+          slug: 'ahmedabad',
+          country: 'IN',
+          timezone: 'Asia/Kolkata',
+          active: true,
+        },
+      });
+    }
 
     // 4. Find matched category if any
     let category = null;
@@ -89,11 +100,15 @@ export async function POST(req: NextRequest) {
       initialStatus = 'NEEDS_INFORMATION';
     }
 
+    const requestCount = await db.conciergeRequest.count();
+    const publicId = `PROV-${String(requestCount + 1001).padStart(6, '0')}`;
+
     // 5. Create the Request in Database
     const request = await db.conciergeRequest.create({
       data: {
+        publicId,
         customerId: customerProfile.id,
-        cityId: city?.id || 'city_ahm',
+        cityId: city.id,
         categoryId: category?.id,
         rawInput,
         aiSummary: extracted.intent,
