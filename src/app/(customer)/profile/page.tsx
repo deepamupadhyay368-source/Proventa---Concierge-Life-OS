@@ -1,6 +1,7 @@
-﻿import { requireAuth } from '@/lib/auth/session';
+import { requireAuth } from '@/lib/auth/session';
 import { db } from '@/lib/db';
-import { User, Shield, Download, Trash2, Mail, Phone, MapPin } from 'lucide-react';
+import { Shield } from 'lucide-react';
+import { DataControls } from './DataControls';
 
 export default async function ProfilePage() {
   const sessionUser = await requireAuth();
@@ -67,22 +68,8 @@ export default async function ProfilePage() {
           In accordance with the Digital Personal Data Protection Act (DPDP) and Proventa's Privacy Guarantee, you retain full ownership of your data. We never use your request history for public model training.
         </p>
 
-        <div className="pt-2 flex flex-col sm:flex-row gap-3">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-neutral-200 rounded-xl text-xs font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            <span>Export My Full Data Archive (JSON)</span>
-          </button>
-
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-red-200 text-red-700 rounded-xl text-xs font-medium hover:bg-red-50 transition-colors"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span>Request Account & Data Deletion</span>
-          </button>
+        <div className="pt-2">
+          <DataControls />
         </div>
       </div>
     </div>

@@ -1,9 +1,9 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles } from 'lucide-react';
+import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles, HelpCircle } from 'lucide-react';
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -15,6 +15,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
     { href: '/preferences', label: 'Preferences', icon: Sliders },
     { href: '/notifications', label: 'Notifications', icon: Bell },
     { href: '/profile', label: 'Profile', icon: User },
+    { href: '/support', label: 'Support', icon: HelpCircle },
   ];
 
   return (

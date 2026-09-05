@@ -25,7 +25,9 @@ export type AnalyticsEventName =
   | 'password_reset_requested'
   | 'message_received'
   | 'message_sent'
-  | 'google_auth_initiated';
+  | 'google_auth_initiated'
+  | 'customer_data_exported'
+  | 'customer_account_deleted';
 
 interface TrackEventParams {
   event: AnalyticsEventName;
