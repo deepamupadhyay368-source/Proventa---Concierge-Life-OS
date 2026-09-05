@@ -44,21 +44,39 @@ export function HeroSection() {
       <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-cyan-400/15 blur-[100px] pointer-events-none -z-10" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-        {/* Status Chip */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/90 border border-slate-200 backdrop-blur-md text-xs font-mono text-cyan-700 mb-8 shadow-xs">
+        {/* Status Chip / Value Proposition */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/95 border border-cyan-200 backdrop-blur-md text-xs font-mono text-cyan-800 mb-8 shadow-xs">
           <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping"></span>
-          <span>NEURAL CONCIERGE ENGINE // AHMEDABAD WAVE 1</span>
+          <span className="font-semibold">YOUR PRIVATE AI + HUMAN LIFESTYLE CONCIERGE // AHMEDABAD WAVE 1</span>
         </div>
 
         {/* Primary Headline */}
-        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight text-slate-900 mb-6 uppercase">
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 mb-6 uppercase">
           Life, <span className="tech-gradient-text">Handled.</span>
         </h1>
 
-        {/* Subtitle */}
-        <p className="text-base sm:text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
-          An operating system for your high-priority living. Silicon speed understands the requirement. Real human concierges verify and execute every reservation.
+        {/* Subtitle explaining exactly what it does */}
+        <p className="text-base sm:text-xl text-slate-700 max-w-3xl mx-auto mb-6 leading-relaxed font-normal">
+          <strong className="text-slate-900 font-semibold">Delegate your everyday to-dos, reservations, and errands.</strong> Just type or speak what you need — our <span className="text-cyan-700 font-medium">AI plans it in seconds</span>, and our <span className="text-purple-700 font-medium">real human concierges in Ahmedabad</span> make the calls, verify the details, and book it for you.
         </p>
+
+        {/* 3 Core Pillars Pill */}
+        <div className="flex flex-wrap items-center justify-center gap-3 mb-10 text-xs font-mono text-slate-600">
+          <span className="px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-600" />
+            <span>1. You Ask In Plain English</span>
+          </span>
+          <span className="hidden sm:inline text-slate-400">&rarr;</span>
+          <span className="px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs flex items-center gap-1.5">
+            <Cpu className="w-3.5 h-3.5 text-blue-600" />
+            <span>2. AI Solves & Compiles Options</span>
+          </span>
+          <span className="hidden sm:inline text-slate-400">&rarr;</span>
+          <span className="px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs flex items-center gap-1.5">
+            <Shield className="w-3.5 h-3.5 text-purple-600" />
+            <span>3. Human Concierge Verifies & Executes</span>
+          </span>
+        </div>
 
         {/* Interactive Futuristic Request Field */}
         <div className="max-w-2xl mx-auto mb-6">
