@@ -1,4 +1,4 @@
-﻿import { db } from '@/lib/db';
+import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth/session';
 import { Users, Inbox, CalendarCheck, Star, Shield, Store, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
@@ -33,11 +33,11 @@ export default async function AdminOverviewPage() {
     : '5.0';
 
   const stats = [
-    { label: 'Wave 1 Registrations', value: totalWaitlist, sub: `${invitedWaitlist} invited`, icon: Users, href: '/admin/wave1' },
-    { label: 'Active Customers', value: totalCustomers, sub: 'Ahmedabad cohort', icon: Users, href: '/admin/wave1' },
+    { label: 'Cohort 1 Registrations', value: totalWaitlist, sub: `${invitedWaitlist} invited`, icon: Users, href: '/admin/wave1' },
+    { label: 'Active Customers', value: totalCustomers, sub: 'Cohort 1 members', icon: Users, href: '/admin/wave1' },
     { label: 'Active Requests', value: activeRequests, sub: `${totalRequests} all-time`, icon: Inbox, href: '/admin/requests' },
     { label: 'Confirmed Bookings', value: totalBookings, sub: 'Verified reservations', icon: CalendarCheck, href: '/admin/requests' },
-    { label: 'Active Providers', value: totalProviders, sub: 'Ahmedabad network', icon: Store, href: '/admin/providers' },
+    { label: 'Active Providers', value: totalProviders, sub: 'Verified partner network', icon: Store, href: '/admin/providers' },
     { label: 'Average CSAT', value: `${avgRating} ★`, sub: `${feedbacks.length} reviews`, icon: Star, href: '/admin/overview' },
   ];
 

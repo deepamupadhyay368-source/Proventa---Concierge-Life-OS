@@ -16,7 +16,7 @@ export function Wave1Form({ prefilledIntent }: { prefilledIntent?: string }) {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(wave1RegisterSchema),
     defaultValues: {
-      city: 'Ahmedabad',
+      city: 'Global',
       communicationPref: 'EMAIL',
       intendedUse: prefilledIntent ?? '',
     },
@@ -54,7 +54,7 @@ export function Wave1Form({ prefilledIntent }: { prefilledIntent?: string }) {
         </div>
         <h2 className="text-xl font-serif font-medium text-[#141312] mb-2">Application Received</h2>
         <p className="text-xs sm:text-sm text-[#5a4937] leading-relaxed max-w-sm mx-auto font-sans">
-          Your details have been routed to our Ahmedabad concierge desk. We review cohort capacity weekly and will contact you directly via your preferred channel.
+          Your details have been routed to our private concierge desk. We review cohort capacity weekly and will contact you directly via your preferred channel.
         </p>
       </div>
     );
@@ -108,7 +108,7 @@ export function Wave1Form({ prefilledIntent }: { prefilledIntent?: string }) {
         disabled={loading}
         className="w-full py-4 px-6 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-md disabled:opacity-50 font-sans tracking-wide"
       >
-        {loading ? 'Submitting Application...' : 'Request Wave 1 Membership'}
+        {loading ? 'Submitting Application...' : 'Request Cohort 1 Access'}
       </button>
     </form>
   );

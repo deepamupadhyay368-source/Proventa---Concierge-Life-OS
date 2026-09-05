@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,7 +16,7 @@ export default function ConciergeOpsLayout({ children }: { children: React.React
           <div className="flex items-center gap-2">
             <span className="font-semibold tracking-tight text-white text-base">Proventa Concierge OS</span>
             <span className="text-[10px] bg-neutral-800 text-neutral-300 border border-neutral-700 px-2 py-0.5 rounded font-mono">
-              Ahmedabad Hub
+              Operations Hub
             </span>
           </div>
 

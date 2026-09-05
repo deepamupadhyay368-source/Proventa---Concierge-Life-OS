@@ -12,7 +12,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/trust`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${base}/contact`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${base}/faq`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${base}/concierge/ahmedabad`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${base}/services/dining`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${base}/services/travel`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
     { url: `${base}/services/shopping`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },

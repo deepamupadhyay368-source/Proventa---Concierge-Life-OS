@@ -9,7 +9,7 @@ export function FinalCTASection() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2e2720] border border-[#4a4034] text-[11px] font-medium text-[#ddc8a9] mb-6">
-          <span>AHMEDABAD WAVE 1 · STRICT CAPACITY</span>
+          <span>EARLY ACCESS · COHORT 1</span>
         </div>
 
         <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white mb-6 leading-tight">
@@ -18,7 +18,7 @@ export function FinalCTASection() {
         </h2>
 
         <p className="text-base sm:text-lg text-[#b8b4ad] max-w-2xl mx-auto mb-10 leading-relaxed font-sans">
-          Join the founding cohort of Ahmedabad members delegating reservations, private travel, gifting, and lifestyle logistics to their dedicated concierge.
+          Join the founding cohort of members delegating reservations, private travel, gifting, and lifestyle logistics to their dedicated concierge.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -26,7 +26,7 @@ export function FinalCTASection() {
             href="/wave1"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-[#ddc8a9] hover:bg-[#ebdcc4] text-[#141312] font-semibold text-sm rounded-xl transition-all shadow-lg hover:shadow-xl"
           >
-            <span>Apply for Wave 1 Membership</span>
+            <span>Apply for Cohort 1 Access</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
 
@@ -41,7 +41,7 @@ export function FinalCTASection() {
         <div className="mt-14 flex flex-wrap items-center justify-center gap-6 text-xs text-[#b09a78] font-sans">
           <div className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-[#ddc8a9]" />
-            <span>Complimentary Concierge Access in Wave 1</span>
+            <span>Complimentary Concierge Access in Cohort 1</span>
           </div>
           <span className="text-[#4a4034]">&bull;</span>
           <div className="flex items-center gap-2">
@@ -51,7 +51,7 @@ export function FinalCTASection() {
           <span className="text-[#4a4034]">&bull;</span>
           <div className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-[#ddc8a9]" />
-            <span>Resident Concierges in Ahmedabad</span>
+            <span>Dedicated Personal Concierges</span>
           </div>
         </div>
       </div>

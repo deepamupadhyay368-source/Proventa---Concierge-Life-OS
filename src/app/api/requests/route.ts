@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     if (!customerProfile) {
       customerProfile = await db.customerProfile.create({
-        data: { userId: user.id, city: 'Ahmedabad' },
+        data: { userId: user.id, city: 'Global' },
       });
     }
 

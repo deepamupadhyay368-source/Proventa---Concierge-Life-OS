@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
@@ -151,7 +151,7 @@ export default function RequestDetailPage() {
 
         <div className="mt-4 pt-4 border-t border-neutral-100 flex flex-wrap gap-4 text-xs text-neutral-500">
           <div><strong className="text-neutral-700">Urgency:</strong> {request.urgency}</div>
-          <div><strong className="text-neutral-700">City:</strong> Ahmedabad</div>
+          <div><strong className="text-neutral-700">Location:</strong> {request.city?.name || 'Global'}</div>
           <div><strong className="text-neutral-700">Submitted:</strong> {new Date(request.createdAt).toLocaleString()}</div>
         </div>
       </div>

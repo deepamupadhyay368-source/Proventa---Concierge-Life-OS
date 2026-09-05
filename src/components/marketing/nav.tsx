@@ -16,9 +16,9 @@ export function PublicNav() {
             <span className="text-2xl sm:text-3xl font-serif tracking-tight text-neutral-900 font-normal">
               Proventa
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-brand-50 text-brand-800 border border-brand-200/80">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-brand-50 text-brand-800 border border-brand-200/80">
               <span className="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
-              Ahmedabad
+              Cohort 1
             </span>
           </Link>
 
@@ -48,7 +48,7 @@ export function PublicNav() {
               href="/wave1"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-[#faf8f5] text-xs font-semibold tracking-wider uppercase hover:bg-brand-950 transition-all shadow-sm hover:shadow-md"
             >
-              <span>Join Wave 1</span>
+              <span>Early Access</span>
               <ArrowRight className="h-3.5 w-3.5 text-brand-300" />
             </Link>
           </div>
@@ -108,7 +108,7 @@ export function PublicNav() {
               onClick={() => setOpen(false)}
               className="text-center py-3.5 text-xs uppercase tracking-widest font-bold bg-neutral-900 text-white rounded-xl shadow-sm"
             >
-              Request Wave 1 Access
+              Request Cohort 1 Access
             </Link>
           </div>
         </div>

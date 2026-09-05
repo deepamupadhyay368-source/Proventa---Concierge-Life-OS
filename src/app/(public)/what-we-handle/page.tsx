@@ -5,10 +5,10 @@ export const metadata: Metadata = { title: 'What We Handle', description: 'Disco
 
 const CATEGORIES = [
   { name: 'Dining', description: 'Restaurant discovery, reservations for any occasion, special requests, dietary needs, private dining arrangements.', examples: ['Quiet dinner for four on Saturday', 'Anniversary restaurant recommendation', 'Last-minute table for tonight'] },
-  { name: 'Travel', description: 'Flights, hotels, ground transport, transfers, multi-day itineraries, and travel coordination.', examples: ['Weekend getaway from Ahmedabad', 'Hotel in Mumbai for three nights', 'Airport transfer with luggage'] },
+  { name: 'Travel', description: 'Flights, hotels, ground transport, transfers, multi-day itineraries, and travel coordination.', examples: ['Weekend luxury villa getaway', 'Hotel in Mumbai for three nights', 'Executive airport transfer with luggage'] },
   { name: 'Shopping', description: 'Gift sourcing, product research, price comparison, and coordination of delivery.', examples: ['Thoughtful gift under ₹5,000', 'Find the best price on this product', "Source something I can't find locally"] },
   { name: 'Experiences', description: 'Event tickets, cinema, sports, concerts, cultural events, and activity bookings.', examples: ["Tickets to tonight's show", 'IPL tickets for two', 'Something different to do this weekend'] },
-  { name: 'Appointments', description: 'Salons, spas, wellness appointments, and coordination of bookings.', examples: ['Book a salon for Saturday morning', 'Find a good spa in Ahmedabad', 'Schedule a massage for two'] },
+  { name: 'Appointments', description: 'Salons, spas, wellness appointments, and coordination of bookings.', examples: ['Book a salon for Saturday morning', 'Find a premier luxury spa', 'Schedule a massage for two'] },
   { name: 'Home', description: 'Plumbers, electricians, cleaners, AC servicing, maintenance, and home service coordination.', examples: ['AC technician this week', 'Deep cleaning before guests arrive', 'Electrician for a small job'] },
   { name: 'Personal', description: 'Research, errands, planning, coordination, and anything that requires time or organisation.', examples: ['Research the best schools in the area', "Plan my parents' anniversary", 'Help me organise this'] },
   { name: 'Business', description: 'Business travel, corporate gifts, meeting arrangements, and professional coordination.', examples: ['Hotel for a client visit', 'Corporate gift for a team of 10', 'Meeting room booking'] },

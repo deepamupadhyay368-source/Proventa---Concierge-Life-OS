@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Store, CheckCircle2, Plus, Phone, Globe, MapPin } from 'lucide-react';
@@ -60,8 +60,8 @@ export default function AdminProvidersPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-bold text-neutral-900">Ahmedabad Provider Network</h1>
-        <p className="text-xs text-neutral-500 mt-0.5">Manage verified local service providers across dining, travel, wellness, and lifestyle.</p>
+        <h1 className="text-xl font-bold text-neutral-900">Verified Partner Network</h1>
+        <p className="text-xs text-neutral-500 mt-0.5">Manage verified local and national service providers across dining, travel, wellness, and lifestyle.</p>
       </div>
 
       {/* Add Provider Form */}
@@ -73,7 +73,7 @@ export default function AdminProvidersPage() {
             <input
               type="text"
               required
-              placeholder="e.g. Agashiye, House of MG"
+              placeholder="e.g. The Oberoi, Private Dining Desk"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none"
@@ -106,7 +106,7 @@ export default function AdminProvidersPage() {
             <label className="block text-neutral-600 font-medium mb-1">Address / Venue</label>
             <input
               type="text"
-              placeholder="Opp. Sidi Saiyyed Mosque, Ahmedabad"
+              placeholder="e.g. Dr. Zakir Hussain Marg, New Delhi"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none"

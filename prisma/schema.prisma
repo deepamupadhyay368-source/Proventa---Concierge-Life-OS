@@ -249,6 +249,7 @@ model User {
   sessions               Session[]
   emailVerifications     EmailVerification[]
   passwordResets         PasswordReset[]
+  phoneVerifications     PhoneVerification[]
   oauthAccounts          OAuthAccount[]
   customerProfile        CustomerProfile?
   conciergeAgent         ConciergeAgent?
@@ -332,6 +333,23 @@ model PasswordReset {
   @@index([tokenHash])
   @@index([userId])
   @@map("password_resets")
+}
+
+model PhoneVerification {
+  id        String    @id @default(cuid())
+  phone     String
+  otpHash   String
+  userId    String?
+  expiresAt DateTime
+  usedAt    DateTime?
+  attempts  Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([phone])
+  @@index([userId])
+  @@map("phone_verifications")
 }
 
 model OAuthAccount {

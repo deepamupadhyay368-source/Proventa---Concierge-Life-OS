@@ -5,13 +5,13 @@ const STEPS = [
   {
     step: '01',
     title: 'Articulate Your Need',
-    description: 'Send a message or voice note in natural phrasing. "Reserve a quiet corner for four at Agashiye on Saturday at 8 PM, courtyard view."',
+    description: 'Send a message or voice note in natural phrasing. "Reserve a quiet corner table for four on Saturday at 8 PM with garden view."',
     icon: MessageSquare,
   },
   {
     step: '02',
     title: 'Direct Ground Verification',
-    description: 'We liaise directly with venue directors in Ahmedabad to verify real table allocations, curated menus, and exact pricing.',
+    description: 'We liaise directly with venue directors to verify real table allocations, curated menus, and exact pricing.',
     icon: Search,
   },
   {

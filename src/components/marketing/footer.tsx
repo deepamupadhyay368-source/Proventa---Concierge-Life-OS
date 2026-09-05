@@ -10,10 +10,10 @@ export function PublicFooter() {
               <span className="text-2xl font-serif tracking-tight text-white font-normal">PROVENTA</span>
             </div>
             <p className="text-[11px] font-medium text-[#ddc8a9] tracking-widest uppercase">
-              Concierge Life OS · Ahmedabad
+              Concierge Life OS · Early Access
             </p>
             <p className="text-xs text-[#8a8680] leading-relaxed max-w-sm">
-              The discreet personal concierge service combining fast modern technology with seasoned human concierges on the ground in Ahmedabad.
+              The discreet personal concierge service combining fast modern technology with seasoned human concierges on the ground.
             </p>
           </div>
 
@@ -39,7 +39,7 @@ export function PublicFooter() {
               <li><Link href="/how-it-works" className="hover:text-[#ddc8a9] transition-colors">The Operating Model</Link></li>
               <li><Link href="/about" className="hover:text-[#ddc8a9] transition-colors">About Proventa</Link></li>
               <li><Link href="/faq" className="hover:text-[#ddc8a9] transition-colors">Member FAQ</Link></li>
-              <li><Link href="/wave1" className="hover:text-[#ddc8a9] transition-colors">Wave 1 Membership</Link></li>
+              <li><Link href="/wave1" className="hover:text-[#ddc8a9] transition-colors">Cohort 1 Membership</Link></li>
               <li><Link href="/contact" className="hover:text-[#ddc8a9] transition-colors">Private Concierge Desk</Link></li>
             </ul>
           </div>
@@ -58,7 +58,7 @@ export function PublicFooter() {
         </div>
 
         <div className="pt-8 border-t border-[#24201a] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6e6b65]">
-          <p>&copy; {new Date().getFullYear()} Proventa Technologies Private Limited. Ahmedabad, Gujarat, India.</p>
+          <p>&copy; {new Date().getFullYear()} Proventa Technologies Private Limited. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <span>Direct Desk: <a href="mailto:proventa.in@gmail.com" className="text-[#b09a78] hover:text-[#ddc8a9] transition-colors underline">proventa.in@gmail.com</a></span>
           </div>

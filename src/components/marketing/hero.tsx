@@ -11,24 +11,16 @@ const SUGGESTIONS = [
 ];
 
 export function HeroSection() {
-  const [promptIndex, setPromptIndex] = useState(0);
-  const [inputValue, setInputValue] = useState('');
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPromptIndex((i) => (i + 1) % SUGGESTIONS.length);
-    }, 4800);
-    return () => clearInterval(interval);
-  }, []);
+  const [intent, setIntent] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const query = inputValue.trim() || SUGGESTIONS[promptIndex];
+    const query = intent.trim() || 'Reserve a quiet rooftop table for 4 this Saturday evening';
     window.location.href = `/wave1?intent=${encodeURIComponent(query)}`;
   };
 
   const handleChipClick = (suggestion: string) => {
-    setInputValue(suggestion);
+    setIntent(suggestion);
   };
 
   return (
@@ -41,7 +33,7 @@ export function HeroSection() {
         {/* Subtle Membership Tag */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-brand-200/80 text-[11px] uppercase tracking-[0.2em] font-medium text-brand-900 mb-8 backdrop-blur-md shadow-xs">
           <span className="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
-          <span>Ahmedabad · Wave 1 Cohort</span>
+          <span>Early Access · Cohort 1</span>
         </div>
 
         {/* Grand Editorial Headline */}
@@ -51,65 +43,67 @@ export function HeroSection() {
 
         {/* Refined Subtitle */}
         <p className="text-lg sm:text-2xl text-neutral-600 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-          Your private personal concierge in Ahmedabad. Dining reservations, bespoke travel, thoughtful gifting, and lifestyle logistics — executed with quiet precision.
+          Your private personal concierge. Dining reservations, bespoke travel, thoughtful gifting, and lifestyle logistics — executed with quiet precision.
         </p>
 
         {/* Tactile Ivory Concierge Card */}
         <div className="max-w-2xl mx-auto mb-14">
           <form
             onSubmit={handleSubmit}
-            className="bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 border border-brand-200/90 shadow-[0_20px_50px_rgba(41,31,24,0.06)] hover:border-brand-300 transition-all text-left"
+            className="p-3 sm:p-4 rounded-3xl bg-white/95 border border-brand-200 shadow-xl shadow-brand-900/5 backdrop-blur-md transition-all focus-within:border-brand-400 focus-within:shadow-2xl"
           >
-            <div className="p-3">
-              <div className="flex items-center justify-between text-xs font-semibold tracking-wider text-brand-700 uppercase mb-3">
-                <span className="flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-brand-500" />
-                  <span>Personal Concierge Desk</span>
-                </span>
-                <span className="text-[11px] text-neutral-400 font-normal lowercase tracking-normal">plain english or gujarati</span>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="flex-1 flex items-center px-4 py-3 sm:py-2">
+                <input
+                  type="text"
+                  value={intent}
+                  onChange={(e) => setIntent(e.target.value)}
+                  placeholder="Ask your concierge anything... 'Quiet dinner for four on Saturday at 8 PM'"
+                  className="w-full bg-transparent border-0 text-sm sm:text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-none font-light"
+                />
               </div>
 
-              <textarea
-                rows={3}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder={SUGGESTIONS[promptIndex]}
-                className="w-full text-base sm:text-lg font-normal text-neutral-900 placeholder:text-neutral-400/80 focus:outline-none resize-none bg-transparent leading-relaxed"
-              />
-            </div>
-
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-brand-100/80 px-3">
-              <span className="text-xs text-neutral-500 font-normal hidden sm:inline">
-                Verified with local venues by a dedicated human concierge.
-              </span>
               <button
                 type="submit"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-neutral-900 text-[#faf8f5] text-xs uppercase tracking-widest font-semibold hover:bg-brand-950 transition-all shadow-sm hover:shadow-md shrink-0"
+                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-neutral-900 text-[#faf8f5] text-xs uppercase tracking-widest font-semibold hover:bg-brand-950 transition-all shadow-md shrink-0"
               >
-                <span>Delegate This</span>
-                <ArrowRight className="h-3.5 w-3.5 text-brand-300" />
+                <span>Delegate</span>
+                <ArrowRight className="h-4 w-4 text-brand-300" />
+              </button>
+            </div>
+
+            {/* Ambient Scenario Prompts */}
+            <div className="mt-3 pt-3 border-t border-neutral-100 flex flex-wrap items-center justify-center sm:justify-start gap-2 px-2 text-[11px] text-neutral-500">
+              <span className="font-serif italic text-brand-700">Member scenarios:</span>
+              <button
+                type="button"
+                onClick={() => setIntent('Reserve prime tasting table for four this Saturday evening')}
+                className="hover:text-neutral-900 hover:underline transition-colors"
+              >
+                Fine Dining
+              </button>
+              <span className="text-neutral-300">&bull;</span>
+              <button
+                type="button"
+                onClick={() => setIntent('Plan a private weekend haveli retreat with driver')}
+                className="hover:text-neutral-900 hover:underline transition-colors"
+              >
+                Curated Travel
+              </button>
+              <span className="text-neutral-300">&bull;</span>
+              <button
+                type="button"
+                onClick={() => setIntent('Source and hand-deliver rare corporate gift hampers')}
+                className="hover:text-neutral-900 hover:underline transition-colors"
+              >
+                Luxury Gifting
               </button>
             </div>
           </form>
-
-          {/* Curated Editorial Suggestion Tags */}
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-[11px] uppercase tracking-wider font-semibold text-neutral-400 mr-1">Curated:</span>
-            {SUGGESTIONS.map((s, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleChipClick(s)}
-                className="text-xs font-medium px-3.5 py-1.5 rounded-full bg-white/70 border border-brand-200/70 text-neutral-700 hover:border-brand-400 hover:text-neutral-900 transition-colors shadow-2xs"
-              >
-                {s.length > 35 ? s.substring(0, 35) + '...' : s}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* 3 Refined Quiet Luxury Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto pt-8 text-left border-t border-brand-200/60">
+        {/* 3 Quiet-Luxury Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-left">
           <div className="p-6 rounded-2xl bg-white/60 border border-brand-200/50 backdrop-blur-xs">
             <span className="font-serif italic text-2xl text-brand-600 font-normal block mb-2">01</span>
             <h3 className="text-base font-serif font-semibold text-neutral-900 mb-2">Effortless Delegation</h3>
@@ -120,9 +114,9 @@ export function HeroSection() {
 
           <div className="p-6 rounded-2xl bg-white/60 border border-brand-200/50 backdrop-blur-xs">
             <span className="font-serif italic text-2xl text-brand-600 font-normal block mb-2">02</span>
-            <h3 className="text-base font-serif font-semibold text-neutral-900 mb-2">Ahmedabad Access</h3>
+            <h3 className="text-base font-serif font-semibold text-neutral-900 mb-2">Premier Ground Access</h3>
             <p className="text-xs text-neutral-600 leading-relaxed font-light">
-              Our concierges maintain personal relationships with premier local restaurants, hotels, and luxury artisans.
+              Our concierges maintain personal relationships with premier restaurants, boutique hotels, and vetted artisans.
             </p>
           </div>
 

@@ -43,7 +43,7 @@ export default async function ProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-neutral-100 text-xs">
           <div>
             <span className="text-neutral-400 font-medium block mb-0.5">Primary Location</span>
-            <span className="font-semibold text-neutral-900">Ahmedabad, Gujarat</span>
+            <span className="font-semibold text-neutral-900">{user?.customerProfile?.city || 'Early Access · Cohort 1'}</span>
           </div>
           <div>
             <span className="text-neutral-400 font-medium block mb-0.5">Preferred Channel</span>

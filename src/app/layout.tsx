@@ -20,22 +20,21 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'Proventa — Concierge Life OS | Ahmedabad · Wave 1',
+    default: 'Proventa — Concierge Life OS | Early Access · Cohort 1',
     template: '%s | Proventa — Concierge Life OS',
   },
   description:
-    'Proventa is Ahmedabad’s premier Concierge Life OS. Intelligent AI combined with verified human concierges to research, arrange, and manage dining, travel, appointments, and daily lifestyle logistics. Life, handled.',
+    'Proventa is a premier Concierge Life OS. Intelligent AI combined with verified human concierges to research, arrange, and manage dining, travel, appointments, and daily lifestyle logistics. Life, handled.',
   keywords: [
     'Proventa',
     'Concierge Life OS',
-    'Ahmedabad concierge',
-    'luxury concierge Ahmedabad',
-    'personal assistant Ahmedabad',
+    'personal concierge',
+    'luxury concierge',
     'lifestyle management',
-    'restaurant reservations Ahmedabad',
-    'travel concierge Ahmedabad',
+    'restaurant reservations',
+    'travel concierge',
     'life handled',
-    'Wave 1 Ahmedabad',
+    'Early Access Cohort 1',
   ],
   authors: [{ name: 'Proventa' }],
   creator: 'Proventa',
@@ -47,8 +46,8 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://proventa.in',
     siteName: 'Proventa Concierge Life OS',
-    title: 'Proventa — Concierge Life OS | Ahmedabad · Wave 1',
-    description: 'Life, handled. Intelligent AI meets verified human concierge support in Ahmedabad.',
+    title: 'Proventa — Concierge Life OS | Early Access · Cohort 1',
+    description: 'Life, handled. Intelligent AI meets verified human concierge support.',
     images: [
       {
         url: '/og-image.jpg',
@@ -60,7 +59,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Proventa — Concierge Life OS | Ahmedabad · Wave 1',
+    title: 'Proventa — Concierge Life OS | Early Access · Cohort 1',
     description: 'Life, handled. Intelligent technology meets real human concierge support.',
     images: ['/og-image.jpg'],
   },
@@ -104,12 +103,8 @@ const jsonLd = {
       url: 'https://proventa.in',
       logo: 'https://proventa.in/og-image.jpg',
       description:
-        'Proventa is a Concierge Life OS combining intelligent technology with verified human concierges in Ahmedabad, Gujarat, India.',
+        'Proventa is a Concierge Life OS combining intelligent technology with verified human concierges.',
       email: 'proventa.in@gmail.com',
-      areaServed: {
-        '@type': 'City',
-        name: 'Ahmedabad',
-      },
     },
     {
       '@type': 'Service',
@@ -119,7 +114,6 @@ const jsonLd = {
         '@id': 'https://proventa.in/#organization',
       },
       serviceType: 'Personal Concierge & Lifestyle Management',
-      areaServed: 'Ahmedabad, Gujarat, India',
       description:
         'Personal concierge operations for dining reservations, travel itineraries, wellness appointments, and delegated lifestyle logistics.',
     },

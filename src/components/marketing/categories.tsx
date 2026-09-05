@@ -5,8 +5,8 @@ const CATEGORIES = [
   {
     icon: UtensilsCrossed,
     name: 'Dining & Tables',
-    description: 'Prime dinner tables, private rooms, and tasting menus at Ahmedabad’s best restaurants.',
-    examples: ['Agashiye', 'Mocha Bodakdev', 'Under The Neem Tree'],
+    description: 'Prime dinner tables, private dining alcoves, and tasting menus at the city’s premier restaurants.',
+    examples: ['Fine Dining Tables', 'Private Chef Rooms', 'Weekend Bookings'],
     href: '/services/dining',
   },
   {
@@ -79,7 +79,7 @@ export function CategoriesSection() {
             Everything You Need Handled. <span className="italic font-normal text-[#8a7053]">Flawlessly.</span>
           </h2>
           <p className="text-base sm:text-lg text-[#5a4937] leading-relaxed font-sans">
-            From the hardest restaurant reservations along SG Highway to private jet charters, rare gifting, and estate errands. One message to your concierge, and the matter is resolved.
+            From the hardest restaurant reservations to private getaways, luxury sourcing, and estate errands. One message to your concierge, and the matter is resolved.
           </p>
         </div>
 

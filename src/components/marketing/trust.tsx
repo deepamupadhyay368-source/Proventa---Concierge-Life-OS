@@ -4,7 +4,7 @@ const TRUST_POINTS = [
   {
     icon: CheckCircle2,
     title: 'Direct Human Verification',
-    description: 'Every dining alcove, bespoke itinerary, and service quotation is confirmed on the ground in Ahmedabad before presentation.',
+    description: 'Every dining alcove, bespoke itinerary, and service quotation is confirmed on the ground before presentation.',
   },
   {
     icon: Lock,
@@ -23,8 +23,8 @@ const TRUST_POINTS = [
   },
   {
     icon: MapPin,
-    title: 'Ahmedabad Ground Mastery',
-    description: 'Deep relationships with premier culinary directors, luxury fleets, and boutique heritage havelis across Gujarat.',
+    title: 'Premier Ground Mastery',
+    description: 'Deep relationships with premier culinary directors, luxury transport fleets, and boutique heritage retreats.',
   },
   {
     icon: ShieldCheck,

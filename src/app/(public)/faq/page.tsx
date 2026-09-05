@@ -14,9 +14,9 @@ const FAQS = [
   { q: 'How are bookings confirmed?', a: "A confirmed booking means a real confirmation from the actual provider. Proventa will never tell you something is confirmed when it isn't." },
   { q: 'Can Proventa handle unusual requests?', a: "Often, yes. If a request can reasonably be fulfilled by a concierge — even if it doesn't fit a standard category — we'll do our best. We will always be honest if something is outside our capability." },
   { q: 'How is my data protected?', a: 'Your data is stored securely and used only to serve your requests. You can view, edit, and delete your preferences at any time. We do not use your data for model training without explicit authorisation.' },
-  { q: 'Is Proventa available outside Ahmedabad?', a: "Wave 1 launches in Ahmedabad. We're designing Proventa to expand to other cities — but we want to do Wave 1 right before we expand." },
-  { q: 'What is Wave 1?', a: "Wave 1 is our first cohort of Proventa customers in Ahmedabad. It's how we launch — with a controlled group of customers, so we can deliver an exceptional experience before opening broadly." },
-  { q: 'How do I join?', a: "Register your interest using the Join Wave 1 button. We'll review applications and send invitations directly." },
+  { q: 'Where is Proventa currently available?', a: "Early Access Cohort 1 is now open for private membership application across India and select international destinations. We prioritize ground concierge depth wherever our members travel." },
+  { q: 'What is Early Access · Cohort 1?', a: "Cohort 1 is our inaugural group of private members. It allows us to deliver a bespoke, high-touch personal concierge experience with dedicated team members before opening wider access." },
+  { q: 'How do I join Cohort 1?', a: "Apply for membership using the Apply for Cohort 1 Access button. Our membership desk reviews applications and extends private invitations directly." },
 ];
 
 export default function FAQPage() {

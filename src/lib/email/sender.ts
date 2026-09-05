@@ -98,7 +98,7 @@ export async function sendWave1AdminNotificationEmail(details: Wave1Registration
       await resend.emails.send({
         from: FROM,
         to: adminEmail,
-        subject: `[PROVENTA WAVE 1] New Registration: ${details.name} (${details.city})`,
+        subject: `[PROVENTA COHORT 1] New Application: ${details.name} (${details.email})`,
         html,
       });
       logger.info({ adminEmail, applicant: details.email }, 'Admin notification sent via Resend');
@@ -123,7 +123,7 @@ export async function sendWave1AdminNotificationEmail(details: Wave1Registration
       await transporter.sendMail({
         from: `"Proventa OS" <${process.env.SMTP_USER}>`,
         to: adminEmail,
-        subject: `[PROVENTA WAVE 1] New Registration: ${details.name} (${details.city})`,
+        subject: `[PROVENTA COHORT 1] New Application: ${details.name} (${details.email})`,
         html,
       });
       logger.info({ adminEmail }, 'Admin notification sent via SMTP');
@@ -135,7 +135,7 @@ export async function sendWave1AdminNotificationEmail(details: Wave1Registration
 
   logger.info(
     { adminEmail, details },
-    'Wave 1 Registration Logged (Configure RESEND_API_KEY or SMTP_USER/SMTP_PASS to forward direct to mailbox)',
+    'Cohort 1 Registration Logged (Configure RESEND_API_KEY or SMTP_USER/SMTP_PASS to forward direct to mailbox)',
   );
 }
 
@@ -145,7 +145,7 @@ export async function sendWave1InvitationEmail(params: {
   token: string;
 }) {
   if (!resend) {
-    logger.info({ email: params.email }, 'Resend API key not configured, skipping Wave 1 invitation email');
+    logger.info({ email: params.email }, 'Resend not configured, skipping invitation email');
     return;
   }
   const url = `${APP_URL}/wave1/accept?token=${params.token}`;
@@ -154,11 +154,12 @@ export async function sendWave1InvitationEmail(params: {
       from: FROM,
       to: params.email,
       reply_to: REPLY_TO,
-      subject: "You've been invited to Proventa Wave 1.",
+      subject: 'Your invitation to Proventa Cohort 1',
       html: buildWave1InvitationEmail({ name: params.name, url }),
     });
+    logger.info({ email: params.email }, 'Invitation email sent');
   } catch (error) {
-    logger.error({ error, email: params.email }, 'Failed to send Wave 1 invitation email');
+    logger.error({ error, email: params.email }, 'Failed to send invitation email');
   }
 }
 
@@ -191,7 +192,7 @@ h2 { font-size: 22px; font-weight: 600; margin: 0 0 20px; letter-spacing: -0.5px
 <div class="wrapper">
 <div class="header"><div class="logo">Proventa<span>Concierge Life OS</span></div></div>
 ${content}
-<div class="footer"><p>Proventa &mdash; Ahmedabad, Gujarat, India<br>If you did not request this, you can ignore this email safely.</p></div>
+<div class="footer"><p>Proventa Concierge Life OS<br>If you did not request this, you can ignore this email safely.</p></div>
 </div>
 </body>
 </html>`;
@@ -235,7 +236,7 @@ function buildWave1InvitationEmail({ name, url }: { name: string; url: string })
 <div class="card">
 <h2>Your invitation to Proventa.</h2>
 <p>Hello ${name},</p>
-<p>You've been invited to join Proventa Wave 1 &mdash; our first cohort in Ahmedabad.</p>
+<p>You've been invited to join Proventa Cohort 1.</p>
 <p>Your invitation is ready. Click below to create your account.</p>
 <a href="${url}" class="cta">Accept Invitation</a>
 <p style="font-size:13px;color:#928f88;">This invitation expires in 7 days.</p>
@@ -246,10 +247,10 @@ function buildWave1AdminNotificationEmail(details: Wave1RegistrationDetails): st
   return emailWrapper(`
 <div class="card">
 <div style="display:inline-block;padding:4px 10px;background:#e0f2fe;color:#0369a1;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
-  NEW WAVE 1 REGISTRATION
+  NEW EARLY ACCESS APPLICATION · COHORT 1
 </div>
 <h2>New Application Received</h2>
-<p style="color:#57544f;font-size:14px;">A new user has submitted their Wave 1 early access registration with the following details:</p>
+<p style="color:#57544f;font-size:14px;">A prospective member has submitted their Early Access Cohort 1 registration with the following details:</p>
 
 <table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;text-align:left;">
   <tbody>

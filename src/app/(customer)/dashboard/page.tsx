@@ -78,7 +78,7 @@ function DashboardContent() {
               rows={3}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. Find me a quiet restaurant in Ahmedabad for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
+              placeholder="e.g. Find me a quiet rooftop restaurant for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
               className="w-full p-4 border border-neutral-200 rounded-xl text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400 resize-none"
               required
             />

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -53,7 +53,7 @@ export default function ConciergeQueuePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-neutral-900">Concierge Triage Queue</h1>
-          <p className="text-xs text-neutral-500 mt-0.5">Ahmedabad Wave 1 Incoming & Active Requests</p>
+          <p className="text-xs text-neutral-500 mt-0.5">Cohort 1 Incoming & Active Requests</p>
         </div>
 
         <div className="flex items-center gap-2">

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Sliders, ToggleLeft, ToggleRight, Check } from 'lucide-react';
@@ -33,7 +33,7 @@ export default function AdminSettingsPage() {
   };
 
   const defaultFlags = [
-    { key: 'FEATURE_WAVE1_REGISTRATION', desc: 'Allow public users in Ahmedabad to register for Wave 1 waitlist', defaultValue: true },
+    { key: 'FEATURE_WAVE1_REGISTRATION', desc: 'Allow public users to register for Early Access Cohort 1 waitlist', defaultValue: true },
     { key: 'FEATURE_AI_ENABLED', desc: 'Enable Gemini-assisted Request Understanding and Copilot drafting', defaultValue: true },
     { key: 'FEATURE_PAYMENTS_ENABLED', desc: 'Enable live payment capture (inactive in Wave 1 by default)', defaultValue: false },
     { key: 'FEATURE_GOOGLE_AUTH', desc: 'Enable Google OAuth sign-in', defaultValue: false },
@@ -43,7 +43,7 @@ export default function AdminSettingsPage() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
         <h1 className="text-xl font-bold text-neutral-900">System Configuration & Feature Flags</h1>
-        <p className="text-xs text-neutral-500 mt-0.5">Control live platform capabilities, operational thresholds, and Wave 1 rollout.</p>
+        <p className="text-xs text-neutral-500 mt-0.5">Control live platform capabilities, operational thresholds, and Cohort 1 rollout.</p>
       </div>
 
       {/* Feature Flags */}
@@ -83,7 +83,7 @@ export default function AdminSettingsPage() {
 
       {/* Operations & SLA Settings */}
       <div className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm space-y-4">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Operating SLA Targets (Ahmedabad)</h2>
+        <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Operating SLA Targets (Cohort 1)</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           <div className="p-3 bg-neutral-50 rounded-lg border border-neutral-200">
             <span className="text-neutral-500 block mb-1">Initial Response SLA</span>

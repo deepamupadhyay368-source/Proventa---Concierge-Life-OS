@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         <h1>Privacy Policy</h1>
         <p className="text-neutral-500 text-sm">Last updated: [DATE] &mdash; This document requires professional legal review.</p>
         <h2>Who we are</h2>
-        <p>Proventa is a Concierge Life OS operating initially in Ahmedabad, Gujarat, India. We are committed to protecting your personal information and being transparent about how we use it.</p>
+        <p>Proventa is a Concierge Life OS. We are committed to protecting your personal information and being transparent about how we use it.</p>
         <h2>What we collect</h2>
         <p>We collect information you provide directly: name, email, phone, preferences, and request content. We collect this only to provide the concierge service.</p>
         <h2>How we use your information</h2>

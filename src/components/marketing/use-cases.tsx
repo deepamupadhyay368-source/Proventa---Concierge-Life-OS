@@ -19,10 +19,10 @@ const USE_CASES = [
     icon: Gift,
   },
   {
-    category: 'Weekend Retreats',
+    category: 'Private Travel & Escapes',
     title: 'Spontaneous Family Getaway',
-    prompt: '“Plan a restorative two-night weekend stay within three hours of Ahmedabad for my family. Quiet and scenic.”',
-    outcome: 'Handled: Private boutique heritage villa booked, chauffeured luxury SUV coordinated, and custom dining itinerary arranged.',
+    prompt: '“Plan a restorative two-night weekend stay within three hours of the city for my family. Quiet and scenic.”',
+    outcome: 'Researched 3 private villas with verified amenities; booked a tranquil courtyard heritage retreat with private dining.',
     icon: Compass,
   },
   {
@@ -46,7 +46,7 @@ export function UseCasesSection() {
             The luxury of time, <span className="italic font-serif text-brand-700">reclaimed.</span>
           </h2>
           <p className="text-base sm:text-lg text-neutral-600 leading-relaxed font-light">
-            A glimpse into the daily requests entrusted to our Ahmedabad desk. One text, and the details are handled.
+            A glimpse into the daily requests entrusted to our private concierge desk. One text, and the details are handled.
           </p>
         </div>
 
@@ -91,7 +91,7 @@ export function UseCasesSection() {
         <div className="mt-14 p-8 sm:p-10 rounded-2xl bg-gradient-to-r from-[#291f18] to-[#3a2f26] text-[#faf8f5] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
           <div className="space-y-1">
             <h3 className="text-2xl font-serif font-normal text-white">Have a bespoke request today?</h3>
-            <p className="text-xs text-brand-200 font-light">Our concierge desk is active for Ahmedabad Wave 1 members.</p>
+            <p className="text-xs text-brand-200 font-light">Our concierge desk is active for Early Access Cohort 1 members.</p>
           </div>
           <Link
             href="/wave1"

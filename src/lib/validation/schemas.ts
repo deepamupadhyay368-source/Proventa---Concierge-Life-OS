@@ -65,7 +65,7 @@ export const wave1RegisterSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: emailSchema,
   phone: phoneSchema,
-  city: z.string().min(2).max(100).default('Ahmedabad'),
+  city: z.string().min(2).max(100).default('Global'),
   profession: z.string().max(100).optional().or(z.literal('')),
   company: z.string().max(100).optional().or(z.literal('')),
   intendedUse: z.string().max(500).optional(),

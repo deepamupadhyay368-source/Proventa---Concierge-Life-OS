@@ -15,7 +15,7 @@ export function AIHumanSection() {
               <span className="italic font-normal text-[#8a7053]">Devoted Human Care.</span>
             </h2>
             <p className="text-base sm:text-lg text-[#5a4937] leading-relaxed mb-8 font-sans">
-              Algorithmic chatbots hallucinate and cannot personally liaise with restaurant proprietors or hotel directors. Traditional travel desks are rigid and slow. Proventa pairs instant cognitive parsing with seasoned concierges resident in Ahmedabad.
+              Algorithmic chatbots hallucinate and cannot personally liaise with restaurant proprietors or hotel directors. Traditional travel desks are rigid and slow. Proventa pairs instant cognitive parsing with seasoned resident concierges.
             </p>
 
             <div className="space-y-4 mb-10">
@@ -34,7 +34,7 @@ export function AIHumanSection() {
                   <CheckCircle2 className="h-3.5 w-3.5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-[#141312]">Direct Ground Verification in Ahmedabad</h3>
+                  <h3 className="text-sm font-semibold text-[#141312]">Direct Ground Verification</h3>
                   <p className="text-xs text-[#6e6b65] mt-0.5">Our concierges speak personally with managers to guarantee table alcoves, bespoke menus, and exact timings.</p>
                 </div>
               </div>
@@ -86,7 +86,7 @@ export function AIHumanSection() {
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-[#b8b4ad] leading-relaxed">
-                A resident concierge in Ahmedabad dials the venue director, secures the preferred alcove, negotiates personal terms, and sends you a refined summary card for approval.
+                A resident concierge liaises with the venue director, secures the preferred table, negotiates personal terms, and sends you a refined summary card for approval.
               </p>
             </div>
           </div>

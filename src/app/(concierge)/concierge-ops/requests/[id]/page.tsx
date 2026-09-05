@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
@@ -182,7 +182,7 @@ export default function ConciergeWorkspacePage() {
             <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Customer Profile & Taste</h2>
             <div className="text-xs space-y-1">
               <p><strong className="text-neutral-700">Email:</strong> {customer?.user?.email}</p>
-              <p><strong className="text-neutral-700">Location:</strong> Ahmedabad, Gujarat</p>
+              <p><strong className="text-neutral-700">Location:</strong> {customer?.city || 'Cohort 1 Member'}</p>
               <p><strong className="text-neutral-700">Preferred Channel:</strong> {customer?.preferredComm || 'In-App'}</p>
             </div>
 
