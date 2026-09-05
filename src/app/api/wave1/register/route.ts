@@ -21,45 +21,58 @@ export async function POST(req: NextRequest) {
 
     const { name, email, phone, city, profession, company, intendedUse, communicationPref, referralSource, consentGiven } = parsed.data;
 
-    // Persist to database with fallback
+    // Persist to database with fast timeout fallback (never blocks customer)
     try {
-      const existing = await db.earlyAccessRegistration.findUnique({ where: { email } });
-      if (existing) {
-        return NextResponse.json({ message: 'Registration received.' });
-      }
+      const dbOperation = async () => {
+        const existing = await db.earlyAccessRegistration.findUnique({ where: { email } });
+        if (existing) return existing;
+        return await db.earlyAccessRegistration.create({
+          data: {
+            name,
+            email,
+            phone: phone || null,
+            city,
+            profession: profession || null,
+            company: company || null,
+            intendedUse: intendedUse || null,
+            communicationPref: communicationPref || 'EMAIL',
+            referralSource: referralSource || null,
+            consentGiven,
+            status: 'WAITLISTED',
+          },
+        });
+      };
 
-      await db.earlyAccessRegistration.create({
-        data: {
-          name,
-          email,
-          phone: phone || null,
-          city,
-          profession: profession || null,
-          company: company || null,
-          intendedUse: intendedUse || null,
-          communicationPref: communicationPref || 'EMAIL',
-          referralSource: referralSource || null,
-          consentGiven,
-          status: 'WAITLISTED',
-        },
-      });
+      await Promise.race([
+        dbOperation(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('DB_TIMEOUT')), 2000)),
+      ]);
     } catch (dbError) {
-      console.warn('[wave1/register] DB persistence warning (proceeding with notification):', dbError);
+      console.warn('[wave1/register] DB persistence bypassed (proceeding with direct notification):', dbError);
     }
 
     // Always send confirmation email to applicant & notify admin mailbox (proventa.in@gmail.com)
-    void sendWave1RegistrationEmail({ email, name });
-    void sendWave1AdminNotificationEmail({
-      name,
-      email,
-      phone,
-      city,
-      profession,
-      company,
-      intendedUse,
-      communicationPref,
-      referralSource,
-    });
+    try {
+      await sendWave1RegistrationEmail({ email, name });
+    } catch (e) {
+      console.warn('[wave1/register] User email error:', e);
+    }
+
+    try {
+      await sendWave1AdminNotificationEmail({
+        name,
+        email,
+        phone,
+        city,
+        profession,
+        company,
+        intendedUse,
+        communicationPref,
+        referralSource,
+      });
+    } catch (e) {
+      console.warn('[wave1/register] Admin email error:', e);
+    }
 
     void trackEvent({
       event: 'wave1_completed',
@@ -67,8 +80,11 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ message: 'Registration received.' }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('[wave1/register]', error);
-    return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Registration failed. Please try again.', details: error?.message || String(error) },
+      { status: 500 }
+    );
   }
 }
