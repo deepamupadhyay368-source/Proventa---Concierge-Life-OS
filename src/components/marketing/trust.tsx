@@ -1,83 +1,67 @@
-import { ShieldCheck, Lock, CheckCircle, FileText, Database, UserCheck, KeyRound } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, Lock, FileCheck, EyeOff, MapPin } from 'lucide-react';
 
 const TRUST_POINTS = [
   {
-    icon: UserCheck,
-    title: 'Zero-Hallucination Protocol',
-    id: 'SEC-01',
-    description: 'Every consequential reservation, price, and schedule is directly verified with the provider by our human team before approval.',
+    icon: CheckCircle2,
+    title: '100% Real Verification',
+    description: 'Every single table, price, and schedule is directly verified with the venue in Ahmedabad by our human team before you approve.',
   },
   {
     icon: Lock,
-    title: 'Cryptographic Consent & Approvals',
-    id: 'SEC-02',
-    description: 'No funds are authorized or bookings executed without your explicit in-app confirmation card. Zero hidden surcharges.',
+    title: 'Your Explicit Approval Always',
+    description: 'No funds are authorized and no reservations confirmed without your direct tap on an approval card. Zero hidden markups.',
   },
   {
-    icon: Database,
-    title: 'Strict Multi-Tenant Isolation',
-    id: 'SEC-03',
-    description: 'Your requests, personal preferences, and travel documents are encrypted with AES-256 and never shared or sold.',
+    icon: EyeOff,
+    title: 'Strict Discretion & Privacy',
+    description: 'Your requests, personal schedules, and family preferences are treated with the highest confidentiality and never shared.',
   },
   {
-    icon: CheckCircle,
-    title: 'Real-World Proof of Fulfillment',
-    id: 'SEC-04',
-    description: 'Every confirmed booking contains verified external reservation codes, direct contact lines, and digital vouchers.',
+    icon: FileCheck,
+    title: 'Genuine Confirmation Codes',
+    description: 'Every booking comes with real external provider references, manager contacts, and direct vouchers for your peace of mind.',
   },
   {
-    icon: FileText,
-    title: 'Complete Auditability & Logs',
-    id: 'SEC-05',
-    description: 'Full immutable audit records of all AI tool executions and concierge actions are logged and exportable upon request.',
+    icon: MapPin,
+    title: 'Ahmedabad Local Knowledge',
+    description: 'Direct relationships with top dining venues, luxury transport fleets, and boutique hotels across Ahmedabad and Gujarat.',
   },
   {
-    icon: KeyRound,
-    title: 'DPDP Act Compliance & Sovereign Data',
-    id: 'SEC-06',
-    description: "Architected to comply with India's Digital Personal Data Protection Act with complete data deletion rights.",
+    icon: ShieldCheck,
+    title: 'DPDP Act Data Rights',
+    description: 'Built in compliance with India’s Digital Personal Data Protection Act 2023 with self-service data export and deletion.',
   },
 ];
 
 export function TrustSection() {
   return (
-    <section className="py-24 relative bg-slate-50/50 border-t border-slate-200/80">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-emerald-500/30 bg-emerald-50 text-emerald-700 font-mono text-xs mb-3">
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>SECURITY, INTEGRITY & PROTOCOL FRAMEWORK</span>
-          </div>
-
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-3">
-            Engineered For <span className="tech-gradient-text">Absolute Trust</span>
+    <section className="py-24 bg-[#fafaf9] border-t border-neutral-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <p className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-2">Our Promise</p>
+          <h2 className="text-4xl sm:text-5xl font-black tracking-tight text-neutral-900 mb-4">
+            Built on Discretion &amp; Trust.
           </h2>
-
-          <p className="text-slate-600 max-w-xl mx-auto text-sm md:text-base">
-            Delegating sensitive portions of your schedule requires uncompromising reliability. Proventa operates under strict zero-trust principles.
+          <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
+            Delegating your schedule requires absolute reliability. We hold ourselves to the highest standards of accountability.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {TRUST_POINTS.map((point) => {
-            const Icon = point.icon;
+          {TRUST_POINTS.map((tp, idx) => {
+            const Icon = tp.icon;
             return (
               <div
-                key={point.title}
-                className="p-6 rounded-xl bg-white border border-slate-200 hover:border-emerald-500/50 hover:shadow-md transition-all group"
+                key={idx}
+                className="p-8 rounded-2xl bg-white border border-neutral-200 shadow-xs flex flex-col justify-between"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="w-10 h-10 flex items-center justify-center bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-600 group-hover:scale-105 transition-transform">
-                    <Icon className="w-5 h-5" />
+                <div>
+                  <div className="w-12 h-12 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-900 mb-6">
+                    <Icon className="h-6 w-6" />
                   </div>
-                  <span className="font-mono text-[10px] text-slate-400">{point.id}</span>
+                  <h3 className="text-lg font-bold text-neutral-900 mb-2">{tp.title}</h3>
+                  <p className="text-xs text-neutral-600 leading-relaxed">{tp.description}</p>
                 </div>
-                <h3 className="text-base font-semibold text-slate-900 mb-2 group-hover:text-emerald-700 transition-colors">
-                  {point.title}
-                </h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {point.description}
-                </p>
               </div>
             );
           })}
