@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { wave1RegisterSchema } from '@/lib/validation/schemas';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
-import { sendWave1RegistrationEmail } from '@/lib/email/sender';
+import { sendWave1RegistrationEmail, sendWave1AdminNotificationEmail } from '@/lib/email/sender';
 import { trackEvent } from '@/lib/analytics';
 
 export async function POST(req: NextRequest) {
@@ -44,8 +44,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Send confirmation email (non-blocking)
+    // Send confirmation email to applicant & notify admin mailbox (proventa.in@gmail.com)
     void sendWave1RegistrationEmail({ email, name });
+    void sendWave1AdminNotificationEmail({
+      name,
+      email,
+      phone,
+      city,
+      profession,
+      company,
+      intendedUse,
+      communicationPref,
+      referralSource,
+    });
 
     void trackEvent({
       event: 'wave1_completed',

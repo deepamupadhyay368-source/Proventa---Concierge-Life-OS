@@ -55,6 +55,18 @@ export async function sendPasswordResetEmail(params: {
   }
 }
 
+export interface Wave1RegistrationDetails {
+  name: string;
+  email: string;
+  phone?: string | null;
+  city: string;
+  profession?: string | null;
+  company?: string | null;
+  intendedUse?: string | null;
+  communicationPref?: string | null;
+  referralSource?: string | null;
+}
+
 export async function sendWave1RegistrationEmail(params: {
   email: string;
   name: string;
@@ -74,6 +86,57 @@ export async function sendWave1RegistrationEmail(params: {
   } catch (error) {
     logger.error({ error, email: params.email }, 'Failed to send Wave 1 registration email');
   }
+}
+
+export async function sendWave1AdminNotificationEmail(details: Wave1RegistrationDetails) {
+  const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'proventa.in@gmail.com';
+  const html = buildWave1AdminNotificationEmail(details);
+
+  // Method 1: Try Resend if configured
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: FROM,
+        to: adminEmail,
+        subject: `[PROVENTA WAVE 1] New Registration: ${details.name} (${details.city})`,
+        html,
+      });
+      logger.info({ adminEmail, applicant: details.email }, 'Admin notification sent via Resend');
+      return;
+    } catch (err) {
+      logger.warn({ err }, 'Resend admin email delivery failed, checking SMTP fallback');
+    }
+  }
+
+  // Method 2: Fallback to SMTP / Gmail if SMTP credentials exist
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const nodemailer = await import('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: process.env.SMTP_SERVICE || 'gmail',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"Proventa OS" <${process.env.SMTP_USER}>`,
+        to: adminEmail,
+        subject: `[PROVENTA WAVE 1] New Registration: ${details.name} (${details.city})`,
+        html,
+      });
+      logger.info({ adminEmail }, 'Admin notification sent via SMTP');
+      return;
+    } catch (err) {
+      logger.error({ err }, 'SMTP admin email delivery failed');
+    }
+  }
+
+  logger.info(
+    { adminEmail, details },
+    'Wave 1 Registration Logged (Configure RESEND_API_KEY or SMTP_USER/SMTP_PASS to forward direct to mailbox)',
+  );
 }
 
 export async function sendWave1InvitationEmail(params: {
@@ -176,5 +239,61 @@ function buildWave1InvitationEmail({ name, url }: { name: string; url: string })
 <p>Your invitation is ready. Click below to create your account.</p>
 <a href="${url}" class="cta">Accept Invitation</a>
 <p style="font-size:13px;color:#928f88;">This invitation expires in 7 days.</p>
+</div>`);
+}
+
+function buildWave1AdminNotificationEmail(details: Wave1RegistrationDetails): string {
+  return emailWrapper(`
+<div class="card">
+<div style="display:inline-block;padding:4px 10px;background:#e0f2fe;color:#0369a1;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
+  NEW WAVE 1 REGISTRATION
+</div>
+<h2>New Application Received</h2>
+<p style="color:#57544f;font-size:14px;">A new user has submitted their Wave 1 early access registration with the following details:</p>
+
+<table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;text-align:left;">
+  <tbody>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;width:35%;font-weight:500;">Applicant Name</td>
+      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${details.name}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Email Address</td>
+      <td style="padding:10px 0;color:#0f172a;"><a href="mailto:${details.email}" style="color:#0284c7;text-decoration:none;">${details.email}</a></td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Phone Number</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.phone || 'Not provided'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Target City</td>
+      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${details.city}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Profession / Role</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.profession || 'Not provided'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Organization / Company</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.company || 'Not provided'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Preferred Comm Channel</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.communicationPref || 'EMAIL'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Referral Source</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.referralSource || 'Direct'}</td>
+    </tr>
+    <tr>
+      <td style="padding:12px 0;color:#64748b;vertical-align:top;font-weight:500;">Intended Delegation Use</td>
+      <td style="padding:12px 0;color:#0f172a;line-height:1.6;font-style:italic;">"${details.intendedUse || 'No specific notes entered'}"</td>
+    </tr>
+  </tbody>
+</table>
+
+<div style="margin-top:24px;padding:12px 16px;background:#f8fafc;border-left:4px solid #0284c7;border-radius:4px;font-size:12px;color:#475569;">
+  Logged to Proventa Operations Portal. You can invite or manage this candidate from the Admin Wave 1 dashboard.
+</div>
 </div>`);
 }
