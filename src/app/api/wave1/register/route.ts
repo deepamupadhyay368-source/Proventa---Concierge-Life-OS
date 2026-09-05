@@ -1,0 +1,60 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { wave1RegisterSchema } from '@/lib/validation/schemas';
+import { rateLimitMiddleware } from '@/lib/security/rate-limit';
+import { sendWave1RegistrationEmail } from '@/lib/email/sender';
+import { trackEvent } from '@/lib/analytics';
+
+export async function POST(req: NextRequest) {
+  const rl = rateLimitMiddleware(req, { max: 3, windowMs: 60_000 * 10, keyPrefix: 'wave1-reg' });
+  if (rl) return rl;
+
+  try {
+    const body = await req.json();
+    const parsed = wave1RegisterSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Please check your details and try again.', fields: parsed.error.flatten().fieldErrors },
+        { status: 422 },
+      );
+    }
+
+    const { name, email, phone, city, profession, company, intendedUse, communicationPref, referralSource, consentGiven } = parsed.data;
+
+    // Check for duplicate
+    const existing = await db.earlyAccessRegistration.findUnique({ where: { email } });
+    if (existing) {
+      // Return success to prevent enumeration
+      return NextResponse.json({ message: 'Registration received.' });
+    }
+
+    const registration = await db.earlyAccessRegistration.create({
+      data: {
+        name,
+        email,
+        phone: phone || null,
+        city,
+        profession: profession || null,
+        company: company || null,
+        intendedUse: intendedUse || null,
+        communicationPref: communicationPref || 'EMAIL',
+        referralSource: referralSource || null,
+        consentGiven,
+        status: 'WAITLISTED',
+      },
+    });
+
+    // Send confirmation email (non-blocking)
+    void sendWave1RegistrationEmail({ email, name });
+
+    void trackEvent({
+      event: 'wave1_completed',
+      properties: { city, referralSource: referralSource || 'direct' },
+    });
+
+    return NextResponse.json({ message: 'Registration received.' }, { status: 201 });
+  } catch (error) {
+    console.error('[wave1/register]', error);
+    return NextResponse.json({ error: 'Registration failed. Please try again.' }, { status: 500 });
+  }
+}

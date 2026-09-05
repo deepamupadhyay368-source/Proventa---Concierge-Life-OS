@@ -1,0 +1,1146 @@
+// Proventa — Concierge Life OS
+// Full database schema
+// Generator: Prisma ORM
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum UserRole {
+  CUSTOMER
+  CONCIERGE
+  CONCIERGE_MANAGER
+  ADMIN
+}
+
+enum EarlyAccessStatus {
+  WAITLISTED
+  INVITED
+  REGISTERED
+  ONBOARDED
+  ACTIVE
+  DECLINED
+}
+
+enum ProviderStatus {
+  PROSPECT
+  VERIFIED
+  ACTIVE
+  PAUSED
+  BLOCKED
+}
+
+enum BookingMethod {
+  PHONE
+  EMAIL
+  WALK_IN
+  WEBSITE
+  API
+  WHATSAPP
+  APP
+}
+
+enum RequestStatus {
+  NEW
+  UNDERSTANDING
+  NEEDS_INFORMATION
+  AI_RESEARCHING
+  CONCIERGE_REVIEW
+  OPTIONS_READY
+  AWAITING_CUSTOMER
+  APPROVED
+  EXECUTING
+  BOOKED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  FAILED
+  ESCALATED
+}
+
+enum RequestUrgency {
+  NORMAL
+  URGENT
+  ASAP
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM
+  APPROVAL_CARD
+  BOOKING_CARD
+  CLARIFICATION
+  FILE
+}
+
+enum MessageSenderRole {
+  CUSTOMER
+  CONCIERGE
+  AI
+  SYSTEM
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  DECLINED
+  CHANGED
+  EXPIRED
+}
+
+enum BookingStatus {
+  DRAFT
+  AWAITING_APPROVAL
+  APPROVED
+  PROCESSING
+  CONFIRMED
+  FAILED
+  CANCELLED
+  MODIFIED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  CANCELLED
+}
+
+enum NotificationType {
+  REQUEST_RECEIVED
+  CONCIERGE_ASSIGNED
+  CLARIFICATION_NEEDED
+  OPTIONS_READY
+  APPROVAL_REQUIRED
+  BOOKING_CONFIRMED
+  BOOKING_MODIFIED
+  REQUEST_COMPLETED
+  REQUEST_FAILED
+  REQUEST_CANCELLED
+  MESSAGE_RECEIVED
+  INVITATION_SENT
+  ACCOUNT_CREATED
+  PASSWORD_RESET
+  SECURITY_ALERT
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  WHATSAPP
+  SMS
+}
+
+enum ConsentType {
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+  MARKETING
+  DATA_PROCESSING
+  COOKIE_POLICY
+}
+
+enum SupportTicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  ROLE_CHANGE
+  PERMISSION_DENIED
+  INVITE_SENT
+  INVITE_ACCEPTED
+  APPROVAL_GIVEN
+  APPROVAL_DECLINED
+  BOOKING_CREATED
+  BOOKING_CONFIRMED
+  BOOKING_CANCELLED
+  PAYMENT_INITIATED
+  PAYMENT_CAPTURED
+  PAYMENT_REFUNDED
+  AI_TOOL_CALLED
+  EXPORT_DATA
+  DELETE_DATA
+  ADMIN_ACTION
+}
+
+enum SecurityEventType {
+  LOGIN_SUCCESS
+  LOGIN_FAILED
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  EMAIL_CHANGED
+  ROLE_ESCALATION_ATTEMPT
+  IDOR_ATTEMPT
+  RATE_LIMIT_HIT
+  SUSPICIOUS_ACTIVITY
+  SESSION_REVOKED
+  ACCOUNT_LOCKED
+  MFA_ATTEMPT
+}
+
+enum AIAgentType {
+  REQUEST_UNDERSTANDING
+  RESEARCH
+  RECOMMENDATION
+  PLANNING
+  COMMUNICATION
+  CONCIERGE_COPILOT
+  QUALITY_SAFETY
+  MEMORY
+}
+
+enum CommunicationPreference {
+  IN_APP
+  EMAIL
+  WHATSAPP
+  SMS
+}
+
+// ============================================================
+// IDENTITY & AUTH
+// ============================================================
+
+model User {
+  id            String     @id @default(cuid())
+  email         String     @unique
+  emailVerified DateTime?
+  name          String?
+  phone         String?
+  phoneVerified DateTime?
+  passwordHash  String?
+  status        UserStatus @default(PENDING_VERIFICATION)
+  image         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
+
+  // Relations
+  userRoles              UserRoleAssignment[]
+  sessions               Session[]
+  emailVerifications     EmailVerification[]
+  passwordResets         PasswordReset[]
+  oauthAccounts          OAuthAccount[]
+  customerProfile        CustomerProfile?
+  conciergeAgent         ConciergeAgent?
+  sentMessages           RequestMessage[]      @relation("MessageSender")
+  internalNotes          InternalNote[]
+  notifications          Notification[]
+  notificationPrefs      NotificationPreference[]
+  supportTickets         SupportTicket[]
+  consentRecords         ConsentRecord[]
+  auditLogsAsActor       AuditLog[]            @relation("AuditActor")
+  securityEvents         SecurityEvent[]
+  featureFlagOverrides   FeatureFlagOverride[]
+
+  @@index([email])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model UserRoleAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  role      UserRole
+  grantedBy String?
+  grantedAt DateTime @default(now())
+  revokedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@index([userId])
+  @@index([role])
+  @@map("user_role_assignments")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  sessionToken String   @unique @default(cuid())
+  expires      DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  revokedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionToken])
+  @@index([expires])
+  @@map("sessions")
+}
+
+model EmailVerification {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@map("email_verifications")
+}
+
+model PasswordReset {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  ipAddress String?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash])
+  @@index([userId])
+  @@map("password_resets")
+}
+
+model OAuthAccount {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String
+  providerAccountId String
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+  tokenType         String?
+  scope             String?
+  idToken           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("oauth_accounts")
+}
+
+model ConsentRecord {
+  id          String      @id @default(cuid())
+  userId      String
+  consentType ConsentType
+  version     String
+  accepted    Boolean
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([consentType])
+  @@map("consent_records")
+}
+
+// ============================================================
+// WAVE 1 / EARLY ACCESS
+// ============================================================
+
+model EarlyAccessRegistration {
+  id                   String            @id @default(cuid())
+  name                 String
+  email                String            @unique
+  phone                String?
+  city                 String
+  profession           String?
+  company              String?
+  intendedUse          String?
+  communicationPref    String?
+  referralSource       String?
+  status               EarlyAccessStatus @default(WAITLISTED)
+  internalNotes        String?
+  convertedUserId      String?           @unique
+  registeredAt         DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  invitedAt            DateTime?
+  onboardedAt          DateTime?
+  consentGiven         Boolean           @default(false)
+
+  invitations Invitation[]
+
+  @@index([email])
+  @@index([status])
+  @@index([city])
+  @@map("early_access_registrations")
+}
+
+model Invitation {
+  id             String                   @id @default(cuid())
+  registrationId String
+  tokenHash      String                   @unique
+  expiresAt      DateTime
+  sentAt         DateTime                 @default(now())
+  sentBy         String?
+  acceptedAt     DateTime?
+  revokedAt      DateTime?
+  revokedBy      String?
+
+  registration EarlyAccessRegistration @relation(fields: [registrationId], references: [id])
+
+  @@index([tokenHash])
+  @@index([registrationId])
+  @@map("invitations")
+}
+
+// ============================================================
+// GEOGRAPHY & SERVICES
+// ============================================================
+
+model City {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  country     String   @default("IN")
+  timezone    String   @default("Asia/Kolkata")
+  active      Boolean  @default(false)
+  launchDate  DateTime?
+  createdAt   DateTime @default(now())
+
+  providers        Provider[]
+  conciergeTeams   ConciergeTeam[]
+  requests         ConciergeRequest[]
+
+  @@index([slug])
+  @@index([active])
+  @@map("cities")
+}
+
+model ServiceCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  providers Provider[]
+  requests  ConciergeRequest[]
+
+  @@index([slug])
+  @@index([active])
+  @@map("service_categories")
+}
+
+// ============================================================
+// PROVIDER NETWORK
+// ============================================================
+
+model Provider {
+  id             String         @id @default(cuid())
+  name           String
+  cityId         String
+  categoryId     String
+  description    String?
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  instagramUrl   String?
+  bookingMethod  BookingMethod  @default(PHONE)
+  status         ProviderStatus @default(PROSPECT)
+  reliabilityScore Int?         @default(0)
+  notes          String?
+  tags           String[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  city          City                @relation(fields: [cityId], references: [id])
+  category      ServiceCategory     @relation(fields: [categoryId], references: [id])
+  services      ProviderService[]
+  verifications ProviderVerification[]
+  apiConfig     ProviderApiConfig?
+  bookings      Booking[]
+
+  @@index([cityId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([deletedAt])
+  @@map("providers")
+}
+
+model ProviderService {
+  id          String  @id @default(cuid())
+  providerId  String
+  name        String
+  description String?
+  priceRange  String?
+  available   Boolean @default(true)
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("provider_services")
+}
+
+model ProviderVerification {
+  id           String   @id @default(cuid())
+  providerId   String
+  verifiedBy   String?
+  verifiedAt   DateTime
+  method       String?
+  notes        String?
+  serviceCheck Boolean  @default(false)
+  contactCheck Boolean  @default(false)
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@index([providerId])
+  @@map("provider_verifications")
+}
+
+model ProviderApiConfig {
+  id              String   @id @default(cuid())
+  providerId      String   @unique
+  integrationType String
+  configEncrypted String   // Encrypted JSON
+  active          Boolean  @default(false)
+  lastTestedAt    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  provider Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@map("provider_api_configs")
+}
+
+// ============================================================
+// CUSTOMER
+// ============================================================
+
+model CustomerProfile {
+  id                   String                  @id @default(cuid())
+  userId               String                  @unique
+  onboardingCompleted  Boolean                 @default(false)
+  onboardingCompletedAt DateTime?
+  preferredComm        CommunicationPreference @default(IN_APP)
+  primaryUseCases      String[]
+  city                 String?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferences CustomerPreference[]
+  requests    ConciergeRequest[]
+  approvals   Approval[]
+  bookings    Booking[]
+  payments    Payment[]
+  feedback    Feedback[]
+
+  @@map("customer_profiles")
+}
+
+model CustomerPreference {
+  id         String   @id @default(cuid())
+  customerId String
+  category   String   // dining, travel, shopping, etc.
+  key        String   // e.g., "cuisine", "hotel_class", "budget"
+  value      Json
+  source     String   @default("explicit") // explicit | inferred
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@unique([customerId, category, key])
+  @@index([customerId])
+  @@map("customer_preferences")
+}
+
+// ============================================================
+// CONCIERGE OPERATIONS
+// ============================================================
+
+model ConciergeTeam {
+  id        String   @id @default(cuid())
+  name      String
+  cityId    String
+  managerId String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  city   City             @relation(fields: [cityId], references: [id])
+  agents ConciergeAgent[]
+
+  @@index([cityId])
+  @@map("concierge_teams")
+}
+
+model ConciergeAgent {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  teamId              String?
+  maxConcurrentRequests Int    @default(10)
+  activeRequestsCount Int      @default(0)
+  isOnline            Boolean  @default(false)
+  shiftStart          String?  // HH:mm
+  shiftEnd            String?  // HH:mm
+  timezone            String   @default("Asia/Kolkata")
+  active              Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user        User               @relation(fields: [userId], references: [id])
+  team        ConciergeTeam?     @relation(fields: [teamId], references: [id])
+  assignments RequestAssignment[]
+
+  @@index([teamId])
+  @@map("concierge_agents")
+}
+
+// ============================================================
+// REQUESTS (Core)
+// ============================================================
+
+model ConciergeRequest {
+  id              String         @id @default(cuid())
+  customerId      String
+  cityId          String
+  categoryId      String?
+  rawInput        String
+  aiSummary       String?
+  extractedData   Json?          // Structured entities from AI
+  status          RequestStatus  @default(NEW)
+  urgency         RequestUrgency @default(NORMAL)
+  assignedToId    String?
+  publicId        String         @unique @default(cuid()) // Short, customer-facing ID
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  completedAt     DateTime?
+  cancelledAt     DateTime?
+  deletedAt       DateTime?
+
+  customer       CustomerProfile       @relation(fields: [customerId], references: [id])
+  city           City                  @relation(fields: [cityId], references: [id])
+  category       ServiceCategory?      @relation(fields: [categoryId], references: [id])
+  messages       RequestMessage[]
+  attachments    RequestAttachment[]
+  statusHistory  RequestStatusHistory[]
+  assignments    RequestAssignment[]
+  internalNotes  InternalNote[]
+  aiInteractions AIInteraction[]
+  aiWorkflowRuns AIWorkflowRun[]
+  recommendations AIRecommendation[]
+  approvals      Approval[]
+  bookings       Booking[]
+  slaRecord      SLARecord?
+  feedback       Feedback?
+  supportTickets SupportTicket[]
+
+  @@index([customerId])
+  @@index([cityId])
+  @@index([status])
+  @@index([assignedToId])
+  @@index([urgency])
+  @@index([createdAt])
+  @@index([deletedAt])
+  @@map("concierge_requests")
+}
+
+model RequestStatusHistory {
+  id          String        @id @default(cuid())
+  requestId   String
+  fromStatus  RequestStatus?
+  toStatus    RequestStatus
+  changedById String?
+  changedAt   DateTime      @default(now())
+  note        String?
+
+  request ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+  @@map("request_status_history")
+}
+
+model RequestAssignment {
+  id           String   @id @default(cuid())
+  requestId    String
+  conciergeId  String
+  assignedAt   DateTime @default(now())
+  unassignedAt DateTime?
+  assignedBy   String?
+
+  request   ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  concierge ConciergeAgent   @relation(fields: [conciergeId], references: [id])
+
+  @@index([requestId])
+  @@index([conciergeId])
+  @@map("request_assignments")
+}
+
+model RequestMessage {
+  id           String            @id @default(cuid())
+  requestId    String
+  senderId     String
+  senderRole   MessageSenderRole
+  content      String
+  type         MessageType       @default(TEXT)
+  isInternal   Boolean           @default(false) // Internal = concierge-only
+  metadata     Json?             // For approval/booking cards
+  readAt       DateTime?
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  createdAt    DateTime          @default(now())
+
+  request     ConciergeRequest    @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  sender      User                @relation("MessageSender", fields: [senderId], references: [id])
+  attachments RequestAttachment[]
+
+  @@index([requestId, isInternal])
+  @@index([senderId])
+  @@index([createdAt])
+  @@map("request_messages")
+}
+
+model RequestAttachment {
+  id          String   @id @default(cuid())
+  requestId   String
+  messageId   String?
+  uploadedBy  String
+  storageKey  String   @unique
+  filename    String
+  mimeType    String
+  sizeBytes   Int
+  uploadedAt  DateTime @default(now())
+  expiresAt   DateTime?
+  deletedAt   DateTime?
+
+  request ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  message RequestMessage?  @relation(fields: [messageId], references: [id])
+
+  @@index([requestId])
+  @@index([storageKey])
+  @@map("request_attachments")
+}
+
+model InternalNote {
+  id        String   @id @default(cuid())
+  requestId String
+  authorId  String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  request ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  author  User             @relation(fields: [authorId], references: [id])
+
+  @@index([requestId])
+  @@map("internal_notes")
+}
+
+// ============================================================
+// AI
+// ============================================================
+
+model AIInteraction {
+  id             String      @id @default(cuid())
+  requestId      String
+  workflowRunId  String?
+  agentType      AIAgentType
+  model          String
+  inputTokens    Int         @default(0)
+  outputTokens   Int         @default(0)
+  latencyMs      Int?
+  toolsCalled    String[]    // Names of tools called
+  success        Boolean     @default(true)
+  errorMessage   String?
+  createdAt      DateTime    @default(now())
+
+  request     ConciergeRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  workflowRun AIWorkflowRun?    @relation(fields: [workflowRunId], references: [id])
+
+  @@index([requestId])
+  @@index([agentType])
+  @@index([createdAt])
+  @@map("ai_interactions")
+}
+
+model AIWorkflowRun {
+  id          String    @id @default(cuid())
+  requestId   String
+  workflowId  String    // Stable identifier for the workflow type
+  status      String    @default("RUNNING")
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  errorMessage String?
+
+  request      ConciergeRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  interactions AIInteraction[]
+  recommendations AIRecommendation[]
+
+  @@index([requestId])
+  @@index([status])
+  @@map("ai_workflow_runs")
+}
+
+model AIRecommendation {
+  id            String   @id @default(cuid())
+  requestId     String
+  workflowRunId String?
+  content       Json     // Structured recommendation data
+  presentedAt   DateTime?
+  customerResponse String? // ACCEPTED | DECLINED | CHANGED
+  respondedAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  request     ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  workflowRun AIWorkflowRun?   @relation(fields: [workflowRunId], references: [id])
+
+  @@index([requestId])
+  @@map("ai_recommendations")
+}
+
+// ============================================================
+// APPROVALS & BOOKINGS
+// ============================================================
+
+model Approval {
+  id          String         @id @default(cuid())
+  requestId   String
+  customerId  String
+  title       String
+  details     Json           // Provider, date, time, price, terms, etc.
+  status      ApprovalStatus @default(PENDING)
+  expiresAt   DateTime?
+  approvedAt  DateTime?
+  declinedAt  DateTime?
+  changedAt   DateTime?
+  createdAt   DateTime       @default(now())
+
+  request  ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  customer CustomerProfile  @relation(fields: [customerId], references: [id])
+  booking  Booking?
+
+  @@index([requestId])
+  @@index([customerId])
+  @@index([status])
+  @@map("approvals")
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  requestId       String
+  approvalId      String?       @unique
+  customerId      String
+  providerId      String?
+  status          BookingStatus @default(DRAFT)
+  confirmationRef String?       // Real external reference
+  details         Json          // Provider, date, time, price, etc.
+  internalNotes   String?
+  bookedAt        DateTime?
+  confirmedAt     DateTime?
+  cancelledAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  request  ConciergeRequest @relation(fields: [requestId], references: [id])
+  approval Approval?        @relation(fields: [approvalId], references: [id])
+  customer CustomerProfile  @relation(fields: [customerId], references: [id])
+  provider Provider?        @relation(fields: [providerId], references: [id])
+  events   BookingEvent[]
+  payment  Payment?
+
+  @@index([requestId])
+  @@index([customerId])
+  @@index([status])
+  @@index([providerId])
+  @@map("bookings")
+}
+
+model BookingEvent {
+  id        String   @id @default(cuid())
+  bookingId String
+  eventType String
+  actorId   String?
+  data      Json?
+  createdAt DateTime @default(now())
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@map("booking_events")
+}
+
+// ============================================================
+// PAYMENTS
+// ============================================================
+
+model Payment {
+  id              String        @id @default(cuid())
+  bookingId       String        @unique
+  customerId      String
+  amount          Int           // In paise (INR)
+  currency        String        @default("INR")
+  status          PaymentStatus @default(PENDING)
+  idempotencyKey  String        @unique
+  providerRef     String?       // Razorpay payment ID
+  providerOrderId String?       // Razorpay order ID
+  method          String?       // card, upi, netbanking, etc.
+  metadata        Json?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  booking  Booking         @relation(fields: [bookingId], references: [id])
+  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  events   PaymentEvent[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([idempotencyKey])
+  @@map("payments")
+}
+
+model PaymentEvent {
+  id        String   @id @default(cuid())
+  paymentId String
+  eventType String
+  data      Json?
+  createdAt DateTime @default(now())
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@map("payment_events")
+}
+
+// ============================================================
+// NOTIFICATIONS
+// ============================================================
+
+model Notification {
+  id         String           @id @default(cuid())
+  userId     String
+  type       NotificationType
+  title      String
+  body       String
+  actionUrl  String?
+  metadata   Json?
+  readAt     DateTime?
+  createdAt  DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id      String              @id @default(cuid())
+  userId  String
+  channel NotificationChannel
+  type    NotificationType
+  enabled Boolean             @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel, type])
+  @@index([userId])
+  @@map("notification_preferences")
+}
+
+// ============================================================
+// FEEDBACK & SUPPORT
+// ============================================================
+
+model Feedback {
+  id          String   @id @default(cuid())
+  requestId   String   @unique
+  customerId  String
+  rating      Int      // 1-5
+  comment     String?
+  submittedAt DateTime @default(now())
+
+  request  ConciergeRequest @relation(fields: [requestId], references: [id])
+  customer CustomerProfile  @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([rating])
+  @@map("feedback")
+}
+
+model SupportTicket {
+  id          String              @id @default(cuid())
+  customerId  String
+  requestId   String?
+  subject     String
+  description String
+  status      SupportTicketStatus @default(OPEN)
+  assignedTo  String?
+  resolvedAt  DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  customer User              @relation(fields: [customerId], references: [id])
+  request  ConciergeRequest? @relation(fields: [requestId], references: [id])
+
+  @@index([customerId])
+  @@index([status])
+  @@map("support_tickets")
+}
+
+// ============================================================
+// SLA
+// ============================================================
+
+model SLARecord {
+  id                    String    @id @default(cuid())
+  requestId             String    @unique
+  targetInitialResponse DateTime
+  initialRespondedAt    DateTime?
+  targetOptionsBy       DateTime
+  optionsPresentedAt    DateTime?
+  targetCompleteBy      DateTime
+  completedAt           DateTime?
+  breached              Boolean   @default(false)
+
+  request ConciergeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@map("sla_records")
+}
+
+// ============================================================
+// AUDIT & SECURITY
+// ============================================================
+
+model AuditLog {
+  id           String      @id @default(cuid())
+  actorId      String?
+  actorRole    String?
+  action       AuditAction
+  resourceType String?
+  resourceId   String?
+  before       Json?       @db.JsonB
+  after        Json?       @db.JsonB
+  ipAddress    String?
+  userAgent    String?
+  requestId    String?     // HTTP request ID for correlation
+  createdAt    DateTime    @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([action])
+  @@index([resourceType, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model SecurityEvent {
+  id        String            @id @default(cuid())
+  type      SecurityEventType
+  userId    String?
+  ipAddress String?
+  userAgent String?
+  details   Json?
+  createdAt DateTime          @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+  @@map("security_events")
+}
+
+// ============================================================
+// CONFIGURATION
+// ============================================================
+
+model FeatureFlag {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       Boolean  @default(false)
+  description String?
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+
+  overrides FeatureFlagOverride[]
+
+  @@map("feature_flags")
+}
+
+model FeatureFlagOverride {
+  id        String   @id @default(cuid())
+  flagId    String
+  userId    String
+  value     Boolean
+  createdAt DateTime @default(now())
+
+  flag FeatureFlag @relation(fields: [flagId], references: [id], onDelete: Cascade)
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([flagId, userId])
+  @@map("feature_flag_overrides")
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  type      String   @default("string") // string | number | boolean | json
+  updatedBy String?
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+// ============================================================
+// PRODUCT ANALYTICS EVENTS
+// ============================================================
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  event      String
+  userId     String?
+  sessionId  String?
+  properties Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([event])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("analytics_events")
+}
