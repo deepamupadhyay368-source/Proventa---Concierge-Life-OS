@@ -7,28 +7,75 @@ const FROM = process.env.EMAIL_FROM ?? 'Proventa <hello@proventa.in>';
 const REPLY_TO = process.env.EMAIL_REPLY_TO ?? 'concierge@proventa.in';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://proventa.in';
 
+// Centralized email dispatcher prioritizing native Gmail SMTP (proventa.in@gmail.com)
+// with Resend fallback.
+async function dispatchEmail(params: {
+  to: string;
+  subject: string;
+  html: string;
+  replyTo?: string;
+}) {
+  const replyTo = params.replyTo || REPLY_TO;
+
+  // 1. Primary: Native Gmail SMTP (Sends authentically from proventa.in@gmail.com)
+  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
+    try {
+      const nodemailer = await import('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: process.env.SMTP_SERVICE || 'gmail',
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+      });
+
+      const info = await transporter.sendMail({
+        from: `"Proventa" <${process.env.SMTP_USER}>`,
+        to: params.to,
+        replyTo,
+        subject: params.subject,
+        html: params.html,
+      });
+
+      logger.info({ to: params.to, messageId: info.messageId }, 'Email dispatched via Gmail SMTP');
+      return true;
+    } catch (smtpErr) {
+      logger.warn({ smtpErr, to: params.to }, 'Gmail SMTP dispatch failed, trying fallback');
+    }
+  }
+
+  // 2. Secondary: Resend API
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: FROM.includes('@gmail.com') ? 'Proventa <onboarding@resend.dev>' : FROM,
+        to: params.to,
+        reply_to: replyTo,
+        subject: params.subject,
+        html: params.html,
+      });
+      logger.info({ to: params.to }, 'Email dispatched via Resend');
+      return true;
+    } catch (resendErr) {
+      logger.error({ resendErr, to: params.to }, 'Resend dispatch failed');
+    }
+  }
+
+  logger.warn({ to: params.to, subject: params.subject }, 'No active email provider succeeded');
+  return false;
+}
+
 export async function sendVerificationEmail(params: {
   email: string;
   name: string;
   token: string;
 }) {
-  if (!resend) {
-    logger.info({ email: params.email }, 'Resend API key not configured, skipping verification email');
-    return;
-  }
   const url = `${APP_URL}/verify?token=${params.token}`;
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: params.email,
-      reply_to: REPLY_TO,
-      subject: 'Verify your Proventa account',
-      html: buildVerificationEmail({ name: params.name, url }),
-    });
-    logger.info({ email: params.email }, 'Verification email sent');
-  } catch (error) {
-    logger.error({ error, email: params.email }, 'Failed to send verification email');
-  }
+  await dispatchEmail({
+    to: params.email,
+    subject: 'Verify your Proventa account',
+    html: buildVerificationEmail({ name: params.name, url }),
+  });
 }
 
 export async function sendPasswordResetEmail(params: {
@@ -36,23 +83,12 @@ export async function sendPasswordResetEmail(params: {
   name: string;
   token: string;
 }) {
-  if (!resend) {
-    logger.info({ email: params.email }, 'Resend API key not configured, skipping password reset email');
-    return;
-  }
   const url = `${APP_URL}/reset-password?token=${params.token}`;
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: params.email,
-      reply_to: REPLY_TO,
-      subject: 'Reset your Proventa password',
-      html: buildPasswordResetEmail({ name: params.name, url }),
-    });
-    logger.info({ email: params.email }, 'Password reset email sent');
-  } catch (error) {
-    logger.error({ error, email: params.email }, 'Failed to send password reset email');
-  }
+  await dispatchEmail({
+    to: params.email,
+    subject: 'Reset your Proventa password',
+    html: buildPasswordResetEmail({ name: params.name, url }),
+  });
 }
 
 export interface Wave1RegistrationDetails {
@@ -71,72 +107,22 @@ export async function sendWave1RegistrationEmail(params: {
   email: string;
   name: string;
 }) {
-  if (!resend) {
-    logger.info({ email: params.email }, 'Resend API key not configured, skipping Wave 1 registration email');
-    return;
-  }
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: params.email,
-      reply_to: REPLY_TO,
-      subject: "You're on the Proventa Wave 1 list.",
-      html: buildWave1RegistrationEmail({ name: params.name }),
-    });
-  } catch (error) {
-    logger.error({ error, email: params.email }, 'Failed to send Wave 1 registration email');
-  }
+  await dispatchEmail({
+    to: params.email,
+    subject: "You're on the Proventa Cohort 1 list.",
+    html: buildWave1RegistrationEmail({ name: params.name }),
+  });
 }
 
 export async function sendWave1AdminNotificationEmail(details: Wave1RegistrationDetails) {
   const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'proventa.in@gmail.com';
   const html = buildWave1AdminNotificationEmail(details);
 
-  // Method 1: Try Resend if configured
-  if (resend) {
-    try {
-      await resend.emails.send({
-        from: FROM,
-        to: adminEmail,
-        subject: `[PROVENTA COHORT 1] New Application: ${details.name} (${details.email})`,
-        html,
-      });
-      logger.info({ adminEmail, applicant: details.email }, 'Admin notification sent via Resend');
-      return;
-    } catch (err) {
-      logger.warn({ err }, 'Resend admin email delivery failed, checking SMTP fallback');
-    }
-  }
-
-  // Method 2: Fallback to SMTP / Gmail if SMTP credentials exist
-  if (process.env.SMTP_USER && process.env.SMTP_PASS) {
-    try {
-      const nodemailer = await import('nodemailer');
-      const transporter = nodemailer.createTransport({
-        service: process.env.SMTP_SERVICE || 'gmail',
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
-      });
-
-      await transporter.sendMail({
-        from: `"Proventa OS" <${process.env.SMTP_USER}>`,
-        to: adminEmail,
-        subject: `[PROVENTA COHORT 1] New Application: ${details.name} (${details.email})`,
-        html,
-      });
-      logger.info({ adminEmail }, 'Admin notification sent via SMTP');
-      return;
-    } catch (err) {
-      logger.error({ err }, 'SMTP admin email delivery failed');
-    }
-  }
-
-  logger.info(
-    { adminEmail, details },
-    'Cohort 1 Registration Logged (Configure RESEND_API_KEY or SMTP_USER/SMTP_PASS to forward direct to mailbox)',
-  );
+  await dispatchEmail({
+    to: adminEmail,
+    subject: `[PROVENTA COHORT 1] New Application: ${details.name} (${details.email})`,
+    html,
+  });
 }
 
 export async function sendWave1InvitationEmail(params: {
@@ -144,23 +130,12 @@ export async function sendWave1InvitationEmail(params: {
   name: string;
   token: string;
 }) {
-  if (!resend) {
-    logger.info({ email: params.email }, 'Resend not configured, skipping invitation email');
-    return;
-  }
   const url = `${APP_URL}/wave1/accept?token=${params.token}`;
-  try {
-    await resend.emails.send({
-      from: FROM,
-      to: params.email,
-      reply_to: REPLY_TO,
-      subject: 'Your invitation to Proventa Cohort 1',
-      html: buildWave1InvitationEmail({ name: params.name, url }),
-    });
-    logger.info({ email: params.email }, 'Invitation email sent');
-  } catch (error) {
-    logger.error({ error, email: params.email }, 'Failed to send invitation email');
-  }
+  await dispatchEmail({
+    to: params.email,
+    subject: 'Your invitation to Proventa Cohort 1',
+    html: buildWave1InvitationEmail({ name: params.name, url }),
+  });
 }
 
 // ============================================================
