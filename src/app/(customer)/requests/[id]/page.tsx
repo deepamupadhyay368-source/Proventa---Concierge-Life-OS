@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send, CheckCircle2, XCircle, RefreshCw, Star, ShieldCheck } from 'lucide-react';
+import { PaymentCheckoutCard } from '@/components/ui/PaymentCheckoutCard';
 
 export default function RequestDetailPage() {
   const params = useParams();
@@ -227,6 +228,22 @@ export default function RequestDetailPage() {
             {Object.entries(booking.details || {}).map(([k, v]) => (
               <p key={k}><strong className="capitalize">{k}:</strong> {String(v)}</p>
             ))}
+          </div>
+
+          <div className="mt-4 pt-3 border-t border-green-200/60">
+            <PaymentCheckoutCard
+              bookingId={booking.id}
+              amount={booking.details?.price ? parseInt(String(booking.details.price).replace(/[^0-9]/g, '')) || 5000 : 5000}
+              itemDescription={`Concierge Settlement: ${booking.confirmationRef || 'Reservation'}`}
+              onSuccess={() => {
+                // Refresh request state
+                fetch(`/api/requests/${requestId}`)
+                  .then((r) => r.json())
+                  .then((d) => {
+                    if (d.request) setRequest(d.request);
+                  });
+              }}
+            />
           </div>
         </div>
       )}
