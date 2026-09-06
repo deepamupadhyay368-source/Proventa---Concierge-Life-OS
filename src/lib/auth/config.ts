@@ -193,7 +193,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           let existingUser = await db.user.findUnique({
             where: { email, deletedAt: null },
-            include: { userRoles: true, oauthAccounts: true },
+            include: { userRoles: true, oauthAccounts: true, customerProfile: true },
           });
 
           if (!existingUser) {
@@ -206,6 +206,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 emailVerified: new Date(),
                 userRoles: {
                   create: [{ role: 'CUSTOMER' }],
+                },
+                customerProfile: {
+                  create: {
+                    city: 'Ahmedabad',
+                  },
                 },
                 oauthAccounts: {
                   create: [
@@ -222,7 +227,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   ],
                 },
               },
-              include: { userRoles: true, oauthAccounts: true },
+              include: { userRoles: true, oauthAccounts: true, customerProfile: true },
             });
           } else {
             const hasOAuth = existingUser.oauthAccounts.some((oa) => oa.provider === account.provider);
@@ -241,6 +246,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 },
               });
             }
+            if (!existingUser.customerProfile) {
+              await db.customerProfile.upsert({
+                where: { userId: existingUser.id },
+                update: {},
+                create: { userId: existingUser.id, city: 'Ahmedabad' },
+              });
+            }
           }
 
           user.id = existingUser.id;
@@ -248,6 +260,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return true;
         } catch (e) {
           console.warn('[auth/oauth/signIn] Fallback during OAuth sync:', e);
+          if (!user.id) {
+            user.id = `oauth_${account.provider}_${account.providerAccountId}`;
+          }
+          if (!(user as any).roles) {
+            (user as any).roles = ['CUSTOMER'];
+          }
           return true;
         }
       }
