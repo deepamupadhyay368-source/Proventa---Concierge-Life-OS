@@ -51,3 +51,5 @@ public/uploads/
 # Misc
 *.pem
 .vercel
+
+.vercel

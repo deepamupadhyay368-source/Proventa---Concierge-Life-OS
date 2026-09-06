@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole, ProviderStatus, BookingMethod } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { AHMEDABAD_PLACES } from '../src/data/ahmedabad-places';
 
 const prisma = new PrismaClient();
 
@@ -100,85 +101,54 @@ async function main() {
       create: setting,
     });
   }
-  // Curated Providers for Ahmedabad Wave 1
-  const diningCategory = await prisma.serviceCategory.findUnique({ where: { slug: 'dining' } });
-  const travelCategory = await prisma.serviceCategory.findUnique({ where: { slug: 'travel' } });
-  const shoppingCategory = await prisma.serviceCategory.findUnique({ where: { slug: 'shopping' } });
-  const appointmentsCategory = await prisma.serviceCategory.findUnique({ where: { slug: 'appointments' } });
-  const homeCategory = await prisma.serviceCategory.findUnique({ where: { slug: 'home' } });
+  // Curated Providers for Ahmedabad Wave 1 & Beyond
+  const categoriesList = await prisma.serviceCategory.findMany();
+  const categoryMap = new Map(categoriesList.map((c) => [c.slug, c.id]));
 
-  if (diningCategory && ahmedabad) {
-    const agashiye = await prisma.provider.upsert({
-      where: { id: 'prov_agashiye_ahm' },
-      update: {},
-      create: {
-        id: 'prov_agashiye_ahm',
-        name: 'Agashiye — The House of MG',
-        cityId: ahmedabad.id,
-        categoryId: diningCategory.id,
-        description: 'Iconic heritage Gujarati rooftop dining experience in Old Ahmedabad.',
-        address: 'Opp. Sidi Saiyyed Mosque, Gheekanta, Ahmedabad, Gujarat 380001',
-        bookingMethod: 'PHONE',
-        status: 'ACTIVE',
-        reliabilityScore: 98,
-        notes: 'Requires reservation 24-48h in advance for weekend dinner. Concierge phone verification required.',
-        services: {
-          create: [
-            { name: 'Heritage Gujarati Thali Dinner', priceRange: '₹1,200 - ₹1,800 per person' },
-            { name: 'Terrace Private Seating', priceRange: '₹2,500 per person' },
-          ],
-        },
-      },
-    });
+  for (const place of AHMEDABAD_PLACES) {
+    const categoryId = categoryMap.get(place.categorySlug) || categoryMap.get('other') || categoriesList[0].id;
 
     await prisma.provider.upsert({
-      where: { id: 'prov_tinello_ahm' },
-      update: {},
-      create: {
-        id: 'prov_tinello_ahm',
-        name: 'Tinello — Hyatt Regency',
-        cityId: ahmedabad.id,
-        categoryId: diningCategory.id,
-        description: 'Contemporary Italian fine dining featuring an open show kitchen.',
-        address: '17/A, Ashram Rd, Usmanpura, Ahmedabad, Gujarat 380014',
-        bookingMethod: 'PHONE',
+      where: { id: place.id },
+      update: {
+        name: place.name,
+        description: place.description,
+        address: place.address,
+        phone: place.phone || null,
+        website: place.website || null,
+        bookingMethod: place.bookingMethod as BookingMethod,
         status: 'ACTIVE',
-        reliabilityScore: 95,
-        notes: 'Smart casual dress code. Quiet tables available in the mezzanine section.',
+        reliabilityScore: place.reliabilityScore,
+        notes: place.notes || null,
+        tags: place.tags,
+      },
+      create: {
+        id: place.id,
+        name: place.name,
+        cityId: ahmedabad.id,
+        categoryId,
+        description: place.description,
+        address: place.address,
+        phone: place.phone || null,
+        website: place.website || null,
+        bookingMethod: place.bookingMethod as BookingMethod,
+        status: 'ACTIVE',
+        reliabilityScore: place.reliabilityScore,
+        notes: place.notes || null,
+        tags: place.tags,
         services: {
-          create: [
-            { name: 'Italian A La Carte Dinner', priceRange: '₹2,000 - ₹3,000 per person' },
-          ],
+          create: place.services.map((s) => ({
+            name: s.name,
+            description: s.description || null,
+            priceRange: s.priceRange || null,
+            available: true,
+          })),
         },
       },
     });
   }
 
-  if (travelCategory && ahmedabad) {
-    await prisma.provider.upsert({
-      where: { id: 'prov_transfers_ahm' },
-      update: {},
-      create: {
-        id: 'prov_transfers_ahm',
-        name: 'Ahmedabad Chauffeur & Airport Fleet',
-        cityId: ahmedabad.id,
-        categoryId: travelCategory.id,
-        description: 'Premium executive transfers to/from Sardar Vallabhbhai Patel International Airport.',
-        bookingMethod: 'PHONE',
-        status: 'ACTIVE',
-        reliabilityScore: 96,
-        notes: 'Chauffeur details shared 2 hours before scheduled pickup.',
-        services: {
-          create: [
-            { name: 'Sedan Airport Transfer', priceRange: '₹1,500 - ₹2,200' },
-            { name: 'Executive SUV City Transit', priceRange: '₹3,500 - ₹5,000' },
-          ],
-        },
-      },
-    });
-  }
-
-  console.log('✓ Ahmedabad Wave 1 providers seeded');
+  console.log(`✓ Seeded ${AHMEDABAD_PLACES.length} curated Ahmedabad places across all categories`);
 
   // Admin user (for development)
   if (process.env.NODE_ENV !== 'production') {

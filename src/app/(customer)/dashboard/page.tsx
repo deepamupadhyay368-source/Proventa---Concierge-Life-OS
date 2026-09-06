@@ -112,7 +112,73 @@ function DashboardContent() {
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
+
+          {/* Quick Ahmedabad Delegation Prompts */}
+          <div className="pt-2 border-t border-neutral-100 flex items-center gap-2 overflow-x-auto text-xs py-1 scrollbar-none">
+            <span className="text-neutral-400 shrink-0 font-medium">Quick suggestions:</span>
+            {[
+              { label: 'Dinner at Agashiye', text: 'Reserve a quiet terrace table for 4 at Agashiye for Saturday 8:00 PM.' },
+              { label: 'Airport Chauffeur', text: 'Arrange an executive sedan pickup from SVPIA Airport to Bodakdev tomorrow at 11:30 AM.' },
+              { label: 'ITC Narmada Spa', text: 'Book an afternoon Ayurvedic Kaya Kalp massage at ITC Narmada for two.' },
+              { label: 'GIFT City Boardroom', text: 'Reserve an executive boardroom at GIFT City with audiovisual setup for Thursday.' },
+            ].map((s) => (
+              <button
+                key={s.label}
+                type="button"
+                onClick={() => setInput(s.text)}
+                className="shrink-0 px-2.5 py-1 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 text-neutral-700 rounded-lg text-[11px] transition-colors"
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
         </form>
+      </section>
+
+      {/* Curated Ahmedabad Directory Showcase */}
+      <section className="bg-gradient-to-br from-[#faf8f5] to-white border border-[#e8e2d8] rounded-2xl p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[11px] font-semibold tracking-wider uppercase text-[#8a7053]">Ahmedabad Network Live</span>
+            </div>
+            <h2 className="text-lg font-serif font-medium text-neutral-900 mt-1">36 Verified Establishments in Ahmedabad</h2>
+            <p className="text-xs text-neutral-500">From UNESCO heritage dining to Sindhu Bhavan luxury hubs and GIFT City protocols.</p>
+          </div>
+          <Link
+            href="/what-we-handle"
+            className="text-xs font-semibold text-[#8a7053] hover:text-[#5a4937] inline-flex items-center gap-1 shrink-0"
+          >
+            Explore all services <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-xs">
+          {[
+            { tag: 'Dining', name: 'Agashiye Heritage', count: '10 venues', sample: 'Reserve dinner at Agashiye for 2 this weekend' },
+            { tag: 'Hotels', name: 'ITC Narmada & Taj', count: '6 hotels', sample: 'Check suite availability at ITC Narmada' },
+            { tag: 'Transit', name: 'SVPIA Airport Fleet', count: 'Chauffeurs', sample: 'Arrange Mercedes airport pickup at 6 PM' },
+            { tag: 'Wellness', name: 'Kaya Kalp & Spas', count: '5 sanctuaries', sample: 'Book a luxury spa package for Saturday' },
+            { tag: 'Heritage', name: 'Calico & Adalaj', count: '5 sites', sample: 'Arrange a private guided tour of Calico Museum' },
+            { tag: 'Shopping', name: 'Bandhej & TBZ', count: '7 boutiques', sample: 'Schedule private shopping appointment at Bandhej' },
+          ].map((item) => (
+            <button
+              key={item.tag}
+              type="button"
+              onClick={() => {
+                setInput(item.sample);
+                const el = document.getElementById('new-request');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-left p-3 rounded-xl bg-white border border-[#e8e2d8] hover:border-[#b09a78] hover:shadow-xs transition-all group"
+            >
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8a7053] block">{item.tag}</span>
+              <p className="text-xs font-medium text-neutral-900 mt-0.5 group-hover:text-brand-900 line-clamp-1">{item.name}</p>
+              <span className="text-[10px] text-neutral-400 mt-1 block">{item.count}</span>
+            </button>
+          ))}
+        </div>
       </section>
 
       {/* Pending Approvals Notice */}
