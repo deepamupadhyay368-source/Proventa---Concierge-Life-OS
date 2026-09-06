@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles, HelpCircle } from 'lucide-react';
+import { FloatingConcierge } from '@/components/ui/FloatingConcierge';
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -77,6 +78,9 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* Floating Concierge Desk Widget */}
+      <FloatingConcierge />
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200 flex items-center justify-around py-2 px-1">
