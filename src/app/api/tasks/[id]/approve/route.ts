@@ -4,15 +4,16 @@ import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
+    const { id } = await params;
     const body = await req.json();
     const { option } = body;
 
     const result = await RequestOrchestrator.executeApprovedTask({
-      taskId: params.id,
+      taskId: id,
       option,
       userId: user.id,
     });

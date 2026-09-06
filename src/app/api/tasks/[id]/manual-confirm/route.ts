@@ -6,11 +6,11 @@ import { appendTaskEvent } from '@/lib/orchestration/timeline';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireConcierge();
-    const taskId = params.id;
+    const { id: taskId } = await params;
     const body = await req.json();
     const { confirmationRef, notes, vendorName } = body;
 

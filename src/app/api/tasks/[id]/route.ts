@@ -4,12 +4,14 @@ import { requireAuth } from '@/lib/auth/session';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
+    const { id } = await params;
+
     const task = await db.task.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         events: { orderBy: { createdAt: 'desc' } },
         agentRuns: true,
