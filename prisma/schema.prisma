@@ -584,6 +584,7 @@ model CustomerProfile {
   bookings    Booking[]
   payments    Payment[]
   feedback    Feedback[]
+  tasks       Task[]
 
   @@map("customer_profiles")
 }
@@ -684,6 +685,7 @@ model ConciergeRequest {
   slaRecord      SLARecord?
   feedback       Feedback?
   supportTickets SupportTicket[]
+  task           Task?
 
   @@index([customerId])
   @@index([cityId])
@@ -1162,3 +1164,136 @@ model AnalyticsEvent {
   @@index([createdAt])
   @@map("analytics_events")
 }
+
+// ============================================================
+// TASK EXECUTION & CONCIERGE ORCHESTRATION ENGINE
+// ============================================================
+
+enum TaskStatus {
+  REQUESTED
+  UNDERSTANDING
+  NEEDS_INFORMATION
+  QUEUED
+  SEARCHING
+  OPTIONS_READY
+  AWAITING_APPROVAL
+  APPROVED
+  EXECUTING
+  VERIFYING
+  CONFIRMED
+  COMPLETED
+  FAILED
+  CANCELLED
+  EXPIRED
+  NEEDS_HUMAN
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum TaskExecutionMethod {
+  API
+  PARTNER_PORTAL
+  HUMAN_CONCIERGE
+  MOCK
+}
+
+model Task {
+  id                  String              @id @default(cuid())
+  publicId            String              @unique @default(cuid())
+  customerId          String
+  requestId           String?             @unique
+  category            String              // dining, travel, mobility, etc.
+  subcategory         String?
+  intent              String
+  originalRequest     String
+  assignedAgent       String              // Dining Agent, Travel Agent, etc.
+  priority            TaskPriority        @default(NORMAL)
+  status              TaskStatus          @default(REQUESTED)
+  requiredInfo        Json?               // Missing information items
+  clientPreferences   Json?               // Snapshot of active preferences used
+  budgetAmount        Int?                // In INR / paise
+  budgetCurrency      String              @default("INR")
+  approvalRequired    Boolean             @default(false)
+  approvalStatus      ApprovalStatus?     @default(PENDING)
+  executionMethod     TaskExecutionMethod @default(MOCK)
+  vendorName          String?
+  externalReferenceId String?
+  paymentStatus       PaymentStatus?      @default(PENDING)
+  deadline            DateTime?
+  failedReason        String?
+  isEscalated         Boolean             @default(false)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  completedAt         DateTime?
+
+  customer            CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  request             ConciergeRequest?   @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  events              TaskEvent[]
+  agentRuns           AgentRunRecord[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([priority])
+  @@index([assignedAgent])
+  @@index([createdAt])
+  @@index([deadline])
+  @@index([externalReferenceId])
+  @@map("orchestrated_tasks")
+}
+
+model TaskEvent {
+  id         String   @id @default(cuid())
+  taskId     String
+  eventType  String   // REQUEST_RECEIVED, AGENT_ASSIGNED, OPTIONS_FOUND, APPROVAL_REQUESTED, etc.
+  actorRole  String   // CUSTOMER, CONCIERGE, AI_AGENT, SYSTEM
+  actorId    String?
+  message    String
+  data       Json?
+  createdAt  DateTime @default(now())
+
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([createdAt])
+  @@map("task_events")
+}
+
+model ApprovalPolicy {
+  id             String   @id @default(cuid())
+  userId         String?  // null = global system default
+  category       String   // dining, travel, mobility, etc.
+  autoApproveMax Int      @default(0) // In INR (e.g. 5000 for dining, 2000 for mobility)
+  alwaysRequire  Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, category])
+  @@map("approval_policies")
+}
+
+model AgentRunRecord {
+  id           String   @id @default(cuid())
+  taskId       String
+  agentName    String
+  toolsCalled  String[]
+  inputState   Json?
+  outputState  Json?
+  latencyMs    Int?
+  tokensUsed   Int      @default(0)
+  success      Boolean  @default(true)
+  errorMessage String?
+  createdAt    DateTime @default(now())
+
+  task         Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([agentName])
+  @@index([createdAt])
+  @@map("agent_run_records")
+}
+

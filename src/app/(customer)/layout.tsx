@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles, HelpCircle } from 'lucide-react';
+import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles, HelpCircle, ListTodo } from 'lucide-react';
 import { FloatingConcierge } from '@/components/ui/FloatingConcierge';
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
@@ -11,6 +11,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
 
   const navItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
+    { href: '/tasks', label: 'Tasks', icon: ListTodo },
     { href: '/requests', label: 'Requests', icon: Inbox },
     { href: '/bookings', label: 'Bookings', icon: CalendarCheck },
     { href: '/preferences', label: 'Preferences', icon: Sliders },

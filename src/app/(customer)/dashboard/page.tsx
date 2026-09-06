@@ -3,7 +3,19 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Sparkles, ArrowRight, Clock, CheckCircle2, AlertCircle, Calendar, MessageSquare, ChevronRight } from 'lucide-react';
+import {
+  Sparkles,
+  ArrowRight,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Calendar,
+  MessageSquare,
+  ChevronRight,
+  ListTodo,
+  ShieldCheck,
+  UserCheck
+} from 'lucide-react';
 
 function DashboardContent() {
   const router = useRouter();
@@ -13,17 +25,19 @@ function DashboardContent() {
   const [input, setInput] = useState('');
   const [urgency, setUrgency] = useState<'NORMAL' | 'URGENT' | 'ASAP'>('NORMAL');
   const [submitting, setSubmitting] = useState(false);
+  const [tasks, setTasks] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/requests')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.requests) setRequests(data.requests);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Promise.all([
+      fetch('/api/tasks').then((res) => res.json()).catch(() => ({ tasks: [] })),
+      fetch('/api/requests').then((res) => res.json()).catch(() => ({ requests: [] })),
+    ]).then(([tasksData, requestsData]) => {
+      if (tasksData.tasks) setTasks(tasksData.tasks);
+      if (requestsData.requests) setRequests(requestsData.requests);
+      setLoading(false);
+    });
   }, []);
 
   const handleCreateRequest = async (e: React.FormEvent) => {
@@ -32,24 +46,37 @@ function DashboardContent() {
 
     setSubmitting(true);
     try {
-      const res = await fetch('/api/requests', {
+      // Direct integration into Proventa Task Execution Orchestration Engine
+      const res = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rawInput: input, urgency }),
       });
       const data = await res.json();
-      if (res.ok && data.request) {
+      if (res.ok && data.task) {
         setInput('');
-        router.push(`/requests/${data.request.id}`);
+        router.push(`/tasks/${data.task.id}`);
+      } else {
+        // Fallback to requests endpoint if needed
+        const legacyRes = await fetch('/api/requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rawInput: input, urgency }),
+        });
+        const legacyData = await legacyRes.json();
+        if (legacyRes.ok && legacyData.request) {
+          setInput('');
+          router.push(`/requests/${legacyData.request.id}`);
+        }
       }
     } finally {
       setSubmitting(false);
     }
   };
 
-  const activeRequests = requests.filter((r) => !['COMPLETED', 'CANCELLED'].includes(r.status));
-  const pendingApprovals = requests.flatMap((r) => r.approvals || []);
-  const bookings = requests.flatMap((r) => r.bookings || []).filter((b) => b.status === 'CONFIRMED');
+  const activeTasks = tasks.filter((t) => !['COMPLETED', 'CANCELLED'].includes(t.status));
+  const pendingApprovals = tasks.filter((t) => t.status === 'AWAITING_APPROVAL');
+  const confirmedTasks = tasks.filter((t) => ['CONFIRMED', 'COMPLETED'].includes(t.status));
 
   return (
     <div className="space-y-8 pb-12">
@@ -108,7 +135,7 @@ function DashboardContent() {
               disabled={submitting || !input.trim()}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50"
             >
-              {submitting ? 'Submitting to Concierge...' : 'Tell Proventa'}
+              {submitting ? 'Dispatching Orchestration...' : 'Tell Proventa'}
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -192,12 +219,12 @@ function DashboardContent() {
                   {pendingApprovals.length} Proposal{pendingApprovals.length > 1 ? 's' : ''} Awaiting Your Approval
                 </p>
                 <p className="text-xs text-amber-700">
-                  Your concierge has prepared recommendations and requires your confirmation before booking.
+                  Your concierge agent has prepared recommendations and requires your confirmation before booking.
                 </p>
               </div>
             </div>
             <Link
-              href={`/requests/${pendingApprovals[0].requestId}`}
+              href={`/tasks/${pendingApprovals[0].id}`}
               className="px-4 py-2 bg-amber-800 text-white rounded-lg text-xs font-medium hover:bg-amber-900 transition-colors"
             >
               Review Now
@@ -206,76 +233,98 @@ function DashboardContent() {
         </section>
       )}
 
-      {/* Active Requests List */}
+      {/* Active Tasks & Delegations */}
       <section className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-neutral-900">Active Requests</h2>
-          <Link href="/requests" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
-            View all ({requests.length})
+          <div className="flex items-center gap-2">
+            <ListTodo className="h-5 w-5 text-neutral-700" />
+            <h2 className="text-lg font-semibold text-neutral-900">Active Delegations</h2>
+          </div>
+          <Link href="/tasks" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
+            View Task Execution Center ({tasks.length})
           </Link>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-sm text-neutral-400">Loading requests...</div>
-        ) : activeRequests.length === 0 ? (
+          <div className="p-8 text-center text-sm text-neutral-400">Loading tasks...</div>
+        ) : activeTasks.length === 0 ? (
           <div className="p-8 bg-white border border-neutral-200 rounded-xl text-center">
-            <p className="text-sm font-medium text-neutral-700">No active requests</p>
+            <p className="text-sm font-medium text-neutral-700">No active tasks</p>
             <p className="text-xs text-neutral-400 mt-1">Tell us what you need in the box above to get started.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3">
-            {activeRequests.map((req) => (
-              <Link
-                key={req.id}
-                href={`/requests/${req.id}`}
-                className="p-5 bg-white border border-neutral-200 rounded-xl hover:border-neutral-300 hover:shadow-sm transition-all flex items-center justify-between"
-              >
-                <div className="space-y-1 max-w-2xl">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 bg-neutral-100 text-neutral-700 rounded-full">
-                      {req.status.replace(/_/g, ' ')}
-                    </span>
-                    {req.urgency !== 'NORMAL' && (
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-red-100 text-red-700 rounded">
-                        {req.urgency}
-                      </span>
-                    )}
-                    <span className="text-xs text-neutral-400">
-                      {new Date(req.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-                    </span>
-                  </div>
-                  <p className="text-sm font-medium text-neutral-900 line-clamp-1">
-                    {req.aiSummary || req.rawInput}
-                  </p>
-                </div>
+            {activeTasks.map((t) => {
+              const isNeedsHuman = t.status === 'NEEDS_HUMAN';
+              const isAwaitingApproval = t.status === 'AWAITING_APPROVAL';
 
-                <div className="flex items-center gap-2 text-neutral-400">
-                  <ChevronRight className="h-4 w-4" />
-                </div>
-              </Link>
-            ))}
+              return (
+                <Link
+                  key={t.id}
+                  href={`/tasks/${t.id}`}
+                  className="p-5 bg-white border border-neutral-200 rounded-xl hover:border-neutral-300 hover:shadow-sm transition-all flex items-center justify-between group"
+                >
+                  <div className="space-y-1 max-w-2xl">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-xs font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                          isAwaitingApproval
+                            ? 'bg-amber-100 text-amber-800'
+                            : isNeedsHuman
+                            ? 'bg-purple-100 text-purple-800'
+                            : 'bg-neutral-100 text-neutral-700'
+                        }`}
+                      >
+                        {isAwaitingApproval && <ShieldCheck className="h-3 w-3" />}
+                        {isNeedsHuman && <UserCheck className="h-3 w-3" />}
+                        {!isAwaitingApproval && !isNeedsHuman && <Clock className="h-3 w-3" />}
+                        {t.status.replace(/_/g, ' ')}
+                      </span>
+                      {t.priority !== 'NORMAL' && (
+                        <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-red-100 text-red-700 rounded">
+                          {t.priority}
+                        </span>
+                      )}
+                      <span className="text-[11px] font-medium text-[#8a7053] bg-[#faf8f5] px-1.5 py-0.5 rounded border border-[#e8e2d8]">
+                        {t.assignedAgent}
+                      </span>
+                      <span className="text-xs text-neutral-400">
+                        {new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+                      </span>
+                    </div>
+                    <p className="text-sm font-medium text-neutral-900 group-hover:text-brand-900 transition-colors line-clamp-1">
+                      {t.originalRequest}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-neutral-400">
+                    <ChevronRight className="h-4 w-4" />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
       </section>
 
-      {/* Upcoming Bookings */}
-      {bookings.length > 0 && (
+      {/* Confirmed Executions */}
+      {confirmedTasks.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-neutral-900">Confirmed Bookings</h2>
+          <h2 className="text-lg font-semibold text-neutral-900">Confirmed & Verified Bookings</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {bookings.map((b) => (
-              <div key={b.id} className="p-5 bg-white border border-neutral-200 rounded-xl">
+            {confirmedTasks.map((t) => (
+              <Link key={t.id} href={`/tasks/${t.id}`} className="block p-5 bg-white border border-neutral-200 rounded-xl hover:border-neutral-300">
                 <div className="flex items-center justify-between mb-2">
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
                     <CheckCircle2 className="h-3 w-3" /> Confirmed
                   </span>
-                  <span className="text-xs text-neutral-400 number-mono">Ref: {b.confirmationRef || 'Verified'}</span>
+                  <span className="text-xs text-neutral-400 font-mono">Ref: {t.externalReferenceId || 'Verified'}</span>
                 </div>
-                <p className="text-sm font-semibold text-neutral-900">{b.provider?.name || 'Verified Provider'}</p>
-                <p className="text-xs text-neutral-500 mt-1">
-                  {b.details?.date ? new Date(b.details.date).toLocaleDateString() : 'Scheduled'}
+                <p className="text-sm font-semibold text-neutral-900">{t.vendorName || 'Verified Partner'}</p>
+                <p className="text-xs text-neutral-500 mt-1 line-clamp-1">
+                  {t.originalRequest}
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </section>

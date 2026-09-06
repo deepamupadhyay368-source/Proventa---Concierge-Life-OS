@@ -3,12 +3,13 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Clock, AlertTriangle, ShieldCheck, UserCheck, ChevronRight, RefreshCw } from 'lucide-react';
+import { Clock, AlertTriangle, ShieldCheck, UserCheck, ChevronRight, RefreshCw, ListTodo, Sparkles } from 'lucide-react';
 
 export default function ConciergeQueuePage() {
   const router = useRouter();
   const [requests, setRequests] = useState<any[]>([]);
-  const [filter, setFilter] = useState<'ALL' | 'UNASSIGNED' | 'URGENT' | 'AWAITING_REVIEW' | 'AWAITING_CUSTOMER'>('ALL');
+  const [escalatedTasks, setEscalatedTasks] = useState<any[]>([]);
+  const [filter, setFilter] = useState<'ALL' | 'NEEDS_HUMAN' | 'UNASSIGNED' | 'URGENT' | 'AWAITING_REVIEW' | 'AWAITING_CUSTOMER'>('ALL');
   const [loading, setLoading] = useState(true);
 
   const loadQueue = async () => {
@@ -16,6 +17,7 @@ export default function ConciergeQueuePage() {
       const res = await fetch('/api/concierge/queue');
       const data = await res.json();
       if (data.requests) setRequests(data.requests);
+      if (data.escalatedTasks) setEscalatedTasks(data.escalatedTasks);
     } finally {
       setLoading(false);
     }
@@ -37,6 +39,7 @@ export default function ConciergeQueuePage() {
   };
 
   const filtered = requests.filter((r) => {
+    if (filter === 'NEEDS_HUMAN') return false; // Handled in tasks section
     if (filter === 'UNASSIGNED') return !r.assignedToId && !['COMPLETED', 'CANCELLED'].includes(r.status);
     if (filter === 'URGENT') return r.urgency !== 'NORMAL' && !['COMPLETED', 'CANCELLED'].includes(r.status);
     if (filter === 'AWAITING_REVIEW') return ['NEW', 'UNDERSTANDING', 'CONCIERGE_REVIEW'].includes(r.status);
@@ -47,13 +50,14 @@ export default function ConciergeQueuePage() {
   const urgentCount = requests.filter((r) => r.urgency !== 'NORMAL' && !['COMPLETED', 'CANCELLED'].includes(r.status)).length;
   const unassignedCount = requests.filter((r) => !r.assignedToId && !['COMPLETED', 'CANCELLED'].includes(r.status)).length;
   const awaitingCustomerCount = requests.filter((r) => r.status === 'AWAITING_CUSTOMER').length;
+  const needsHumanCount = escalatedTasks.length;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-neutral-900">Concierge Triage Queue</h1>
-          <p className="text-xs text-neutral-500 mt-0.5">Cohort 1 Incoming & Active Requests</p>
+          <h1 className="text-xl font-bold text-neutral-900">Concierge Operations Queue</h1>
+          <p className="text-xs text-neutral-500 mt-0.5">Live incoming delegations and escalated agent tasks</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -70,8 +74,8 @@ export default function ConciergeQueuePage() {
       {/* KPI Counters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white border border-neutral-200 rounded-xl p-4">
-          <span className="text-[11px] font-semibold text-neutral-400 uppercase">Active Total</span>
-          <p className="text-2xl font-bold text-neutral-900 mt-1">{requests.filter((r) => !['COMPLETED', 'CANCELLED'].includes(r.status)).length}</p>
+          <span className="text-[11px] font-semibold text-purple-600 uppercase">Needs Human (AI Handoff)</span>
+          <p className="text-2xl font-bold text-purple-700 mt-1">{needsHumanCount}</p>
         </div>
         <div className="bg-white border border-neutral-200 rounded-xl p-4">
           <span className="text-[11px] font-semibold text-red-500 uppercase">Urgent / ASAP</span>
@@ -86,6 +90,58 @@ export default function ConciergeQueuePage() {
           <p className="text-2xl font-bold text-blue-600 mt-1">{awaitingCustomerCount}</p>
         </div>
       </div>
+
+      {/* Escalated AI Tasks Section (NEEDS_HUMAN) */}
+      {escalatedTasks.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
+            <UserCheck className="h-4 w-4 text-purple-600" />
+            <h2 className="text-sm font-semibold text-neutral-900">
+              Escalated Agent Tasks Requiring Human Action ({escalatedTasks.length})
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
+            {escalatedTasks.map((t) => (
+              <div key={t.id} className="p-4 bg-purple-50/40 border border-purple-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1 max-w-2xl">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full">
+                      NEEDS HUMAN
+                    </span>
+                    <span className="text-xs font-semibold text-neutral-900">
+                      {t.customer?.user?.name || 'Customer'}
+                    </span>
+                    <span className="text-xs text-neutral-400 number-mono">
+                      #{t.publicId}
+                    </span>
+                    <span className="text-[11px] text-neutral-400">
+                      · {t.assignedAgent}
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-medium text-neutral-900 line-clamp-1">
+                    {t.originalRequest}
+                  </p>
+
+                  <p className="text-[11px] text-purple-800">
+                    Reason: {t.failedReason || 'Specialized bespoke coordination or partner negotiation needed.'}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <Link
+                    href={`/tasks/${t.id}`}
+                    className="px-3 py-1.5 bg-purple-800 text-white rounded-lg text-xs font-medium hover:bg-purple-900 transition-colors shadow-xs"
+                  >
+                    Manage & Confirm
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Queue Filter Bar */}
       <div className="flex items-center gap-1 border-b border-neutral-200 pb-2 text-xs">
