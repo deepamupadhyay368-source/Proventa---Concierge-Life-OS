@@ -1,7 +1,7 @@
-"use client";
+﻿'use client';
 
-import { useState } from "react";
-import { MessageSquare, Sparkles, X, PhoneCall, ShieldCheck, ArrowRight } from "lucide-react";
+import { useState } from 'react';
+import { MessageSquare, Sparkles, X, ShieldCheck, ArrowRight } from 'lucide-react';
 
 export function FloatingConcierge() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,7 +21,7 @@ export function FloatingConcierge() {
                   <h4 className="text-xs font-bold uppercase tracking-wider text-[#141312]">Private Concierge Desk</h4>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 </div>
-                <p className="text-[11px] text-[#6e6b65]">Early Access � Cohort 1</p>
+                <p className="text-[11px] text-[#6e6b65]">Early Access · Cohort 1</p>
               </div>
             </div>
             <button

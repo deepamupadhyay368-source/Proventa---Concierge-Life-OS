@@ -1,4 +1,4 @@
-import { logger } from "@/lib/logger";
+﻿import { logger } from "@/lib/logger";
 
 export interface SendWhatsAppNotificationParams {
   phone: string;
@@ -22,7 +22,7 @@ export async function sendWhatsAppNotification({
   const textMap = {
     PROPOSAL_READY: `Proventa Concierge: Greetings ${params.name}, your concierge has prepared a private proposal: "${params.details}". Review and approve at: ${params.actionUrl}`,
     BOOKING_CONFIRMED: `Proventa Concierge: Reservation Confirmed for ${params.name}. Details: ${params.details}. View in your Life OS: ${params.actionUrl}`,
-    WELCOME_COHORT_1: `Proventa: Welcome to Early Access � Cohort 1, ${params.name}. Your dedicated concierge desk is active 24/7 at ${params.actionUrl}`,
+    WELCOME_COHORT_1: `Proventa: Welcome to Early Access · Cohort 1, ${params.name}. Your dedicated concierge desk is active 24/7 at ${params.actionUrl}`,
   };
 
   const message = textMap[template];
