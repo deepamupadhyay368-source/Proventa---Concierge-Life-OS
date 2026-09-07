@@ -32,6 +32,16 @@ export default function ConciergeOpsLayout({ children }: { children: React.React
               Operations Queue
             </Link>
             <Link
+              href="/concierge-ops/agents"
+              className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
+                pathname.startsWith('/concierge-ops/agents')
+                  ? 'bg-neutral-800 text-white'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              AI Agents
+            </Link>
+            <Link
               href="/admin/overview"
               className="px-3 py-1.5 rounded-md font-medium text-neutral-400 hover:text-white transition-colors"
             >
