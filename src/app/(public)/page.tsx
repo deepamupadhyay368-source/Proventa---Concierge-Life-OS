@@ -16,11 +16,8 @@ export default function HomePage() {
   return (
     <>
       <HeroSection />
-      <UseCasesSection />
-      <CategoriesSection />
-      <AIHumanSection />
       <HowItWorksSection />
-      <TrustSection />
+      <CategoriesSection />
       <FinalCTASection />
     </>
   );

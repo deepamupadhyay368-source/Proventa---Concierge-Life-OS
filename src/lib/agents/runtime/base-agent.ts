@@ -74,8 +74,17 @@ export abstract class ProventaBaseAgent {
 
   /**
    * Phase 2 & 3: UNDERSTAND & PLAN
+   * Evaluates client preferences, exemplars, and verified knowledge to formulate an execution plan.
    */
-  abstract formulatePlan(observation: AgentObservation): Promise<AgentExecutionPlan>;
+  async formulatePlan(observation: AgentObservation): Promise<AgentExecutionPlan> {
+    const { AgentReasoningEngine } = await import('./reasoning-engine');
+    return AgentReasoningEngine.formulateDynamicPlan({
+      agentName: this.name,
+      category: this.category,
+      observation,
+      allowedTools: this.allowedTools,
+    });
+  }
 
   /**
    * Phase 4: CHECK PERMISSIONS

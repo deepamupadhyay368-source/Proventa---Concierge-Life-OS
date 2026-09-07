@@ -202,6 +202,17 @@ export class AgentRuntime {
         },
       });
 
+      // Auto-train agent memory on task outcome
+      const { FeedbackLearner } = await import('../memory/feedback-learner');
+      await FeedbackLearner.recordTaskOutcome({
+        customerId,
+        taskId,
+        category: agent.category,
+        vendorName: rawExecution.providerName || agent.name,
+        actionTaken: 'CONFIRMED',
+        details: verification.details,
+      });
+
       return {
         success: true,
         step: 'COMPLETED',

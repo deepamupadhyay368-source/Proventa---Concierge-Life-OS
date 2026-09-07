@@ -4,66 +4,38 @@ import Link from 'next/link';
 const CATEGORIES = [
   {
     icon: UtensilsCrossed,
-    name: 'Dining & Tables',
-    description: 'Prime dinner tables, private dining alcoves, and tasting menus at the city’s premier restaurants.',
-    examples: ['Fine Dining Tables', 'Private Chef Rooms', 'Weekend Bookings'],
-    href: '/services/dining',
+    name: 'Fine Dining & VIP Tables',
+    description: 'Prime dinner tables, private dining alcoves, and curated chef tasting menus at top restaurants.',
+    examples: ['Agashiye Heritage', 'Tinello Hyatt', 'Rooftop Reservations'],
+    href: '/wave1?intent=Fine+Dining',
   },
   {
     icon: Plane,
-    name: 'Travel & Getaways',
-    description: 'Flight itineraries, boutique hotel stays, airport pickups, and weekend road trips.',
-    examples: ['SVP Airport Transfers', 'Gir Forest Safaris', 'Udaipur Retreats'],
-    href: '/services/travel',
+    name: 'Bespoke Travel & Getaways',
+    description: 'Handpicked heritage stays, luxury wildlife safari permits, and seamless executive airport transfers.',
+    examples: ['SVP Airport Chauffeur', 'Gir Forest Safaris', 'Haveli Retreats'],
+    href: '/wave1?intent=Curated+Travel',
   },
   {
     icon: ShoppingBag,
-    name: 'Shopping & Gifting',
-    description: 'Corporate client gifts, rare heritage handlooms, luxury sourcing, and doorstep deliveries.',
-    examples: ['Client Hampers', 'Festive Gifting', 'Luxury Watches'],
-    href: '/services/shopping',
-  },
-  {
-    icon: Calendar,
-    name: 'Wellness & Salons',
-    description: 'Appointments at premier salons, restorative spas, and top health specialists.',
-    examples: ['BBlunt Sindhu Bhavan', 'Ayurvedic Spas', 'Dermatology'],
-    href: '/what-we-handle',
+    name: 'Luxury Sourcing & Gifting',
+    description: 'Curated corporate gifting, rare heritage handloom textiles, and bespoke doorstep deliveries.',
+    examples: ['Executive Hampers', 'Ashavali Silk Dupattas', 'Handcrafted Silver'],
+    href: '/wave1?intent=Luxury+Gifting',
   },
   {
     icon: Home,
-    name: 'Home & Living',
-    description: 'Vetted electricians, air conditioning maintenance, deep cleaning, and household tasks.',
-    examples: ['Emergency Repairs', 'HVAC Servicing', 'Property Checks'],
-    href: '/services/home',
-  },
-  {
-    icon: Ticket,
-    name: 'Events & Experiences',
-    description: 'VIP access to cricket matches, sold-out musical concerts, art exhibitions, and screenings.',
-    examples: ['Motera Stadium Passes', 'Film Festivals', 'Private Gatherings'],
-    href: '/services/experiences',
-  },
-  {
-    icon: Briefcase,
-    name: 'Executive & Business',
-    description: 'Boardroom lunch catering, secretarial errands, conference reservations, and client hospitality.',
-    examples: ['Corporate Dinners', 'Offsite Logistics', 'VIP Guest Hosting'],
-    href: '/what-we-handle',
-  },
-  {
-    icon: User,
-    name: 'Daily Errands & Logistics',
-    description: 'Document pickups, urgent couriers, dry cleaning, and everyday errands taken off your plate.',
-    examples: ['Legal Attestations', 'Urgent Deliveries', 'Passport Coordination'],
-    href: '/what-we-handle',
+    name: 'Estate & Home Concierge',
+    description: 'Rapid dispatch of verified technicians for HVAC, electrical, villa maintenance, and estate logistics.',
+    examples: ['Urgent HVAC Diagnostics', 'Estate Care', 'Villa Maintenance'],
+    href: '/wave1?intent=Estate+Care',
   },
   {
     icon: Sparkles,
-    name: 'Custom Requests',
-    description: 'If it can reasonably and ethically be done, your concierge will figure out how to make it happen.',
-    examples: ['Last-Minute Surprises', 'Special Requests', 'Family Logistics'],
-    href: '/wave1',
+    name: 'Private Life Logistics',
+    description: 'Wellness appointments, VIP experience passes, confidential errands, and custom requests.',
+    examples: ['Kaya Kalp Spa Sessions', 'Heritage Twilight Walks', 'Executive Errands'],
+    href: '/wave1?intent=Life+Logistics',
   },
 ];
 
@@ -86,32 +58,39 @@ export function CategoriesSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {CATEGORIES.map((cat, idx) => {
             const Icon = cat.icon;
+            const isFeatured = idx === 0;
             return (
               <div
                 key={idx}
-                className="luxury-card p-8 rounded-2xl flex flex-col justify-between group hover:border-[#b09a78]/50 transition-all duration-300"
+                className={`luxury-card p-8 rounded-2xl flex flex-col justify-between group hover:border-[#b09a78]/50 transition-all duration-300 ${
+                  isFeatured ? 'md:col-span-2 lg:col-span-2 bg-gradient-to-br from-white to-[#fbf9f6]' : ''
+                }`}
               >
                 <div>
                   <div className="w-12 h-12 rounded-xl bg-[#f5f3ef] border border-[#e8e2d8] flex items-center justify-center text-[#6d5941] group-hover:bg-[#1f1b16] group-hover:text-[#ddc8a9] transition-colors duration-300 mb-6">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-lg font-serif font-medium text-[#141312] mb-2">{cat.name}</h3>
-                  <p className="text-xs sm:text-sm text-[#6e6b65] leading-relaxed mb-6 font-sans">{cat.description}</p>
+                  <h3 className="text-xl font-serif font-medium text-[#141312] mb-2">{cat.name}</h3>
+                  <p className="text-sm text-[#6e6b65] leading-relaxed mb-6 font-sans">{cat.description}</p>
                 </div>
 
-                <div className="pt-4 border-t border-[#ede8df]">
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {cat.examples.map((ex, i) => (
-                      <span key={i} className="text-[11px] font-sans px-2.5 py-1 rounded-md bg-[#f5f3ef] text-[#5a4937] border border-[#e8e2d8]/60">
+                <div>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {cat.examples.map((ex, exIdx) => (
+                      <span
+                        key={exIdx}
+                        className="inline-block px-3 py-1 rounded-full text-xs bg-[#f5f3ef] text-[#6d5941] font-sans"
+                      >
                         {ex}
                       </span>
                     ))}
                   </div>
+
                   <Link
                     href={cat.href}
-                    className="inline-flex items-center gap-2 text-xs font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors"
+                    className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors"
                   >
-                    <span>Explore service</span>
+                    <span>Request through Concierge</span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </div>
