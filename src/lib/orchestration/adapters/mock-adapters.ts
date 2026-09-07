@@ -1,5 +1,13 @@
 import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
 
+export function isMockModeEnabled(): boolean {
+  // Defaults to true in non-production, false in production unless explicitly set
+  if (process.env.MOCK_MODE !== undefined) {
+    return process.env.MOCK_MODE === 'true';
+  }
+  return process.env.NODE_ENV !== 'production';
+}
+
 export class MockDiningAdapter implements ProviderAdapterInterface {
   name = 'OpenTable / Resy Mock Dining Provider';
   supportedCategories = ['dining'];
@@ -39,12 +47,23 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
   }
 
   async execute(proposal: OptionProposal, details: Record<string, any>): Promise<ExecutionOutput> {
+    if (!isMockModeEnabled()) {
+      return {
+        success: false,
+        providerName: proposal.providerName,
+        status: 'FAILED',
+        errorMessage: 'Mock automated execution is disabled in live production mode. Escalating to Proventa Concierge Desk.',
+        confirmedDetails: {},
+      };
+    }
+
     const ref = `[MOCK]-DIN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
     return {
       success: true,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
+      isMock: true,
       rawResponse: {
         provider: 'OpenTable Partner Sandbox',
         status: 'CONFIRMED',

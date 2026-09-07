@@ -12,6 +12,20 @@ export async function POST(
     const body = await req.json();
     const { option } = body;
 
+    const { db } = await import('@/lib/db');
+    const task = await db.task.findUnique({
+      where: { id },
+      include: { customer: true },
+    });
+
+    if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+
+    const isOwner = task.customer?.userId === user.id;
+    const isStaff = user.roles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r));
+    if (!isOwner && !isStaff) {
+      return NextResponse.json({ error: 'Unauthorized to approve task' }, { status: 403 });
+    }
+
     const result = await RequestOrchestrator.executeApprovedTask({
       taskId: id,
       option,

@@ -28,6 +28,48 @@ export async function appendTaskEvent(params: {
     });
 
     logger.info({ taskId: params.taskId, eventType: params.eventType }, `[Timeline] ${params.message}`);
+
+    // Automatic In-App Notification Trigger for Key Milestones
+    const NOTIFIABLE_EVENTS = [
+      'REQUEST_RECEIVED',
+      'APPROVAL_REQUESTED',
+      'CONFIRMED',
+      'BOOKING_CONFIRMED',
+      'CONFIRMED_BY_CONCIERGE',
+      'ESCALATED_TO_CONCIERGE',
+      'FAILED',
+    ];
+
+    if (NOTIFIABLE_EVENTS.includes(params.eventType)) {
+      try {
+        const task = await db.task.findUnique({
+          where: { id: params.taskId },
+          include: { customer: true },
+        });
+
+        if (task && task.customer?.userId) {
+          let notifType: any = 'REQUEST_RECEIVED';
+          if (params.eventType === 'APPROVAL_REQUESTED') notifType = 'APPROVAL_REQUIRED';
+          else if (['CONFIRMED', 'BOOKING_CONFIRMED', 'CONFIRMED_BY_CONCIERGE'].includes(params.eventType)) notifType = 'BOOKING_CONFIRMED';
+          else if (params.eventType === 'ESCALATED_TO_CONCIERGE') notifType = 'CONCIERGE_ASSIGNED';
+          else if (params.eventType === 'FAILED') notifType = 'REQUEST_FAILED';
+
+          await db.notification.create({
+            data: {
+              userId: task.customer.userId,
+              type: notifType,
+              title: `Task #${task.publicId || task.id.slice(-6)}: ${params.eventType.replace(/_/g, ' ')}`,
+              body: params.message,
+              actionUrl: `/tasks/${task.id}`,
+              metadata: { taskId: task.id, eventType: params.eventType, data: params.data },
+            },
+          });
+        }
+      } catch (notifErr) {
+        logger.warn({ notifErr, taskId: params.taskId }, '[Timeline] Background notification dispatch skipped');
+      }
+    }
+
     return event;
   } catch (error) {
     logger.error({ error, params }, '[Timeline] Failed to append task event');
