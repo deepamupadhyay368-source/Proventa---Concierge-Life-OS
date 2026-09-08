@@ -1,15 +1,16 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { LayoutDashboard, Users, UserCheck, Store, Inbox, Calendar, Shield, Sliders, LogOut, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, Activity, Users, UserCheck, Store, Inbox, Calendar, Shield, Sliders, LogOut, ArrowLeft } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const navItems = [
     { href: '/admin/overview', label: 'Overview', icon: LayoutDashboard },
+    { href: '/admin/observability', label: 'Observability', icon: Activity },
     { href: '/admin/wave1', label: 'Wave 1 Waitlist', icon: Users },
     { href: '/admin/providers', label: 'Providers Network', icon: Store },
     { href: '/admin/requests', label: 'All Requests', icon: Inbox },
