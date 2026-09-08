@@ -9,7 +9,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://proventa.in';
 
 // Centralized email dispatcher prioritizing native Gmail SMTP (proventa.in@gmail.com)
 // with Resend fallback.
-async function dispatchEmail(params: {
+export async function sendEmail(params: {
   to: string;
   subject: string;
   html: string;
@@ -64,6 +64,8 @@ async function dispatchEmail(params: {
   logger.warn({ to: params.to, subject: params.subject }, 'No active email provider succeeded');
   return false;
 }
+
+export const dispatchEmail = sendEmail;
 
 export async function sendVerificationEmail(params: {
   email: string;

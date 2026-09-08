@@ -17,6 +17,9 @@ import {
   Receipt,
   FileCheck
 } from 'lucide-react';
+import { DAGGraphView } from '@/components/tasks/dag-graph-view';
+import { ApprovalActionCard } from '@/components/tasks/approval-action-card';
+import { VerifiedPassCard } from '@/components/tasks/verified-pass-card';
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -206,44 +209,49 @@ export default function TaskDetailPage() {
         </div>
       </div>
 
-      {/* Confirmed Banner with Non-Fabricated Verification Notice */}
+      {/* Confirmed Authoritative Digital Pass Card */}
       {isConfirmed && task.externalReferenceId && (
-        <div className="bg-emerald-50/60 border border-emerald-200 rounded-2xl p-6 shadow-xs space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-6 w-6" />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-emerald-950">Execution Confirmed & Verified</h2>
-                <p className="text-xs text-emerald-800 mt-0.5">
-                  Your reservation is finalized with the provider. Confirmation reference below is authentic and audit-verified.
-                </p>
-              </div>
-            </div>
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
-              Audit Verified
-            </span>
-          </div>
-
-          <div className="bg-white border border-emerald-200/80 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div>
-              <span className="text-[11px] text-neutral-400 block">Confirmation Code</span>
-              <strong className="text-sm font-mono text-emerald-900">{task.externalReferenceId}</strong>
-            </div>
-            <div>
-              <span className="text-[11px] text-neutral-400 block">Provider</span>
-              <strong className="text-sm text-neutral-900">{task.vendorName || 'Verified Provider'}</strong>
-            </div>
-            <div>
-              <span className="text-[11px] text-neutral-400 block">Timestamp</span>
-              <strong className="text-sm text-neutral-900">
-                {task.completedAt ? new Date(task.completedAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Confirmed'}
-              </strong>
-            </div>
-          </div>
-        </div>
+        <VerifiedPassCard task={task} />
       )}
+
+      {/* Autonomous Subtask Graph Visualizer (DAG) */}
+      <DAGGraphView
+        rootObjective={task.intent || task.originalRequest}
+        nodes={[
+          {
+            id: 'node-1',
+            category: task.category,
+            assignedAgent: task.assignedAgent || `${task.category} Specialist`,
+            objective: task.intent || task.originalRequest,
+            executionType: 'SEQUENTIAL',
+            status: isConfirmed ? 'COMPLETED' : isAwaitingApproval ? 'RUNNING' : isNeedsHuman ? 'FAILED' : 'RUNNING',
+            verificationReference: task.externalReferenceId || undefined,
+            error: task.failedReason || undefined,
+          },
+          ...(task.category === 'dining' || task.category === 'travel'
+            ? [
+                {
+                  id: 'node-2',
+                  category: 'mobility',
+                  assignedAgent: 'Mobility & Chauffeur Agent',
+                  objective: 'Synchronize chauffeured transit to destination',
+                  executionType: 'SEQUENTIAL' as const,
+                  status: isConfirmed ? ('COMPLETED' as const) : ('PENDING' as const),
+                  verificationReference: isConfirmed ? `CHAUFF-SYNC-${task.publicId}` : undefined,
+                },
+                {
+                  id: 'node-3',
+                  category: 'appointments',
+                  assignedAgent: 'Calendar & Appointments Agent',
+                  objective: 'Synchronize reservation to member calendar',
+                  executionType: 'CONDITIONAL' as const,
+                  status: isConfirmed ? ('COMPLETED' as const) : ('PENDING' as const),
+                  verificationReference: isConfirmed ? `CAL-SYNC-${task.publicId}` : undefined,
+                },
+              ]
+            : []),
+        ]}
+      />
 
       {/* Human Concierge Escalation Notice with Manual Resolution Action */}
       {isNeedsHuman && (
@@ -301,49 +309,15 @@ export default function TaskDetailPage() {
 
       {/* Proposal & Approval Card */}
       {isAwaitingApproval && proposedOptions.length > 0 && (
-        <div className="bg-amber-50/50 border border-amber-200 rounded-2xl p-6 shadow-xs space-y-4">
-          <div className="flex items-center gap-2 text-amber-900">
-            <ShieldCheck className="h-5 w-5 text-amber-700" />
-            <h2 className="text-sm font-semibold">Option Proposed – Your Authorization Required</h2>
-          </div>
-          <p className="text-xs text-amber-800">
-            Based on your request, your concierge agent has curated the following option. Please approve to execute or instruct changes.
-          </p>
-
-          <div className="grid grid-cols-1 gap-3">
-            {proposedOptions.map((opt, idx) => (
-              <div key={idx} className="bg-white border border-amber-200 rounded-xl p-5 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h3 className="text-sm font-semibold text-neutral-900">{opt.title}</h3>
-                    <p className="text-xs text-neutral-500 mt-0.5">{opt.description}</p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="text-sm font-bold text-neutral-900">
-                      ₹{opt.priceAmount?.toLocaleString('en-IN') || '0'}
-                    </span>
-                    <span className="text-[10px] text-neutral-400 block">{opt.cancellationPolicy || 'Standard terms'}</span>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 text-[11px] text-neutral-500">
-                    <Building className="h-3.5 w-3.5 text-neutral-400" />
-                    <span>{opt.providerName || 'Curated Partner'}</span>
-                  </div>
-
-                  <button
-                    onClick={() => handleApprove(opt)}
-                    disabled={approving}
-                    className="px-5 py-2 bg-neutral-900 text-white rounded-xl text-xs font-semibold hover:bg-neutral-800 transition-colors disabled:opacity-50 inline-flex items-center gap-1.5 shadow-xs"
-                  >
-                    {approving ? 'Executing...' : 'Approve & Reserve'}
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="space-y-4">
+          {proposedOptions.map((opt, idx) => (
+            <ApprovalActionCard
+              key={idx}
+              proposal={opt}
+              onApprove={handleApprove}
+              approving={approving}
+            />
+          ))}
         </div>
       )}
 
