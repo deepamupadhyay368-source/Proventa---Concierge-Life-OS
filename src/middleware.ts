@@ -34,6 +34,8 @@ export default auth(async (req) => {
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/health') ||
+    pathname.startsWith('/api/webhooks') ||
     pathname.startsWith('/api/wave1') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/services') ||
