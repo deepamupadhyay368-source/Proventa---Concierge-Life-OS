@@ -262,6 +262,7 @@ model User {
   auditLogsAsActor       AuditLog[]            @relation("AuditActor")
   securityEvents         SecurityEvent[]
   featureFlagOverrides   FeatureFlagOverride[]
+  externalTransactions   ExternalTransaction[]
 
   @@index([email])
   @@index([status])
@@ -1235,6 +1236,7 @@ model Task {
   request             ConciergeRequest?   @relation(fields: [requestId], references: [id], onDelete: SetNull)
   events              TaskEvent[]
   agentRuns           AgentRunRecord[]
+  externalTransactions ExternalTransaction[]
 
   @@index([customerId])
   @@index([status])
@@ -1295,5 +1297,137 @@ model AgentRunRecord {
   @@index([agentName])
   @@index([createdAt])
   @@map("agent_run_records")
+}
+
+// ============================================================
+// PRODUCTION REAL-WORLD TASK EXECUTION PLATFORM
+// ============================================================
+
+enum IntegrationStatus {
+  NOT_CONNECTED
+  SANDBOX
+  TESTING
+  PRODUCTION_PENDING
+  PRODUCTION_ACTIVE
+  DISABLED
+  ERROR
+}
+
+enum TransactionStatus {
+  PLANNED
+  AWAITING_APPROVAL
+  APPROVED
+  PROCESSING
+  CONFIRMED
+  FAILED
+  CANCELLED
+  REFUND_PENDING
+  REFUNDED
+}
+
+enum RefundStatus {
+  NONE
+  REQUESTED
+  PENDING
+  COMPLETED
+  REJECTED
+}
+
+enum ProviderServiceCategory {
+  FLIGHTS
+  HOTELS
+  RESTAURANTS
+  FOOD
+  CABS
+  MOVIES
+  GIFTS
+  EXPERIENCES
+  PAYMENTS
+  COMMUNICATION
+  CALENDAR
+}
+
+model ProviderIntegration {
+  id                   String                  @id @default(cuid())
+  providerKey          String                  @unique // e.g. 'amadeus_flights', 'uber_cabs', 'zomato_dining'
+  name                 String                  // e.g. 'Amadeus Flight Gateway'
+  serviceCategory      ProviderServiceCategory
+  apiEndpoint          String                  // Base URL
+  authMethod           String                  // 'API_KEY' | 'OAUTH2' | 'BEARER' | 'BASIC'
+  encryptedCredentials String                  // Encrypted JSON with client_id, secret, tokens
+  isSandbox            Boolean                 @default(true)
+  supportedOperations  String[]                // e.g. ['searchFlights', 'createBooking', 'cancelBooking']
+  rateLimitPerMin      Int                     @default(60)
+  commissionPercent    Float                   @default(0.0)
+  priority             Int                     @default(1) // 1 = Primary, 2 = Secondary, 3 = Fallback
+  status               IntegrationStatus       @default(NOT_CONNECTED)
+  healthStatus         String                  @default("UNKNOWN") // 'HEALTHY', 'DEGRADED', 'DOWN'
+  lastHealthCheckAt    DateTime?
+  errorMessage         String?
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  transactions         ExternalTransaction[]
+  webhookEvents        WebhookEventLog[]
+
+  @@index([serviceCategory, status])
+  @@index([priority])
+  @@map("provider_integrations")
+}
+
+model ExternalTransaction {
+  id                String            @id @default(cuid())
+  transactionId     String            @unique // e.g. TXN-2026-XXXX
+  userId            String
+  taskId            String?
+  providerId        String?
+  providerName      String            // e.g. 'Amadeus', 'Razorpay', 'Uber'
+  service           ProviderServiceCategory
+  amount            Int               // In paise / minor units (e.g. 500000 = ₹5,000.00)
+  currency          String            @default("INR")
+  status            TransactionStatus @default(PLANNED)
+  providerReference String?           // PNR, Booking ID, or Order ID returned by provider
+  authorizationId   String?           // Payment auth or hold ID
+  idempotencyKey    String            @unique
+  refundStatus      RefundStatus      @default(NONE)
+  refundAmount      Int?              @default(0)
+  refundReference   String?
+  metadata          Json?             // Structured flight, hotel, seat details
+  error             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  provider          ProviderIntegration? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  task              Task?                @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webhookEvents     WebhookEventLog[]
+
+  @@index([userId])
+  @@index([taskId])
+  @@index([status])
+  @@index([providerReference])
+  @@index([createdAt])
+  @@map("external_transactions")
+}
+
+model WebhookEventLog {
+  id            String               @id @default(cuid())
+  providerKey   String               // e.g. 'razorpay', 'amadeus', 'uber'
+  eventType     String               // e.g. 'booking_confirmed', 'payment_success'
+  payload       Json
+  processed     Boolean              @default(false)
+  transactionId String?
+  providerId    String?
+  error         String?
+  receivedAt    DateTime             @default(now())
+  processedAt   DateTime?
+
+  transaction   ExternalTransaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  provider      ProviderIntegration? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+
+  @@index([providerKey, eventType])
+  @@index([processed])
+  @@index([receivedAt])
+  @@map("webhook_event_logs")
 }
 

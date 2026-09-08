@@ -9,6 +9,7 @@ export interface ExtractedEntities {
   location?: string;
   dateTime?: string;
   timeframe?: string;
+  origin?: string;
   destination?: string;
   dates?: {
     exact?: string;

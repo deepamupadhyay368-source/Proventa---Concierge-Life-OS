@@ -25,7 +25,14 @@ export class FailureRecoveryEngine {
   static classifyFailure(error: any): FailureCategory {
     const msg = (error?.message || error?.toString() || '').toLowerCase();
 
-    if (msg.includes('network') || msg.includes('timeout') || msg.includes('econnreset') || msg.includes('429')) {
+    if (
+      msg.includes('network') ||
+      msg.includes('timeout') ||
+      msg.includes('etimedout') ||
+      msg.includes('econnreset') ||
+      msg.includes('connection reset') ||
+      msg.includes('429')
+    ) {
       return 'TRANSIENT_NETWORK';
     }
     if (msg.includes('booked out') || msg.includes('sold out') || msg.includes('no availability') || msg.includes('full')) {
@@ -86,7 +93,7 @@ export class FailureRecoveryEngine {
       }
     }
 
-    // 3. Missing info: Prompt client for needed detail
+    // 3. Missing info or payment decline: Prompt client for needed detail or alternative card
     if (category === 'MISSING_INFORMATION') {
       return {
         action: 'REQUEST_USER_INPUT',
@@ -95,7 +102,15 @@ export class FailureRecoveryEngine {
       };
     }
 
-    // 4. Permission or unrecoverable payment error: Escalate safely to human concierge
+    if (category === 'PAYMENT_FAILED') {
+      return {
+        action: 'REQUEST_USER_INPUT',
+        reason: 'Payment transaction declined or insufficient funds. Requesting alternative payment method from user.',
+        clarificationPrompt: 'Your payment could not be processed. Please provide an alternative payment method.',
+      };
+    }
+
+    // 4. Permission or unrecoverable error: Escalate safely to human concierge
     return {
       action: 'ESCALATE_TO_HUMAN',
       reason: `Unrecoverable ${category} error encountered. Safely escalated to Proventa Concierge Desk. Zero-fabrication guarantee maintained.`,

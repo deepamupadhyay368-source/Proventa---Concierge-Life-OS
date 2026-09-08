@@ -369,7 +369,9 @@ export class VerificationAgent extends ProventaBaseAgent {
   }
 }
 
-// The Complete 13 Specialists Registry
+// The Complete Specialists Registry (Upgraded 16-Specialist Real-World Platform)
+export { ALL_16_SPECIALISTS, getPlatformAgent } from './specialist-16-platform';
+
 export const ALL_13_SPECIALISTS: Record<string, ProventaBaseAgent> = {
   concierge: new ConciergeAgent(),
   dining: new DiningAgent(),

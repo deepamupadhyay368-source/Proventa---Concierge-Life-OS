@@ -1,10 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Store, CheckCircle2, Plus, Phone, Globe, MapPin } from 'lucide-react';
+import { Store, CheckCircle2, Plus, Phone, Globe, MapPin, Cpu, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function AdminProvidersPage() {
+  const [activeTab, setActiveTab] = useState<'LOCAL_NETWORK' | 'GATEWAY_INTEGRATIONS' | 'TRANSACTIONS'>('GATEWAY_INTEGRATIONS');
   const [providers, setProviders] = useState<any[]>([]);
+  const [gatewayData, setGatewayData] = useState<{
+    gatewayProviders?: any[];
+    transactions?: any[];
+    webhookLogs?: any[];
+  }>({});
   const [loading, setLoading] = useState(true);
 
   const [name, setName] = useState('');
@@ -15,18 +21,24 @@ export default function AdminProvidersPage() {
   const [notes, setNotes] = useState('');
   const [adding, setAdding] = useState(false);
 
-  const loadProviders = async () => {
+  const loadData = async () => {
+    setLoading(true);
     try {
-      const res = await fetch('/api/admin/providers');
-      const data = await res.json();
-      if (data.providers) setProviders(data.providers);
+      const [provRes, gwRes] = await Promise.all([
+        fetch('/api/admin/providers'),
+        fetch('/api/admin/gateway-integrations'),
+      ]);
+      const provData = await provRes.json();
+      const gwData = await gwRes.json();
+      if (provData.providers) setProviders(provData.providers);
+      setGatewayData(gwData);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadProviders();
+    loadData();
   }, []);
 
   const handleAddProvider = async (e: React.FormEvent) => {
@@ -50,7 +62,7 @@ export default function AdminProvidersPage() {
         setAddress('');
         setPhone('');
         setNotes('');
-        loadProviders();
+        loadData();
       }
     } finally {
       setAdding(false);
@@ -58,11 +70,144 @@ export default function AdminProvidersPage() {
   };
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-bold text-neutral-900">Verified Partner Network</h1>
-        <p className="text-xs text-neutral-500 mt-0.5">Manage verified local and national service providers across dining, travel, wellness, and lifestyle.</p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-bold text-neutral-900">Provider Gateway & Partner Operations</h1>
+          <p className="text-xs text-neutral-500 mt-0.5">Configure live external connectors, inspect multi-provider routing, and audit transactions.</p>
+        </div>
+        <button
+          onClick={loadData}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-neutral-700 bg-white border border-neutral-200 rounded-lg hover:bg-neutral-50 shadow-xs"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          <span>Refresh Status</span>
+        </button>
       </div>
+
+      {/* Tabs */}
+      <div className="flex items-center gap-2 border-b border-neutral-200 pb-2">
+        <button
+          onClick={() => setActiveTab('GATEWAY_INTEGRATIONS')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeTab === 'GATEWAY_INTEGRATIONS'
+              ? 'bg-neutral-900 text-white shadow-xs'
+              : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+          }`}
+        >
+          Standard Gateway Connectors
+        </button>
+        <button
+          onClick={() => setActiveTab('TRANSACTIONS')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeTab === 'TRANSACTIONS'
+              ? 'bg-neutral-900 text-white shadow-xs'
+              : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+          }`}
+        >
+          Live Transaction Ledger ({gatewayData.transactions?.length || 0})
+        </button>
+        <button
+          onClick={() => setActiveTab('LOCAL_NETWORK')}
+          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            activeTab === 'LOCAL_NETWORK'
+              ? 'bg-neutral-900 text-white shadow-xs'
+              : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+          }`}
+        >
+          Local Verified Network ({providers.length})
+        </button>
+      </div>
+
+      {/* GATEWAY INTEGRATIONS TAB */}
+      {activeTab === 'GATEWAY_INTEGRATIONS' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(gatewayData.gatewayProviders || []).map((gw: any) => (
+              <div key={gw.providerKey} className="bg-white border border-neutral-200 rounded-xl p-5 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-brand-50 text-brand-900 border border-brand-200/60">
+                    {gw.category}
+                  </span>
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                    gw.status === 'PRODUCTION_ACTIVE' ? 'bg-emerald-50 text-emerald-700' :
+                    gw.status === 'SANDBOX' ? 'bg-amber-50 text-amber-800 border border-amber-200/60' :
+                    'bg-neutral-100 text-neutral-600'
+                  }`}>
+                    {gw.status === 'SANDBOX' && <Cpu className="h-3 w-3 text-amber-600" />}
+                    {gw.status === 'PRODUCTION_ACTIVE' && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                    {gw.status === 'NOT_CONNECTED' && <AlertCircle className="h-3 w-3 text-neutral-400" />}
+                    <span>{gw.status}</span>
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-neutral-900">{gw.name}</h3>
+                  <p className="text-xs text-neutral-400 font-mono mt-0.5">{gw.providerKey}</p>
+                </div>
+
+                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
+                  <span>Routing Priority: #{gw.priority}</span>
+                  <span className="font-semibold text-neutral-700">{gw.isSandbox ? 'Test Sandbox Active' : 'Live Gateway'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* TRANSACTIONS TAB */}
+      {activeTab === 'TRANSACTIONS' && (
+        <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 uppercase font-semibold">
+                <tr>
+                  <th className="px-4 py-3">Txn ID</th>
+                  <th className="px-4 py-3">Service</th>
+                  <th className="px-4 py-3">Provider</th>
+                  <th className="px-4 py-3">Amount</th>
+                  <th className="px-4 py-3">Reference / PNR</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Created</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-100">
+                {(gatewayData.transactions || []).length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-4 py-8 text-center text-neutral-400">No external transactions recorded yet.</td>
+                  </tr>
+                ) : (
+                  (gatewayData.transactions || []).map((tx: any) => (
+                    <tr key={tx.id} className="hover:bg-neutral-50/50">
+                      <td className="px-4 py-3 font-mono font-medium text-neutral-900">{tx.transactionId}</td>
+                      <td className="px-4 py-3 uppercase text-[10px] font-bold text-brand-800">{tx.service}</td>
+                      <td className="px-4 py-3 text-neutral-700 font-medium">{tx.providerName}</td>
+                      <td className="px-4 py-3 font-semibold text-neutral-900">₹{(tx.amount / 100).toLocaleString('en-IN')}</td>
+                      <td className="px-4 py-3 font-mono text-neutral-600">{tx.providerReference || 'Pending'}</td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                          tx.status === 'CONFIRMED' ? 'bg-emerald-50 text-emerald-700' :
+                          tx.status === 'FAILED' ? 'bg-rose-50 text-rose-700' :
+                          tx.status === 'PROCESSING' ? 'bg-blue-50 text-blue-700' :
+                          'bg-amber-50 text-amber-700'
+                        }`}>
+                          {tx.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-neutral-400">{new Date(tx.createdAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* LOCAL NETWORK TAB */}
+      {activeTab === 'LOCAL_NETWORK' && (
+        <div className="space-y-6">
 
       {/* Add Provider Form */}
       <form onSubmit={handleAddProvider} className="bg-white border border-neutral-200 rounded-xl p-5 shadow-sm space-y-4">
@@ -169,6 +314,8 @@ export default function AdminProvidersPage() {
           ))
         )}
       </div>
+        </div>
+      )}
     </div>
   );
 }
