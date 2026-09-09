@@ -26,26 +26,28 @@ const MEMBERSHIP_TIERS = [
   {
     id: 'PRIVATE_INDIVIDUAL',
     title: 'Private Individual',
-    tag: 'FOUNDING MEMBER',
+    tag: 'FOUNDING PRINCIPAL',
     icon: Crown,
-    description: 'Dedicated single-principal lifestyle management, dining, private aviation, and bespoke curation.',
-    perks: ['24/7 Dedicated Concierge Pod', 'Priority GDS & Dining Allocations', 'Zero Surcharge in Cohort 1'],
+    description: 'Dedicated single-principal lifestyle management, priority fine dining reservations, bespoke travel itineraries, and 24/7 personal concierge access.',
+    perks: [
+      '24/7 Dedicated Concierge Pod',
+      'Priority GDS & Direct Table Allocations',
+      'Zero Subscription Surcharge in Cohort 1',
+      'Discreet Chauffeur & Airport Protocols',
+    ],
   },
   {
     id: 'FOUNDING_FAMILY',
-    title: 'Founding Family',
-    tag: 'MULTI-MEMBER',
+    title: 'Founding Family & Estate',
+    tag: 'MULTI-MEMBER & ESTATE',
     icon: Users,
-    description: 'Unified family coverage across spouses, children, estate management, travel itineraries, and domestic logistics.',
-    perks: ['Up to 5 Family Member Profiles', 'Private Chauffeur & Estate Care', 'Family Holiday Itinerary DAGs'],
-  },
-  {
-    id: 'CORPORATE_EXECUTIVE',
-    title: 'Corporate & Board',
-    tag: 'ENTERPRISE VIP',
-    icon: Building2,
-    description: 'High-velocity executive travel, confidential board dinners, client gifting, and global roadshows.',
-    perks: ['Corporate Invoicing & GST', 'Last-Minute GDS Flight Changes', 'VIP Airport Protocol & Chauffeurs'],
+    description: 'Comprehensive household coverage across family members, multi-passenger luxury travel DAGs, estate maintenance, and domestic logistics.',
+    perks: [
+      'Up to 5 Family Member Profiles',
+      'Dedicated Estate & Home Care Coordination',
+      'Family Holiday Itinerary DAG Planning',
+      'Direct WhatsApp Desk for All Family Members',
+    ],
   },
 ];
 
