@@ -4,6 +4,8 @@ import type { FlightProvider, FlightOption, FlightSearchQuery, FlightBookingRequ
 import type { HotelProvider, HotelOption, HotelSearchQuery, HotelBookingRequest, HotelBooking } from './hotels/interface';
 import type { RestaurantProvider, RestaurantSearchQuery, RestaurantDetails, DiningTimeSlot, ReservationRequest, RestaurantReservation } from './restaurants/interface';
 import type { CabProvider, LocationCoord, RideOption, RideBooking } from './cabs/interface';
+import { ProductionAmadeusFlightProvider } from './production/amadeus-flight-provider';
+import { ProductionUberCabProvider } from './production/uber-cab-provider';
 
 // 1. FLIGHTS: Amadeus Sandbox
 export class SandboxFlightProvider implements FlightProvider {
@@ -755,15 +757,26 @@ export function initializeStandardProviders() {
   if (providersInitialized) return;
   providersInitialized = true;
 
+  // 1. FLIGHTS: Live Amadeus GDS (Priority 1) & Sandbox GDS (Priority 2)
+  ProventaProviderGateway.registerProvider({
+    providerKey: 'amadeus_live_flights',
+    name: 'Amadeus Global Distribution System (Live GDS)',
+    priority: 1,
+    status: process.env.AMADEUS_CLIENT_ID ? 'PRODUCTION_ACTIVE' : 'NOT_CONNECTED',
+    isSandbox: false,
+    instance: new ProductionAmadeusFlightProvider(),
+  });
+
   ProventaProviderGateway.registerProvider({
     providerKey: 'amadeus_flights',
-    name: 'Amadeus Global Flight Gateway',
-    priority: 1,
+    name: 'Amadeus Global Flight Gateway (Sandbox)',
+    priority: 2,
     status: 'SANDBOX',
     isSandbox: true,
     instance: new SandboxFlightProvider(),
   });
 
+  // 2. HOTELS: Luxury Hotel Distribution Network
   ProventaProviderGateway.registerProvider({
     providerKey: 'amadeus_hotels',
     name: 'Luxury Hotel Distribution Network',
@@ -773,6 +786,7 @@ export function initializeStandardProviders() {
     instance: new SandboxHotelProvider(),
   });
 
+  // 3. DINING: Fine Dining Direct Table Network
   ProventaProviderGateway.registerProvider({
     providerKey: 'opentable_dining',
     name: 'Proventa Fine Dining Direct Table Network',
@@ -782,15 +796,26 @@ export function initializeStandardProviders() {
     instance: new SandboxRestaurantProvider(),
   });
 
+  // 4. CABS: Live Uber Chauffeur Fleet (Priority 1) & Sandbox Cab (Priority 2)
+  ProventaProviderGateway.registerProvider({
+    providerKey: 'uber_live_cabs',
+    name: 'Uber Direct & Chauffeur Fleet Gateway (Live)',
+    priority: 1,
+    status: process.env.UBER_SERVER_TOKEN ? 'PRODUCTION_ACTIVE' : 'NOT_CONNECTED',
+    isSandbox: false,
+    instance: new ProductionUberCabProvider(),
+  });
+
   ProventaProviderGateway.registerProvider({
     providerKey: 'uber_cabs',
-    name: 'Executive Mobility & Chauffeur Gateway',
-    priority: 1,
+    name: 'Executive Mobility & Chauffeur Gateway (Sandbox)',
+    priority: 2,
     status: 'SANDBOX',
     isSandbox: true,
     instance: new SandboxCabProvider(),
   });
 
+  // 5. MOVIES
   ProventaProviderGateway.registerProvider({
     providerKey: 'bookmyshow_movies',
     name: 'Cinema Box Office Gateway',
@@ -800,6 +825,7 @@ export function initializeStandardProviders() {
     instance: new SandboxMovieProvider() as any,
   });
 
+  // 6. GIFTS
   ProventaProviderGateway.registerProvider({
     providerKey: 'ferns_gifts',
     name: 'Luxury Sourcing & Artisan Gifting Network',
@@ -809,6 +835,7 @@ export function initializeStandardProviders() {
     instance: new SandboxGiftProvider() as any,
   });
 
+  // 7. EXPERIENCES
   ProventaProviderGateway.registerProvider({
     providerKey: 'viator_experiences',
     name: 'Curated VIP Experiences & Haveli Retreats',

@@ -10,16 +10,16 @@ export default async function Wave1Page({ searchParams }: { searchParams: Promis
   const params = await Promise.resolve(searchParams);
   return (
     <div className="min-h-screen bg-[#faf8f5] pt-20 pb-28">
-      <div className="max-w-xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6">
+        <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full luxury-pill text-[11px] font-medium text-[#6d5941] mb-4">
-            <span>EARLY ACCESS · COHORT 1</span>
+            <span>FOUNDING ADMISSIONS · COHORT 1</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-normal tracking-tight text-[#141312] mb-4">
-            Apply for Cohort 1 Access
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-normal tracking-tight text-[#141312] mb-3">
+            Cohort 1 Membership Application
           </h1>
-          <p className="text-sm sm:text-base text-[#5a4937] leading-relaxed font-sans max-w-md mx-auto">
-            We onboard members in calibrated cohorts to maintain uncompromising responsiveness and personalized service.
+          <p className="text-sm sm:text-base text-[#5a4937] leading-relaxed font-sans max-w-lg mx-auto">
+            Calibrated private admissions for principals, founding families, and enterprise leaders. Experience high-touch lifestyle execution with zero subscription overhead during Cohort 1.
           </p>
         </div>
 

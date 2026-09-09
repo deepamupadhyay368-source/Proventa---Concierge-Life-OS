@@ -100,9 +100,17 @@ export interface Wave1RegistrationDetails {
   city: string;
   profession?: string | null;
   company?: string | null;
+  membershipTier?: string | null;
+  annualLifestyleSpend?: string | null;
+  primaryInterests?: string[] | null;
+  householdMembers?: number | null;
+  dietaryPreferences?: string | null;
+  frequentDestinations?: string | null;
   intendedUse?: string | null;
+  urgentRequirements?: string | null;
   communicationPref?: string | null;
   referralSource?: string | null;
+  linkedinUrl?: string | null;
 }
 
 export async function sendWave1RegistrationEmail(params: {
@@ -256,11 +264,35 @@ function buildWave1AdminNotificationEmail(details: Wave1RegistrationDetails): st
       <td style="padding:10px 0;color:#0f172a;">${details.company || 'Not provided'}</td>
     </tr>
     <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Membership Tier Applied</td>
+      <td style="padding:10px 0;color:#854d0e;font-weight:700;">${details.membershipTier || 'PRIVATE_INDIVIDUAL'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Annual Lifestyle Spend</td>
+      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${details.annualLifestyleSpend || 'Not specified'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Household Coverage</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.householdMembers || 1} Member(s)</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Priorities / Interests</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.primaryInterests && details.primaryInterests.length ? details.primaryInterests.join(', ') : 'None selected'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Dietary / Culinary</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.dietaryPreferences || 'None'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Frequent Destinations</td>
+      <td style="padding:10px 0;color:#0f172a;">${details.frequentDestinations || 'None'}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
       <td style="padding:10px 0;color:#64748b;font-weight:500;">Preferred Comm Channel</td>
       <td style="padding:10px 0;color:#0f172a;">${details.communicationPref || 'EMAIL'}</td>
     </tr>
     <tr style="border-bottom:1px solid #f1f5f9;">
-      <td style="padding:10px 0;color:#64748b;font-weight:500;">Referral Source</td>
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Referral Source / Code</td>
       <td style="padding:10px 0;color:#0f172a;">${details.referralSource || 'Direct'}</td>
     </tr>
     <tr>

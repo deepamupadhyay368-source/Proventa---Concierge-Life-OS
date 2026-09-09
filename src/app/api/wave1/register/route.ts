@@ -19,7 +19,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, phone, city, profession, company, intendedUse, communicationPref, referralSource, consentGiven } = parsed.data;
+    const {
+      name,
+      email,
+      phone,
+      city,
+      profession,
+      company,
+      linkedinUrl,
+      membershipTier,
+      annualLifestyleSpend,
+      primaryInterests,
+      householdMembers,
+      dietaryPreferences,
+      frequentDestinations,
+      intendedUse,
+      urgentRequirements,
+      communicationPref,
+      referralSource,
+      consentGiven,
+    } = parsed.data;
 
     // Persist to database with fast timeout fallback (never blocks customer)
     try {
@@ -34,7 +53,15 @@ export async function POST(req: NextRequest) {
             city,
             profession: profession || null,
             company: company || null,
+            linkedinUrl: linkedinUrl || null,
+            membershipTier: membershipTier || 'PRIVATE_INDIVIDUAL',
+            annualLifestyleSpend: annualLifestyleSpend || null,
+            primaryInterests: primaryInterests || [],
+            householdMembers: householdMembers || 1,
+            dietaryPreferences: dietaryPreferences || null,
+            frequentDestinations: frequentDestinations || null,
             intendedUse: intendedUse || null,
+            urgentRequirements: urgentRequirements || null,
             communicationPref: communicationPref || 'EMAIL',
             referralSource: referralSource || null,
             consentGiven,
@@ -66,9 +93,17 @@ export async function POST(req: NextRequest) {
         city,
         profession,
         company,
+        membershipTier,
+        annualLifestyleSpend,
+        primaryInterests,
+        householdMembers,
+        dietaryPreferences,
+        frequentDestinations,
         intendedUse,
+        urgentRequirements,
         communicationPref,
         referralSource,
+        linkedinUrl,
       });
     } catch (e) {
       console.warn('[wave1/register] Admin email error:', e);

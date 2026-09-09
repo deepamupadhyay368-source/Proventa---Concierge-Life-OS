@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { CreditCard, CheckCircle2, Shield, Lock, X } from 'lucide-react';
@@ -21,6 +21,20 @@ export function PaymentCheckoutCard({
   const [loading, setLoading] = useState(false);
   const [paid, setPaid] = useState(false);
 
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && (window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handlePay = async () => {
     setLoading(true);
     try {
@@ -34,6 +48,32 @@ export function PaymentCheckoutCard({
         }),
       });
       const data = await res.json();
+
+      const razorpayKey = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+
+      // If Razorpay live key is configured and browser available, launch official checkout
+      if (razorpayKey && typeof window !== 'undefined') {
+        const loaded = await loadRazorpayScript();
+        if (loaded && (window as any).Razorpay) {
+          const rzp = new (window as any).Razorpay({
+            key: razorpayKey,
+            amount: amount * 100,
+            currency,
+            name: 'Proventa Concierge',
+            description: itemDescription,
+            handler: async (response: any) => {
+              setPaid(true);
+              if (onSuccess) onSuccess();
+            },
+            theme: { color: '#141312' },
+          });
+          rzp.open();
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Default sandbox / concierge direct authorization
       if (data.success || data.result) {
         setPaid(true);
         if (onSuccess) onSuccess();

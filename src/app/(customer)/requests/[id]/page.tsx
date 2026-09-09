@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Send, CheckCircle2, XCircle, RefreshCw, Star, ShieldCheck } from 'lucide-react';
 import { PaymentCheckoutCard } from '@/components/ui/PaymentCheckoutCard';
+import { TaskExecutionWidget } from '@/components/chat/TaskExecutionWidget';
 
 export default function RequestDetailPage() {
   const params = useParams();
@@ -12,6 +13,7 @@ export default function RequestDetailPage() {
 
   const [request, setRequest] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
+  const [linkedTask, setLinkedTask] = useState<any>(null);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -29,12 +31,14 @@ export default function RequestDetailPage() {
 
   const loadData = async () => {
     try {
-      const [reqRes, msgRes] = await Promise.all([
+      const [reqRes, msgRes, tasksRes] = await Promise.all([
         fetch(`/api/requests`),
         fetch(`/api/requests/${requestId}/messages`),
+        fetch(`/api/tasks`).catch(() => null),
       ]);
       const reqData = await reqRes.json();
       const msgData = await msgRes.json();
+      const tasksData = tasksRes ? await tasksRes.json().catch(() => ({})) : {};
 
       if (reqData.requests) {
         const found = reqData.requests.find((r: any) => r.id === requestId);
@@ -42,6 +46,13 @@ export default function RequestDetailPage() {
       }
       if (msgData.messages) {
         setMessages(msgData.messages);
+      }
+      if (tasksData.tasks && tasksData.tasks.length > 0) {
+        // Link task matching category or request
+        const matched = tasksData.tasks.find(
+          (t: any) => t.requestId === requestId || t.originalRequest?.includes(request?.rawInput?.slice(0, 20) || '___')
+        ) || tasksData.tasks[0];
+        setLinkedTask(matched);
       }
     } finally {
       setLoading(false);
@@ -156,6 +167,34 @@ export default function RequestDetailPage() {
           <div><strong className="text-neutral-700">Submitted:</strong> {new Date(request.createdAt).toLocaleString()}</div>
         </div>
       </div>
+
+      {/* Interactive Multi-Agent Task Execution Widget */}
+      {linkedTask && (
+        <TaskExecutionWidget
+          taskId={linkedTask.id}
+          publicId={linkedTask.publicId}
+          status={linkedTask.status}
+          assignedAgent={linkedTask.assignedAgent || 'Proventa Concierge Agent'}
+          category={linkedTask.category || request.category?.slug || 'concierge'}
+          events={linkedTask.events || []}
+          proposedOptions={linkedTask.proposedOptions || []}
+          dagNodes={linkedTask.dagNodes || []}
+          externalReferenceId={linkedTask.externalReferenceId || booking?.confirmationRef}
+          approving={deciding}
+          onApproveOption={(opt) => {
+            if (pendingApproval) {
+              handleApprovalAction(pendingApproval.id, 'APPROVED');
+            } else {
+              // Direct task approval endpoint
+              fetch(`/api/tasks/${linkedTask.id}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ option: opt }),
+              }).then(() => loadData());
+            }
+          }}
+        />
+      )}
 
       {/* Pending Approval Card */}
       {pendingApproval && (
