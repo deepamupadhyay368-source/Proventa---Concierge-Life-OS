@@ -193,6 +193,17 @@ export default function RequestDetailPage() {
               }).then(() => loadData());
             }
           }}
+          onDeclineOption={() => {
+            if (pendingApproval) {
+              handleApprovalAction(pendingApproval.id, 'DECLINED');
+            } else {
+              fetch(`/api/tasks/${linkedTask.id}/reject`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: 'Client requested alternate proposal or schedule.' }),
+              }).then(() => loadData());
+            }
+          }}
         />
       )}
 

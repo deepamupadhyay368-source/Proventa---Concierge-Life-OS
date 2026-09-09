@@ -19,6 +19,7 @@ import {
   CreditCard,
   Lock,
   ArrowRight,
+  X,
 } from 'lucide-react';
 import { DAGGraphView, type DAGNodeViewProps } from '@/components/tasks/dag-graph-view';
 
@@ -50,6 +51,7 @@ export interface TaskExecutionWidgetProps {
   dagNodes?: DAGNodeViewProps[];
   externalReferenceId?: string;
   onApproveOption?: (option: any) => void;
+  onDeclineOption?: () => void;
   approving?: boolean;
 }
 
@@ -77,13 +79,14 @@ export function TaskExecutionWidget({
   dagNodes = [],
   externalReferenceId,
   onApproveOption,
+  onDeclineOption,
   approving = false,
 }: TaskExecutionWidgetProps) {
   const [showDAG, setShowDAG] = useState(true);
   const [showEvents, setShowEvents] = useState(false);
 
   const isConfirmed = ['CONFIRMED', 'COMPLETED'].includes(status);
-  const isAwaitingApproval = status === 'AWAITING_APPROVAL';
+  const isAwaitingApproval = status === 'AWAITING_APPROVAL' || status === 'OPTIONS_READY';
   const isExecuting = status === 'EXECUTING' || status === 'SEARCHING' || status === 'VERIFYING';
   const isNeedsHuman = status === 'NEEDS_HUMAN';
 
@@ -188,27 +191,39 @@ export function TaskExecutionWidget({
       {/* In-Chat Proposal Cards for Immediate One-Click Approval */}
       {isAwaitingApproval && proposedOptions.length > 0 && (
         <div className="space-y-3 pt-1">
-          <div className="text-xs font-semibold text-[#141312] uppercase tracking-wider flex items-center gap-1.5">
-            <ShieldCheck className="h-4 w-4 text-amber-700" />
-            <span>Recommended Options Ready for Authorization</span>
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-semibold text-[#141312] uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-amber-700" />
+              <span>Select & Approve an Option to Execute</span>
+            </div>
+            {onDeclineOption && (
+              <button
+                onClick={onDeclineOption}
+                disabled={approving}
+                className="text-[11px] text-neutral-500 hover:text-red-700 flex items-center gap-1 transition-colors disabled:opacity-50"
+              >
+                <X className="h-3 w-3" />
+                <span>Decline all</span>
+              </button>
+            )}
           </div>
 
           <div className="grid grid-cols-1 gap-3">
             {proposedOptions.map((opt) => (
               <div
                 key={opt.id}
-                className="p-4 rounded-xl border border-amber-300 bg-amber-50/40 hover:bg-amber-50/70 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                className="p-4 rounded-xl border-2 border-amber-300/80 bg-amber-50/40 hover:bg-amber-50/70 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-semibold text-[#141312]">{opt.title}</h4>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-white border border-amber-200 text-[#8a7053] font-mono">
+                    <h4 className="text-xs font-bold text-[#141312]">{opt.title}</h4>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-white border border-amber-200 text-[#8a7053] font-mono font-semibold">
                       {opt.providerName}
                     </span>
                   </div>
                   <p className="text-[11px] text-[#6e6b65] mt-1">{opt.description}</p>
                   {opt.availability && (
-                    <p className="text-[10px] text-emerald-700 font-mono mt-1">
+                    <p className="text-[10px] text-emerald-700 font-mono mt-1 font-medium">
                       ✓ {opt.availability}
                     </p>
                   )}
@@ -225,7 +240,7 @@ export function TaskExecutionWidget({
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#141312] hover:bg-[#242321] text-amber-100 text-xs font-semibold shadow-xs disabled:opacity-50 transition-all"
                     >
                       <Lock className="h-3 w-3 text-amber-300" />
-                      <span>{approving ? 'Confirming...' : 'Approve & Book'}</span>
+                      <span>{approving ? 'Authorizing...' : 'Approve & Book'}</span>
                     </button>
                   )}
                 </div>

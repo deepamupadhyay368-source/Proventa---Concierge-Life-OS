@@ -132,7 +132,7 @@ export default function TaskDetailPage() {
   }
 
   const isConfirmed = ['CONFIRMED', 'COMPLETED'].includes(task.status);
-  const isAwaitingApproval = task.status === 'AWAITING_APPROVAL';
+  const isAwaitingApproval = task.status === 'AWAITING_APPROVAL' || task.status === 'OPTIONS_READY';
   const isNeedsHuman = task.status === 'NEEDS_HUMAN';
   const events = task.events || [];
   const proposedOptions = (task.proposedOptions || []) as any[];
