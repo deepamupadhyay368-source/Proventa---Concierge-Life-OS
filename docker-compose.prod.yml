@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # 1. Proventa Next.js Application Container
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=https://www.proventa.in
+      - NEXT_PUBLIC_APP_NAME=Proventa
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-proventa}:${POSTGRES_PASSWORD:-proventa_secure_pass}@db:5432/${POSTGRES_DB:-proventa}?schema=public
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_URL=https://www.proventa.in
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - NEXT_PUBLIC_RAZORPAY_KEY_ID=${NEXT_PUBLIC_RAZORPAY_KEY_ID}
+      - AMADEUS_CLIENT_ID=${AMADEUS_CLIENT_ID}
+      - AMADEUS_CLIENT_SECRET=${AMADEUS_CLIENT_SECRET}
+      - UBER_SERVER_TOKEN=${UBER_SERVER_TOKEN}
+    depends_on:
+      - db
+      - redis
+    networks:
+      - proventa_network
+
+  # 2. Production PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-proventa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-proventa_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-proventa}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - proventa_network
+
+  # 3. Redis Queue & Caching Layer
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    networks:
+      - proventa_network
+
+  # 4. Caddy Automatic HTTPS Reverse Proxy (Zero-Config Let's Encrypt SSL)
+  caddy:
+    image: caddy:2-alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    networks:
+      - proventa_network
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  proventa_network:
+    driver: bridge
+
