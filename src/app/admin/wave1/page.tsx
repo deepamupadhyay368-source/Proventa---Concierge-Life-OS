@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { Mail, Check, Clock, Search, Send, UserCheck } from 'lucide-react';
@@ -117,9 +117,34 @@ export default function AdminWave1Page() {
                       {r.status}
                     </span>
                     <span className="text-xs text-neutral-400">{r.city}</span>
+                    {r.membershipTier && (
+                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded border ${
+                        r.membershipTier === 'FOUNDING_FAMILY'
+                          ? 'bg-amber-50 text-amber-900 border-amber-200'
+                          : 'bg-stone-50 text-stone-800 border-stone-200'
+                      }`}>
+                        {r.membershipTier === 'FOUNDING_FAMILY' ? 'Founding Family & Estate' : 'Private Individual'}
+                      </span>
+                    )}
                   </div>
 
-                  <p className="text-xs text-neutral-600">{r.email} {r.phone && `· ${r.phone}`}</p>
+                  <p className="text-xs text-neutral-600">
+                    {r.email} {r.phone && `· ${r.phone}`}
+                    {r.annualLifestyleSpend && (
+                      <span className="text-neutral-400 font-mono text-[11px] ml-2">
+                        · Budget: {r.annualLifestyleSpend.replace('_', ' - ')}
+                      </span>
+                    )}
+                  </p>
+                  {r.primaryInterests && r.primaryInterests.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-0.5">
+                      {r.primaryInterests.map((interest: string) => (
+                        <span key={interest} className="text-[10px] bg-neutral-100 text-neutral-600 px-1.5 py-0.5 rounded">
+                          {interest.replace('_', ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {r.intendedUse && (
                     <p className="text-[11px] text-neutral-500 italic mt-0.5 line-clamp-1">
                       &ldquo;{r.intendedUse}&rdquo;
