@@ -70,6 +70,24 @@ export default function TaskDetailPage() {
     }
   };
 
+  const handleDecline = async () => {
+    setApproving(true);
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'Client requested alternate proposal or schedule.' }),
+      });
+      const data = await res.json();
+      if (data.task) {
+        setTask(data.task);
+        loadTask();
+      }
+    } finally {
+      setApproving(false);
+    }
+  };
+
   const handleManualConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!manualRef.trim()) return;
@@ -315,6 +333,7 @@ export default function TaskDetailPage() {
               key={idx}
               proposal={opt}
               onApprove={handleApprove}
+              onDecline={handleDecline}
               approving={approving}
             />
           ))}

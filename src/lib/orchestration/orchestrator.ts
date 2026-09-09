@@ -158,6 +158,7 @@ export class RequestOrchestrator {
           where: { id: task.id },
           data: {
             status: nextStatus,
+            proposedOptions: proposals as any,
             approvalRequired: approvalCheck.requiresApproval,
             approvalStatus: approvalCheck.requiresApproval ? 'PENDING' : 'APPROVED',
             vendorName: bestOption.providerName,

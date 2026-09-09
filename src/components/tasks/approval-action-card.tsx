@@ -6,10 +6,12 @@ import { ShieldCheck, ArrowRight, Check, X, Building, AlertCircle } from 'lucide
 export function ApprovalActionCard({
   proposal,
   onApprove,
+  onDecline,
   approving,
 }: {
   proposal: any;
   onApprove: (proposal: any) => void;
+  onDecline?: () => void;
   approving: boolean;
 }) {
   if (!proposal) return null;
@@ -59,8 +61,20 @@ export function ApprovalActionCard({
           className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#141312] hover:bg-[#2e2720] text-[#faf8f5] text-xs uppercase tracking-widest font-semibold transition-all shadow-md disabled:opacity-50"
         >
           <Check className="h-4 w-4 text-emerald-400" />
-          <span>{approving ? 'Authorizing & Executing...' : 'Approve & Execute Task'}</span>
+          <span>{approving ? 'Authorizing & Executing...' : 'Approve & Book'}</span>
         </button>
+
+        {onDecline && (
+          <button
+            type="button"
+            onClick={onDecline}
+            disabled={approving}
+            className="px-5 py-3.5 rounded-xl border border-neutral-300 hover:bg-neutral-50 text-neutral-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+          >
+            <X className="h-3.5 w-3.5" />
+            <span>Decline / Change</span>
+          </button>
+        )}
       </div>
 
       <div className="mt-4 flex items-center gap-2 text-[11px] text-neutral-500">

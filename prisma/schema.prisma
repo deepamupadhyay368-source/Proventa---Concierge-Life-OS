@@ -1232,6 +1232,9 @@ model Task {
   executionMethod     TaskExecutionMethod @default(MOCK)
   vendorName          String?
   externalReferenceId String?
+  parentTaskId        String?
+  proposedOptions     Json?               // Persisted option proposals with availability and pricing
+  paymentId           String?
   paymentStatus       PaymentStatus?      @default(PENDING)
   deadline            DateTime?
   failedReason        String?
@@ -1242,11 +1245,14 @@ model Task {
 
   customer            CustomerProfile     @relation(fields: [customerId], references: [id], onDelete: Cascade)
   request             ConciergeRequest?   @relation(fields: [requestId], references: [id], onDelete: SetNull)
+  parentTask          Task?               @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: SetNull)
+  subtasks            Task[]              @relation("TaskSubtasks")
   events              TaskEvent[]
   agentRuns           AgentRunRecord[]
   externalTransactions ExternalTransaction[]
 
   @@index([customerId])
+  @@index([parentTaskId])
   @@index([status])
   @@index([priority])
   @@index([assignedAgent])

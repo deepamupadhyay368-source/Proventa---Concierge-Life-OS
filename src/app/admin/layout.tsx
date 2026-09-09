@@ -11,6 +11,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navItems = [
     { href: '/admin/overview', label: 'Overview', icon: LayoutDashboard },
     { href: '/admin/observability', label: 'Observability', icon: Activity },
+    { href: '/admin/tasks', label: 'Tasks', icon: Calendar },
     { href: '/admin/wave1', label: 'Wave 1 Waitlist', icon: Users },
     { href: '/admin/providers', label: 'Providers Network', icon: Store },
     { href: '/admin/requests', label: 'All Requests', icon: Inbox },

@@ -29,9 +29,14 @@ export class AdapterRegistry {
 
   static getAdaptersForCategory(category: string): ProviderAdapterInterface[] {
     this.init();
-    const specific = this.adapters.get(category.toLowerCase()) || [];
     const general = this.adapters.get('all') || [];
-    return [...specific, ...general];
+    const specific = this.adapters.get(category.toLowerCase()) || [];
+    // Prioritize REAL environment adapters ahead of SANDBOX adapters
+    return [...general, ...specific].sort((a, b) => {
+      if (a.environment === 'REAL' && b.environment !== 'REAL') return -1;
+      if (a.environment !== 'REAL' && b.environment === 'REAL') return 1;
+      return 0;
+    });
   }
 
   static getPrimaryAdapter(category: string): ProviderAdapterInterface {

@@ -27,21 +27,25 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
         priceAmount: 3900,
         priceCurrency: 'INR',
         priceFormatted: '₹3,900',
-        availability: 'Instant Confirmation Available',
+        availability: 'Instant Confirmation Available (Sandbox)',
         bookingMethod: 'API',
         cancellationPolicy: 'Complimentary cancellation up to 4 hours prior.',
+        environment: 'SANDBOX',
+        isMock: true,
       },
       {
         id: `mock-dine-2-${Date.now()}`,
         providerName: 'The Royal Vega - ITC Narmada',
-        title: 'Luxury Vegetarian Fine Dining',
+        title: 'Luxury Vegetarian Fine Dining [Sandbox]',
         description: 'Regal dining experience celebrating ancestral Indian cuisine.',
         priceAmount: 5500,
         priceCurrency: 'INR',
         priceFormatted: '₹5,500',
-        availability: 'Immediate Reservation Available',
+        availability: 'Immediate Reservation Available (Sandbox)',
         bookingMethod: 'API',
         cancellationPolicy: 'Cancellation up to 2 hours prior.',
+        environment: 'SANDBOX',
+        isMock: true,
       },
     ];
   }
@@ -52,17 +56,19 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
         success: false,
         providerName: proposal.providerName,
         status: 'FAILED',
+        environment: 'SANDBOX',
         errorMessage: 'Mock automated execution is disabled in live production mode. Escalating to Proventa Concierge Desk.',
         confirmedDetails: {},
       };
     }
 
-    const ref = `[MOCK]-DIN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
+    const ref = `[SANDBOX]-DIN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
     return {
       success: true,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
+      environment: 'SANDBOX',
       isMock: true,
       rawResponse: {
         provider: 'OpenTable Partner Sandbox',
@@ -85,7 +91,8 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
       verified: true,
       status: 'CONFIRMED',
       confirmationReference: referenceId,
-      isMock: referenceId.includes('MOCK'),
+      environment: 'SANDBOX',
+      isMock: true,
       verifiedAt: new Date(),
       auditTrail: `Verified with OpenTable partner API mock endpoint. Reference: ${referenceId}`,
     };
