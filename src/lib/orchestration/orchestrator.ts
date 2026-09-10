@@ -5,6 +5,7 @@ import { validateTransition } from './state-machine';
 import { appendTaskEvent } from './timeline';
 import { evaluateApproval } from './approval/approval-engine';
 import { findAgentForTask } from './agents';
+import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities } from './types';
 
 export class RequestOrchestrator {
@@ -183,6 +184,28 @@ export class RequestOrchestrator {
             data: { proposal: bestOption, totalAmount: approvalCheck.totalAmount },
           });
 
+          // Dispatch interactive mobile approval notification via WhatsApp
+          try {
+            const customer = await db.customerProfile.findUnique({
+              where: { id: customerId },
+              include: { user: true },
+            });
+            if (customer?.user?.phone) {
+              await sendWhatsAppNotification({
+                phone: customer.user.phone,
+                template: 'INTERACTIVE_PROPOSAL',
+                params: {
+                  name: customer.user.name || 'Member',
+                  details: bestOption.title,
+                  actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${task.id}`,
+                  options: proposals,
+                },
+              });
+            }
+          } catch (e) {
+            console.error('[Orchestrator] WhatsApp dispatch notice failed:', e);
+          }
+
           return { task, proposals, missingInfo };
         } else {
           await appendTaskEvent({
@@ -326,6 +349,23 @@ export class RequestOrchestrator {
               },
             },
           });
+        }
+
+        // Dispatch confirmed pass to member's WhatsApp
+        try {
+          if (taskRecord.customer?.user?.phone) {
+            await sendWhatsAppNotification({
+              phone: taskRecord.customer.user.phone,
+              template: 'BOOKING_CONFIRMED',
+              params: {
+                name: taskRecord.customer.user.name || 'Member',
+                details: `${option.title} (${option.providerName}) · Ref: ${execution.externalReferenceId}`,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${taskId}`,
+              },
+            });
+          }
+        } catch (e) {
+          console.error('[Orchestrator] Confirmation notification error:', e);
         }
 
         return { success: true, task: confirmedTask, execution, verification };

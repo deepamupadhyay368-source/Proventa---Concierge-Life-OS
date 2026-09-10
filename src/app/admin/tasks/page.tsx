@@ -13,6 +13,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 
+import { ConciergeOperatorDesk } from '@/components/admin/ConciergeOperatorDesk';
+
 export default async function AdminTasksPage() {
   await requireAdmin();
 
@@ -28,8 +30,8 @@ export default async function AdminTasksPage() {
 
   const counts = {
     total: tasks.length,
-    needsHuman: tasks.filter((t) => t.status === 'NEEDS_HUMAN').length,
-    awaitingApproval: tasks.filter((t) => t.status === 'AWAITING_APPROVAL').length,
+    needsHuman: tasks.filter((t) => t.status === 'NEEDS_HUMAN' || t.isEscalated).length,
+    awaitingApproval: tasks.filter((t) => t.status === 'AWAITING_APPROVAL' || t.status === 'OPTIONS_READY').length,
     executing: tasks.filter((t) => ['SEARCHING', 'APPROVED', 'EXECUTING', 'VERIFYING'].includes(t.status)).length,
     confirmed: tasks.filter((t) => ['CONFIRMED', 'COMPLETED'].includes(t.status)).length,
   };
@@ -66,6 +68,9 @@ export default async function AdminTasksPage() {
           <span className="text-xl font-bold text-emerald-900">{counts.confirmed}</span>
         </div>
       </div>
+
+      {/* Live Operator Intervention Desk */}
+      <ConciergeOperatorDesk tasks={tasks} />
       {/* Tasks Table */}
       <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-sm">
         <div className="divide-y divide-neutral-100">
