@@ -1,6 +1,8 @@
 import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
 import { AhmedabadVerifiedAdapter } from './ahmedabad-verified.adapter';
 import { SwiggyAdapter } from './swiggy.adapter';
+import { FlightsAdapter } from './flights.adapter';
+import { CinemaAdapter } from './cinema.adapter';
 import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter } from './mock-adapters';
 
 export class AdapterRegistry {
@@ -14,9 +16,13 @@ export class AdapterRegistry {
     this.register('dining', new MockDiningAdapter());
     this.register('food', new SwiggyAdapter());
     this.register('delivery', new SwiggyAdapter());
+    this.register('flights', new FlightsAdapter());
+    this.register('travel', new FlightsAdapter());
     this.register('travel', new MockHotelAdapter());
     this.register('hotel', new MockHotelAdapter());
-    this.register('flights', new MockHotelAdapter());
+    this.register('movies', new CinemaAdapter());
+    this.register('cinema', new CinemaAdapter());
+    this.register('experiences', new CinemaAdapter());
     this.register('mobility', new MockMobilityAdapter());
     this.register('transit', new MockMobilityAdapter());
     this.register('shopping', new MockShoppingAdapter());

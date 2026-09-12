@@ -33,6 +33,12 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
     category = 'dining';
   } else if (
     lower.includes('flight') ||
+    lower.includes('airline') ||
+    lower.includes('airfare') ||
+    lower.includes('boarding')
+  ) {
+    category = 'flights';
+  } else if (
     lower.includes('hotel') ||
     lower.includes('suite') ||
     lower.includes('travel') ||
@@ -61,8 +67,16 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
   ) {
     category = 'shopping';
   } else if (
-    lower.includes('walk') ||
     lower.includes('movie') ||
+    lower.includes('cinema') ||
+    lower.includes('imax') ||
+    lower.includes('pvr') ||
+    lower.includes('inox') ||
+    lower.includes('film')
+  ) {
+    category = 'movies';
+  } else if (
+    lower.includes('walk') ||
     lower.includes('ticket') ||
     lower.includes('event') ||
     lower.includes('heritage')
