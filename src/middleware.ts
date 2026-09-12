@@ -23,6 +23,7 @@ const PUBLIC_ROUTES = [
   '/verify',
   '/reset-password',
   '/forgot-password',
+  '/demo',
 ];
 
 const AUTH_ROUTES = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password'];
