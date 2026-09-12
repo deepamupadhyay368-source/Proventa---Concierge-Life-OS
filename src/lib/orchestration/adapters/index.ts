@@ -1,5 +1,6 @@
 import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
 import { AhmedabadVerifiedAdapter } from './ahmedabad-verified.adapter';
+import { SwiggyAdapter } from './swiggy.adapter';
 import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter } from './mock-adapters';
 
 export class AdapterRegistry {
@@ -9,7 +10,10 @@ export class AdapterRegistry {
   private static init() {
     if (this.initialized) return;
     this.register('all', new AhmedabadVerifiedAdapter());
+    this.register('dining', new SwiggyAdapter());
     this.register('dining', new MockDiningAdapter());
+    this.register('food', new SwiggyAdapter());
+    this.register('delivery', new SwiggyAdapter());
     this.register('travel', new MockHotelAdapter());
     this.register('hotel', new MockHotelAdapter());
     this.register('flights', new MockHotelAdapter());
