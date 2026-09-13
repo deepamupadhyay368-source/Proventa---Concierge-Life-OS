@@ -263,6 +263,7 @@ model User {
   securityEvents         SecurityEvent[]
   featureFlagOverrides   FeatureFlagOverride[]
   externalTransactions   ExternalTransaction[]
+  connectedIntegrations  ConnectedIntegration[]
 
   @@index([email])
   @@index([status])
@@ -1250,6 +1251,8 @@ model Task {
   events              TaskEvent[]
   agentRuns           AgentRunRecord[]
   externalTransactions ExternalTransaction[]
+  planSteps           TaskPlanStep[]
+  executionTraces     AgentExecutionTrace[]
 
   @@index([customerId])
   @@index([parentTaskId])
@@ -1443,5 +1446,110 @@ model WebhookEventLog {
   @@index([processed])
   @@index([receivedAt])
   @@map("webhook_event_logs")
+}
+
+// ============================================================
+// AUTONOMOUS LIFE CONCIERGE OS: INTEGRATIONS & MCP PERSISTENCE
+// ============================================================
+
+enum IntegrationAuthType {
+  API_KEY
+  OAUTH2
+  BEARER
+  WEBHOOK_HMAC
+}
+
+enum PlanStepStatus {
+  PENDING
+  READY
+  EXECUTING
+  WAITING_FOR_AUTH
+  WAITING_FOR_CONFIRMATION
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+model ConnectedIntegration {
+  id                   String               @id @default(cuid())
+  userId               String
+  provider             String               // e.g. 'swiggy', 'amadeus', 'google_calendar', 'pvr_inox', 'uber'
+  serviceCategory      String               // 'food', 'dining', 'travel', 'mobility', 'entertainment', 'calendar'
+  authType             IntegrationAuthType  @default(OAUTH2)
+  status               IntegrationStatus    @default(PRODUCTION_ACTIVE)
+  isSandbox            Boolean              @default(false)
+  scopes               String[]             // e.g. ['orders:create', 'menu:read', 'calendar:events']
+  encryptedAccessToken String               // AES-256 encrypted access token
+  encryptedRefreshToken String?             // AES-256 encrypted refresh token
+  tokenExpiresAt       DateTime?
+  accountIdentifier    String?              // e.g. Swiggy Account ID, Google Email
+  metadata             Json?                // Provider-specific metadata / preferences
+  lastUsedAt           DateTime?
+  revokedAt            DateTime?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  user                 User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider])
+  @@index([status])
+  @@map("connected_integrations")
+}
+
+model TaskPlanStep {
+  id                 String          @id @default(cuid())
+  taskId             String
+  stepNumber         Int
+  title              String
+  description        String?
+  assignedAgent      String          // 'FoodDeliveryAgent', 'TravelAviationAgent', etc.
+  toolName           String          // MCP tool name e.g. 'swiggy_create_food_order'
+  toolInput          Json            // Evaluated input parameters
+  toolOutput         Json?           // Execution output / result
+  status             PlanStepStatus  @default(PENDING)
+  dependsOnStepIds   String[]        // Pre-requisite step IDs for DAG execution
+  idempotencyKey     String          @unique
+  requiresApproval   Boolean         @default(false)
+  estimatedCostPaise Int?
+  actualCostPaise    Int?
+  retryCount         Int             @default(0)
+  maxRetries         Int             @default(3)
+  errorMessage       String?
+  startedAt          DateTime?
+  completedAt        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  task               Task            @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([status])
+  @@index([stepNumber])
+  @@map("task_plan_steps")
+}
+
+model AgentExecutionTrace {
+  id           String    @id @default(cuid())
+  taskId       String
+  agentRole    String    // 'Orchestrator', 'FoodDeliveryAgent', etc.
+  intent       String?
+  step         String    // 'DECOMPOSITION', 'TOOL_SELECTION', 'EXECUTION', 'VERIFICATION', 'REPLANNING'
+  inputData    Json?     // Input prompt or context snapshot (sanitized)
+  outputData   Json?     // Agent reasoning, chosen action, or tool outcome
+  model        String    @default("gemini-1.5-pro")
+  tokensUsed   Int       @default(0)
+  latencyMs    Int?
+  isError      Boolean   @default(false)
+  errorMessage String?
+  createdAt    DateTime  @default(now())
+
+  task         Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@index([taskId])
+  @@index([agentRole])
+  @@index([createdAt])
+  @@map("agent_execution_traces")
 }
 
