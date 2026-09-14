@@ -42,16 +42,24 @@ export async function requireAnyRole(roles: UserRole[]): Promise<SessionUser> {
   return user;
 }
 
+export async function requireSuperAdmin(): Promise<SessionUser> {
+  return requireRole('SUPER_ADMIN');
+}
+
 export async function requireAdmin(): Promise<SessionUser> {
-  return requireRole('ADMIN');
+  return requireAnyRole(['SUPER_ADMIN', 'ADMIN']);
+}
+
+export async function requireSupport(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'ADMIN', 'SUPPORT']);
 }
 
 export async function requireConcierge(): Promise<SessionUser> {
-  return requireAnyRole(['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN']);
+  return requireAnyRole(['SUPER_ADMIN', 'ADMIN', 'CONCIERGE_MANAGER', 'CONCIERGE']);
 }
 
 export async function requireCustomer(): Promise<SessionUser> {
-  return requireAnyRole(['CUSTOMER', 'ADMIN']);
+  return requireAnyRole(['CUSTOMER', 'SUPER_ADMIN', 'ADMIN']);
 }
 
 export function hasRole(user: SessionUser, role: UserRole): boolean {
@@ -61,3 +69,4 @@ export function hasRole(user: SessionUser, role: UserRole): boolean {
 export function hasAnyRole(user: SessionUser, roles: UserRole[]): boolean {
   return roles.some((r) => (user.roles ?? []).includes(r));
 }
+

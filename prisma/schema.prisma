@@ -24,10 +24,12 @@ enum UserStatus {
 }
 
 enum UserRole {
-  CUSTOMER
-  CONCIERGE
-  CONCIERGE_MANAGER
+  SUPER_ADMIN
   ADMIN
+  SUPPORT
+  CONCIERGE_MANAGER
+  CONCIERGE
+  CUSTOMER
 }
 
 enum EarlyAccessStatus {

@@ -55,22 +55,37 @@ export default auth(async (req) => {
     return NextResponse.redirect(new URL('/dashboard', nextUrl));
   }
 
+  // Special handling for admin routes
+  if (pathname === '/admin/login') {
+    if (isLoggedIn && userRoles.some((r) => ['SUPER_ADMIN', 'ADMIN', 'SUPPORT'].includes(r))) {
+      return NextResponse.redirect(new URL('/admin', nextUrl));
+    }
+    return NextResponse.next();
+  }
+
   // Allow public routes
   if (isPublic) return NextResponse.next();
 
-  // Require authentication
+  // Admin route protection: must be logged in with admin privileges, else go to /admin/login
+  if (pathname.startsWith('/admin')) {
+    if (!isLoggedIn) {
+      const adminLoginUrl = new URL('/admin/login', nextUrl);
+      adminLoginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(adminLoginUrl);
+    }
+    if (!userRoles.some((r) => ['SUPER_ADMIN', 'ADMIN', 'SUPPORT'].includes(r))) {
+      return NextResponse.redirect(new URL('/admin/login?error=Unauthorized', nextUrl));
+    }
+  }
+
+  // Require authentication for other protected routes
   if (!isLoggedIn) {
     const signInUrl = new URL('/sign-in', nextUrl);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
   }
 
-  // Role-based route protection
-  if (pathname.startsWith('/admin') && !userRoles.includes('ADMIN')) {
-    return NextResponse.redirect(new URL('/dashboard', nextUrl));
-  }
-
-  if (pathname.startsWith('/concierge-ops') && !userRoles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r))) {
+  if (pathname.startsWith('/concierge-ops') && !userRoles.some((r) => ['SUPER_ADMIN', 'CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r))) {
     return NextResponse.redirect(new URL('/dashboard', nextUrl));
   }
 
