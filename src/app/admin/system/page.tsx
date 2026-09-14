@@ -34,11 +34,11 @@ export default async function AdminSystemHealthPage() {
   // System services checks
   const services = [
     {
-      name: 'PostgreSQL Database (Neon Cloud)',
+      name: 'PostgreSQL Database (Cloud Engine)',
       category: 'Persistence & Vault',
       status: dbStatus,
       latency: `${dbLatency}ms`,
-      details: 'Pooler active at ep-dawn-river-b3myp1no-pooler.c-4.ap-southeast-1.aws.neon.tech',
+      details: dbStatus === 'OPERATIONAL' ? 'Connection pool active & responsive' : 'Database connection pending',
     },
     {
       name: 'Google Gemini AI (1.5 Pro & Flash)',
