@@ -9,6 +9,7 @@ export async function GET() {
   // 1. Check PostgreSQL Database connection
   let dbHealthy = false;
   let dbLatencyMs = 0;
+  let dbError: string | null = null;
   try {
     const dbStart = Date.now();
     await db.$queryRaw`SELECT 1`;
@@ -16,6 +17,7 @@ export async function GET() {
     dbHealthy = true;
   } catch (e: any) {
     console.error('[Health Probe] DB Error:', e.message);
+    dbError = e.message;
   }
 
   // 2. Check AI Agent Platform Registration
@@ -35,6 +37,7 @@ export async function GET() {
         database: {
           status: dbHealthy ? 'CONNECTED' : 'UNREACHABLE',
           latencyMs: dbLatencyMs,
+          error: dbError,
         },
         agentPlatform: {
           status: agentsCount >= 13 ? 'ACTIVE' : 'INCOMPLETE',
