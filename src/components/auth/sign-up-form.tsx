@@ -30,10 +30,24 @@ export function SignUpForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
+      const json = await res.json();
       if (res.ok) {
-        router.push('/verify');
+        // Automatically sign in with the new credentials
+        const signInResult = await signIn('credentials', {
+          email: data.email.trim().toLowerCase(),
+          password: data.password,
+          redirect: false,
+        });
+
+        if (signInResult?.ok) {
+          const destination = json.isAdmin ? '/admin' : '/dashboard';
+          router.push(destination);
+          router.refresh();
+        } else {
+          // If auto sign-in had any issue, navigate smoothly to sign-in
+          router.push('/sign-in?registered=true');
+        }
       } else {
-        const json = await res.json();
         setError(json.error ?? 'Registration failed. Please try again.');
       }
     } catch {

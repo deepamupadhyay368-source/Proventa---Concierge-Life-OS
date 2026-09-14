@@ -24,10 +24,10 @@ export default async function SignInPage({
           </Link>
         </div>
 
-        {/* Verified message */}
-        {params.verified && (
+        {/* Verified or Registered message */}
+        {(params.verified || (params as any).registered) && (
           <div className="mb-6 p-4 bg-green-50/80 border border-green-200 rounded-xl text-xs text-green-800 font-sans">
-            Email verified successfully. You can now access your member portal.
+            Credentials configured and account activated. You can now sign in with your email and password.
           </div>
         )}
 
