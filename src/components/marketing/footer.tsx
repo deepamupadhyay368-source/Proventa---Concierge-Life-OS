@@ -58,9 +58,11 @@ export function PublicFooter() {
         </div>
 
         <div className="pt-8 border-t border-[#24201a] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#6e6b65]">
-          <p>&copy; {new Date().getFullYear()} Proventa Technologies Private Limited. All rights reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Proventa Technologies Private Limited. Founded by <span className="text-[#c8b99d] font-medium">Deepam G Upadhyay</span>. All rights reserved.
+          </p>
           <div className="flex items-center gap-6">
-            <span>Direct Desk: <a href="mailto:proventa.in@gmail.com" className="text-[#b09a78] hover:text-[#ddc8a9] transition-colors underline">proventa.in@gmail.com</a></span>
+            <span>Founder &amp; Concierge Desk: <a href="mailto:proventa.in@gmail.com" className="text-[#b09a78] hover:text-[#ddc8a9] transition-colors underline">proventa.in@gmail.com</a></span>
           </div>
         </div>
       </div>

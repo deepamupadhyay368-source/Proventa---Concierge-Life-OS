@@ -17,7 +17,8 @@ export default function AboutPage() {
           <p>We are launching with a small, carefully curated Early Access Cohort 1 to ensure every member experiences an uncompromised level of personal attention and execution excellence.</p>
           <h2 className="text-xl font-semibold text-neutral-900 mt-10 mb-4">The principle</h2>
           <p className="text-lg font-medium text-neutral-800 italic">"I need this handled." — "Consider it handled."</p>
-          <p>That's what we're building toward. Not a dashboard. Not a chatbot. Not a marketplace. A service that actually takes things off your plate.</p>
+          <h2 className="text-xl font-semibold text-neutral-900 mt-10 mb-4">Leadership</h2>
+          <p>Founded by <span className="font-semibold text-neutral-900">Deepam G Upadhyay</span>, Proventa was established to bridge advanced autonomous intelligence with discreet, reliable human execution across dining, travel, mobility, and private life operations.</p>
         </div>
         <div className="mt-14">
           <Link href="/wave1" className="inline-flex items-center px-6 py-3 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition-colors">Apply for Cohort 1 Access</Link>
