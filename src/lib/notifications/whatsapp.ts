@@ -2,7 +2,7 @@ import { logger } from "@/lib/logger";
 
 export interface SendWhatsAppNotificationParams {
   phone: string;
-  template: "PROPOSAL_READY" | "BOOKING_CONFIRMED" | "WELCOME_COHORT_1" | "INTERACTIVE_PROPOSAL";
+  template: "PROPOSAL_READY" | "BOOKING_CONFIRMED" | "WELCOME_COHORT_1" | "INTERACTIVE_PROPOSAL" | "AWAITING_CONCIERGE_CALL";
   params: {
     name: string;
     details?: string;
@@ -31,6 +31,7 @@ export async function sendWhatsAppNotification({
     const textMap: Record<string, string> = {
       PROPOSAL_READY: `👑 *Proventa Concierge*: Greetings ${params.name}, your concierge has prepared a private proposal: "${params.details}". Review and approve at: ${params.actionUrl}`,
       BOOKING_CONFIRMED: `✨ *Proventa Concierge*: Reservation Confirmed for ${params.name}.\n\nDetails: ${params.details}\n\nView Digital Pass in your Life OS: ${params.actionUrl}`,
+      AWAITING_CONCIERGE_CALL: `🛎️ *Proventa Concierge*: Greetings ${params.name}, your approved reservation at "${params.details}" requires telephone placement with the venue desk. Your concierge is actively handling this.\n\nTrack progress: ${params.actionUrl}`,
       WELCOME_COHORT_1: `🏛️ *Proventa*: Welcome to Early Access · Cohort 1, ${params.name}. Your dedicated concierge desk is active 24/7 at ${params.actionUrl}`,
     };
     message = textMap[template] || textMap.PROPOSAL_READY;

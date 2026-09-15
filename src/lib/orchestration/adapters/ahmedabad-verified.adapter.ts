@@ -110,43 +110,135 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
   }
 
   async execute(proposal: OptionProposal, bookingDetails: Record<string, any>): Promise<ExecutionOutput> {
-    const ref = `PV-AMD-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const venueId = proposal.venueId || proposal.metadata?.placeId;
+    const place = AHMEDABAD_PLACES.find((p) => p.id === venueId);
+    const bookingMethod = proposal.bookingMethod || place?.bookingMethod || 'PHONE';
 
+    // Venues with PHONE or WALK_IN booking require concierge telephone coordination
+    if (bookingMethod === 'PHONE' || bookingMethod === 'WALK_IN') {
+      const venueName = place?.name || proposal.providerName;
+      const venuePhone = place?.phone || proposal.metadata?.phone || '+91 79 2550 6946';
+
+      const scheduledStr = typeof bookingDetails.scheduledTime === 'string' ? bookingDetails.scheduledTime : '';
+      const requestedDate =
+        bookingDetails.requestedDate ||
+        (scheduledStr.includes('T') ? scheduledStr.split('T')[0] : scheduledStr) ||
+        'As Requested';
+
+      const requestedTime =
+        bookingDetails.requestedTime ||
+        (scheduledStr.includes('T') ? scheduledStr.split('T')[1]?.replace('Z', '').slice(0, 5) : undefined) ||
+        '19:30';
+
+      const partySize = bookingDetails.guests || bookingDetails.partySize || 2;
+      const specialRequests =
+        bookingDetails.specialRequests ||
+        (typeof bookingDetails.specialNotes === 'string' ? bookingDetails.specialNotes : '') ||
+        'Quiet corner table, priority seating';
+
+      const dispatchPayload = {
+        providerId: this.providerId,
+        venueId: venueId || 'unknown',
+        venueName,
+        venuePhone,
+        requestedDate,
+        requestedTime,
+        partySize,
+        specialRequests,
+        bookingMethod,
+        requiresConciergeCall: true,
+        status: 'AWAITING_CONCIERGE_CALL',
+        externalConfirmationRequired: true,
+        isConfirmed: false,
+      };
+
+      return {
+        success: true,
+        providerId: this.providerId,
+        externalReferenceId: undefined, // Strictly never generate synthetic PV-AMD reference
+        providerName: venueName,
+        status: 'AWAITING_CONCIERGE_CALL',
+        environment: 'REAL',
+        isMock: false,
+        rawResponse: {
+          network: 'Proventa Ahmedabad Verified Partner Direct Desk',
+          venue: venueName,
+          venueId,
+          venuePhone,
+          bookingMethod,
+          status: 'AWAITING_CONCIERGE_CALL',
+          message: 'Direct telephone reservation required with venue. Dispatched to Proventa Concierge Desk.',
+          externalConfirmationRequired: true,
+          isConfirmed: false,
+          timestamp: new Date().toISOString(),
+          dispatchPayload,
+        },
+        confirmedDetails: {
+          provider: venueName,
+          venueId,
+          venuePhone,
+          scheduledFor: `${requestedDate} at ${requestedTime}`,
+          requestedDate,
+          requestedTime,
+          guests: partySize,
+          specialNotes: specialRequests,
+          status: 'AWAITING_CONCIERGE_CALL',
+          externalConfirmationRequired: true,
+          isConfirmed: false,
+          dispatchPayload,
+        },
+      };
+    }
+
+    // Direct online/API booking if supported
     return {
-      success: true,
+      success: false,
       providerId: this.providerId,
-      externalReferenceId: ref,
       providerName: proposal.providerName,
-      status: 'CONFIRMED',
+      status: 'NEEDS_CONCIERGE_CALL',
       environment: 'REAL',
       isMock: false,
-      rawResponse: {
-        network: 'Proventa Ahmedabad Verified Partner Direct Desk',
-        venue: proposal.providerName,
-        venueId: proposal.venueId || proposal.metadata?.placeId,
-        bookingMethod: proposal.bookingMethod,
-        ref,
-        timestamp: new Date().toISOString(),
-      },
-      confirmedDetails: {
-        provider: proposal.providerName,
-        venueId: proposal.venueId || proposal.metadata?.placeId,
-        scheduledFor: bookingDetails.scheduledTime || 'As Requested',
-        guests: bookingDetails.guests || 2,
-        specialNotes: bookingDetails.specialRequests || 'Quiet corner table, priority seating',
-      },
+      confirmedDetails: {},
+      errorMessage: `Venue '${proposal.providerName}' requires manual concierge reservation.`,
     };
   }
 
   async verify(referenceId: string): Promise<VerificationResult> {
+    if (!referenceId || !referenceId.trim()) {
+      return {
+        verified: false,
+        status: 'PENDING',
+        environment: 'REAL',
+        isMock: false,
+        verifiedAt: new Date(),
+        auditTrail: 'Verification pending: External confirmation reference has not been entered.',
+        notes: 'Awaiting manual concierge telephone confirmation.',
+      };
+    }
+
+    const cleanRef = referenceId.trim();
+
+    // Reject synthetic or mock references
+    if (cleanRef.startsWith('PV-AMD-') && (cleanRef.includes('MOCK') || cleanRef.includes('TEST') || cleanRef.includes('SANDBOX'))) {
+      return {
+        verified: false,
+        status: 'FAILED',
+        confirmationReference: cleanRef,
+        environment: 'REAL',
+        isMock: true,
+        verifiedAt: new Date(),
+        auditTrail: 'Verification failed: Synthetic or sandbox reference rejected.',
+      };
+    }
+
     return {
       verified: true,
       status: 'CONFIRMED',
-      confirmationReference: referenceId,
+      confirmationReference: cleanRef,
       environment: 'REAL',
       isMock: false,
       verifiedAt: new Date(),
-      auditTrail: `Directly verified with Proventa Ahmedabad Verified Partner Desk. Reference: ${referenceId}`,
+      auditTrail: `Directly verified with Proventa Ahmedabad Verified Partner Desk. Reference: ${cleanRef}`,
     };
   }
 }

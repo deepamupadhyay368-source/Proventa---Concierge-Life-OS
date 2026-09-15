@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { AdapterRegistry } from '@/lib/orchestration/adapters';
 import { DiningAgent } from '@/lib/orchestration/agents';
 import { OptionProposal, ExecutionOutput } from '@/lib/orchestration/types';
@@ -131,7 +131,10 @@ describe('Provider Identity & Execution Integrity', () => {
       expect(amdResult.success).toBe(true);
       expect(amdResult.providerId).toBe('ahmedabad_verified');
       expect(amdResult.environment).toBe('REAL');
-      expect(amdResult.externalReferenceId).toMatch(/^PV-AMD-/);
+      expect(amdResult.status).toBe('AWAITING_CONCIERGE_CALL');
+      expect(amdResult.externalReferenceId).toBeUndefined();
+      expect(amdResult.confirmedDetails.dispatchPayload).toBeDefined();
+      expect(amdResult.confirmedDetails.dispatchPayload.venuePhone).toBeTruthy();
 
       // Case B: Swiggy Dineout Proposal (must execute through swiggy, NOT ahmedabad_verified)
       const swiggyProposal: OptionProposal = {
@@ -237,7 +240,7 @@ describe('Provider Identity & Execution Integrity', () => {
       const amdExec: ExecutionOutput = {
         success: true,
         providerId: 'ahmedabad_verified',
-        externalReferenceId: 'PV-AMD-TEST99',
+        externalReferenceId: 'AGS-VERIFIED-99',
         providerName: 'Agashiye',
         status: 'CONFIRMED',
         confirmedDetails: {},

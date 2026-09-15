@@ -159,7 +159,7 @@ describe('Task Engine: Real-World Execution Platform Suite', () => {
       expect(chosen.environment).toBe('REAL');
       expect(chosen.providerName).toBeTruthy();
 
-      // 2. Execute reservation
+      // 2. Execute reservation (phone booking returns AWAITING_CONCIERGE_CALL with rich dispatch)
       const execution = await realAdapter.execute(chosen, {
         guests: 4,
         scheduledTime: 'Tonight 8:00 PM',
@@ -168,14 +168,18 @@ describe('Task Engine: Real-World Execution Platform Suite', () => {
 
       expect(execution.success).toBe(true);
       expect(execution.environment).toBe('REAL');
-      expect(execution.externalReferenceId).toMatch(/^PV-AMD-[A-Z0-9]+$/);
-      expect(execution.status).toBe('CONFIRMED');
+      expect(execution.status).toBe('AWAITING_CONCIERGE_CALL');
+      expect(execution.externalReferenceId).toBeUndefined(); // Strictly no synthetic PV-AMD reference
+      expect(execution.confirmedDetails.dispatchPayload).toBeDefined();
+      expect(execution.confirmedDetails.dispatchPayload.venuePhone).toBeTruthy();
+      expect(execution.confirmedDetails.dispatchPayload.partySize).toBe(4);
 
-      // 3. Verify external confirmation
-      const verification = await realAdapter.verify(execution.externalReferenceId!);
+      // 3. Verify external confirmation when concierge provides genuine venue reference
+      const genuineVenueRef = 'AGS-MG-RES-401';
+      const verification = await realAdapter.verify(genuineVenueRef);
       expect(verification.verified).toBe(true);
       expect(verification.environment).toBe('REAL');
-      expect(verification.confirmationReference).toBe(execution.externalReferenceId);
+      expect(verification.confirmationReference).toBe(genuineVenueRef);
       expect(verification.isMock).toBe(false);
     });
   });

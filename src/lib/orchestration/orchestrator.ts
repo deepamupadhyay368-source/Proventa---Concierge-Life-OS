@@ -300,6 +300,73 @@ export class RequestOrchestrator {
     // 1. Execute via Agent & Adapter
     const execution = await assignedAgent.execute(taskRecord, option);
 
+    // 1a. Handle Phone Booking / Concierge Call Workflow (e.g. Ahmedabad Verified Network)
+    if (execution.status === 'AWAITING_CONCIERGE_CALL' || execution.confirmedDetails?.status === 'AWAITING_CONCIERGE_CALL') {
+      validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+      const pendingTask = await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'NEEDS_HUMAN',
+          executionMethod: 'HUMAN_CONCIERGE',
+          isEscalated: true,
+        },
+      });
+
+      const dispatch = execution.confirmedDetails?.dispatchPayload || execution.confirmedDetails;
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AWAITING_CONCIERGE_CALL',
+        actorRole: 'AI_AGENT',
+        message: `Phone reservation required for ${option.providerName}. Dispatched to Proventa Concierge desk for telephone placement.`,
+        data: {
+          providerId: execution.providerId,
+          dispatchPayload: dispatch,
+        },
+      });
+
+      // Dispatch notification to customer informing them of personal concierge placement
+      try {
+        if (taskRecord.customer?.user?.phone) {
+          await sendWhatsAppNotification({
+            phone: taskRecord.customer.user.phone,
+            template: 'AWAITING_CONCIERGE_CALL',
+            params: {
+              name: taskRecord.customer.user.name || 'Member',
+              details: `${option.title} (${option.providerName})`,
+              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${taskId}`,
+            },
+          });
+        }
+      } catch (e) {
+        console.error('[Orchestrator] Concierge dispatch notice failed:', e);
+      }
+
+      return { success: true, task: pendingTask, execution };
+    }
+
+    // 1b. Safety Guard: Simulated, mock, or sandbox bookings must NEVER be confirmed in production execution paths
+    if (execution.isMock || execution.environment === 'SANDBOX') {
+      validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+      const escalatedTask = await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'NEEDS_HUMAN',
+          isEscalated: true,
+          failedReason: 'Simulated, mock, or sandbox bookings cannot be confirmed in production paths.',
+        },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'EXECUTION_REJECTED_MOCK',
+        actorRole: 'SYSTEM',
+        message: 'Mock/sandbox execution rejected: Production execution paths strictly require genuine partner reservations.',
+        data: { providerId: execution.providerId, environment: execution.environment },
+      });
+
+      return { success: false, task: escalatedTask, execution };
+    }
+
     if (execution.success && execution.externalReferenceId) {
       // State transition -> VERIFYING
       validateTransition('EXECUTING', 'VERIFYING');
@@ -317,6 +384,20 @@ export class RequestOrchestrator {
 
       // 2. Strict Verification Step
       const verification = await assignedAgent.verify(execution);
+
+      // Guard: Mock or sandbox verifications must NEVER confirm
+      if (verification.isMock || verification.environment === 'SANDBOX') {
+        validateTransition('VERIFYING', 'NEEDS_HUMAN');
+        const escalatedTask = await db.task.update({
+          where: { id: taskId },
+          data: {
+            status: 'NEEDS_HUMAN',
+            isEscalated: true,
+            failedReason: 'Simulated or sandbox verification rejected. Cannot mark booking as confirmed.',
+          },
+        });
+        return { success: false, task: escalatedTask, execution, verification };
+      }
 
       if (verification.verified) {
         validateTransition('VERIFYING', 'CONFIRMED');
