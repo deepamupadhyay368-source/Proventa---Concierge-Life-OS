@@ -11,9 +11,63 @@ import {
   Building,
   User,
   ExternalLink,
-  DollarSign
+  DollarSign,
+  Phone,
+  AlertCircle
 } from 'lucide-react';
 import Link from 'next/link';
+
+function extractCallSheet(task: any) {
+  const dispatchEvent = task.events?.find((e: any) => e.eventType === 'AWAITING_CONCIERGE_CALL');
+  const payload = dispatchEvent?.data?.dispatchPayload || dispatchEvent?.data || {};
+  const firstOption = Array.isArray(task.proposedOptions) ? task.proposedOptions[0] : null;
+
+  const venueName =
+    payload.venueName ||
+    task.vendorName ||
+    firstOption?.providerName ||
+    firstOption?.title ||
+    'Not provided';
+  const venuePhone = payload.venuePhone || firstOption?.metadata?.phone || null;
+  const requestedDate =
+    payload.requestedDate ||
+    (task.targetDate
+      ? new Date(task.targetDate).toLocaleDateString('en-IN', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        })
+      : null) ||
+    'Not provided';
+  const requestedTime = payload.requestedTime || 'Not provided';
+  const partySize =
+    payload.partySize ||
+    task.partySize ||
+    (firstOption?.metadata?.guests ? Number(firstOption.metadata.guests) : null) ||
+    'Not provided';
+  const specialRequests =
+    payload.specialRequests ||
+    (typeof task.clientPreferences === 'string'
+      ? task.clientPreferences
+      : task.clientPreferences
+      ? JSON.stringify(task.clientPreferences)
+      : null) ||
+    'Not provided';
+
+  const customerName = task.customer?.user?.name || 'Not provided';
+  const customerPhone = task.customer?.user?.phone || null;
+
+  return {
+    venueName,
+    venuePhone,
+    requestedDate,
+    requestedTime,
+    partySize,
+    specialRequests,
+    customerName,
+    customerPhone,
+  };
+}
 
 export function ConciergeOperatorDesk({
   tasks,
@@ -33,6 +87,7 @@ export function ConciergeOperatorDesk({
   const [phoneRef, setPhoneRef] = useState('');
   const [phoneVendor, setPhoneVendor] = useState('');
   const [phoneNotes, setPhoneNotes] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const needsHumanTasks = tasks.filter((t) => t.status === 'NEEDS_HUMAN' || t.isEscalated);
@@ -48,10 +103,12 @@ export function ConciergeOperatorDesk({
   };
 
   const openPhoneModal = (task: any) => {
+    const sheet = extractCallSheet(task);
     setSelectedTask(task);
-    setPhoneRef(`TEL-${Date.now().toString().slice(-6)}`);
-    setPhoneVendor(task.vendorName || 'Venue Reservation Desk');
-    setPhoneNotes('Spoke with Restaurant Duty Manager. Confirmed table for specified party.');
+    setPhoneRef('');
+    setPhoneVendor(sheet.venueName !== 'Not provided' ? sheet.venueName : (task.vendorName || ''));
+    setPhoneNotes('');
+    setPhoneError(null);
     setModalMode('LOG_PHONE');
   };
 
@@ -84,24 +141,30 @@ export function ConciergeOperatorDesk({
 
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTask || !phoneRef) return;
+    if (!selectedTask || !phoneRef.trim()) return;
 
     setSubmitting(true);
+    setPhoneError(null);
     try {
       const res = await fetch(`/api/tasks/${selectedTask.id}/manual-confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          confirmationRef: phoneRef,
-          vendorName: phoneVendor,
-          notes: phoneNotes,
+          confirmationRef: phoneRef.trim(),
+          vendorName: phoneVendor.trim() || undefined,
+          notes: phoneNotes.trim() || undefined,
         }),
       });
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setModalMode(null);
         if (onRefresh) onRefresh();
         else window.location.reload();
+      } else {
+        setPhoneError(data.error || 'Failed to record phone booking. Please try again.');
       }
+    } catch (err: any) {
+      setPhoneError(err.message || 'Network error occurred while confirming booking.');
     } finally {
       setSubmitting(false);
     }
@@ -285,6 +348,79 @@ export function ConciergeOperatorDesk({
                 <X className="h-4 w-4" />
               </button>
             </div>
+
+            {phoneError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{phoneError}</span>
+              </div>
+            )}
+
+            {/* Venue Call Brief */}
+            {(() => {
+              const sheet = extractCallSheet(selectedTask);
+              return (
+                <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-3.5 space-y-2.5 text-xs text-purple-950">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-purple-900 uppercase tracking-wider text-[10px]">
+                      Call Brief
+                    </span>
+                    {sheet.venuePhone ? (
+                      <a
+                        href={`tel:${sheet.venuePhone}`}
+                        className="inline-flex items-center gap-1.5 px-2 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded text-[11px] font-medium transition-colors"
+                      >
+                        <Phone className="h-3 w-3" />
+                        <span>{sheet.venuePhone}</span>
+                      </a>
+                    ) : (
+                      <span className="text-[11px] text-purple-400 italic">No phone available</span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px]">
+                    <div>
+                      <span className="text-purple-600 block text-[10px]">Venue</span>
+                      <span className="font-medium text-purple-950">{sheet.venueName}</span>
+                    </div>
+                    <div>
+                      <span className="text-purple-600 block text-[10px]">Party Size</span>
+                      <span className="font-medium text-purple-950">{sheet.partySize}</span>
+                    </div>
+                    <div>
+                      <span className="text-purple-600 block text-[10px]">Date</span>
+                      <span className="font-medium text-purple-950">{sheet.requestedDate}</span>
+                    </div>
+                    <div>
+                      <span className="text-purple-600 block text-[10px]">Time</span>
+                      <span className="font-medium text-purple-950">{sheet.requestedTime}</span>
+                    </div>
+                  </div>
+
+                  {sheet.specialRequests !== 'Not provided' && (
+                    <div className="pt-2 border-t border-purple-200/60 text-[11px]">
+                      <span className="text-purple-600 block text-[10px]">Special Requests</span>
+                      <span className="text-purple-900">{sheet.specialRequests}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-2 border-t border-purple-200/60 flex items-center justify-between text-[11px]">
+                    <div>
+                      <span className="text-purple-600 block text-[10px]">Member</span>
+                      <span className="font-medium text-purple-950">{sheet.customerName}</span>
+                    </div>
+                    {sheet.customerPhone && (
+                      <div className="text-right">
+                        <span className="text-purple-600 block text-[10px]">Member Phone</span>
+                        <a href={`tel:${sheet.customerPhone}`} className="text-purple-700 hover:underline font-mono">
+                          {sheet.customerPhone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
 
             <form onSubmit={handlePhoneSubmit} className="space-y-3 text-xs">
               <div>

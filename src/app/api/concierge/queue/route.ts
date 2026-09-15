@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireConcierge } from '@/lib/auth/session';
+import { isAppError } from '@/lib/errors';
 
 export async function GET(req: NextRequest) {
   try {
-    const user = await requireConcierge();
+    await requireConcierge();
 
     const [requests, escalatedTasks] = await Promise.all([
       db.conciergeRequest.findMany({
         where: { deletedAt: null },
         include: {
-          customer: { include: { user: { select: { name: true, email: true } }, preferences: true } },
+          customer: { include: { user: { select: { name: true, email: true, phone: true } }, preferences: true } },
           category: true,
           assignments: {
             where: { unassignedAt: null },
@@ -24,8 +25,8 @@ export async function GET(req: NextRequest) {
       db.task.findMany({
         where: { status: 'NEEDS_HUMAN' },
         include: {
-          customer: { include: { user: { select: { name: true, email: true } }, preferences: true } },
-          events: { orderBy: { createdAt: 'desc' }, take: 5 },
+          customer: { include: { user: { select: { name: true, email: true, phone: true } }, preferences: true } },
+          events: { orderBy: { createdAt: 'desc' }, take: 10 },
         },
         orderBy: [{ priority: 'desc' }, { createdAt: 'desc' }],
       }),
@@ -33,6 +34,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ requests, escalatedTasks });
   } catch (error: any) {
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     return NextResponse.json({ error: error.message || 'Unauthorized' }, { status: 403 });
   }
 }
