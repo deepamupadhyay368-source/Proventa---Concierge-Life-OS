@@ -9,8 +9,10 @@ export function isMockModeEnabled(): boolean {
 }
 
 export class MockDiningAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'mock_dining';
   name = 'OpenTable / Resy Mock Dining Provider';
   supportedCategories = ['dining'];
+  readonly environment = 'SANDBOX' as const;
 
   async search(query: {
     category: string;
@@ -21,6 +23,7 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `mock-dine-1-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'Agashiye - The House of MG',
         title: 'Heritage Rooftop Dining - Table for 2',
         description: 'Authentic Gujarati Thali dining on the heritage rooftop terrace. Prime 8:00 PM seating.',
@@ -35,6 +38,7 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
       },
       {
         id: `mock-dine-2-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'The Royal Vega - ITC Narmada',
         title: 'Luxury Vegetarian Fine Dining [Sandbox]',
         description: 'Regal dining experience celebrating ancestral Indian cuisine.',
@@ -54,6 +58,7 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
     if (!isMockModeEnabled()) {
       return {
         success: false,
+        providerId: this.providerId,
         providerName: proposal.providerName,
         status: 'FAILED',
         environment: 'SANDBOX',
@@ -65,6 +70,7 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
     const ref = `[SANDBOX]-DIN-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
@@ -100,8 +106,10 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
 }
 
 export class MockHotelAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'mock_hotel';
   name = 'Amadeus / Sabre Global GDS Mock Adapter';
   supportedCategories = ['travel', 'hotel', 'flights'];
+  readonly environment = 'SANDBOX' as const;
 
   async search(query: {
     category: string;
@@ -112,6 +120,7 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `mock-hotel-1-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'ITC Narmada, a Luxury Collection Hotel',
         title: 'Executive Suite, Bodakdev Ahmedabad',
         description: 'King bed suite with skyline views, club lounge access, breakfast included.',
@@ -121,9 +130,12 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
         availability: 'Guaranteed Room Availability',
         bookingMethod: 'API',
         cancellationPolicy: 'Full refund 24 hours prior to check-in.',
+        environment: 'SANDBOX',
+        isMock: true,
       },
       {
         id: `mock-hotel-2-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'Taj Skyline, Ahmedabad',
         title: 'Luxury King Room - Sindhu Bhavan Road',
         description: 'Contemporary luxury room with city view, complimentary airport transfer.',
@@ -133,6 +145,8 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
         availability: '2 rooms remaining',
         bookingMethod: 'API',
         cancellationPolicy: 'Non-refundable rate.',
+        environment: 'SANDBOX',
+        isMock: true,
       },
     ];
   }
@@ -141,9 +155,12 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
     const ref = `[MOCK]-HTL-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
+      environment: 'SANDBOX',
+      isMock: true,
       rawResponse: {
         gds: 'Amadeus Mock Sandbox',
         status: 'HK' /* Holds Confirmed */,
@@ -165,7 +182,8 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
       verified: true,
       status: 'CONFIRMED',
       confirmationReference: referenceId,
-      isMock: referenceId.includes('MOCK'),
+      environment: 'SANDBOX',
+      isMock: referenceId.includes('MOCK') || true,
       verifiedAt: new Date(),
       auditTrail: `GDS PNR status confirmed via mock GDS verification. Reference: ${referenceId}`,
     };
@@ -173,8 +191,10 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
 }
 
 export class MockMobilityAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'mock_mobility';
   name = 'Blacklane / Luxury Chauffeur Fleet Adapter';
   supportedCategories = ['mobility', 'transit'];
+  readonly environment = 'SANDBOX' as const;
 
   async search(query: {
     category: string;
@@ -185,6 +205,7 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `mock-mob-1-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'Proventa Chauffeur Network - SVPIA Fleet',
         title: 'Mercedes-Benz E-Class Executive Airport Transfer',
         description: 'Chauffeur meet & greet at SVPIA arrival terminal, bottled water, Wi-Fi, flight tracking.',
@@ -194,6 +215,8 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
         availability: 'Dedicated Driver Assigned on Approval',
         bookingMethod: 'API',
         cancellationPolicy: 'Complimentary cancellation up to 1 hour prior.',
+        environment: 'SANDBOX',
+        isMock: true,
       },
     ];
   }
@@ -202,9 +225,12 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
     const ref = `[MOCK]-CHAUFF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
+      environment: 'SANDBOX',
+      isMock: true,
       rawResponse: {
         fleetStatus: 'DRIVER_DISPATCHED',
         driverName: 'Ramesh Patel',
@@ -225,7 +251,8 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
       verified: true,
       status: 'CONFIRMED',
       confirmationReference: referenceId,
-      isMock: referenceId.includes('MOCK'),
+      environment: 'SANDBOX',
+      isMock: referenceId.includes('MOCK') || true,
       verifiedAt: new Date(),
       auditTrail: `Fleet dispatch telemetry confirmed via mobility partner mock API. Reference: ${referenceId}`,
     };
@@ -233,8 +260,10 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
 }
 
 export class MockShoppingAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'mock_shopping';
   name = 'Luxury Retail & Concierge Gifting Adapter';
   supportedCategories = ['shopping', 'gift'];
+  readonly environment = 'SANDBOX' as const;
 
   async search(query: {
     category: string;
@@ -245,6 +274,7 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `mock-shop-1-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'Bandhej & Raw Mango Curated Gifting',
         title: 'Bespoke Handwoven Silk Stole Gift Box',
         description: 'Handcrafted pure mulberry silk stole with custom handwritten calligraphy note and luxury gift box.',
@@ -254,6 +284,8 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
         availability: 'Same-day courier packaging available',
         bookingMethod: 'API',
         cancellationPolicy: 'Customized luxury orders non-refundable once packed.',
+        environment: 'SANDBOX',
+        isMock: true,
       },
     ];
   }
@@ -262,9 +294,12 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
     const ref = `[MOCK]-GIFT-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
+      environment: 'SANDBOX',
+      isMock: true,
       rawResponse: {
         boutiqueOrderRef: ref,
         status: 'ORDER_PLACED_PACKAGING',
@@ -282,7 +317,8 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
       verified: true,
       status: 'CONFIRMED',
       confirmationReference: referenceId,
-      isMock: referenceId.includes('MOCK'),
+      environment: 'SANDBOX',
+      isMock: referenceId.includes('MOCK') || true,
       verifiedAt: new Date(),
       auditTrail: `Boutique order verified via retail partner mock inventory system. Reference: ${referenceId}`,
     };

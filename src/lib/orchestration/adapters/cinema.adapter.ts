@@ -2,6 +2,7 @@ import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, Verific
 import { logger } from '@/lib/logger';
 
 export class CinemaAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'cinema_pvr_inox';
   name = 'PVR INOX / BookMyShow Cinema & Entertainment Gateway';
   supportedCategories = ['movies', 'cinema', 'tickets', 'movie', 'entertainment', 'experiences'];
 
@@ -24,6 +25,7 @@ export class CinemaAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `cine-pvr-${Date.now()}-1`,
+        providerId: this.providerId,
         providerName: 'PVR INOX Insignia / Luxe (Palladium Ahmedabad)',
         title: isImax
           ? 'PVR INOX IMAX with Laser / Insignia Prime — Recliner Seats'
@@ -46,6 +48,7 @@ export class CinemaAdapter implements ProviderAdapterInterface {
       },
       {
         id: `cine-cinepolis-${Date.now()}-2`,
+        providerId: this.providerId,
         providerName: 'CinÃ©polis VIP (Alpha One / Ahmedabad One)',
         title: 'CinÃ©polis VIP Club Lounge & Recliner Auditorium',
         description: 'Exclusive VIP lounge access with welcome beverages, motorized full-recliners, personal blankets.',
@@ -71,6 +74,7 @@ export class CinemaAdapter implements ProviderAdapterInterface {
 
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: pnrRef,
       providerName: proposal.providerName,
       status: 'CONFIRMED',

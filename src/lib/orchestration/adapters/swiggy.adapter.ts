@@ -9,6 +9,7 @@ export interface SwiggyConfig {
 }
 
 export class SwiggyAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'swiggy_dineout';
   name = 'Swiggy / Dineout & Gourmet Delivery Gateway';
   supportedCategories = ['dining', 'food', 'delivery', 'gourmet'];
   
@@ -55,6 +56,8 @@ export class SwiggyAdapter implements ProviderAdapterInterface {
           if (data.restaurants && data.restaurants.length > 0) {
             return data.restaurants.map((r: any, idx: number) => ({
               id: `swiggy-live-${r.id || idx}`,
+              providerId: this.providerId,
+              venueId: r.id ? String(r.id) : undefined,
               providerName: r.name,
               title: `${r.name} — Swiggy Gourmet / Dineout`,
               description: r.cuisineSummary || r.description || 'Verified via Swiggy Enterprise Gateway',
@@ -82,6 +85,7 @@ export class SwiggyAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `swiggy-sandbox-1-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'Swiggy Gourmet — Artisan Kitchens',
         title: 'Swiggy Gourmet Reserve — Private Table / Catering [SANDBOX]',
         description: 'Bespoke culinary dining curated via Swiggy Gourmet network. (Sandbox mode: Connect SWIGGY_API_KEY for live inventory).',
@@ -101,6 +105,7 @@ export class SwiggyAdapter implements ProviderAdapterInterface {
       },
       {
         id: `swiggy-sandbox-2-${Date.now()}`,
+        providerId: this.providerId,
         providerName: 'Swiggy Dineout — Luxury Dining',
         title: 'Dineout Privilege Table — Prime Seating [SANDBOX]',
         description: 'Direct venue reservation via Swiggy Dineout partner desk. 20% concierge privilege.',
@@ -145,6 +150,7 @@ export class SwiggyAdapter implements ProviderAdapterInterface {
           const data = await res.json();
           return {
             success: true,
+            providerId: this.providerId,
             externalReferenceId: data.orderId || data.reservationId,
             providerName: proposal.providerName,
             status: 'CONFIRMED',
@@ -167,6 +173,7 @@ export class SwiggyAdapter implements ProviderAdapterInterface {
     const sandboxRef = `[SANDBOX]-SWIGGY-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: sandboxRef,
       providerName: proposal.providerName,
       status: 'CONFIRMED',

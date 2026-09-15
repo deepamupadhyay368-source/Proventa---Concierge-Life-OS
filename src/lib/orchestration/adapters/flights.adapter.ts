@@ -2,6 +2,7 @@ import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, Verific
 import { logger } from '@/lib/logger';
 
 export class FlightsAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'amadeus_flights';
   name = 'Amadeus / Aviation GDS Flight Gateway';
   supportedCategories = ['flights', 'flight', 'travel', 'airline'];
 
@@ -40,6 +41,7 @@ export class FlightsAdapter implements ProviderAdapterInterface {
     return [
       {
         id: `flt-vistara-${Date.now()}-1`,
+        providerId: this.providerId,
         providerName: 'Air India / Vistara Premium',
         title: isBusiness
           ? 'Air India / Vistara Business Class (AMD ➔ DEL/BOM)'
@@ -64,6 +66,7 @@ export class FlightsAdapter implements ProviderAdapterInterface {
       },
       {
         id: `flt-indigo-${Date.now()}-2`,
+        providerId: this.providerId,
         providerName: 'IndiGo 6E Priority',
         title: 'IndiGo Non-Stop Express — 6E Prime (Fast Forward)',
         description: 'Prime row seating, priority airport check-in, fast-track baggage delivery, onboard snack combo.',
@@ -92,6 +95,7 @@ export class FlightsAdapter implements ProviderAdapterInterface {
 
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: pnrRef,
       providerName: proposal.providerName,
       status: 'CONFIRMED',

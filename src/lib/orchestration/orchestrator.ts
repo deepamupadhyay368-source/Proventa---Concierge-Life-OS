@@ -257,13 +257,23 @@ export class RequestOrchestrator {
     option: OptionProposal;
     userId?: string;
   }) {
-    const { taskId, option } = params;
+    let { taskId, option } = params;
 
     const taskRecord = await db.task.findUnique({
       where: { id: taskId },
       include: { customer: { include: { user: true } } },
     });
     if (!taskRecord) throw new Error(`Task ${taskId} not found`);
+
+    // Defensive recovery: if client submitted an option without providerId, look up in taskRecord.proposedOptions
+    if (!option.providerId && Array.isArray(taskRecord.proposedOptions)) {
+      const storedOption = (taskRecord.proposedOptions as any[]).find(
+        (o: any) => o.id === option.id || o.title === option.title
+      );
+      if (storedOption?.providerId) {
+        option = { ...option, providerId: storedOption.providerId, venueId: storedOption.venueId };
+      }
+    }
 
     const assignedAgent = findAgentForTask(taskRecord.category, taskRecord.intent);
 

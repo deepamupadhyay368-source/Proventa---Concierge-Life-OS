@@ -34,7 +34,8 @@ export type ExecutionEnvironment = 'REAL' | 'SANDBOX' | 'HUMAN_FALLBACK';
 export interface OptionProposal {
   id: string;
   title: string;
-  providerId?: string;
+  providerId: string;
+  venueId?: string;
   providerName: string;
   description: string;
   address?: string;
@@ -54,6 +55,7 @@ export interface OptionProposal {
 
 export interface ExecutionOutput {
   success: boolean;
+  providerId?: string;
   externalReferenceId?: string;
   providerName: string;
   status?: string;
@@ -89,6 +91,7 @@ export interface TaskAgentInterface {
 }
 
 export interface ProviderAdapterInterface {
+  providerId: string;
   name: string;
   supportedCategories: string[];
   environment?: ExecutionEnvironment;

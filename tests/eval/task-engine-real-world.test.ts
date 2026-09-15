@@ -102,6 +102,7 @@ describe('Task Engine: Real-World Execution Platform Suite', () => {
     it('requires explicit client authorization when total exceeds auto-approval threshold', async () => {
       const proposal = {
         id: 'prop-1',
+        providerId: 'ahmedabad_verified',
         title: 'The Royal Vega Heritage Banquet',
         providerName: 'The Royal Vega',
         description: 'Imperial vegetarian tasting menu for 6',
@@ -123,6 +124,7 @@ describe('Task Engine: Real-World Execution Platform Suite', () => {
     it('permits pre-authorization when dining amount is under ₹5,000 auto-approve limit', async () => {
       const proposal = {
         id: 'prop-2',
+        providerId: 'ahmedabad_verified',
         title: 'Agashiye Heritage Dining',
         providerName: 'Agashiye',
         description: 'Authentic rooftop thali for 2',

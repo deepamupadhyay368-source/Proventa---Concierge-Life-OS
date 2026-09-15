@@ -49,37 +49,94 @@ class BaseDomainAgent implements TaskAgentInterface {
   }
 
   async execute(task: any, proposal: OptionProposal): Promise<ExecutionOutput> {
-    const adapters = AdapterRegistry.getAdaptersForCategory(this.category);
-    const adapter = adapters[0];
-
-    if (!adapter) {
+    if (!proposal.providerId) {
       return {
         success: false,
         providerName: proposal.providerName,
         status: 'FAILED',
+        environment: proposal.environment,
+        isMock: proposal.isMock,
         confirmedDetails: {},
-        errorMessage: `No provider adapter registered for ${this.category}`,
+        errorMessage: `Execution aborted: Proposal '${proposal.title}' does not specify a valid providerId.`,
       };
     }
 
-    return adapter.execute(proposal, {
+    const adapter = AdapterRegistry.getAdapterById(proposal.providerId);
+    if (!adapter) {
+      return {
+        success: false,
+        providerId: proposal.providerId,
+        providerName: proposal.providerName,
+        status: 'FAILED',
+        environment: proposal.environment,
+        isMock: proposal.isMock,
+        confirmedDetails: {},
+        errorMessage: `Execution aborted: Provider adapter '${proposal.providerId}' not found in registry.`,
+      };
+    }
+
+    // Ensure adapter supports this category or general 'all'
+    const supportsDomain =
+      adapter.supportedCategories.includes(this.category.toLowerCase()) ||
+      adapter.supportedCategories.includes('all');
+
+    if (!supportsDomain) {
+      return {
+        success: false,
+        providerId: proposal.providerId,
+        providerName: proposal.providerName,
+        status: 'FAILED',
+        environment: proposal.environment,
+        isMock: proposal.isMock,
+        confirmedDetails: {},
+        errorMessage: `Execution aborted: Provider adapter '${proposal.providerId}' does not support domain category '${this.category}'.`,
+      };
+    }
+
+    const executionResult = await adapter.execute(proposal, {
       guests: task.partySize || 2,
       scheduledTime: task.targetDate ? new Date(task.targetDate).toISOString() : 'Scheduled',
       specialRequests: task.clientPreferences ? JSON.stringify(task.clientPreferences) : '',
     });
+
+    // Guarantee providerId is attached to execution output
+    if (!executionResult.providerId) {
+      executionResult.providerId = adapter.providerId;
+    }
+
+    return executionResult;
   }
 
   async verify(execution: ExecutionOutput): Promise<VerificationResult> {
-    const adapters = AdapterRegistry.getAdaptersForCategory(this.category);
-    const adapter = adapters[0];
-
-    if (!adapter || !execution.externalReferenceId) {
+    if (!execution.providerId) {
       return {
         verified: false,
         status: 'FAILED',
-        isMock: false,
+        isMock: execution.isMock,
         verifiedAt: new Date(),
-        auditTrail: 'No adapter or reference available for verification',
+        auditTrail: 'Verification failed: Execution output is missing providerId.',
+      };
+    }
+
+    const adapter = AdapterRegistry.getAdapterById(execution.providerId);
+    if (!adapter) {
+      return {
+        verified: false,
+        status: 'FAILED',
+        isMock: execution.isMock,
+        verifiedAt: new Date(),
+        auditTrail: `Verification failed: Provider adapter '${execution.providerId}' not found in registry.`,
+      };
+    }
+
+    if (!execution.externalReferenceId) {
+      return {
+        verified: false,
+        status: 'FAILED',
+        environment: adapter.environment,
+        isMock: execution.isMock,
+        verifiedAt: new Date(),
+        auditTrail: 'Verification failed: No external reference available for verification.',
       };
     }
 

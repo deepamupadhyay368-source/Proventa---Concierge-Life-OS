@@ -195,6 +195,7 @@ export class ProventaOrchestratorAgent {
           category: stepDef.assignedAgent.toLowerCase().includes('food') ? 'food' : 'travel',
           proposal: {
             id: 'step_' + stepDef.stepNumber,
+            providerId: 'proventa_autonomous_engine',
             title: stepDef.title,
             description: stepDef.description,
             priceAmount: costINR,

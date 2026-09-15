@@ -2,6 +2,7 @@ import { AHMEDABAD_PLACES, type SeedProvider } from '@/data/ahmedabad-places';
 import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
 
 export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'ahmedabad_verified';
   name = 'Ahmedabad Verified Provider Network';
   environment: 'REAL' = 'REAL';
   supportedCategories = [
@@ -59,7 +60,8 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
 
       return {
         id: `prop-${place.id}-${Date.now()}-${idx}`,
-        providerId: place.id,
+        providerId: this.providerId,
+        venueId: place.id,
         providerName: place.name,
         title: `${place.name} — Verified Reservation`,
         description: place.description,
@@ -73,6 +75,7 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
         environment: 'REAL',
         isMock: false,
         metadata: {
+          placeId: place.id,
           address: place.address,
           phone: place.phone,
           notes: place.notes,
@@ -111,6 +114,7 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
 
     return {
       success: true,
+      providerId: this.providerId,
       externalReferenceId: ref,
       providerName: proposal.providerName,
       status: 'CONFIRMED',
@@ -119,12 +123,14 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
       rawResponse: {
         network: 'Proventa Ahmedabad Verified Partner Direct Desk',
         venue: proposal.providerName,
+        venueId: proposal.venueId || proposal.metadata?.placeId,
         bookingMethod: proposal.bookingMethod,
         ref,
         timestamp: new Date().toISOString(),
       },
       confirmedDetails: {
         provider: proposal.providerName,
+        venueId: proposal.venueId || proposal.metadata?.placeId,
         scheduledFor: bookingDetails.scheduledTime || 'As Requested',
         guests: bookingDetails.guests || 2,
         specialNotes: bookingDetails.specialRequests || 'Quiet corner table, priority seating',

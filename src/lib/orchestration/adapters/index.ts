@@ -7,6 +7,7 @@ import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingA
 
 export class AdapterRegistry {
   private static adapters: Map<string, ProviderAdapterInterface[]> = new Map();
+  private static adaptersById: Map<string, ProviderAdapterInterface> = new Map();
   private static initialized = false;
 
   private static init() {
@@ -35,6 +36,10 @@ export class AdapterRegistry {
     const list = this.adapters.get(key) || [];
     list.push(adapter);
     this.adapters.set(key, list);
+
+    if (adapter.providerId) {
+      this.adaptersById.set(adapter.providerId, adapter);
+    }
   }
 
   static getAdaptersForCategory(category: string): ProviderAdapterInterface[] {
@@ -47,6 +52,16 @@ export class AdapterRegistry {
       if (a.environment !== 'REAL' && b.environment === 'REAL') return 1;
       return 0;
     });
+  }
+
+  static getAdapterById(providerId: string): ProviderAdapterInterface | undefined {
+    this.init();
+    return this.adaptersById.get(providerId);
+  }
+
+  static getAllAdapters(): ProviderAdapterInterface[] {
+    this.init();
+    return Array.from(this.adaptersById.values());
   }
 
   static getPrimaryAdapter(category: string): ProviderAdapterInterface {
