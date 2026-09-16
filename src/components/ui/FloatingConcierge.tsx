@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
-import { MessageSquare, Sparkles, X, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Sparkles, X, ShieldCheck, ArrowRight } from 'lucide-react';
 
 export function FloatingConcierge() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +34,7 @@ export function FloatingConcierge() {
 
           <div className="py-4 space-y-3">
             <p className="text-xs text-[#3a3835] leading-relaxed">
-              Welcome, Member. Your dedicated concierge team is active. How would you prefer to connect today?
+              Welcome, Member. Your dedicated concierge team is active. Submit a Life OS request to initiate immediate arrangements.
             </p>
 
             <div className="space-y-2">
@@ -50,24 +50,6 @@ export function FloatingConcierge() {
                   <div>
                     <span className="text-xs font-semibold text-[#141312] block">Submit Life OS Request</span>
                     <span className="text-[10px] text-[#928f88]">AI brief + Verified Concierge execution</span>
-                  </div>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-[#928f88] group-hover:translate-x-0.5 transition-transform" />
-              </a>
-
-              <a
-                href="https://wa.me/919876543210?text=Hello%20Proventa%20Concierge%2C%20I%20am%20a%20Cohort%201%20Member%20and%20need%20assistance."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-white border border-[#e8e2d8] hover:border-[#25D366] hover:shadow-xs transition-all group text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-emerald-50 text-emerald-700 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                    <MessageSquare className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <span className="text-xs font-semibold text-[#141312] block">WhatsApp Private Hotline</span>
-                    <span className="text-[10px] text-[#928f88]">Direct instant messaging with desk</span>
                   </div>
                 </div>
                 <ArrowRight className="h-3.5 w-3.5 text-[#928f88] group-hover:translate-x-0.5 transition-transform" />
