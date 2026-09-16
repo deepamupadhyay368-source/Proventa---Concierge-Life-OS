@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { db } from '@/lib/db';
 import { validateTransition } from '@/lib/orchestration/state-machine';
 import { appendTaskEvent } from '@/lib/orchestration/timeline';
@@ -10,8 +11,25 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { taskId, publicId, externalReferenceId, providerName, confirmedDetails, secret } = body;
 
-    const expectedSecret = process.env.PARTNER_WEBHOOK_SECRET || 'proventa_partner_secret';
-    if (secret && secret !== expectedSecret) {
+    const configuredSecret = process.env.PARTNER_WEBHOOK_SECRET;
+    if (process.env.NODE_ENV === 'production' && !configuredSecret) {
+      logger.error('[PartnerWebhook] PARTNER_WEBHOOK_SECRET not configured in production');
+      return NextResponse.json({ error: 'Webhook configuration error' }, { status: 500 });
+    }
+
+    const expectedSecret = configuredSecret || 'proventa_partner_secret';
+    if (!secret) {
+      return NextResponse.json({ error: 'Unauthorized: missing webhook secret' }, { status: 401 });
+    }
+
+    const secretBuffer = Buffer.from(secret);
+    const expBuffer = Buffer.from(expectedSecret);
+
+    const isSecretValid =
+      secretBuffer.length === expBuffer.length &&
+      crypto.timingSafeEqual(secretBuffer, expBuffer);
+
+    if (!isSecretValid) {
       return NextResponse.json({ error: 'Unauthorized webhook caller' }, { status: 401 });
     }
 

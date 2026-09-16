@@ -11,6 +11,5 @@ export const db =
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   });
 
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = db;
-}
+// Cache on globalThis across all environments to prevent connection exhaustion in serverless/warm environments
+globalForPrisma.prisma = db;

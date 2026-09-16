@@ -6,7 +6,14 @@ import { appendTaskEvent } from '@/lib/orchestration/timeline';
 export async function POST(req: NextRequest) {
   try {
     const signature = req.headers.get('x-razorpay-signature');
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET || 'proventa_webhook_secret_dev';
+    const configuredSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+
+    if (process.env.NODE_ENV === 'production' && !configuredSecret) {
+      console.error('[Razorpay Webhook] RAZORPAY_WEBHOOK_SECRET not configured');
+      return NextResponse.json({ error: 'Webhook configuration error' }, { status: 500 });
+    }
+
+    const secret = configuredSecret || 'proventa_webhook_secret_dev';
     const rawBody = await req.text();
 
     // Verify HMAC-SHA256 signature

@@ -161,4 +161,72 @@ describe('Phase 3.1: Production Infrastructure Hardening Test Suite', () => {
       expect(homeAdapter.providerId).toBe('ahmedabad_verified');
     });
   });
+
+  describe('5. Phase 3.2: Webhook Security, Authorization & Buffer Length Safety', () => {
+    it('verifies Razorpay signature helper safely handles mismatched buffer lengths without crashing', async () => {
+      const { verifyWebhookSignature } = await import('@/lib/payments/razorpay');
+      // Mismatched length should return false, not throw ERR_CRYPTO_TIMING_SAFE_EQUAL_LENGTH
+      expect(verifyWebhookSignature('{"test":1}', 'short_sig', 'test_secret')).toBe(false);
+      expect(verifyWebhookSignature('', '', '')).toBe(false);
+
+      // Authentic signature test
+      const secret = 'super_secret';
+      const body = JSON.stringify({ event: 'test' });
+      const validSig = crypto.createHmac('sha256', secret).update(body).digest('hex');
+      expect(verifyWebhookSignature(body, validSig, secret)).toBe(true);
+    });
+
+    it('rejects partner confirmation webhook if secret is omitted or incorrect', async () => {
+      const { POST: partnerHandler } = await import('@/app/api/webhooks/partner-confirmation/route');
+      
+      // Request with missing secret
+      const reqMissing = new Request('http://localhost:3000/api/webhooks/partner-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taskId: 'task-123',
+          externalReferenceId: 'EXT-999',
+        }),
+      });
+
+      const resMissing = await partnerHandler(reqMissing as any);
+      expect(resMissing.status).toBe(401);
+
+      // Request with wrong secret
+      const reqWrong = new Request('http://localhost:3000/api/webhooks/partner-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taskId: 'task-123',
+          externalReferenceId: 'EXT-999',
+          secret: 'wrong_secret',
+        }),
+      });
+
+      const resWrong = await partnerHandler(reqWrong as any);
+      expect(resWrong.status).toBe(401);
+    });
+
+    it('rejects WhatsApp webhook POST in production when HMAC signature is invalid', async () => {
+      const { POST: whatsappPostHandler } = await import('@/app/api/webhooks/whatsapp/route');
+      vi.stubEnv('NODE_ENV', 'production');
+      process.env.WHATSAPP_APP_SECRET = 'app_secret_abc';
+
+      try {
+        const req = new Request('http://localhost:3000/api/webhooks/whatsapp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-hub-signature-256': 'sha256=invalid_hash',
+          },
+          body: JSON.stringify({ entry: [] }),
+        });
+
+        const res = await whatsappPostHandler(req as any);
+        expect(res.status).toBe(401);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+  });
 });

@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { db } from '@/lib/db';
 import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 import { logger } from '@/lib/logger';
-
-const VERIFY_TOKEN = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN || 'proventa_webhook_secret';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -12,7 +11,15 @@ export async function GET(req: NextRequest) {
   const token = searchParams.get('hub.verify_token');
   const challenge = searchParams.get('hub.challenge');
 
-  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+  const configuredToken = process.env.WHATSAPP_WEBHOOK_VERIFY_TOKEN;
+  if (process.env.NODE_ENV === 'production' && !configuredToken) {
+    logger.error('[WhatsApp Webhook] WHATSAPP_WEBHOOK_VERIFY_TOKEN not configured in production');
+    return NextResponse.json({ error: 'Webhook configuration error' }, { status: 500 });
+  }
+
+  const effectiveToken = configuredToken || 'proventa_webhook_secret';
+
+  if (mode === 'subscribe' && token === effectiveToken) {
     return new NextResponse(challenge, { status: 200 });
   }
 
@@ -21,7 +28,37 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const rawBody = await req.text();
+    const signature = req.headers.get('x-hub-signature-256');
+    const appSecret = process.env.WHATSAPP_APP_SECRET;
+
+    // Verify Meta Cloud API webhook signature when configured or in production
+    if (process.env.NODE_ENV === 'production' || appSecret) {
+      if (!appSecret) {
+        logger.error('[WhatsApp Webhook] WHATSAPP_APP_SECRET not configured in production');
+        return NextResponse.json({ error: 'Webhook configuration error' }, { status: 500 });
+      }
+
+      if (!signature || !signature.startsWith('sha256=')) {
+        return NextResponse.json({ error: 'Missing or invalid signature header' }, { status: 401 });
+      }
+
+      const sigHash = signature.slice(7);
+      const expectedHash = crypto
+        .createHmac('sha256', appSecret)
+        .update(rawBody)
+        .digest('hex');
+
+      const sigBuffer = Buffer.from(sigHash);
+      const expBuffer = Buffer.from(expectedHash);
+
+      if (sigBuffer.length !== expBuffer.length || !crypto.timingSafeEqual(sigBuffer, expBuffer)) {
+        logger.warn('[WhatsApp Webhook] Invalid HMAC signature');
+        return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 });
+      }
+    }
+
+    const body = JSON.parse(rawBody);
     const entry = body.entry?.[0];
     const changes = entry?.changes?.[0];
     const value = changes?.value;
@@ -70,44 +107,26 @@ export async function POST(req: NextRequest) {
     if (text === '1' || text.includes('approve 1') || text === 'option 1') {
       const selectedOption = proposals[0];
       if (selectedOption) {
-        await RequestOrchestrator.executeApprovedTask({
+        const execResult = await RequestOrchestrator.executeApprovedTask({
           taskId: task.id,
           option: selectedOption,
           userId: user.id,
         });
 
-        await sendWhatsAppNotification({
-          phone: fromPhone,
-          template: 'BOOKING_CONFIRMED',
-          params: {
-            name: user.name || 'Member',
-            details: `${selectedOption.title} is being processed and confirmed.`,
-            actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${task.id}`,
-          },
-        });
-
-        return NextResponse.json({ status: 'approved_option_1' });
+        // executeApprovedTask already sends the appropriate status-specific notification
+        // (AWAITING_CONCIERGE_CALL for phone bookings or BOOKING_CONFIRMED for live confirmed bookings)
+        return NextResponse.json({ status: 'approved_option_1', taskStatus: execResult.task?.status });
       }
     } else if (text === '2' || text.includes('approve 2') || text === 'option 2') {
       const selectedOption = proposals[1] || proposals[0];
       if (selectedOption) {
-        await RequestOrchestrator.executeApprovedTask({
+        const execResult = await RequestOrchestrator.executeApprovedTask({
           taskId: task.id,
           option: selectedOption,
           userId: user.id,
         });
 
-        await sendWhatsAppNotification({
-          phone: fromPhone,
-          template: 'BOOKING_CONFIRMED',
-          params: {
-            name: user.name || 'Member',
-            details: `${selectedOption.title} is being processed and confirmed.`,
-            actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${task.id}`,
-          },
-        });
-
-        return NextResponse.json({ status: 'approved_option_2' });
+        return NextResponse.json({ status: 'approved_option_2', taskStatus: execResult.task?.status });
       }
     } else if (text.includes('decline') || text.includes('no') || text.includes('change')) {
       await db.task.update({

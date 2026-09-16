@@ -1,4 +1,4 @@
-﻿import crypto from 'crypto';
+import crypto from 'crypto';
 import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 
@@ -56,9 +56,17 @@ export async function createPaymentIntent(params: CreatePaymentIntentParams) {
 }
 
 export function verifyWebhookSignature(body: string, signature: string, secret: string): boolean {
+  if (!signature || !secret || !body) {
+    return false;
+  }
   const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(body)
     .digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature));
+  const sigBuffer = Buffer.from(signature);
+  const expBuffer = Buffer.from(expectedSignature);
+  if (sigBuffer.length !== expBuffer.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(sigBuffer, expBuffer);
 }

@@ -1,8 +1,10 @@
 import Redis from 'ioredis';
 import { logger } from '@/lib/logger';
 
-let redisInstance: Redis | null = null;
-let isRedisAvailable = false;
+const globalForRedis = globalThis as unknown as {
+  redisClient: Redis | undefined;
+  isRedisAvailable?: boolean;
+};
 
 export function getRedisClient(): Redis | null {
   const redisUrl = process.env.REDIS_URL;
@@ -10,16 +12,22 @@ export function getRedisClient(): Redis | null {
     return null;
   }
 
-  if (redisInstance) {
-    return redisInstance;
+  if (globalForRedis.redisClient) {
+    return globalForRedis.redisClient;
   }
 
   try {
+    const isTls = redisUrl.startsWith('rediss://');
     const client = new Redis(redisUrl, {
       maxRetriesPerRequest: 1,
       connectTimeout: 2000,
       enableOfflineQueue: false,
       lazyConnect: true,
+      tls: isTls
+        ? {
+            rejectUnauthorized: process.env.REDIS_TLS_REJECT_UNAUTHORIZED !== 'false',
+          }
+        : undefined,
       retryStrategy: (times: number) => {
         if (times > 3) return null; // stop retrying after 3 attempts
         return Math.min(times * 200, 1000);
@@ -27,17 +35,17 @@ export function getRedisClient(): Redis | null {
     });
 
     client.on('connect', () => {
-      isRedisAvailable = true;
+      globalForRedis.isRedisAvailable = true;
       logger.info('Connected to Redis server');
     });
 
     client.on('error', (err) => {
-      isRedisAvailable = false;
+      globalForRedis.isRedisAvailable = false;
       logger.warn({ err: err.message }, '[Redis] Connection degraded, falling back gracefully');
     });
 
     client.on('close', () => {
-      isRedisAvailable = false;
+      globalForRedis.isRedisAvailable = false;
     });
 
     // Attempt non-blocking connection
@@ -45,8 +53,8 @@ export function getRedisClient(): Redis | null {
       logger.warn({ err: err.message }, '[Redis] Initial connection attempt failed');
     });
 
-    redisInstance = client;
-    return redisInstance;
+    globalForRedis.redisClient = client;
+    return globalForRedis.redisClient;
   } catch (err: any) {
     logger.warn({ err: err.message }, '[Redis] Failed to initialize Redis client');
     return null;
@@ -54,7 +62,7 @@ export function getRedisClient(): Redis | null {
 }
 
 export function isRedisHealthy(): boolean {
-  return isRedisAvailable;
+  return globalForRedis.isRedisAvailable ?? false;
 }
 
 export async function pingRedis(): Promise<{ healthy: boolean; latencyMs?: number; error?: string }> {
