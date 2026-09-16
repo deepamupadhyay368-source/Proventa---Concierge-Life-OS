@@ -247,8 +247,7 @@ export class ToolRegistry {
         scheduledSlot: z.string().optional(),
       }),
       execute: async (input) => {
-        const adapters = AdapterRegistry.getAdaptersForCategory('home');
-        const adapter = adapters[0] || AdapterRegistry.getPrimaryAdapter('home');
+        const adapter = AdapterRegistry.getPrimaryAdapter('home');
         const proposals = await adapter.search({
           category: 'home',
           rawInput: input.serviceType,

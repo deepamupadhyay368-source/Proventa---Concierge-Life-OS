@@ -128,12 +128,13 @@ export class ModularToolRegistry {
         specialRequests: z.string().optional(),
       }),
       execute: async (input) => {
-        const ref = `PV-DIN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+        const ref = `[MOCK]-DIN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         return {
           success: true,
           externalReferenceId: ref,
           providerName: input.venueName,
           status: 'CONFIRMED',
+          isMock: true,
           details: {
             venue: input.venueName,
             guests: input.partySize,

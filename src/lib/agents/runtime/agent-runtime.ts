@@ -179,6 +179,32 @@ export class AgentRuntime {
         };
       }
 
+      // Safety Guard: Mock or sandbox verification must NEVER reach CONFIRMED in production execution
+      if (verification.isMock || verification.environment === 'SANDBOX' || (verification.confirmationReference && verification.confirmationReference.includes('[MOCK]'))) {
+        await db.task.update({
+          where: { id: taskId },
+          data: {
+            status: 'NEEDS_HUMAN',
+            isEscalated: true,
+            failedReason: 'Simulated or sandbox verification rejected. Cannot mark booking as confirmed.',
+          },
+        });
+        await appendTaskEvent({
+          taskId,
+          eventType: 'EXECUTION_REJECTED_MOCK',
+          actorRole: 'SYSTEM',
+          message: 'Mock/sandbox execution rejected: Real-world reservations require genuine external confirmation.',
+          data: { reference: verification.confirmationReference, isMock: true },
+        });
+        return {
+          success: false,
+          step: 'VERIFY',
+          taskStatus: 'NEEDS_HUMAN',
+          verification,
+          isEscalated: true,
+        };
+      }
+
       // 9. COMPLETE
       await db.task.update({
         where: { id: taskId },

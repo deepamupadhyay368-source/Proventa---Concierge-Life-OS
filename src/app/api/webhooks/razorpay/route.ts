@@ -15,9 +15,14 @@ export async function POST(req: NextRequest) {
       .update(rawBody)
       .digest('hex');
 
+    const sigBuffer = signature ? Buffer.from(signature) : null;
+    const expBuffer = Buffer.from(expectedSignature);
+
     const isValidSignature =
       process.env.NODE_ENV !== 'production' ||
-      (signature && crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature)));
+      (sigBuffer &&
+        sigBuffer.length === expBuffer.length &&
+        crypto.timingSafeEqual(sigBuffer, expBuffer));
 
     if (!isValidSignature) {
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });
@@ -35,21 +40,28 @@ export async function POST(req: NextRequest) {
       const taskId = notes.taskId;
 
       if (taskId) {
-        await db.task.update({
+        const existingTask = await db.task.findUnique({
           where: { id: taskId },
-          data: {
-            paymentStatus: 'CAPTURED',
-            budgetAmount: Math.round(amountPaise / 100),
-          },
+          include: { events: { where: { eventType: 'PAYMENT_CAPTURED' } } },
         });
 
-        await appendTaskEvent({
-          taskId,
-          eventType: 'STATUS_CHANGED',
-          actorRole: 'SYSTEM',
-          message: `Payment authorized and captured [Ref: ${paymentId}] - ₹${Math.round(amountPaise / 100).toLocaleString('en-IN')}`,
-          data: { paymentId, amountPaise },
-        });
+        if (existingTask && existingTask.paymentStatus !== 'CAPTURED') {
+          await db.task.update({
+            where: { id: taskId },
+            data: {
+              paymentStatus: 'CAPTURED',
+              budgetAmount: Math.round(amountPaise / 100),
+            },
+          });
+
+          await appendTaskEvent({
+            taskId,
+            eventType: 'PAYMENT_CAPTURED',
+            actorRole: 'SYSTEM',
+            message: `Payment authorized and captured [Ref: ${paymentId}] - ₹${Math.round(amountPaise / 100).toLocaleString('en-IN')}`,
+            data: { paymentId, amountPaise },
+          });
+        }
       }
     }
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { ALL_13_SPECIALISTS } from '@/lib/agents/specialists/all-specialists';
 import { ModularToolRegistry } from '@/lib/agents/registry/real-tools';
+import { pingRedis } from '@/lib/redis';
 
 export async function GET() {
   const startTime = Date.now();
@@ -20,7 +21,11 @@ export async function GET() {
     dbError = e.message;
   }
 
-  // 2. Check AI Agent Platform Registration
+  // 2. Check Redis connection where configured
+  const redisResult = await pingRedis();
+  const redisConfigured = Boolean(process.env.REDIS_URL);
+
+  // 3. Check AI Agent Platform Registration
   ModularToolRegistry.init();
   const toolsCount = ModularToolRegistry.getAllTools().length;
   const agentsCount = Object.keys(ALL_13_SPECIALISTS).length;
@@ -37,7 +42,16 @@ export async function GET() {
         database: {
           status: dbHealthy ? 'CONNECTED' : 'UNREACHABLE',
           latencyMs: dbLatencyMs,
-          error: dbError,
+          error: dbError ? 'DATABASE_CONNECTION_ERROR' : null,
+        },
+        redis: {
+          status: !redisConfigured
+            ? 'NOT_CONFIGURED'
+            : redisResult.healthy
+            ? 'CONNECTED'
+            : 'UNREACHABLE',
+          latencyMs: redisResult.latencyMs,
+          error: redisResult.error ? 'REDIS_CONNECTION_ERROR' : null,
         },
         agentPlatform: {
           status: agentsCount >= 13 ? 'ACTIVE' : 'INCOMPLETE',
@@ -54,3 +68,4 @@ export async function GET() {
     { status: isHealthy ? 200 : 503 }
   );
 }
+
