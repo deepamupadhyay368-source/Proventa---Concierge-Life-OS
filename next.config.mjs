@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // When deploying to Vercel, output must remain undefined so Vercel can generate next-server nft traces.
+  // For Docker container builds, output is 'standalone'.
+  output: process.env.VERCEL ? undefined : 'standalone',
   typedRoutes: false,
   images: {
     remotePatterns: [
