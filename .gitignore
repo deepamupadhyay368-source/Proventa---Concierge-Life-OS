@@ -42,8 +42,8 @@ Thumbs.db
 *.swo
 
 # Prisma
-prisma/migrations/
-# (uncomment to ignore migrations — usually you want to commit these)
+# prisma/migrations/
+# (migrations must be committed for production 'prisma migrate deploy')
 
 # Uploads (local dev)
 public/uploads/
