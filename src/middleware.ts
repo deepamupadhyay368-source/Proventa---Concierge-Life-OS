@@ -66,14 +66,14 @@ export default auth(async (req) => {
   // Allow public routes
   if (isPublic) return NextResponse.next();
 
-  // Admin route protection: must be logged in with admin privileges, else go to /admin/login
+  // Admin route protection: must be logged in with SUPER_ADMIN privileges, else go to /admin/login
   if (pathname.startsWith('/admin')) {
     if (!isLoggedIn) {
       const adminLoginUrl = new URL('/admin/login', nextUrl);
       adminLoginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(adminLoginUrl);
     }
-    if (!userRoles.some((r) => ['SUPER_ADMIN', 'ADMIN', 'SUPPORT'].includes(r))) {
+    if (!userRoles.includes('SUPER_ADMIN')) {
       return NextResponse.redirect(new URL('/admin/login?error=Unauthorized', nextUrl));
     }
   }

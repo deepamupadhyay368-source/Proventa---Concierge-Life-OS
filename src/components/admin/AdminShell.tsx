@@ -1,23 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   Users,
-  Bot,
   ListTodo,
   CalendarCheck,
-  CreditCard,
-  HeartPulse,
+  Headphones,
+  BarChart3,
   ShieldAlert,
-  Sliders,
+  HeartPulse,
   LogOut,
   ArrowUpRight,
   ChevronRight,
   ShieldCheck,
+  Search,
 } from 'lucide-react';
 
 export function AdminShell({
@@ -28,6 +28,8 @@ export function AdminShell({
   sessionUser: any;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
 
   // If on login page, render children without sidebar/chrome
   if (pathname === '/admin/login') {
@@ -35,25 +37,30 @@ export function AdminShell({
   }
 
   const primaryNavItems = [
-    { href: '/admin', label: 'Command Center', icon: LayoutDashboard, exact: true },
-    { href: '/admin/clients', label: 'Client Vault', icon: Users },
-    { href: '/admin/agents', label: 'AI Agent Fleet', icon: Bot },
-    { href: '/admin/tasks', label: 'Autonomous Tasks', icon: ListTodo },
-    { href: '/admin/bookings', label: 'Bookings Hub', icon: CalendarCheck },
-    { href: '/admin/transactions', label: 'Transactions & GMV', icon: CreditCard },
+    { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
+    { href: '/admin/customers', label: 'Customers', icon: Users },
+    { href: '/admin/requests', label: 'Requests', icon: ListTodo },
+    { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
+    { href: '/admin/concierge', label: 'Concierge Operations', icon: Headphones },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    { href: '/admin/audit', label: 'Audit Logs', icon: ShieldAlert },
     { href: '/admin/system', label: 'System Health', icon: HeartPulse },
-    { href: '/admin/audit', label: 'Audit & Security', icon: ShieldAlert },
-    { href: '/admin/settings', label: 'Platform Settings', icon: Sliders },
   ];
 
   const secondaryNavItems = [
     { href: '/admin/wave1', label: 'Wave 1 Waitlist' },
     { href: '/admin/providers', label: 'Partner Providers' },
-    { href: '/concierge-ops/queue', label: 'Concierge Operator Desk' },
+    { href: '/admin/settings', label: 'Platform Settings' },
   ];
 
   const userRoles = (sessionUser?.roles as string[]) || [];
   const isSuperAdmin = userRoles.includes('SUPER_ADMIN');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(`/admin/requests?q=${encodeURIComponent(searchQuery.trim())}`);
+  };
 
   return (
     <div className="min-h-screen bg-[#0e0d0c] text-[#f5f3ef] flex font-sans selection:bg-[#9c8260] selection:text-white">
@@ -182,24 +189,33 @@ export function AdminShell({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header */}
-        <header className="md:hidden h-14 bg-[#141210] border-b border-[#23201c] px-4 flex items-center justify-between">
-          <Link href="/admin" className="flex items-center gap-2 font-serif font-bold text-sm text-[#f5f3ef]">
-            <span>PROVENTA</span>
-            <span className="text-[10px] font-mono bg-[#26211b] text-[#c8b99d] px-1.5 py-0.5 rounded">
-              ADMIN
-            </span>
-          </Link>
-          <div className="flex items-center gap-2 text-xs">
-            <Link href="/admin/clients" className="text-[#a8a49c] hover:text-white px-2 py-1">
-              Clients
+        {/* Desktop & Mobile Header Bar */}
+        <header className="h-16 bg-[#141210]/95 backdrop-blur-md border-b border-[#23201c] px-6 flex items-center justify-between sticky top-0 z-30">
+          <form onSubmit={handleSearch} className="relative w-full max-w-md hidden sm:block">
+            <Search className="w-4 h-4 text-[#736f68] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Global Search (requests, customers, bookings, intent)..."
+              className="w-full bg-[#1c1916] border border-[#2e2924] focus:border-[#9c8260] focus:ring-1 focus:ring-[#9c8260] rounded-xl pl-10 pr-4 py-2 text-xs text-[#f5f3ef] placeholder-[#736f68] transition-all outline-hidden"
+            />
+          </form>
+
+          <div className="flex items-center gap-3 ml-auto">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1c1916] border border-[#2e2924] text-[11px] font-mono text-[#a8a49c]">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>LIVE SYSTEM · AHMEDABAD COHORT 1</span>
+            </div>
+
+            <Link
+              href="/dashboard"
+              target="_blank"
+              className="px-3 py-1.5 rounded-lg bg-[#1a1714] hover:bg-[#23201c] border border-[#2e2924] text-xs text-[#c8b99d] flex items-center gap-1.5 transition-colors"
+            >
+              <span>Customer View</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-[#9c8260]" />
             </Link>
-            <Link href="/admin/tasks" className="text-[#a8a49c] hover:text-white px-2 py-1">
-              Tasks
-            </Link>
-            <button onClick={() => signOut({ callbackUrl: '/admin/login' })} className="text-[#a8a49c] p-1">
-              <LogOut className="w-4 h-4" />
-            </button>
           </div>
         </header>
 
