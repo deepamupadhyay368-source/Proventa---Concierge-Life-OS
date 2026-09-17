@@ -18,7 +18,7 @@ export async function GET() {
     dbHealthy = true;
   } catch (e: any) {
     console.error('[Health Probe] DB Error:', e.message);
-    dbError = e.message;
+    dbError = 'DATABASE_CONNECTION_ERROR';
   }
 
   // 2. Check Redis connection where configured
@@ -43,6 +43,7 @@ export async function GET() {
           status: dbHealthy ? 'CONNECTED' : 'UNREACHABLE',
           latencyMs: dbLatencyMs,
           error: dbError ? 'DATABASE_CONNECTION_ERROR' : null,
+          configured: Boolean(process.env.DATABASE_URL),
         },
         redis: {
           status: !redisConfigured

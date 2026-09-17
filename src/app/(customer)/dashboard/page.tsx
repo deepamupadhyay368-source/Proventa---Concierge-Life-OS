@@ -25,6 +25,7 @@ function DashboardContent() {
   const [input, setInput] = useState('');
   const [urgency, setUrgency] = useState<'NORMAL' | 'URGENT' | 'ASAP'>('NORMAL');
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,9 +43,11 @@ function DashboardContent() {
 
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || submitting) return;
 
     setSubmitting(true);
+    setErrorMessage(null);
+
     try {
       // Direct integration into Proventa Task Execution Orchestration Engine
       const res = await fetch('/api/tasks', {
@@ -52,23 +55,58 @@ function DashboardContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rawInput: input, urgency }),
       });
-      const data = await res.json();
-      if (res.ok && data.task) {
+
+      if (res.status === 401) {
+        router.push(`/sign-in?callbackUrl=${encodeURIComponent('/dashboard#new-request')}`);
+        return;
+      }
+
+      let data: any = null;
+      try {
+        data = await res.json();
+      } catch {
+        // Non-JSON response, fallback
+      }
+
+      if (res.ok && data?.task?.id) {
         setInput('');
         router.push(`/tasks/${data.task.id}`);
-      } else {
-        // Fallback to requests endpoint if needed
-        const legacyRes = await fetch('/api/requests', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rawInput: input, urgency }),
-        });
-        const legacyData = await legacyRes.json();
-        if (legacyRes.ok && legacyData.request) {
-          setInput('');
-          router.push(`/requests/${legacyData.request.id}`);
-        }
+        return;
       }
+
+      // Fallback to requests endpoint if needed
+      const legacyRes = await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rawInput: input, urgency }),
+      });
+
+      if (legacyRes.status === 401) {
+        router.push(`/sign-in?callbackUrl=${encodeURIComponent('/dashboard#new-request')}`);
+        return;
+      }
+
+      let legacyData: any = null;
+      try {
+        legacyData = await legacyRes.json();
+      } catch {
+        // Non-JSON response
+      }
+
+      if (legacyRes.ok && legacyData?.request?.id) {
+        setInput('');
+        router.push(`/requests/${legacyData.request.id}`);
+        return;
+      }
+
+      const msg =
+        data?.error ||
+        legacyData?.error ||
+        'Unable to submit your concierge request right now. Please try again shortly or contact support.';
+      setErrorMessage(msg);
+    } catch (err: any) {
+      console.error('[Tell Proventa]', err);
+      setErrorMessage(err.message || 'A network error occurred while communicating with the concierge desk.');
     } finally {
       setSubmitting(false);
     }
@@ -98,6 +136,16 @@ function DashboardContent() {
             Plain language. No category selection required. A concierge will review and verify every detail.
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2.5 animate-fade-in">
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
+            <div className="flex-1">
+              <span className="font-semibold block">Request Not Dispatched</span>
+              <span className="text-red-600">{errorMessage}</span>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleCreateRequest} className="space-y-4">
           <div className="relative">

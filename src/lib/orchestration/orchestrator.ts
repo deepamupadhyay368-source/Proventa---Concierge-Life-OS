@@ -76,7 +76,11 @@ export class RequestOrchestrator {
 
     if (!task) {
       const count = await db.task.count();
-      const publicId = `TSK-${(count + 1).toString().padStart(4, '0')}`;
+      const baseCandidate = `TSK-${(count + 1).toString().padStart(4, '0')}`;
+      const existing = await db.task.findUnique({ where: { publicId: baseCandidate } });
+      const publicId = existing
+        ? `TSK-${(count + 1).toString().padStart(4, '0')}-${Date.now().toString(36).slice(-4).toUpperCase()}`
+        : baseCandidate;
 
       task = await db.task.create({
         data: {

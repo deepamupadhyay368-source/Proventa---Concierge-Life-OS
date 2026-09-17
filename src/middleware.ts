@@ -80,6 +80,12 @@ export default auth(async (req) => {
 
   // Require authentication for other protected routes
   if (!isLoggedIn) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please sign in.', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
+    }
     const signInUrl = new URL('/sign-in', nextUrl);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);

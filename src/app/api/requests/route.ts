@@ -6,6 +6,7 @@ import { understandRequest } from '@/lib/ai/agents/understanding';
 import { evaluateSafetyAndHandoff } from '@/lib/ai/agents/safety';
 import { trackEvent } from '@/lib/analytics';
 import { createAuditLog } from '@/lib/audit';
+import { isAppError } from '@/lib/errors';
 
 export async function GET() {
   try {
@@ -34,6 +35,9 @@ export async function GET() {
 
     return NextResponse.json({ requests });
   } catch (error: any) {
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
+    }
     return NextResponse.json({ error: error.message || 'Unauthorized' }, { status: 401 });
   }
 }
@@ -169,6 +173,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, request }, { status: 201 });
   } catch (error: any) {
     console.error('[create request]', error);
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
+    }
     return NextResponse.json({ error: error.message || 'Failed to create request' }, { status: 500 });
   }
 }

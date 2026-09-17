@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
+import { isAppError } from '@/lib/errors';
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,6 +22,9 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ tasks });
   } catch (error: any) {
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
+    }
     return NextResponse.json({ error: error.message || 'Unauthorized' }, { status: 401 });
   }
 }
@@ -54,6 +58,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     console.error('[POST /api/tasks]', error);
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
+    }
     return NextResponse.json({ error: error.message || 'Failed to process task' }, { status: 500 });
   }
 }
