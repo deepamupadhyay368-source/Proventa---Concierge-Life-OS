@@ -18,6 +18,7 @@ import {
   ChevronRight,
   ShieldCheck,
   Search,
+  KeyRound,
 } from 'lucide-react';
 
 export function AdminShell({
@@ -48,6 +49,7 @@ export function AdminShell({
   ];
 
   const secondaryNavItems = [
+    { href: '/admin/account/security', label: 'Security & Password' },
     { href: '/admin/wave1', label: 'Wave 1 Waitlist' },
     { href: '/admin/providers', label: 'Partner Providers' },
     { href: '/admin/settings', label: 'Platform Settings' },
@@ -169,11 +171,20 @@ export function AdminShell({
 
           <div className="flex items-center gap-2 pt-1">
             <Link
+              href="/admin/account/security"
+              className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#1a1714] hover:bg-[#23201c] border border-[#2e2924] hover:border-[#3d342a] text-[11px] text-[#c8b99d] transition-colors"
+              title="Change Password & Security"
+            >
+              <KeyRound className="w-3 h-3 text-[#c8b99d]" />
+              <span>Security</span>
+            </Link>
+            <Link
               href="/dashboard"
               target="_blank"
-              className="flex-1 flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#1a1714] hover:bg-[#23201c] border border-[#2e2924] text-[11px] text-[#a8a49c] hover:text-[#f5f3ef] transition-colors"
+              className="flex items-center justify-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#1a1714] hover:bg-[#23201c] border border-[#2e2924] text-[11px] text-[#a8a49c] hover:text-[#f5f3ef] transition-colors"
+              title="Open Live App"
             >
-              <span>Live App</span>
+              <span>App</span>
               <ArrowUpRight className="w-3 h-3 text-[#6e6b65]" />
             </Link>
             <button
@@ -203,9 +214,17 @@ export function AdminShell({
           </form>
 
           <div className="flex items-center gap-3 ml-auto">
+            <Link
+              href="/admin/account/security"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1a1714] hover:bg-[#23201c] border border-[#2e2924] hover:border-[#3d342a] text-xs font-mono text-[#c8b99d] transition-colors"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-[#c8b99d]" />
+              <span>Change Password</span>
+            </Link>
+
             <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#1c1916] border border-[#2e2924] text-[11px] font-mono text-[#a8a49c]">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>LIVE SYSTEM · AHMEDABAD COHORT 1</span>
+              <span>LIVE SYSTEM</span>
             </div>
 
             <Link
