@@ -148,6 +148,24 @@ export async function sendWave1InvitationEmail(params: {
   });
 }
 
+export interface BookingConfirmationEmailParams {
+  email: string;
+  name: string;
+  title: string;
+  reference: string;
+  vendor: string;
+  notes?: string;
+  actionUrl?: string;
+}
+
+export async function sendBookingConfirmationEmail(params: BookingConfirmationEmailParams) {
+  await dispatchEmail({
+    to: params.email,
+    subject: `Confirmed: ${params.title} · Ref #${params.reference}`,
+    html: buildBookingConfirmationEmail(params),
+  });
+}
+
 // ============================================================
 // EMAIL TEMPLATES (inline HTML — clean, premium, minimal)
 // ============================================================
@@ -305,5 +323,49 @@ function buildWave1AdminNotificationEmail(details: Wave1RegistrationDetails): st
 <div style="margin-top:24px;padding:12px 16px;background:#f8fafc;border-left:4px solid #0284c7;border-radius:4px;font-size:12px;color:#475569;">
   Logged to Proventa Operations Portal. You can invite or manage this candidate from the Admin Wave 1 dashboard.
 </div>
+</div>`);
+}
+
+function buildBookingConfirmationEmail(params: BookingConfirmationEmailParams): string {
+  const actionUrl = params.actionUrl || `${APP_URL}/dashboard`;
+  return emailWrapper(`
+<div class="card">
+<div style="display:inline-block;padding:4px 10px;background:#ecfdf5;color:#047857;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
+  AUTHENTIC RESERVATION CONFIRMED
+</div>
+<h2>Your Reservation is Confirmed</h2>
+<p>Hello ${params.name},</p>
+<p>Your lifestyle request has been directly coordinated and confirmed by the Proventa Concierge Desk.</p>
+
+<table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;text-align:left;">
+  <tbody>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;width:35%;font-weight:500;">Arrangement</td>
+      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${params.title}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Venue / Partner</td>
+      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${params.vendor}</td>
+    </tr>
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;font-weight:500;">Confirmation Ref</td>
+      <td style="padding:10px 0;color:#047857;font-family:monospace;font-weight:700;font-size:15px;">${params.reference}</td>
+    </tr>
+    ${
+      params.notes
+        ? `<tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;vertical-align:top;font-weight:500;">Desk Notes</td>
+      <td style="padding:10px 0;color:#334155;">${params.notes}</td>
+    </tr>`
+        : ''
+    }
+  </tbody>
+</table>
+
+<a href="${actionUrl}" class="cta">View in Your Life OS Timeline</a>
+
+<p style="font-size:13px;color:#928f88;margin-top:24px;">
+  Your table or service is reserved under this reference. For immediate adjustments, reply to this email or contact your personal concierge.
+</p>
 </div>`);
 }

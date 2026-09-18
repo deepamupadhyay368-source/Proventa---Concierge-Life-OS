@@ -143,6 +143,19 @@ export function ConciergeOperatorDesk({
     e.preventDefault();
     if (!selectedTask || !phoneRef.trim()) return;
 
+    const upper = phoneRef.trim().toUpperCase();
+    if (
+      upper.startsWith('PV-') ||
+      upper.startsWith('PV-AMD-') ||
+      upper.startsWith('MOCK-') ||
+      upper.startsWith('DEMO-') ||
+      upper.includes('SANDBOX') ||
+      ['NONE', 'N/A', 'NA', 'NULL', 'UNDEFINED', 'TEST', 'MOCK', 'FAKE', 'SIMULATED'].includes(upper)
+    ) {
+      setPhoneError('Synthetic or mock references (e.g. PV-*, MOCK-*) are strictly prohibited by Proventa zero-fabrication policy. Enter the authentic confirmation reference provided by the venue.');
+      return;
+    }
+
     setSubmitting(true);
     setPhoneError(null);
     try {
@@ -422,12 +435,25 @@ export function ConciergeOperatorDesk({
               );
             })()}
 
+            <div className="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-950 text-xs flex items-start gap-2.5">
+              <ShieldAlert className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-bold text-amber-950 text-[11px] uppercase tracking-wider">Strict Zero-Fabrication Mandate</p>
+                <p className="text-[11px] text-amber-900 leading-relaxed">
+                  Synthetic or simulated codes (e.g. PV-*, MOCK-*, DEMO-*) will be rejected. You must input the authentic reference code, PNR, or table confirmation provided by the venue host.
+                </p>
+              </div>
+            </div>
+
             <form onSubmit={handlePhoneSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="font-medium text-neutral-700 block mb-1">Authentic Confirmation PNR / Reference</label>
+                <label className="font-semibold text-neutral-800 block mb-1">
+                  Authentic Confirmation PNR / Reference <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="text"
                   required
+                  placeholder="e.g. AGS-TABLE-14 or DUTY-MGR-8891"
                   value={phoneRef}
                   onChange={(e) => setPhoneRef(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg font-mono font-bold focus:outline-none focus:ring-1 focus:ring-purple-700"

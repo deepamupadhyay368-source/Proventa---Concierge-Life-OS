@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   X,
   AlertCircle,
+  ShieldAlert,
   Phone,
   ExternalLink,
 } from 'lucide-react';
@@ -131,6 +132,19 @@ export default function ConciergeQueuePage() {
   const handleManualConfirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTaskForConfirm || !confirmRef.trim()) return;
+
+    const upper = confirmRef.trim().toUpperCase();
+    if (
+      upper.startsWith('PV-') ||
+      upper.startsWith('PV-AMD-') ||
+      upper.startsWith('MOCK-') ||
+      upper.startsWith('DEMO-') ||
+      upper.includes('SANDBOX') ||
+      ['NONE', 'N/A', 'NA', 'NULL', 'UNDEFINED', 'TEST', 'MOCK', 'FAKE', 'SIMULATED'].includes(upper)
+    ) {
+      setConfirmError('Synthetic or simulated references (e.g. PV-*, MOCK-*) are strictly prohibited by Proventa zero-fabrication policy. Enter the authentic reference provided by the venue.');
+      return;
+    }
 
     setSubmittingConfirm(true);
     setConfirmError(null);
@@ -554,6 +568,16 @@ export default function ConciergeQueuePage() {
                 <span>{confirmError}</span>
               </div>
             )}
+
+            <div className="p-3 bg-amber-50/90 border border-amber-200/90 rounded-xl text-amber-950 text-xs flex items-start gap-2.5">
+              <ShieldAlert className="h-4 w-4 shrink-0 text-amber-700 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-bold text-amber-950 text-[11px] uppercase tracking-wider">Strict Zero-Fabrication Mandate</p>
+                <p className="text-[11px] text-amber-900 leading-relaxed">
+                  Synthetic or simulated codes (e.g. PV-*, MOCK-*, DEMO-*) will be rejected. You must input the authentic reference code, PNR, or table confirmation provided by the venue host.
+                </p>
+              </div>
+            </div>
 
             <form onSubmit={handleManualConfirmSubmit} className="space-y-3 text-xs">
               <div>

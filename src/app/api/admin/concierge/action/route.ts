@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireSuperAdmin } from '@/lib/auth/session';
+import { sendBookingConfirmationEmail } from '@/lib/email/sender';
+import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 
 export const dynamic = 'force-dynamic';
 
@@ -73,7 +75,8 @@ export async function POST(req: NextRequest) {
           upperRef.startsWith('PV-AMD-') ||
           upperRef.startsWith('MOCK-') ||
           upperRef.startsWith('DEMO-') ||
-          upperRef.includes('SANDBOX')
+          upperRef.includes('SANDBOX') ||
+          ['NONE', 'N/A', 'NA', 'NULL', 'UNDEFINED', 'TEST', 'MOCK', 'FAKE', 'SIMULATED'].includes(upperRef)
         ) {
           return NextResponse.json(
             { error: 'Synthetic, simulated, or mock references (e.g. PV-*, MOCK-*) are strictly prohibited by Proventa zero-fabrication policy.' },
@@ -130,6 +133,40 @@ export async function POST(req: NextRequest) {
             });
           }
         }
+
+        // Send Member Confirmation Notifications
+        if (taskRecord.customer?.user?.email) {
+          try {
+            await sendBookingConfirmationEmail({
+              email: taskRecord.customer.user.email,
+              name: taskRecord.customer.user.name || 'Valued Member',
+              title: taskRecord.intent || taskRecord.originalRequest,
+              reference: externalReferenceId,
+              vendor: taskRecord.vendorName || metadata?.vendorName || 'Verified Partner Desk',
+              notes,
+              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskRecord.id}`,
+            });
+          } catch (e) {
+            console.error('[admin/concierge/action] Confirmation email error:', e);
+          }
+        }
+
+        if (taskRecord.customer?.user?.phone) {
+          try {
+            await sendWhatsAppNotification({
+              phone: taskRecord.customer.user.phone,
+              template: 'BOOKING_CONFIRMED',
+              params: {
+                name: taskRecord.customer.user.name || 'Member',
+                details: `${taskRecord.intent || 'Your reservation'} with ${taskRecord.vendorName || 'Verified Partner'}`,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskRecord.id}`,
+              },
+            });
+          } catch (e) {
+            console.error('[admin/concierge/action] WhatsApp notification error:', e);
+          }
+        }
+
         break;
       }
 
@@ -207,3 +244,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error?.message || 'Failed to execute concierge action' }, { status: 500 });
   }
 }
+
