@@ -14,47 +14,164 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'taskId and action are required' }, { status: 400 });
     }
 
-    let updatedStatus: any = undefined;
-    let isEscalated: boolean | undefined = undefined;
+    const taskRecord = await db.task.findUnique({
+      where: { id: taskId },
+      include: { customer: { include: { user: true } } },
+    });
 
-    if (action === 'CALL_COMPLETED') {
-      updatedStatus = 'EXECUTING';
-      isEscalated = false;
-    } else if (action === 'RESOLVE_ESCALATION') {
-      updatedStatus = 'EXECUTING';
-      isEscalated = false;
-    } else if (action === 'ESCALATE') {
-      updatedStatus = 'NEEDS_HUMAN';
-      isEscalated = true;
+    if (!taskRecord) {
+      return NextResponse.json({ error: `Task ${taskId} not found` }, { status: 404 });
     }
 
-    const task = await db.task.update({
+    let updatedStatus: any = undefined;
+    let isEscalated: boolean | undefined = undefined;
+    let externalReferenceId: string | undefined = undefined;
+    let failedReason: string | undefined = undefined;
+    let eventType = `CONCIERGE_ACTION_${action}`;
+    let eventMessage = notes || `Concierge operator ${sessionUser.email} performed ${action}`;
+
+    switch (action) {
+      case 'CLAIM':
+        eventType = 'OPERATOR_CLAIMED';
+        eventMessage = `Operator ${sessionUser.email} claimed task.`;
+        break;
+
+      case 'CONTACT_PROVIDER':
+        eventType = 'PROVIDER_CONTACTED';
+        eventMessage = notes || `Outreach initiated to vendor desk for ${taskRecord.vendorName || 'venue'}.`;
+        break;
+
+      case 'ADD_NOTE':
+        eventType = 'CONCIERGE_NOTE_ADDED';
+        eventMessage = notes || 'Operator added internal notes.';
+        break;
+
+      case 'REQUEST_CUSTOMER_INFO':
+        updatedStatus = 'NEEDS_INFORMATION';
+        eventType = 'CUSTOMER_INFO_REQUESTED';
+        eventMessage = notes || 'Additional clarification requested from member.';
+        break;
+
+      case 'AWAITING_PROVIDER':
+        eventType = 'AWAITING_PROVIDER';
+        eventMessage = notes || 'Awaiting confirmation or callback from venue maître d\' / dispatch.';
+        break;
+
+      case 'CONFIRM': {
+        const ref = metadata?.externalReference || body.externalReference;
+        if (!ref || typeof ref !== 'string' || !ref.trim()) {
+          return NextResponse.json(
+            { error: 'Genuine external confirmation reference is mandatory to confirm a booking.' },
+            { status: 400 }
+          );
+        }
+
+        // Strict zero-fabrication validation
+        const upperRef = ref.trim().toUpperCase();
+        if (
+          upperRef.startsWith('PV-') ||
+          upperRef.startsWith('PV-AMD-') ||
+          upperRef.startsWith('MOCK-') ||
+          upperRef.startsWith('DEMO-') ||
+          upperRef.includes('SANDBOX')
+        ) {
+          return NextResponse.json(
+            { error: 'Synthetic, simulated, or mock references (e.g. PV-*, MOCK-*) are strictly prohibited by Proventa zero-fabrication policy.' },
+            { status: 400 }
+          );
+        }
+
+        updatedStatus = 'CONFIRMED';
+        isEscalated = false;
+        externalReferenceId = ref.trim();
+        eventType = 'CONFIRMED_BY_CONCIERGE';
+        eventMessage = `Confirmed by Senior Concierge ${sessionUser.name || sessionUser.email}. Vendor Ref: ${externalReferenceId}`;
+
+        // Authoritative Booking creation
+        if (taskRecord.customerId) {
+          await db.booking.create({
+            data: {
+              requestId: taskRecord.requestId || taskRecord.id,
+              customerId: taskRecord.customerId,
+              status: 'CONFIRMED',
+              confirmationRef: externalReferenceId,
+              details: {
+                title: taskRecord.intent,
+                vendorName: taskRecord.vendorName || metadata?.vendorName || 'Verified Partner',
+                confirmedBy: sessionUser.email,
+                confirmedAt: new Date().toISOString(),
+                notes,
+                ...metadata,
+              },
+            },
+          });
+        }
+        break;
+      }
+
+      case 'FAIL':
+        updatedStatus = 'FAILED';
+        isEscalated = false;
+        failedReason = notes || 'Unable to fulfill request with partner venue.';
+        eventType = 'TASK_FAILED_BY_CONCIERGE';
+        eventMessage = failedReason;
+        break;
+
+      case 'ESCALATE':
+        updatedStatus = 'NEEDS_HUMAN';
+        isEscalated = true;
+        eventType = 'TASK_ESCALATED_BY_CONCIERGE';
+        eventMessage = notes || 'Escalated to Lead Concierge for senior intervention.';
+        break;
+
+      case 'COMPLETE':
+        updatedStatus = 'COMPLETED';
+        isEscalated = false;
+        eventType = 'TASK_COMPLETED_BY_CONCIERGE';
+        eventMessage = notes || 'Task successfully fulfilled and verified by concierge desk.';
+        break;
+
+      case 'CALL_COMPLETED':
+      case 'RESOLVE_ESCALATION':
+        updatedStatus = 'EXECUTING';
+        isEscalated = false;
+        break;
+
+      default:
+        return NextResponse.json({ error: `Unknown action: ${action}` }, { status: 400 });
+    }
+
+    const updatedTask = await db.task.update({
       where: { id: taskId },
       data: {
         ...(updatedStatus ? { status: updatedStatus } : {}),
         ...(isEscalated !== undefined ? { isEscalated } : {}),
+        ...(externalReferenceId ? { externalReferenceId, completedAt: new Date() } : {}),
+        ...(failedReason ? { failedReason } : {}),
+        updatedAt: new Date(),
       },
     });
 
-    // Create event log
+    // Create event log in timeline
     await db.taskEvent.create({
       data: {
         taskId,
-        eventType: `CONCIERGE_ACTION_${action}`,
+        eventType,
         actorRole: 'CONCIERGE',
-        message: notes || `Concierge operator ${sessionUser.email} performed ${action}`,
+        message: eventMessage,
         data: {
           operator: sessionUser.email,
           action,
           notes,
           metadata,
+          externalReferenceId,
         },
       },
     });
 
     return NextResponse.json({
       success: true,
-      data: task,
+      data: updatedTask,
     });
   } catch (error: any) {
     if (error?.name === 'AuthorizationError' || error?.message?.includes('Authorization')) {

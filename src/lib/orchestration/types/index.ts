@@ -5,6 +5,8 @@ export type { TaskStatus, TaskPriority, TaskExecutionMethod, ApprovalStatus };
 export interface ExtractedEntities {
   category?: string;
   subcategory?: string;
+  objective?: string;
+  action?: string;
   intent: string;
   location?: string;
   dateTime?: string;
@@ -22,9 +24,16 @@ export interface ExtractedEntities {
   budgetAmount?: number;
   budgetCurrency?: string;
   urgency: TaskPriority;
+  preferences?: any;
+  constraints?: string[];
+  deadline?: string;
+  customerProvidedDetails?: Record<string, any>;
+  executionRequired?: boolean;
+  approvalRequired?: boolean;
   missingInfo?: string[];
   requiresClarification: boolean;
   clarificationQuestion?: string;
+  isProhibited?: boolean;
   vendorName?: string;
   rawInput: string;
 }

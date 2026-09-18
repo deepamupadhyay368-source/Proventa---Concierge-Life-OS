@@ -1,146 +1,221 @@
 import { getGeminiModel, isAIAvailable } from '../client';
 import { logger } from '@/lib/logger';
+import { TaskDecisionEngine } from '@/lib/capabilities/task-decision-engine';
+import type { ServiceCategory, TaskObjective } from '@/lib/capabilities/types';
 
 export interface ExtractedRequestData {
-  category?: string;
+  category: string;
+  serviceCategory?: ServiceCategory;
+  objective: TaskObjective;
+  action: string;
   intent: string;
   location?: string;
+  destination?: string;
   dateTime?: string;
   timeframe?: string;
-  destination?: string;
+  date?: string;
+  time?: string;
   partySize?: number;
+  guests?: number;
   budgetRange?: string;
+  budgetAmount?: number;
+  budgetCurrency?: string;
+  preferences?: string[];
+  constraints?: string[];
+  deadline?: string;
   urgency: 'NORMAL' | 'URGENT' | 'ASAP';
+  customerProvidedDetails?: Record<string, any>;
+  executionRequired: boolean;
+  approvalRequired: boolean;
   missingInfo?: string[];
   requiresClarification: boolean;
   clarificationQuestion?: string;
+  isProhibited?: boolean;
 }
 
 export async function understandRequest(rawInput: string): Promise<ExtractedRequestData> {
-  const lower = rawInput.toLowerCase();
+  const lower = rawInput.toLowerCase().trim();
 
-  // Robust Heuristic Engine (works both offline and as instant fallback)
-  let category = 'other';
-  if (
-    lower.includes('dinner') ||
-    lower.includes('restaurant') ||
-    lower.includes('table') ||
-    lower.includes('food') ||
-    lower.includes('lunch') ||
-    lower.includes('dine') ||
-    lower.includes('agashiye')
-  ) {
-    category = 'dining';
-  } else if (
-    lower.includes('flight') ||
-    lower.includes('airline') ||
-    lower.includes('airfare') ||
-    lower.includes('boarding')
-  ) {
-    category = 'flights';
-  } else if (
-    lower.includes('hotel') ||
-    lower.includes('suite') ||
-    lower.includes('travel') ||
-    lower.includes('trip') ||
-    lower.includes('stay') ||
-    lower.includes('itc narmada') ||
-    lower.includes('taj')
-  ) {
-    category = 'travel';
-  } else if (
-    lower.includes('sedan') ||
-    lower.includes('pickup') ||
-    lower.includes('chauffeur') ||
-    lower.includes('car') ||
-    lower.includes('transfer') ||
-    lower.includes('airport') ||
-    lower.includes('mobility')
-  ) {
-    category = 'mobility';
-  } else if (
-    lower.includes('gift') ||
-    lower.includes('buy') ||
-    lower.includes('shop') ||
-    lower.includes('stole') ||
-    lower.includes('bandhej')
-  ) {
-    category = 'shopping';
-  } else if (
-    lower.includes('movie') ||
-    lower.includes('cinema') ||
-    lower.includes('imax') ||
-    lower.includes('pvr') ||
-    lower.includes('inox') ||
-    lower.includes('film')
-  ) {
-    category = 'movies';
-  } else if (
-    lower.includes('walk') ||
-    lower.includes('ticket') ||
-    lower.includes('event') ||
-    lower.includes('heritage')
-  ) {
-    category = 'experiences';
-  } else if (
-    lower.includes('salon') ||
-    lower.includes('spa') ||
-    lower.includes('massage') ||
-    lower.includes('appointment')
-  ) {
-    category = 'appointments';
-  } else if (
-    lower.includes('repair') ||
-    lower.includes('plumber') ||
-    lower.includes('clean') ||
-    lower.includes('polishing') ||
-    lower.includes('estate')
-  ) {
-    category = 'home';
+  // 1. Initial Evaluation via TaskDecisionEngine
+  const decision = TaskDecisionEngine.evaluate({ rawInput });
+
+  // 2. Extract Party Size / Number of Guests
+  let partySize: number | undefined = undefined;
+  const partyMatch = lower.match(/(?:for|party of)\s*(\d+)/i);
+  if (partyMatch) {
+    partySize = parseInt(partyMatch[1], 10);
+  } else if (lower.includes('for two') || lower.includes('dinner for two') || lower.includes('couple')) {
+    partySize = 2;
+  } else if (lower.includes('for four') || lower.includes('table for four')) {
+    partySize = 4;
+  } else if (lower.includes('solo') || lower.includes('for one') || lower.includes('for myself')) {
+    partySize = 1;
   }
 
-  const urgency =
-    lower.includes('urgent') || lower.includes('tonight') || lower.includes('asap')
+  // 3. Extract Budget
+  let budgetAmount: number | undefined = undefined;
+  let budgetRange: string | undefined = undefined;
+  const budgetMatch = rawInput.match(/(?:₹|rs\.?|inr)\s*([0-9,]+)/i) || rawInput.match(/under\s*(?:₹|rs\.?|inr)?\s*([0-9,]+)/i);
+  if (budgetMatch) {
+    const parsed = parseInt(budgetMatch[1].replace(/,/g, ''), 10);
+    if (!isNaN(parsed)) {
+      budgetAmount = parsed;
+      budgetRange = `₹${parsed.toLocaleString('en-IN')}`;
+    }
+  }
+
+  // 4. Extract Date / Time / Urgency
+  let date: string | undefined = undefined;
+  let time: string | undefined = undefined;
+  let dateTime: string | undefined = undefined;
+
+  if (lower.includes('this friday') || lower.includes('friday')) date = 'Friday';
+  else if (lower.includes('saturday')) date = 'Saturday';
+  else if (lower.includes('sunday')) date = 'Sunday';
+  else if (lower.includes('tomorrow morning')) {
+    date = 'Tomorrow';
+    time = 'Morning (09:00 AM)';
+  } else if (lower.includes('tomorrow')) {
+    date = 'Tomorrow';
+  } else if (lower.includes('tonight')) {
+    date = 'Tonight';
+    time = 'Evening (20:00)';
+  }
+
+  const timeMatch = rawInput.match(/(?:around|at|by)\s*(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
+  if (timeMatch) {
+    time = timeMatch[1].trim();
+  }
+
+  if (date && time) dateTime = `${date} at ${time}`;
+  else if (date) dateTime = date;
+  else if (time) dateTime = time;
+
+  const urgency: 'NORMAL' | 'URGENT' | 'ASAP' =
+    lower.includes('urgent') || lower.includes('tonight') || lower.includes('asap') || lower.includes('immediately')
       ? 'URGENT'
       : 'NORMAL';
 
-  // Extract party size if stated (e.g. "for 4", "for 2")
-  const partyMatch = lower.match(/(?:for|party of)\s*(\d+)/);
-  const partySize = partyMatch ? parseInt(partyMatch[1]) : (lower.includes('for two') ? 2 : (lower.includes('for four') ? 4 : 2));
+  // 5. Extract Locations & Destinations
+  let location: string | undefined = undefined;
+  let destination: string | undefined = undefined;
 
-  // Extract time/date indication
-  let dateTime: string | undefined = undefined;
-  if (lower.includes('saturday')) dateTime = 'Saturday 8:00 PM';
-  else if (lower.includes('tomorrow')) dateTime = 'Tomorrow 11:00 AM';
-  else if (lower.includes('next weekend')) dateTime = 'Next Weekend';
-  else if (lower.includes('tonight')) dateTime = 'Tonight';
+  if (lower.includes('ahmedabad')) location = 'Ahmedabad';
+  if (lower.includes('mumbai')) destination = 'Mumbai';
+  else if (lower.includes('delhi')) destination = 'Delhi';
+  else if (lower.includes('bengaluru') || lower.includes('bangalore')) destination = 'Bengaluru';
+  else if (lower.includes('goa')) destination = 'Goa';
+  else if (lower.includes('itc narmada')) destination = 'ITC Narmada, Ahmedabad';
+  else if (lower.includes('agashiye')) destination = 'Agashiye — The House of MG';
+
+  // If destination found but location empty, and location not specified, set default location to Ahmedabad for Cohort 1
+  if (!location) {
+    location = 'Ahmedabad';
+  }
+
+  // 6. Extract Preferences & Action Flags
+  const preferences: string[] = [];
+  if (lower.includes('nice')) preferences.push('Curated / Premium ambiance');
+  if (lower.includes('quiet rooftop') || lower.includes('rooftop')) preferences.push('Rooftop seating');
+  if (lower.includes('business dinner') || lower.includes('business')) preferences.push('Business dining / discreet');
+  if (lower.includes('business class')) preferences.push('Business Class cabin');
+  if (lower.includes('recliner') || lower.includes('insignia') || lower.includes('imax')) preferences.push('IMAX Laser / Recliner seating');
+  if (lower.includes('vegetarian') || lower.includes('jain')) preferences.push('Vegetarian / Jain friendly');
+
+  // Execution requirements
+  const executionRequired =
+    decision.objective === 'BOOK' ||
+    decision.objective === 'ARRANGE' ||
+    lower.startsWith('book ') ||
+    lower.includes('book me') ||
+    lower.includes('arrange a') ||
+    lower.includes('buy me') ||
+    lower.includes('call the');
+
+  let compatCategory = decision.category.toLowerCase();
+  if (decision.category === 'TRAVEL' && (lower.includes('flight') || lower.includes('airline') || lower.includes('airfare'))) {
+    compatCategory = 'flights';
+  } else if (decision.category === 'MOVIES_ENTERTAINMENT') {
+    compatCategory = 'movies';
+  }
 
   const heuristicResult: ExtractedRequestData = {
-    category,
+    category: compatCategory,
+    serviceCategory: decision.category,
+    objective: decision.objective,
+    action: decision.objective,
     intent: rawInput,
-    location: lower.includes('ahmedabad') || lower.includes('svpia') ? 'Ahmedabad' : undefined,
-    destination: lower.includes('itc narmada') ? 'ITC Narmada' : undefined,
-    partySize,
+    location,
+    destination,
     dateTime,
     timeframe: dateTime,
+    date,
+    time,
+    partySize: partySize || 2,
+    guests: partySize || 2,
+    budgetRange,
+    budgetAmount,
+    budgetCurrency: 'INR',
+    preferences,
+    constraints: [],
+    deadline: dateTime,
     urgency,
+    customerProvidedDetails: { rawInput },
+    executionRequired,
+    approvalRequired: decision.approvalRequired,
     requiresClarification: false,
+    isProhibited: decision.isProhibited,
   };
 
+  // If AI is not configured or in testing environment, return heuristic result immediately
   if (!isAIAvailable) {
     return heuristicResult;
   }
 
   try {
     const model = getGeminiModel('gemini-1.5-flash');
-    const prompt =
-      'Analyze this customer request and return a strict JSON object with category, intent, location, dateTime, timeframe, destination, partySize, budgetRange, urgency, missingInfo, requiresClarification, clarificationQuestion.\n\nCustomer Request:\n' +
-      rawInput;
+    const prompt = `You are the Proventa Concierge Intent Extraction Engine.
+Analyze the customer request below and extract a strict JSON object with these keys:
+- category: One of [DINING, TRAVEL, HOTELS, TRANSPORT, FOOD_DELIVERY, MOVIES_ENTERTAINMENT, GIFTS, SHOPPING, SALON_WELLNESS, APPOINTMENTS, EVENTS, WEEKEND_ESCAPES, RESEARCH_PLANNING, OTHER_CONCIERGE]
+- objective: One of [BOOK, SEARCH, RECOMMEND, RESEARCH, COMPARE, CANCEL, INQUIRE, ARRANGE]
+- action: One-word summary of desired action
+- intent: Normalized short sentence stating the core mandate
+- location: Origin or relevant city (default "Ahmedabad" if not stated)
+- destination: Target destination, hotel, restaurant, or city
+- date: Day or date of event/booking
+- time: Preferred time
+- dateTime: Combined date and time
+- partySize: Integer count of people/guests (default 2 for dining/travel if unspecified)
+- budgetRange: String representation of budget if mentioned (e.g. "₹5,000")
+- budgetAmount: Integer numeric budget
+- preferences: Array of extracted preference keywords
+- constraints: Array of explicit constraints
+- executionRequired: Boolean (true if user explicitly wants to book, order, buy, arrange)
+- approvalRequired: Boolean (true for consequential bookings/financial commitments)
+- missingInfo: Array of critical missing information strings (only if action is impossible without it)
+
+Customer Request:
+"${rawInput}"
+
+Respond strictly with valid JSON. No markdown ticks, no preamble.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text().trim().replace(/^```json\s*|\s*```$/g, '');
     const parsed = JSON.parse(text);
-    return { ...heuristicResult, ...parsed };
+
+    return {
+      ...heuristicResult,
+      ...parsed,
+      category: (parsed.category || heuristicResult.category).toLowerCase(),
+      serviceCategory: (parsed.category || heuristicResult.serviceCategory) as ServiceCategory,
+      objective: (parsed.objective || heuristicResult.objective) as TaskObjective,
+      action: parsed.action || heuristicResult.action,
+      intent: parsed.intent || heuristicResult.intent,
+      partySize: parsed.partySize || heuristicResult.partySize,
+      guests: parsed.partySize || heuristicResult.guests,
+      executionRequired: parsed.executionRequired !== undefined ? parsed.executionRequired : heuristicResult.executionRequired,
+      approvalRequired: parsed.approvalRequired !== undefined ? parsed.approvalRequired : heuristicResult.approvalRequired,
+    };
   } catch (error) {
     logger.warn({ error, rawInput }, 'AI request understanding fallback to heuristics');
     return heuristicResult;

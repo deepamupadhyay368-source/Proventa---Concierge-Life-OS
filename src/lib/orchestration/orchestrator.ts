@@ -6,11 +6,13 @@ import { appendTaskEvent } from './timeline';
 import { evaluateApproval } from './approval/approval-engine';
 import { findAgentForTask } from './agents';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
+import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities } from './types';
 
 export class RequestOrchestrator {
   /**
    * Main entrypoint: Converts a natural language client request into a structured, trackable Task.
+   * Understands -> Classifies -> Researches -> Proposes -> Gates Behind Approval -> Executes/Handoffs.
    */
   static async processRequest(params: {
     rawInput: string;
@@ -27,14 +29,25 @@ export class RequestOrchestrator {
       task = await db.task.findUnique({ where: { id: existingTaskId } });
     }
 
-    // 2. Extract Entities, Intent, & Constraints
+    // 2. Extract Entities, Structured Intent, & Capabilities
     const extractedData = await understandRequest(rawInput);
-    const safety = evaluateSafetyAndHandoff({
+    const decision = TaskDecisionEngine.evaluate({
       rawInput,
       category: extractedData.category,
+      objective: extractedData.objective,
+      destination: extractedData.destination,
+      location: extractedData.location,
+      partySize: extractedData.partySize,
+      budgetRange: extractedData.budgetRange,
+      executionRequired: extractedData.executionRequired,
     });
 
-    const category = extractedData.category || 'dining';
+    const safety = evaluateSafetyAndHandoff({
+      rawInput,
+      category: decision.category.toLowerCase(),
+    });
+
+    const category = decision.category.toLowerCase();
     const assignedAgent = findAgentForTask(category, extractedData.intent);
 
     const entities: ExtractedEntities = {
@@ -56,16 +69,22 @@ export class RequestOrchestrator {
     // 4. Missing Information identification
     const missingInfo = assignedAgent.identifyMissingInformation(entities);
 
-    // 5. Create or Update Task in Database
+    // 5. Determine Initial Lifecycle Status based on Decision Engine & Safety
     let initialStatus: TaskStatus = 'UNDERSTANDING';
     let isEscalated = false;
+    let failedReason: string | null = null;
 
-    // Last-minute impossible requests or safety concerns trigger NEEDS_HUMAN
-    if (
+    if (decision.isProhibited || decision.executionMode === 'UNSUPPORTED') {
+      // Graceful rejection for unsupported or unlawful mandates
+      initialStatus = 'CANCELLED';
+      failedReason = decision.explanation;
+    } else if (
       safety.requiresImmediateHumanHandoff ||
       rawInput.toLowerCase().includes('last-minute private venue for 20 people tonight') ||
-      rawInput.toLowerCase().includes('impossible')
+      rawInput.toLowerCase().includes('impossible') ||
+      (decision.executionMode === 'HUMAN_CONCIERGE' && (rawInput.toLowerCase().includes('call ') || rawInput.toLowerCase().includes('specific table')))
     ) {
+      // Immediate human concierge escalation
       initialStatus = 'NEEDS_HUMAN';
       isEscalated = true;
     } else if (missingInfo.length > 0 && !task) {
@@ -97,6 +116,8 @@ export class RequestOrchestrator {
           budgetAmount: entities.budgetRange ? parseInt(entities.budgetRange.replace(/[^0-9]/g, '')) || null : null,
           budgetCurrency: 'INR',
           isEscalated,
+          failedReason,
+          executionMethod: decision.executionMode === 'HUMAN_CONCIERGE' ? 'HUMAN_CONCIERGE' : decision.executionMode === 'PROVIDER_API' ? 'API' : 'MOCK',
         },
       });
 
@@ -104,8 +125,13 @@ export class RequestOrchestrator {
         taskId: task.id,
         eventType: 'REQUEST_RECEIVED',
         actorRole: 'CUSTOMER',
-        message: `Request received: "${rawInput.slice(0, 120)}"`,
-        data: { intent: entities.intent, category },
+        message: 'Got it. I\'m understanding your request.',
+        data: {
+          intent: entities.intent,
+          category: decision.category,
+          objective: decision.objective,
+          executionMode: decision.executionMode,
+        },
       });
 
       await appendTaskEvent({
@@ -113,7 +139,11 @@ export class RequestOrchestrator {
         eventType: 'AGENT_ASSIGNED',
         actorRole: 'SYSTEM',
         message: `${assignedAgent.name} assigned to handle request.`,
-        data: { agent: assignedAgent.name, preferencesLoaded: Object.keys(preferences).length },
+        data: {
+          agent: assignedAgent.name,
+          capabilityId: decision.capability.capabilityId,
+          preferencesLoaded: Object.keys(preferences).length,
+        },
       });
     } else {
       // Synchronize update on existing task
@@ -129,19 +159,39 @@ export class RequestOrchestrator {
         data: {
           status: initialStatus,
           requiredInfo: missingInfo,
+          failedReason,
           updatedAt: new Date(),
         },
       });
     }
 
-    // 6. If ready to search, execute agent discovery
+    // 6. If request is unsupported or prohibited, record event and exit early
+    if (initialStatus === 'CANCELLED') {
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'REQUEST_UNSUPPORTED',
+        actorRole: 'SYSTEM',
+        message: decision.explanation,
+        data: {
+          suggestedAction: decision.suggestedAction,
+          category: decision.category,
+        },
+      });
+      return { task, proposals: [], missingInfo: [], decision };
+    }
+
+    // 7. If ready to search, execute agent discovery
     let proposals: OptionProposal[] = [];
     if (initialStatus === 'SEARCHING') {
       await appendTaskEvent({
         taskId: task.id,
         eventType: 'SEARCH_INITIATED',
         actorRole: 'AI_AGENT',
-        message: `${assignedAgent.name} is searching verified partner network & availability...`,
+        message: 'I\'m finding verified options for you.',
+        data: {
+          executionMode: decision.executionMode,
+          specialist: assignedAgent.name,
+        },
       });
 
       proposals = await assignedAgent.search(entities, preferences);
@@ -150,22 +200,30 @@ export class RequestOrchestrator {
         validateTransition('SEARCHING', 'OPTIONS_READY');
         const bestOption = proposals[0];
 
-        // Evaluate approval requirements
+        // Evaluate approval requirements:
+        // Any consequential action (booking, reservation, order, purchase) STRICTLY requires explicit approval.
+        // Pure research/comparisons do not require booking approval.
+        const isConsequential =
+          decision.objective === 'BOOK' ||
+          decision.objective === 'ARRANGE' ||
+          entities.executionRequired === true;
+
         const approvalCheck = await evaluateApproval({
           userId: customerId,
           category,
           proposal: bestOption,
         });
 
-        const nextStatus: TaskStatus = approvalCheck.requiresApproval ? 'AWAITING_APPROVAL' : 'APPROVED';
+        const requiresApproval = isConsequential || approvalCheck.requiresApproval || decision.approvalRequired;
+        const nextStatus: TaskStatus = requiresApproval ? 'AWAITING_APPROVAL' : 'OPTIONS_READY';
 
         task = await db.task.update({
           where: { id: task.id },
           data: {
             status: nextStatus,
             proposedOptions: proposals as any,
-            approvalRequired: approvalCheck.requiresApproval,
-            approvalStatus: approvalCheck.requiresApproval ? 'PENDING' : 'APPROVED',
+            approvalRequired: requiresApproval,
+            approvalStatus: requiresApproval ? 'PENDING' : 'APPROVED',
             vendorName: bestOption.providerName,
             budgetAmount: bestOption.priceAmount,
           },
@@ -175,16 +233,20 @@ export class RequestOrchestrator {
           taskId: task.id,
           eventType: 'OPTIONS_FOUND',
           actorRole: 'AI_AGENT',
-          message: `Identified ${proposals.length} options. Top recommendation: ${bestOption.title}.`,
-          data: { optionsCount: proposals.length, topOption: bestOption },
+          message: 'I found these options for you.',
+          data: {
+            optionsCount: proposals.length,
+            topOption: bestOption,
+            executionMode: decision.executionMode,
+          },
         });
 
-        if (approvalCheck.requiresApproval) {
+        if (requiresApproval) {
           await appendTaskEvent({
             taskId: task.id,
             eventType: 'APPROVAL_REQUESTED',
             actorRole: 'SYSTEM',
-            message: `Awaiting client approval: ${bestOption.title}`,
+            message: 'Choose an option to continue.',
             data: { proposal: bestOption, totalAmount: approvalCheck.totalAmount },
           });
 
@@ -210,25 +272,26 @@ export class RequestOrchestrator {
             console.error('[Orchestrator] WhatsApp dispatch notice failed:', e);
           }
 
-          return { task, proposals, missingInfo };
+          return { task, proposals, missingInfo, decision };
         } else {
+          // Research-only completed advisory
           await appendTaskEvent({
             taskId: task.id,
-            eventType: 'PRE_AUTHORIZED',
-            actorRole: 'SYSTEM',
-            message: approvalCheck.reason,
-            data: { proposal: bestOption },
+            eventType: 'RESEARCH_COMPLETED',
+            actorRole: 'AI_AGENT',
+            message: 'Research and curation complete. Ready for member review.',
+            data: { optionsCount: proposals.length },
           });
 
-          // Auto-execute if pre-authorized, and retain proposals in return
-          const executionResult = await this.executeApprovedTask({ taskId: task.id, option: bestOption });
-          return { ...executionResult, task: executionResult.task || task, proposals, missingInfo };
+          return { task, proposals, missingInfo, decision };
         }
       } else {
+        // No direct inventory found -> escalate to Human Concierge
         task = await db.task.update({
           where: { id: task.id },
           data: {
             status: 'NEEDS_HUMAN',
+            executionMethod: 'HUMAN_CONCIERGE',
             isEscalated: true,
           },
         });
@@ -237,7 +300,7 @@ export class RequestOrchestrator {
           taskId: task.id,
           eventType: 'ESCALATED_TO_CONCIERGE',
           actorRole: 'AI_AGENT',
-          message: 'Automated search returned zero direct inventory. Escalated to Proventa Human Concierge Triage Queue.',
+          message: 'I\'ve received your request. Our concierge team is completing this for you.',
         });
       }
     } else if (initialStatus === 'NEEDS_HUMAN') {
@@ -245,16 +308,17 @@ export class RequestOrchestrator {
         taskId: task.id,
         eventType: 'ESCALATED_TO_CONCIERGE',
         actorRole: 'SYSTEM',
-        message: 'Request requires customized human concierge arrangements. Placed into operations queue.',
-        data: { reason: safety.handoffReason || 'Complex last-minute or bespoke arrangement' },
+        message: 'I\'ve received your request. Our concierge team is completing this for you.',
+        data: { reason: safety.handoffReason || decision.explanation || 'Bespoke human concierge arrangement' },
       });
     }
 
-    return { task, proposals, missingInfo };
+    return { task, proposals, missingInfo, decision };
   }
 
   /**
-   * Executes a task after authorization (or auto-approval), verifies confirmation, and finishes lifecycle.
+   * Executes a task after explicit customer authorization, verifies confirmation, and finishes lifecycle.
+   * Consequential actions can only enter here via explicit customer approval.
    */
   static async executeApprovedTask(params: {
     taskId: string;
@@ -301,11 +365,15 @@ export class RequestOrchestrator {
       message: `Executing reservation with ${option.providerName}...`,
     });
 
-    // 1. Execute via Agent & Adapter
+    // 1. Execute via Agent & Adapter (resolved strictly by providerId)
     const execution = await assignedAgent.execute(taskRecord, option);
 
-    // 1a. Handle Phone Booking / Concierge Call Workflow (e.g. Ahmedabad Verified Network)
-    if (execution.status === 'AWAITING_CONCIERGE_CALL' || execution.confirmedDetails?.status === 'AWAITING_CONCIERGE_CALL') {
+    // 1a. Handle Phone Booking / Concierge Call Workflow (e.g. Ahmedabad Verified Network or offline venue)
+    if (
+      execution.status === 'AWAITING_CONCIERGE_CALL' ||
+      execution.confirmedDetails?.status === 'AWAITING_CONCIERGE_CALL' ||
+      option.bookingMethod === 'PHONE'
+    ) {
       validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
       const pendingTask = await db.task.update({
         where: { id: taskId },
@@ -321,9 +389,9 @@ export class RequestOrchestrator {
         taskId,
         eventType: 'AWAITING_CONCIERGE_CALL',
         actorRole: 'AI_AGENT',
-        message: `Phone reservation required for ${option.providerName}. Dispatched to Proventa Concierge desk for telephone placement.`,
+        message: 'I\'ve found the option. Our concierge team is completing this for you.',
         data: {
-          providerId: execution.providerId,
+          providerId: execution.providerId || option.providerId,
           dispatchPayload: dispatch,
         },
       });
@@ -355,6 +423,7 @@ export class RequestOrchestrator {
         where: { id: taskId },
         data: {
           status: 'NEEDS_HUMAN',
+          executionMethod: 'HUMAN_CONCIERGE',
           isEscalated: true,
           failedReason: 'Simulated, mock, or sandbox bookings cannot be confirmed in production paths.',
         },
@@ -396,6 +465,7 @@ export class RequestOrchestrator {
           where: { id: taskId },
           data: {
             status: 'NEEDS_HUMAN',
+            executionMethod: 'HUMAN_CONCIERGE',
             isEscalated: true,
             failedReason: 'Simulated or sandbox verification rejected. Cannot mark booking as confirmed.',
           },
@@ -418,7 +488,7 @@ export class RequestOrchestrator {
           taskId,
           eventType: 'CONFIRMED',
           actorRole: 'AI_AGENT',
-          message: `Reservation confirmed. External Reference: ${execution.externalReferenceId}`,
+          message: `Done. Here's your confirmed booking. Reference: ${execution.externalReferenceId}`,
           data: {
             provider: option.providerName,
             reference: execution.externalReferenceId,
@@ -426,11 +496,11 @@ export class RequestOrchestrator {
           },
         });
 
-        // Also record Booking record if linked to a request
-        if (confirmedTask.requestId && confirmedTask.customerId) {
+        // Record authoritative Booking record
+        if (confirmedTask.customerId) {
           await db.booking.create({
             data: {
-              requestId: confirmedTask.requestId,
+              requestId: confirmedTask.requestId || confirmedTask.id,
               customerId: confirmedTask.customerId,
               status: 'CONFIRMED',
               confirmationRef: execution.externalReferenceId,
@@ -472,6 +542,7 @@ export class RequestOrchestrator {
       where: { id: taskId },
       data: {
         status: 'NEEDS_HUMAN',
+        executionMethod: 'HUMAN_CONCIERGE',
         isEscalated: true,
         failedReason: execution.errorMessage || 'Automated reservation could not be verified by partner system.',
       },
@@ -481,7 +552,7 @@ export class RequestOrchestrator {
       taskId,
       eventType: 'EXECUTION_FAILED_ESCALATED',
       actorRole: 'SYSTEM',
-      message: 'Automated booking could not be verified. Transferred to Proventa Human Concierge to finalize by phone.',
+      message: 'I couldn\'t complete this request automatically. Our concierge desk is taking over to complete this for you.',
       data: { error: execution.errorMessage },
     });
 

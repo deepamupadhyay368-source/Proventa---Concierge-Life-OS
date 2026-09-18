@@ -16,18 +16,25 @@ export class AdapterRegistry {
     this.register('dining', new SwiggyAdapter());
     this.register('dining', new MockDiningAdapter());
     this.register('food', new SwiggyAdapter());
+    this.register('food_delivery', new SwiggyAdapter());
     this.register('delivery', new SwiggyAdapter());
     this.register('flights', new FlightsAdapter());
     this.register('travel', new FlightsAdapter());
     this.register('travel', new MockHotelAdapter());
     this.register('hotel', new MockHotelAdapter());
+    this.register('hotels', new MockHotelAdapter());
     this.register('movies', new CinemaAdapter());
     this.register('cinema', new CinemaAdapter());
+    this.register('movies_entertainment', new CinemaAdapter());
     this.register('experiences', new CinemaAdapter());
     this.register('mobility', new MockMobilityAdapter());
+    this.register('transport', new MockMobilityAdapter());
     this.register('transit', new MockMobilityAdapter());
     this.register('shopping', new MockShoppingAdapter());
     this.register('gift', new MockShoppingAdapter());
+    this.register('gifts', new MockShoppingAdapter());
+    this.register('weekend_escapes', new AhmedabadVerifiedAdapter());
+    this.register('weekend_escapes', new MockHotelAdapter());
     this.initialized = true;
   }
 

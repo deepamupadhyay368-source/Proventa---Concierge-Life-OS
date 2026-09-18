@@ -183,7 +183,7 @@ function DashboardContent() {
               disabled={submitting || !input.trim()}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50"
             >
-              {submitting ? 'Dispatching Orchestration...' : 'Tell Proventa'}
+              {submitting ? 'Understanding your request...' : 'Tell Proventa'}
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
