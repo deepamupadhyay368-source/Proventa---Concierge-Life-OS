@@ -89,22 +89,46 @@ export async function POST(req: NextRequest) {
 
         // Authoritative Booking creation
         if (taskRecord.customerId) {
-          await db.booking.create({
-            data: {
-              requestId: taskRecord.requestId || taskRecord.id,
-              customerId: taskRecord.customerId,
-              status: 'CONFIRMED',
-              confirmationRef: externalReferenceId,
-              details: {
-                title: taskRecord.intent,
-                vendorName: taskRecord.vendorName || metadata?.vendorName || 'Verified Partner',
-                confirmedBy: sessionUser.email,
-                confirmedAt: new Date().toISOString(),
-                notes,
-                ...metadata,
+          let reqId = taskRecord.requestId;
+          if (!reqId) {
+            const defaultCity = await db.city.findFirst({ where: { active: true } });
+            if (defaultCity) {
+              const count = await db.conciergeRequest.count();
+              const newReq = await db.conciergeRequest.create({
+                data: {
+                  customerId: taskRecord.customerId,
+                  cityId: defaultCity.id,
+                  rawInput: taskRecord.originalRequest || taskRecord.intent || 'Concierge execution request',
+                  publicId: `REQ-${(count + 1).toString().padStart(4, '0')}-${Date.now().toString(36).slice(-4).toUpperCase()}`,
+                  status: 'BOOKED',
+                },
+              });
+              reqId = newReq.id;
+              await db.task.update({
+                where: { id: taskRecord.id },
+                data: { requestId: reqId },
+              });
+            }
+          }
+
+          if (reqId) {
+            await db.booking.create({
+              data: {
+                requestId: reqId,
+                customerId: taskRecord.customerId,
+                status: 'CONFIRMED',
+                confirmationRef: externalReferenceId,
+                details: {
+                  title: taskRecord.intent,
+                  vendorName: taskRecord.vendorName || metadata?.vendorName || 'Verified Partner',
+                  confirmedBy: sessionUser.email,
+                  confirmedAt: new Date().toISOString(),
+                  notes,
+                  ...metadata,
+                },
               },
-            },
-          });
+            });
+          }
         }
         break;
       }

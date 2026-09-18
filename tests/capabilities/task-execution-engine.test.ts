@@ -177,6 +177,8 @@ describe('Task Execution Platform — Comprehensive Phase 5 Scenarios', () => {
     const mockTask = {
       id: 'task-test-operator-01',
       publicId: 'TSK-9901',
+      requestId: 'req_test_1',
+      originalRequest: 'Heritage Dinner at Agashiye',
       intent: 'Heritage Dinner at Agashiye',
       status: 'NEEDS_HUMAN',
       isEscalated: true,
