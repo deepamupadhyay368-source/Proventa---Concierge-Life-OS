@@ -49,10 +49,14 @@ export function PublicFooter() {
               Sovereignty &amp; Privacy
             </p>
             <ul className="space-y-2.5 text-xs text-[#8a8680]">
-              <li><Link href="/trust" className="hover:text-[#ddc8a9] transition-colors">Trust &amp; Verification</Link></li>
+              <li><Link href="/legal" className="hover:text-[#ddc8a9] transition-colors font-medium text-[#c8b99d]">Legal &amp; Compliance Center</Link></li>
               <li><Link href="/privacy" className="hover:text-[#ddc8a9] transition-colors">Privacy Policy (DPDP Act)</Link></li>
               <li><Link href="/terms" className="hover:text-[#ddc8a9] transition-colors">Terms of Membership</Link></li>
+              <li><Link href="/ai-concierge-disclosure" className="hover:text-[#ddc8a9] transition-colors">AI Concierge Disclosure</Link></li>
+              <li><Link href="/refund-cancellation" className="hover:text-[#ddc8a9] transition-colors">Refund &amp; Cancellation</Link></li>
+              <li><Link href="/data-rights" className="hover:text-[#ddc8a9] transition-colors">Your Data Rights</Link></li>
               <li><Link href="/cookie-policy" className="hover:text-[#ddc8a9] transition-colors">Cookie Disclosures</Link></li>
+              <li><Link href="/trust" className="hover:text-[#ddc8a9] transition-colors">Trust &amp; Verification</Link></li>
             </ul>
           </div>
         </div>

@@ -205,8 +205,9 @@ export function SignUpForm() {
 
         <p className="text-[11px] text-[#8a8680] text-center font-sans">
           By registering, you agree to our{' '}
-          <a href="/terms" className="underline text-[#141312]">Terms</a> and{' '}
-          <a href="/privacy" className="underline text-[#141312]">Privacy Policy</a>.
+          <a href="/terms" className="underline text-[#141312]">Terms</a>,{' '}
+          <a href="/privacy" className="underline text-[#141312]">Privacy Policy</a>, and{' '}
+          <a href="/ai-concierge-disclosure" className="underline text-[#141312]">AI Concierge Disclosure</a>.
         </p>
       </form>
     </div>
