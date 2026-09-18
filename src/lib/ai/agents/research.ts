@@ -1,4 +1,4 @@
-﻿import { searchProviders } from '../tools/allowlist';
+import { searchProviders } from '../tools/allowlist';
 import { getGeminiModel, isAIAvailable } from '../client';
 import { logger } from '@/lib/logger';
 
@@ -32,7 +32,7 @@ export async function conductResearch(params: {
 
   if (isAIAvailable && providers.length > 0) {
     try {
-      const model = getGeminiModel('gemini-1.5-flash');
+      const model = getGeminiModel(process.env.GEMINI_FLASH_MODEL || process.env.GEMINI_MODEL || 'gemini-3.5-flash');
       const prompt = 'Given customer intent: ' + params.intent + ' and verified providers in Ahmedabad: ' + JSON.stringify(providers) + '. Evaluate which provider best fits.';
       const response = await model.generateContent(prompt);
       aiNotes = response.response.text();

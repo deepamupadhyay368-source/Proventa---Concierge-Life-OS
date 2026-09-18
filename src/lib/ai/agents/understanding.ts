@@ -173,7 +173,7 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
   }
 
   try {
-    const model = getGeminiModel('gemini-1.5-flash');
+    const model = getGeminiModel(process.env.GEMINI_FLASH_MODEL || process.env.GEMINI_MODEL || 'gemini-3.5-flash');
     const prompt = `You are the Proventa Concierge Intent Extraction Engine.
 Analyze the customer request below and extract a strict JSON object with these keys:
 - category: One of [DINING, TRAVEL, HOTELS, TRANSPORT, FOOD_DELIVERY, MOVIES_ENTERTAINMENT, GIFTS, SHOPPING, SALON_WELLNESS, APPOINTMENTS, EVENTS, WEEKEND_ESCAPES, RESEARCH_PLANNING, OTHER_CONCIERGE]

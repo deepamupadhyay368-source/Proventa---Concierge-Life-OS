@@ -1,4 +1,4 @@
-﻿import { getGeminiModel, isAIAvailable } from '../client';
+import { getGeminiModel, isAIAvailable } from '../client';
 
 export async function generateConciergeDraft(params: {
   customerName: string;
@@ -19,7 +19,7 @@ export async function generateConciergeDraft(params: {
     }
   }
 
-  const model = getGeminiModel('gemini-1.5-flash');
+  const model = getGeminiModel(process.env.GEMINI_FLASH_MODEL || process.env.GEMINI_MODEL || 'gemini-3.5-flash');
   const prompt = `
 You are the Concierge Copilot for Proventa.
 Draft a warm, polite, discreet, and concise message for the human concierge to send to ${params.customerName}.

@@ -31,7 +31,7 @@ export class AgentReasoningEngine {
     // Attempt Dynamic LLM Reasoning if Gemini is available
     if (isAIAvailable) {
       try {
-        const model = getGeminiModel('gemini-1.5-flash');
+        const model = getGeminiModel(process.env.GEMINI_FLASH_MODEL || process.env.GEMINI_MODEL || 'gemini-3.5-flash');
 
         const systemPrompt = `You are ${agentName}, an autonomous Proventa AI Agent operating in Ahmedabad, India.
 Your mission is to formulate the optimal execution plan for a client request.
