@@ -22,29 +22,62 @@ function extractCallSheet(task: any) {
   const payload = dispatchEvent?.data?.dispatchPayload || dispatchEvent?.data || {};
   const firstOption = Array.isArray(task.proposedOptions) ? task.proposedOptions[0] : null;
 
-  const venueName =
-    payload.venueName ||
-    task.vendorName ||
-    firstOption?.providerName ||
-    firstOption?.title ||
-    'Not provided';
+  const isFlight =
+    task.category === 'TRAVEL' ||
+    task.category === 'FLIGHTS' ||
+    task.category === 'travel' ||
+    task.category === 'flights' ||
+    payload.subCategory === 'FLIGHTS' ||
+    payload.category === 'TRAVEL' ||
+    Boolean(payload.carrier) ||
+    Boolean(firstOption?.metadata?.airline);
+
+  const carrier = payload.carrier || firstOption?.metadata?.airline || task.vendorName || 'Commercial Airline';
+  const flightNumber = payload.flightNumber || firstOption?.metadata?.flightNumber || '';
+  const route = payload.origin && payload.destination
+    ? `${payload.origin} ➔ ${payload.destination}`
+    : firstOption?.metadata?.route || 'Not provided';
+  const cabinClass = payload.cabinClass || firstOption?.metadata?.cabinClass || 'ECONOMY';
+  const priceInr = payload.priceInr || firstOption?.priceAmount || task.budgetAmount || null;
+  const instructions = payload.instructions || null;
+
+  const venueName = isFlight
+    ? `${carrier} ${flightNumber} (${route})`.trim()
+    : payload.venueName ||
+      task.vendorName ||
+      firstOption?.providerName ||
+      firstOption?.title ||
+      'Not provided';
+
   const venuePhone = payload.venuePhone || firstOption?.metadata?.phone || null;
   const requestedDate =
-    payload.requestedDate ||
-    (task.targetDate
-      ? new Date(task.targetDate).toLocaleDateString('en-IN', {
+    payload.departureTime
+      ? new Date(payload.departureTime).toLocaleDateString('en-IN', {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
         })
-      : null) ||
-    'Not provided';
-  const requestedTime = payload.requestedTime || 'Not provided';
+      : payload.requestedDate ||
+        (task.targetDate
+          ? new Date(task.targetDate).toLocaleDateString('en-IN', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : null) ||
+        'Not provided';
+
+  const requestedTime = payload.departureTime
+    ? new Date(payload.departureTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    : payload.requestedTime || 'Not provided';
+
   const partySize =
+    payload.passengers ||
     payload.partySize ||
     task.partySize ||
     (firstOption?.metadata?.guests ? Number(firstOption.metadata.guests) : null) ||
     'Not provided';
+
   const specialRequests =
     payload.specialRequests ||
     (typeof task.clientPreferences === 'string'
@@ -58,6 +91,13 @@ function extractCallSheet(task: any) {
   const customerPhone = task.customer?.user?.phone || null;
 
   return {
+    isFlight,
+    carrier,
+    flightNumber,
+    route,
+    cabinClass,
+    priceInr,
+    instructions,
     venueName,
     venuePhone,
     requestedDate,
@@ -369,14 +409,14 @@ export function ConciergeOperatorDesk({
               </div>
             )}
 
-            {/* Venue Call Brief */}
+            {/* Venue / Flight Call Brief */}
             {(() => {
               const sheet = extractCallSheet(selectedTask);
               return (
                 <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-3.5 space-y-2.5 text-xs text-purple-950">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-purple-900 uppercase tracking-wider text-[10px]">
-                      Call Brief
+                      {sheet.isFlight ? 'Airline / GDS Flight Dispatch Brief' : 'Venue Call Brief'}
                     </span>
                     {sheet.venuePhone ? (
                       <a
@@ -386,29 +426,63 @@ export function ConciergeOperatorDesk({
                         <Phone className="h-3 w-3" />
                         <span>{sheet.venuePhone}</span>
                       </a>
+                    ) : sheet.isFlight ? (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-200/60 text-purple-800 font-semibold">
+                        GDS / Airline Partner Desk
+                      </span>
                     ) : (
                       <span className="text-[11px] text-purple-400 italic">No phone available</span>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-[11px]">
-                    <div>
-                      <span className="text-purple-600 block text-[10px]">Venue</span>
-                      <span className="font-medium text-purple-950">{sheet.venueName}</span>
+                  {sheet.isFlight ? (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-[11px]">
+                        <div>
+                          <span className="text-purple-600 block text-[10px]">Flight / Carrier</span>
+                          <span className="font-medium text-purple-950">{sheet.carrier} {sheet.flightNumber}</span>
+                        </div>
+                        <div>
+                          <span className="text-purple-600 block text-[10px]">Route</span>
+                          <span className="font-medium text-purple-950">{sheet.route}</span>
+                        </div>
+                        <div>
+                          <span className="text-purple-600 block text-[10px]">Cabin & Guests</span>
+                          <span className="font-medium text-purple-950">{sheet.cabinClass} ({sheet.partySize} pax)</span>
+                        </div>
+                        <div>
+                          <span className="text-purple-600 block text-[10px]">Date & Time</span>
+                          <span className="font-medium text-purple-950">{sheet.requestedDate} {sheet.requestedTime}</span>
+                        </div>
+                      </div>
+
+                      {sheet.instructions && (
+                        <div className="p-2 bg-purple-100/60 rounded-lg text-[10px] text-purple-900 border border-purple-200/60">
+                          <span className="font-bold block">Operator Dispatch Directive:</span>
+                          {sheet.instructions}
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <span className="text-purple-600 block text-[10px]">Party Size</span>
-                      <span className="font-medium text-purple-950">{sheet.partySize}</span>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <span className="text-purple-600 block text-[10px]">Venue</span>
+                        <span className="font-medium text-purple-950">{sheet.venueName}</span>
+                      </div>
+                      <div>
+                        <span className="text-purple-600 block text-[10px]">Party Size</span>
+                        <span className="font-medium text-purple-950">{sheet.partySize}</span>
+                      </div>
+                      <div>
+                        <span className="text-purple-600 block text-[10px]">Date</span>
+                        <span className="font-medium text-purple-950">{sheet.requestedDate}</span>
+                      </div>
+                      <div>
+                        <span className="text-purple-600 block text-[10px]">Time</span>
+                        <span className="font-medium text-purple-950">{sheet.requestedTime}</span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-purple-600 block text-[10px]">Date</span>
-                      <span className="font-medium text-purple-950">{sheet.requestedDate}</span>
-                    </div>
-                    <div>
-                      <span className="text-purple-600 block text-[10px]">Time</span>
-                      <span className="font-medium text-purple-950">{sheet.requestedTime}</span>
-                    </div>
-                  </div>
+                  )}
 
                   {sheet.specialRequests !== 'Not provided' && (
                     <div className="pt-2 border-t border-purple-200/60 text-[11px]">
@@ -440,7 +514,7 @@ export function ConciergeOperatorDesk({
               <div className="space-y-0.5">
                 <p className="font-bold text-amber-950 text-[11px] uppercase tracking-wider">Strict Zero-Fabrication Mandate</p>
                 <p className="text-[11px] text-amber-900 leading-relaxed">
-                  Synthetic or simulated codes (e.g. PV-*, MOCK-*, DEMO-*) will be rejected. You must input the authentic reference code, PNR, or table confirmation provided by the venue host.
+                  Synthetic or simulated codes (e.g. PV-*, MOCK-*, DEMO-*) will be rejected. You must input the authentic reference code, PNR, or table confirmation provided by the venue host or airline GDS.
                 </p>
               </div>
             </div>
@@ -453,7 +527,7 @@ export function ConciergeOperatorDesk({
                 <input
                   type="text"
                   required
-                  placeholder="e.g. AGS-TABLE-14 or DUTY-MGR-8891"
+                  placeholder={extractCallSheet(selectedTask).isFlight ? "e.g. AI-9X4K2P or 6E-W8P9Q" : "e.g. AGS-TABLE-14 or DUTY-MGR-8891"}
                   value={phoneRef}
                   onChange={(e) => setPhoneRef(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg font-mono font-bold focus:outline-none focus:ring-1 focus:ring-purple-700"
@@ -461,7 +535,9 @@ export function ConciergeOperatorDesk({
               </div>
 
               <div>
-                <label className="font-medium text-neutral-700 block mb-1">Venue / Duty Manager Name</label>
+                <label className="font-medium text-neutral-700 block mb-1">
+                  {extractCallSheet(selectedTask).isFlight ? "Airline / GDS Provider" : "Venue / Duty Manager Name"}
+                </label>
                 <input
                   type="text"
                   value={phoneVendor}

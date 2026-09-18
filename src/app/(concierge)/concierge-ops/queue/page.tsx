@@ -24,29 +24,62 @@ function extractCallSheet(task: any) {
   // Fallback to proposedOptions or task fields
   const firstOption = Array.isArray(task.proposedOptions) ? task.proposedOptions[0] : null;
 
-  const venueName =
-    payload.venueName ||
-    task.vendorName ||
-    firstOption?.providerName ||
-    firstOption?.title ||
-    'Not provided';
+  const isFlight =
+    task.category === 'TRAVEL' ||
+    task.category === 'FLIGHTS' ||
+    task.category === 'travel' ||
+    task.category === 'flights' ||
+    payload.subCategory === 'FLIGHTS' ||
+    payload.category === 'TRAVEL' ||
+    Boolean(payload.carrier) ||
+    Boolean(firstOption?.metadata?.airline);
+
+  const carrier = payload.carrier || firstOption?.metadata?.airline || task.vendorName || 'Commercial Airline';
+  const flightNumber = payload.flightNumber || firstOption?.metadata?.flightNumber || '';
+  const route = payload.origin && payload.destination
+    ? `${payload.origin} ➔ ${payload.destination}`
+    : firstOption?.metadata?.route || 'Not provided';
+  const cabinClass = payload.cabinClass || firstOption?.metadata?.cabinClass || 'ECONOMY';
+  const priceInr = payload.priceInr || firstOption?.priceAmount || task.budgetAmount || null;
+  const instructions = payload.instructions || null;
+
+  const venueName = isFlight
+    ? `${carrier} ${flightNumber} (${route})`.trim()
+    : payload.venueName ||
+      task.vendorName ||
+      firstOption?.providerName ||
+      firstOption?.title ||
+      'Not provided';
+
   const venuePhone = payload.venuePhone || firstOption?.metadata?.phone || null;
   const requestedDate =
-    payload.requestedDate ||
-    (task.targetDate
-      ? new Date(task.targetDate).toLocaleDateString('en-IN', {
+    payload.departureTime
+      ? new Date(payload.departureTime).toLocaleDateString('en-IN', {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
         })
-      : null) ||
-    'Not provided';
-  const requestedTime = payload.requestedTime || 'Not provided';
+      : payload.requestedDate ||
+        (task.targetDate
+          ? new Date(task.targetDate).toLocaleDateString('en-IN', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })
+          : null) ||
+        'Not provided';
+
+  const requestedTime = payload.departureTime
+    ? new Date(payload.departureTime).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+    : payload.requestedTime || 'Not provided';
+
   const partySize =
+    payload.passengers ||
     payload.partySize ||
     task.partySize ||
     (firstOption?.metadata?.guests ? Number(firstOption.metadata.guests) : null) ||
     'Not provided';
+
   const specialRequests =
     payload.specialRequests ||
     (typeof task.clientPreferences === 'string'
@@ -63,9 +96,17 @@ function extractCallSheet(task: any) {
     task.executionMethod === 'HUMAN_CONCIERGE' ||
     payload.requiresConciergeCall === true ||
     payload.bookingMethod === 'PHONE' ||
-    firstOption?.bookingMethod === 'PHONE';
+    firstOption?.bookingMethod === 'PHONE' ||
+    isFlight;
 
   return {
+    isFlight,
+    carrier,
+    flightNumber,
+    route,
+    cabinClass,
+    priceInr,
+    instructions,
     venueName,
     venuePhone,
     requestedDate,
@@ -528,31 +569,55 @@ export default function ConciergeQueuePage() {
               </button>
             </div>
 
-            {/* Structured Call Brief Inside Modal */}
+            {/* Structured Call / Flight Brief Inside Modal */}
             {(() => {
               const sheet = extractCallSheet(selectedTaskForConfirm);
               return (
-                <div className="bg-purple-50/60 border border-purple-100 p-3.5 rounded-xl text-xs space-y-1.5">
+                <div className="bg-purple-50/60 border border-purple-100 p-3.5 rounded-xl text-xs space-y-2">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] uppercase font-bold text-neutral-400 block">Establishment</span>
+                      <span className="text-[10px] uppercase font-bold text-neutral-400 block">
+                        {sheet.isFlight ? 'Airline / Route' : 'Establishment'}
+                      </span>
                       <span className="font-bold text-neutral-900">{sheet.venueName}</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] uppercase font-bold text-neutral-400 block">Phone Line</span>
+                      <span className="text-[10px] uppercase font-bold text-neutral-400 block">
+                        {sheet.isFlight ? 'Desk Channel' : 'Phone Line'}
+                      </span>
                       {sheet.venuePhone ? (
                         <a href={`tel:${sheet.venuePhone}`} className="text-purple-700 font-bold hover:underline inline-flex items-center gap-1">
                           <PhoneCall className="h-3 w-3" />
                           <span>{sheet.venuePhone}</span>
                         </a>
                       ) : (
-                        <span className="text-neutral-400">Not provided</span>
+                        <span className="text-neutral-500 font-mono text-[10px]">
+                          {sheet.isFlight ? 'Airline GDS Desk' : 'Not provided'}
+                        </span>
                       )}
                     </div>
                   </div>
-                  <div className="text-[11px] text-neutral-600 border-t border-purple-100/60 pt-1.5">
-                    Reservation: <strong>{sheet.requestedDate !== 'Not provided' ? `${sheet.requestedDate} at ${sheet.requestedTime}` : 'Not provided'}</strong> · {sheet.partySize !== 'Not provided' ? `${sheet.partySize} guests` : 'Guests: Not provided'}
-                  </div>
+
+                  {sheet.isFlight ? (
+                    <div className="text-[11px] text-neutral-600 border-t border-purple-100/60 pt-1.5 space-y-1">
+                      <div>
+                        Flight: <strong>{sheet.carrier} {sheet.flightNumber}</strong> ({sheet.route}) · {sheet.cabinClass} ({sheet.partySize} pax)
+                      </div>
+                      <div>
+                        Date/Time: <strong>{sheet.requestedDate} {sheet.requestedTime}</strong>
+                      </div>
+                      {sheet.instructions && (
+                        <div className="p-2 bg-purple-100/60 rounded text-[10px] text-purple-950 font-mono mt-1">
+                          {sheet.instructions}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-neutral-600 border-t border-purple-100/60 pt-1.5">
+                      Reservation: <strong>{sheet.requestedDate !== 'Not provided' ? `${sheet.requestedDate} at ${sheet.requestedTime}` : 'Not provided'}</strong> · {sheet.partySize !== 'Not provided' ? `${sheet.partySize} guests` : 'Guests: Not provided'}
+                    </div>
+                  )}
+
                   {sheet.specialRequests !== 'Not provided' && (
                     <div className="text-[11px] text-purple-900 italic">
                       Special requests: {sheet.specialRequests}
@@ -574,7 +639,7 @@ export default function ConciergeQueuePage() {
               <div className="space-y-0.5">
                 <p className="font-bold text-amber-950 text-[11px] uppercase tracking-wider">Strict Zero-Fabrication Mandate</p>
                 <p className="text-[11px] text-amber-900 leading-relaxed">
-                  Synthetic or simulated codes (e.g. PV-*, MOCK-*, DEMO-*) will be rejected. You must input the authentic reference code, PNR, or table confirmation provided by the venue host.
+                  Synthetic or simulated codes (e.g. PV-*, MOCK-*, DEMO-*) will be rejected. You must input the authentic reference code, PNR, or table confirmation provided by the venue host or airline GDS.
                 </p>
               </div>
             </div>
@@ -582,12 +647,12 @@ export default function ConciergeQueuePage() {
             <form onSubmit={handleManualConfirmSubmit} className="space-y-3 text-xs">
               <div>
                 <label className="font-semibold text-neutral-800 block mb-1">
-                  Authentic Confirmation Reference / Table Code <span className="text-red-500">*</span>
+                  Authentic Confirmation Reference / Airline PNR <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. AGS-TABLE-14 or DUTY-MGR-8891"
+                  placeholder={extractCallSheet(selectedTaskForConfirm).isFlight ? "e.g. AI-9X4K2P or 6E-W8P9Q" : "e.g. AGS-TABLE-14 or DUTY-MGR-8891"}
                   value={confirmRef}
                   onChange={(e) => setConfirmRef(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg font-mono font-bold focus:outline-none focus:ring-1 focus:ring-purple-700"
@@ -595,10 +660,12 @@ export default function ConciergeQueuePage() {
               </div>
 
               <div>
-                <label className="font-medium text-neutral-700 block mb-1">Duty Manager / Staff Contacted (Optional)</label>
+                <label className="font-medium text-neutral-700 block mb-1">
+                  {extractCallSheet(selectedTaskForConfirm).isFlight ? "Airline / GDS Provider" : "Duty Manager / Staff Contacted (Optional)"}
+                </label>
                 <input
                   type="text"
-                  placeholder="e.g. Mr. Hitesh (Floor Manager)"
+                  placeholder={extractCallSheet(selectedTaskForConfirm).isFlight ? "e.g. Air India / Amadeus" : "e.g. Mr. Hitesh (Floor Manager)"}
                   value={confirmVendor}
                   onChange={(e) => setConfirmVendor(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-700"

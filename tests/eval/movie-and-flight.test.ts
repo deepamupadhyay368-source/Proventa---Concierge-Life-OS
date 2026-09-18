@@ -37,7 +37,7 @@ describe('Flight & Movie/Cinema Booking Suite', () => {
       expect(first.environment).toBe('SANDBOX');
     });
 
-    it('executes e-ticket reservation and returns verified GDS PNR', async () => {
+    it('routes to concierge desk or GDS without fabricating fake PNRs (Zero Fabrication)', async () => {
       const options = await flightAdapter.search({
         category: 'flights',
         rawInput: 'Air India Vistara',
@@ -45,12 +45,27 @@ describe('Flight & Movie/Cinema Booking Suite', () => {
 
       const execution = await flightAdapter.execute(options[0], { guests: 2 });
       expect(execution.success).toBe(true);
-      expect(execution.externalReferenceId).toContain('PNR');
-      expect(execution.status).toBe('CONFIRMED');
 
-      const verification = await flightAdapter.verify(execution);
-      expect(verification.verified).toBe(true);
-      expect(verification.status).toBe('CONFIRMED');
+      // In test/sandbox without live Amadeus production credentials, strictly avoid fake PNRs
+      if (execution.status === 'AWAITING_CONCIERGE_CALL') {
+        expect(execution.externalReferenceId).toBeUndefined();
+        const dispatchPayload = (execution.confirmedDetails as any)?.dispatchPayload;
+        expect(dispatchPayload).toBeDefined();
+        expect(dispatchPayload?.category).toBe('travel');
+        expect(dispatchPayload?.carrier).toBeDefined();
+      } else {
+        expect(execution.status).toBe('CONFIRMED');
+        expect(execution.externalReferenceId).toBeDefined();
+      }
+
+      // Verification rejects synthetic mock references
+      const fakeVerification = await flightAdapter.verify('PV-FAKE-PNR-999');
+      expect(fakeVerification.verified).toBe(false);
+
+      // Verification accepts authentic airline PNR format
+      const validVerification = await flightAdapter.verify('AI-6X9P2Q');
+      expect(validVerification.verified).toBe(true);
+      expect(validVerification.status).toBe('CONFIRMED');
     });
   });
 
