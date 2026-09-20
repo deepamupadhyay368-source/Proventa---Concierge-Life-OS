@@ -118,6 +118,7 @@ export class TaskDecisionEngine {
       specialistAgent: capability.specialistAgent,
       approvalRequired,
       requiresHumanHandoff,
+      isProhibited: false,
       explanation,
     };
   }

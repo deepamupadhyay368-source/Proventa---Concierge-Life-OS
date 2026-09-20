@@ -1261,7 +1261,11 @@ model Task {
   @@index([status])
   @@index([priority])
   @@index([assignedAgent])
+  @@index([category])
+  @@index([isEscalated])
   @@index([createdAt])
+  @@index([updatedAt])
+  @@index([status, updatedAt])
   @@index([deadline])
   @@index([externalReferenceId])
   @@map("orchestrated_tasks")
@@ -1281,6 +1285,7 @@ model TaskEvent {
 
   @@index([taskId])
   @@index([createdAt])
+  @@index([eventType])
   @@map("task_events")
 }
 

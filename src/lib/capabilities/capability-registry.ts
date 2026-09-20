@@ -247,8 +247,25 @@ export class CapabilityRegistry {
 
   static getCapability(category: ServiceCategory | string): TaskCapability {
     this.init();
-    const normalized = (category || 'OTHER_CONCIERGE').toUpperCase().replace(/[\s-]/g, '_') as ServiceCategory;
-    return this.capabilities.get(normalized) || this.capabilities.get('OTHER_CONCIERGE')!;
+    const raw = (category || 'OTHER_CONCIERGE').toUpperCase().replace(/[\s-]/g, '_');
+    
+    // Seamless alias mapping for all human-first concierge categories
+    const aliasMap: Record<string, ServiceCategory> = {
+      HOTELS_ACCOMMODATION: 'HOTELS',
+      MOBILITY_TRANSPORT: 'TRANSPORT',
+      EVENTS_EXPERIENCES: 'EVENTS',
+      GIFTS_SHOPPING: 'GIFTS',
+      HEALTH_WELLNESS: 'SALON_WELLNESS',
+      HOME_LIFESTYLE: 'OTHER_CONCIERGE',
+      BUSINESS_COURIER: 'OTHER_CONCIERGE',
+      FINANCIAL_CONCIERGE: 'OTHER_CONCIERGE',
+      LEGAL_DOCUMENTATION: 'OTHER_CONCIERGE',
+      BESPOKE_REQUESTS: 'OTHER_CONCIERGE',
+      BESPOKE: 'OTHER_CONCIERGE',
+    };
+
+    const targetCategory = (aliasMap[raw] || raw) as ServiceCategory;
+    return this.capabilities.get(targetCategory) || this.capabilities.get('OTHER_CONCIERGE')!;
   }
 
   static getAllCapabilities(): TaskCapability[] {

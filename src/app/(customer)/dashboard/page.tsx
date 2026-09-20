@@ -31,14 +31,15 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/tasks').then((res) => res.json()).catch(() => ({ tasks: [] })),
-      fetch('/api/requests').then((res) => res.json()).catch(() => ({ requests: [] })),
-    ]).then(([tasksData, requestsData]) => {
-      if (tasksData.tasks) setTasks(tasksData.tasks);
-      if (requestsData.requests) setRequests(requestsData.requests);
-      setLoading(false);
-    });
+    fetch('/api/tasks')
+      .then((res) => res.json())
+      .then((tasksData) => {
+        if (tasksData.tasks) setTasks(tasksData.tasks);
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   }, []);
 
   const handleCreateRequest = async (e: React.FormEvent) => {

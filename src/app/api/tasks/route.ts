@@ -12,10 +12,42 @@ export async function GET(req: NextRequest) {
     });
     if (!customerProfile) return NextResponse.json({ tasks: [] });
 
+    // Lean select projection for high-speed dashboard loading
     const tasks = await db.task.findMany({
       where: { customerId: customerProfile.id },
-      include: {
-        events: { orderBy: { createdAt: 'desc' }, take: 15 },
+      select: {
+        id: true,
+        publicId: true,
+        category: true,
+        intent: true,
+        originalRequest: true,
+        priority: true,
+        status: true,
+        assignedAgent: true,
+        vendorName: true,
+        budgetAmount: true,
+        budgetCurrency: true,
+        approvalRequired: true,
+        approvalStatus: true,
+        executionMethod: true,
+        externalReferenceId: true,
+        isEscalated: true,
+        failedReason: true,
+        proposedOptions: true,
+        createdAt: true,
+        updatedAt: true,
+        completedAt: true,
+        events: {
+          take: 5,
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            eventType: true,
+            actorRole: true,
+            message: true,
+            createdAt: true,
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -42,20 +74,54 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { rawInput, urgency, taskId } = body;
+    const { rawInput, urgency, taskId, sync } = body;
 
     if (!rawInput && !taskId) {
       return NextResponse.json({ error: 'Request description is required' }, { status: 400 });
     }
 
-    const result = await RequestOrchestrator.processRequest({
+    // Synchronous execution path (for tests or callers requesting instant option generation)
+    if (sync === true || taskId) {
+      const result = await RequestOrchestrator.processRequest({
+        rawInput: rawInput || '',
+        customerId: customerProfile.id,
+        existingTaskId: taskId,
+        urgency,
+      });
+      return NextResponse.json(result, { status: 201 });
+    }
+
+    // Fast Human-First Concierge Execution Path:
+    // 1. Create and persist the task immediately in Postgres (<150ms).
+    // 2. Return 201 with the persisted task record so the client UI updates without blocking.
+    // 3. Continue AI understanding and agent proposal search in background.
+    const initialTask = await RequestOrchestrator.createInitialTask({
       rawInput: rawInput || '',
       customerId: customerProfile.id,
-      existingTaskId: taskId,
       urgency,
     });
 
-    return NextResponse.json(result, { status: 201 });
+    // Detached background refinement
+    RequestOrchestrator.processRequest({
+      rawInput: rawInput || '',
+      customerId: customerProfile.id,
+      existingTaskId: initialTask.id,
+      urgency,
+    }).catch((bgError) => {
+      console.warn('[POST /api/tasks background error, routed to human concierge]:', bgError?.message || bgError);
+      // Ensure task remains visible to concierge operators
+      db.task.update({
+        where: { id: initialTask.id },
+        data: {
+          status: 'NEEDS_HUMAN',
+          isEscalated: true,
+          executionMethod: 'HUMAN_CONCIERGE',
+          failedReason: 'Routed to Senior Concierge Desk for direct human coordination.',
+        },
+      }).catch(() => {});
+    });
+
+    return NextResponse.json({ task: initialTask, options: [] }, { status: 201 });
   } catch (error: any) {
     console.error('[POST /api/tasks]', error);
     if (isAppError(error)) {

@@ -29,14 +29,40 @@ export async function POST(req: NextRequest) {
     let isEscalated: boolean | undefined = undefined;
     let externalReferenceId: string | undefined = undefined;
     let failedReason: string | undefined = undefined;
+    let priority: any = undefined;
+    let proposedOptions: any = undefined;
+    let approvalRequired: boolean | undefined = undefined;
+    let approvalStatus: any = undefined;
+    let updatedPreferences = (taskRecord.clientPreferences as Record<string, any>) || {};
+    let assignedAgent: string | undefined = undefined;
     let eventType = `CONCIERGE_ACTION_${action}`;
-    let eventMessage = notes || `Concierge operator ${sessionUser.email} performed ${action}`;
+    let eventMessage = notes || `Concierge operator ${sessionUser.name || sessionUser.email} performed ${action}`;
 
     switch (action) {
       case 'CLAIM':
         eventType = 'OPERATOR_CLAIMED';
-        eventMessage = `Operator ${sessionUser.email} claimed task.`;
+        assignedAgent = sessionUser.name || sessionUser.email;
+        updatedPreferences = {
+          ...updatedPreferences,
+          assignedOperator: sessionUser.name || sessionUser.email,
+          claimedAt: new Date().toISOString(),
+        };
+        eventMessage = `Operator ${sessionUser.name || sessionUser.email} took ownership of this request.`;
+        if (taskRecord.status === 'REQUESTED' || taskRecord.status === 'QUEUED') {
+          updatedStatus = 'UNDERSTANDING';
+        }
         break;
+
+      case 'CHANGE_PRIORITY': {
+        const newPri = body.priority || metadata?.priority;
+        if (!['LOW', 'NORMAL', 'HIGH', 'URGENT'].includes(newPri)) {
+          return NextResponse.json({ error: 'Valid priority required (LOW, NORMAL, HIGH, URGENT)' }, { status: 400 });
+        }
+        priority = newPri;
+        eventType = 'PRIORITY_CHANGED';
+        eventMessage = `Priority adjusted to ${newPri}. ${notes || ''}`.trim();
+        break;
+      }
 
       case 'CONTACT_PROVIDER':
         eventType = 'PROVIDER_CONTACTED';
@@ -45,7 +71,12 @@ export async function POST(req: NextRequest) {
 
       case 'ADD_NOTE':
         eventType = 'CONCIERGE_NOTE_ADDED';
-        eventMessage = notes || 'Operator added internal notes.';
+        eventMessage = notes || 'Operator added notes.';
+        break;
+
+      case 'ADD_INTERNAL_NOTE':
+        eventType = 'INTERNAL_NOTE_ADDED';
+        eventMessage = notes || 'Internal operational note added.';
         break;
 
       case 'REQUEST_CUSTOMER_INFO':
@@ -54,13 +85,61 @@ export async function POST(req: NextRequest) {
         eventMessage = notes || 'Additional clarification requested from member.';
         break;
 
+      case 'SEND_CUSTOMER_MESSAGE':
+        eventType = 'CONCIERGE_MESSAGE_SENT';
+        eventMessage = notes || body.message || 'Message sent to member.';
+        break;
+
+      case 'ADD_PROPOSAL': {
+        const proposal = metadata?.proposal || body.proposal;
+        if (!proposal || !proposal.title) {
+          return NextResponse.json({ error: 'Valid proposal with title is required' }, { status: 400 });
+        }
+        const existing = Array.isArray(taskRecord.proposedOptions) ? (taskRecord.proposedOptions as any[]) : [];
+        proposedOptions = [...existing, proposal];
+        updatedStatus = 'OPTIONS_READY';
+        eventType = 'OPTIONS_FOUND';
+        eventMessage = `Option proposed: ${proposal.title} (${proposal.providerName || 'Curated'})`;
+        break;
+      }
+
+      case 'REQUEST_APPROVAL':
+        updatedStatus = 'AWAITING_APPROVAL';
+        approvalRequired = true;
+        approvalStatus = 'PENDING';
+        eventType = 'APPROVAL_REQUESTED';
+        eventMessage = notes || 'Option submitted for member confirmation.';
+        break;
+
+      case 'READY_TO_EXECUTE':
+        updatedStatus = 'APPROVED';
+        eventType = 'READY_FOR_EXECUTION';
+        eventMessage = notes || 'All parameters verified. Ready for immediate provider booking / ticket issuance.';
+        break;
+
+      case 'VERIFY_REFERENCE':
+        eventType = 'REFERENCE_VERIFIED';
+        eventMessage = notes || `External provider reference ${taskRecord.externalReferenceId || ''} verified with venue maître d' / partner dispatch.`;
+        break;
+
+      case 'REOPEN':
+        updatedStatus = 'UNDERSTANDING';
+        isEscalated = false;
+        eventType = 'TASK_REOPENED';
+        eventMessage = notes || 'Request reopened by concierge operator for further handling.';
+        break;
+
       case 'AWAITING_PROVIDER':
         eventType = 'AWAITING_PROVIDER';
         eventMessage = notes || 'Awaiting confirmation or callback from venue maître d\' / dispatch.';
         break;
 
       case 'CONFIRM': {
-        const ref = metadata?.externalReference || body.externalReference;
+        const ref =
+          metadata?.externalReference ||
+          metadata?.reference ||
+          body.externalReference ||
+          body.reference;
         if (!ref || typeof ref !== 'string' || !ref.trim()) {
           return NextResponse.json(
             { error: 'Genuine external confirmation reference is mandatory to confirm a booking.' },
@@ -75,11 +154,13 @@ export async function POST(req: NextRequest) {
           upperRef.startsWith('PV-AMD-') ||
           upperRef.startsWith('MOCK-') ||
           upperRef.startsWith('DEMO-') ||
+          upperRef.startsWith('TEST-') ||
+          upperRef.startsWith('FAKE-') ||
           upperRef.includes('SANDBOX') ||
           ['NONE', 'N/A', 'NA', 'NULL', 'UNDEFINED', 'TEST', 'MOCK', 'FAKE', 'SIMULATED'].includes(upperRef)
         ) {
           return NextResponse.json(
-            { error: 'Synthetic, simulated, or mock references (e.g. PV-*, MOCK-*) are strictly prohibited by Proventa zero-fabrication policy.' },
+            { error: 'Synthetic, simulated, or mock references (e.g. PV-*, MOCK-*, TEST-*) are strictly prohibited by Proventa zero-fabrication policy. Enter the authentic confirmation reference issued by the airline, hotel, restaurant, or merchant.' },
             { status: 400 }
           );
         }
@@ -209,6 +290,12 @@ export async function POST(req: NextRequest) {
         ...(isEscalated !== undefined ? { isEscalated } : {}),
         ...(externalReferenceId ? { externalReferenceId, completedAt: new Date() } : {}),
         ...(failedReason ? { failedReason } : {}),
+        ...(priority ? { priority } : {}),
+        ...(proposedOptions ? { proposedOptions } : {}),
+        ...(approvalRequired !== undefined ? { approvalRequired } : {}),
+        ...(approvalStatus ? { approvalStatus } : {}),
+        ...(assignedAgent ? { assignedAgent } : {}),
+        clientPreferences: updatedPreferences,
         updatedAt: new Date(),
       },
     });
