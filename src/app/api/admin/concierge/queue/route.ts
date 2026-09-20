@@ -123,6 +123,11 @@ export async function GET(req: NextRequest) {
 
       const waitingMinutes = Math.max(0, Math.round((now.getTime() - new Date(t.createdAt).getTime()) / (60 * 1000)));
 
+      const executionTier = prefs.executionTier || (t.executionMethod === 'API' ? 'AUTOMATED' : 'HUMAN');
+      const executionReason = prefs.executionReason || null;
+      const providerStatus = prefs.providerStatus || null;
+      const preparedContext = prefs.preparedContext || null;
+
       return {
         id: t.id,
         publicId: t.publicId,
@@ -133,6 +138,10 @@ export async function GET(req: NextRequest) {
         status: t.status,
         isEscalated: t.isEscalated,
         executionMethod: t.executionMethod,
+        executionTier,
+        executionReason,
+        providerStatus,
+        preparedContext,
         assignedAgent: t.assignedAgent,
         assignedOperator,
         vendorName: t.vendorName,

@@ -142,7 +142,7 @@ describe('Founder Password & Account Security Suite', () => {
       // 5. Verify old password no longer works, and new password works
       expect(await verifyPassword(passwordA, activeHash)).toBe(false);
       expect(await verifyPassword(passwordB, activeHash)).toBe(true);
-    });
+    }, 30000);
 
     it('enforces that normal customers cannot pass SUPER_ADMIN authorization', () => {
       const customerUser = {

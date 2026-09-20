@@ -7,6 +7,7 @@ import { evaluateApproval } from './approval/approval-engine';
 import { findAgentForTask } from './agents';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
+import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities } from './types';
 
 export class RequestOrchestrator {
@@ -37,6 +38,11 @@ export class RequestOrchestrator {
     else if (lower.includes('event') || lower.includes('concert') || lower.includes('ticket') || lower.includes('show')) category = 'events_experiences';
     else if (lower.includes('spa') || lower.includes('salon') || lower.includes('massage') || lower.includes('wellness') || lower.includes('doctor')) category = 'health_wellness';
 
+    const executionResolution = ExecutionRouter.resolveExecutionMode({
+      rawInput,
+      category,
+    });
+
     const task = await db.task.create({
       data: {
         publicId,
@@ -47,7 +53,15 @@ export class RequestOrchestrator {
         assignedAgent: 'Senior Concierge Desk',
         priority: (urgency || 'NORMAL') as TaskPriority,
         status: 'UNDERSTANDING',
-        executionMethod: 'HUMAN_CONCIERGE',
+        executionMethod: executionResolution.executionMethod,
+        clientPreferences: {
+          executionTier: executionResolution.tier,
+          executionReason: executionResolution.reason,
+          providerStatus: executionResolution.providerStatus,
+          providerConsidered: executionResolution.providerConsidered,
+          customerStatusMessage: executionResolution.customerStatusMessage,
+          preparedContext: executionResolution.preparedContext,
+        },
       },
     });
 
@@ -57,6 +71,19 @@ export class RequestOrchestrator {
       actorRole: 'CUSTOMER',
       message: 'Request received. Your concierge is reviewing it.',
       data: { originalRequest: rawInput },
+    });
+
+    await appendTaskEvent({
+      taskId: task.id,
+      eventType: 'EXECUTION_MODE_RESOLVED',
+      actorRole: 'SYSTEM',
+      message: `Execution tier resolved: ${executionResolution.tier} — ${executionResolution.reason}`,
+      data: {
+        tier: executionResolution.tier,
+        executionMethod: executionResolution.executionMethod,
+        providerStatus: executionResolution.providerStatus,
+        providerConsidered: executionResolution.providerConsidered,
+      },
     });
 
     return task;
@@ -145,6 +172,15 @@ export class RequestOrchestrator {
       initialStatus = 'SEARCHING';
     }
 
+    const executionResolution = ExecutionRouter.resolveExecutionMode({
+      rawInput,
+      category: decision.category,
+      objective: decision.objective,
+      extractedData,
+      preferences,
+      capability: decision.capability,
+    });
+
     if (!task) {
       const count = await db.task.count();
       const baseCandidate = `TSK-${(count + 1).toString().padStart(4, '0')}`;
@@ -164,12 +200,20 @@ export class RequestOrchestrator {
           priority: entities.urgency,
           status: initialStatus,
           requiredInfo: missingInfo,
-          clientPreferences: preferences,
+          clientPreferences: {
+            ...preferences,
+            executionTier: executionResolution.tier,
+            executionReason: executionResolution.reason,
+            providerStatus: executionResolution.providerStatus,
+            providerConsidered: executionResolution.providerConsidered,
+            customerStatusMessage: executionResolution.customerStatusMessage,
+            preparedContext: executionResolution.preparedContext,
+          },
           budgetAmount: entities.budgetRange ? parseInt(entities.budgetRange.replace(/[^0-9]/g, '')) || null : null,
           budgetCurrency: 'INR',
           isEscalated,
           failedReason,
-          executionMethod: decision.executionMode === 'HUMAN_CONCIERGE' ? 'HUMAN_CONCIERGE' : decision.executionMode === 'PROVIDER_API' ? 'API' : 'MOCK',
+          executionMethod: executionResolution.executionMethod,
         },
       });
 
@@ -183,6 +227,19 @@ export class RequestOrchestrator {
           category: decision.category,
           objective: decision.objective,
           executionMode: decision.executionMode,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'EXECUTION_MODE_RESOLVED',
+        actorRole: 'SYSTEM',
+        message: `Execution tier resolved: ${executionResolution.tier} — ${executionResolution.reason}`,
+        data: {
+          tier: executionResolution.tier,
+          executionMethod: executionResolution.executionMethod,
+          providerStatus: executionResolution.providerStatus,
+          providerConsidered: executionResolution.providerConsidered,
         },
       });
 
@@ -206,13 +263,44 @@ export class RequestOrchestrator {
         message: `Updated details: "${rawInput.slice(0, 120)}"`,
       });
 
+      const existingPrefs = (task.clientPreferences as Record<string, any>) || {};
       task = await db.task.update({
         where: { id: task.id },
         data: {
+          category,
+          intent: entities.intent || task.intent,
           status: initialStatus,
           requiredInfo: missingInfo,
           failedReason,
+          budgetAmount: entities.budgetRange ? parseInt(entities.budgetRange.replace(/[^0-9]/g, '')) || task.budgetAmount : task.budgetAmount,
+          executionMethod: executionResolution.executionMethod,
+          clientPreferences: {
+            ...existingPrefs,
+            ...preferences,
+            executionTier: executionResolution.tier,
+            executionReason: executionResolution.reason,
+            providerStatus: executionResolution.providerStatus,
+            providerConsidered: executionResolution.providerConsidered,
+            customerStatusMessage: executionResolution.customerStatusMessage,
+            preparedContext: {
+              ...(existingPrefs.preparedContext || {}),
+              ...executionResolution.preparedContext,
+            },
+          },
           updatedAt: new Date(),
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'EXECUTION_MODE_RESOLVED',
+        actorRole: 'SYSTEM',
+        message: `Execution tier resolved: ${executionResolution.tier} — ${executionResolution.reason}`,
+        data: {
+          tier: executionResolution.tier,
+          executionMethod: executionResolution.executionMethod,
+          providerStatus: executionResolution.providerStatus,
+          providerConsidered: executionResolution.providerConsidered,
         },
       });
     }
@@ -269,6 +357,8 @@ export class RequestOrchestrator {
         const requiresApproval = isConsequential || approvalCheck.requiresApproval || decision.approvalRequired;
         const nextStatus: TaskStatus = requiresApproval ? 'AWAITING_APPROVAL' : 'OPTIONS_READY';
 
+        const currentPrefs = (task.clientPreferences as Record<string, any>) || {};
+        const currentContext = currentPrefs.preparedContext || {};
         task = await db.task.update({
           where: { id: task.id },
           data: {
@@ -278,6 +368,13 @@ export class RequestOrchestrator {
             approvalStatus: requiresApproval ? 'PENDING' : 'APPROVED',
             vendorName: bestOption.providerName,
             budgetAmount: bestOption.priceAmount,
+            clientPreferences: {
+              ...currentPrefs,
+              preparedContext: {
+                ...currentContext,
+                proposedOptionsCount: proposals.length,
+              },
+            },
           },
         });
 
@@ -339,12 +436,18 @@ export class RequestOrchestrator {
         }
       } else {
         // No direct inventory found -> escalate to Human Concierge
+        const currentPrefs = (task.clientPreferences as Record<string, any>) || {};
         task = await db.task.update({
           where: { id: task.id },
           data: {
             status: 'NEEDS_HUMAN',
             executionMethod: 'HUMAN_CONCIERGE',
             isEscalated: true,
+            clientPreferences: {
+              ...currentPrefs,
+              executionTier: 'ASSISTED',
+              executionReason: 'Direct automated inventory unavailable. Structured context prepared for Senior Concierge Desk.',
+            },
           },
         });
 

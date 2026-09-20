@@ -29,6 +29,19 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized access to task' }, { status: 403 });
     }
 
+    if (!isStaff) {
+      const customerSafeEvents = task.events.filter(
+        (e) => e.eventType !== 'INTERNAL_NOTE_ADDED' && !e.eventType.includes('INTERNAL')
+      );
+      const prefs = (task.clientPreferences as Record<string, any>) || {};
+      const customerSafeTask = {
+        ...task,
+        events: customerSafeEvents,
+        customerStatusMessage: prefs.customerStatusMessage || 'Your Proventa Concierge is handling this.',
+      };
+      return NextResponse.json({ task: customerSafeTask });
+    }
+
     return NextResponse.json({ task });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Unauthorized' }, { status: 401 });

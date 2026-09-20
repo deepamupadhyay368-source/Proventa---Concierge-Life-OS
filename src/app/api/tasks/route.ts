@@ -38,6 +38,11 @@ export async function GET(req: NextRequest) {
         updatedAt: true,
         completedAt: true,
         events: {
+          where: {
+            eventType: {
+              not: 'INTERNAL_NOTE_ADDED',
+            },
+          },
           take: 5,
           orderBy: { createdAt: 'desc' },
           select: {

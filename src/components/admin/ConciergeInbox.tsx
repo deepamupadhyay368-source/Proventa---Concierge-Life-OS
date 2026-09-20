@@ -30,6 +30,10 @@ interface TaskCard {
   status: string;
   isEscalated: boolean;
   executionMethod: string;
+  executionTier?: 'AUTOMATED' | 'ASSISTED' | 'HUMAN';
+  executionReason?: string | null;
+  providerStatus?: string | null;
+  preparedContext?: any;
   assignedAgent: string;
   assignedOperator: string | null;
   vendorName: string | null;
@@ -311,6 +315,20 @@ export function ConciergeInbox() {
                   {t.priority === 'URGENT' && (
                     <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-red-950/60 text-red-300 border border-red-800/40">
                       URGENT
+                    </span>
+                  )}
+                  {t.executionTier && (
+                    <span
+                      title={t.executionReason || undefined}
+                      className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded font-medium border ${
+                        t.executionTier === 'AUTOMATED'
+                          ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
+                          : t.executionTier === 'ASSISTED'
+                          ? 'bg-cyan-950/60 text-cyan-300 border-cyan-800/40'
+                          : 'bg-amber-950/60 text-amber-300 border-amber-800/40'
+                      }`}
+                    >
+                      {t.executionTier}
                     </span>
                   )}
                 </div>

@@ -137,6 +137,20 @@ export function ConciergeOperatorWorkspace({
               }`}>
                 {task.status}
               </span>
+              {task.executionTier && (
+                <span
+                  title={task.executionReason || undefined}
+                  className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded font-semibold border ${
+                    task.executionTier === 'AUTOMATED'
+                      ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
+                      : task.executionTier === 'ASSISTED'
+                      ? 'bg-cyan-950/60 text-cyan-300 border-cyan-800/40'
+                      : 'bg-amber-950/60 text-amber-300 border-amber-800/40'
+                  }`}
+                >
+                  {task.executionTier}
+                </span>
+              )}
             </div>
             <h2 className="text-base font-serif font-medium text-[#f5f3ef] line-clamp-1">{task.intent || task.originalRequest}</h2>
           </div>
@@ -189,6 +203,30 @@ export function ConciergeOperatorWorkspace({
           {/* TAB: ACTIONS */}
           {activeTab === 'ACTIONS' && (
             <div className="space-y-6">
+              {/* Execution Tier & Routing Context Header */}
+              <div className="p-3.5 rounded-xl bg-[#161412] border border-[#26211b] flex items-center justify-between gap-3 text-xs font-mono">
+                <div className="flex items-center gap-2.5">
+                  <span className={`text-[10px] uppercase px-2 py-0.5 rounded font-bold border ${
+                    task.executionTier === 'AUTOMATED'
+                      ? 'bg-emerald-950/70 text-emerald-300 border-emerald-700/60'
+                      : task.executionTier === 'ASSISTED'
+                      ? 'bg-cyan-950/70 text-cyan-300 border-cyan-700/60'
+                      : 'bg-amber-950/70 text-amber-300 border-amber-700/60'
+                  }`}>
+                    {task.executionTier || 'HUMAN'} MODE
+                  </span>
+                  <span className="text-[#a8a49c] line-clamp-1">
+                    {task.executionReason || 'Concierge execution requested.'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setActiveTab('OVERVIEW')}
+                  className="text-[11px] text-[#c8b99d] hover:text-[#f5f3ef] underline whitespace-nowrap shrink-0"
+                >
+                  View Prepared Context &rarr;
+                </button>
+              </div>
+
               {/* Primary Quick Actions Bar */}
               <div className="p-4 rounded-xl bg-[#181512] border border-[#26211b] space-y-3">
                 <span className="text-[11px] font-mono text-[#858077] uppercase tracking-wider block font-semibold">
@@ -420,6 +458,80 @@ export function ConciergeOperatorWorkspace({
           {/* TAB: OVERVIEW */}
           {activeTab === 'OVERVIEW' && (
             <div className="space-y-6">
+              {/* PREPARED CONTEXT CARD (Phase 8.1 - Client Execution Independence) */}
+              <div className="p-4 rounded-xl bg-[#181512] border border-[#2a241d] space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs font-mono font-semibold text-[#f5f3ef]">
+                      Execution Tier &amp; Prepared Context
+                    </span>
+                  </div>
+                  {task.executionTier && (
+                    <span
+                      className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded font-bold border ${
+                        task.executionTier === 'AUTOMATED'
+                          ? 'bg-emerald-950/70 text-emerald-300 border-emerald-700/60'
+                          : task.executionTier === 'ASSISTED'
+                          ? 'bg-cyan-950/70 text-cyan-300 border-cyan-700/60'
+                          : 'bg-amber-950/70 text-amber-300 border-amber-700/60'
+                      }`}
+                    >
+                      {task.executionTier} MODE
+                    </span>
+                  )}
+                </div>
+
+                {task.executionReason && (
+                  <div className="p-2.5 rounded-lg bg-[#0e0d0c] border border-[#23201c] text-xs font-mono text-[#a8a49c]">
+                    <span className="text-[#6e695f] uppercase text-[10px] block font-semibold mb-0.5">Routing Rationale</span>
+                    {task.executionReason}
+                  </div>
+                )}
+
+                {task.preparedContext && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs font-mono pt-1">
+                    {task.preparedContext.dates && (
+                      <div className="p-2.5 rounded-lg bg-[#141210] border border-[#23201c]">
+                        <span className="text-[#6e695f] text-[10px] uppercase block">Dates / Timing</span>
+                        <span className="text-[#f5f3ef] font-medium">{task.preparedContext.dates}</span>
+                      </div>
+                    )}
+                    {task.preparedContext.partySize && (
+                      <div className="p-2.5 rounded-lg bg-[#141210] border border-[#23201c]">
+                        <span className="text-[#6e695f] text-[10px] uppercase block">Party Size / Guests</span>
+                        <span className="text-[#f5f3ef] font-medium">{task.preparedContext.partySize} guests</span>
+                      </div>
+                    )}
+                    {task.preparedContext.location && (
+                      <div className="p-2.5 rounded-lg bg-[#141210] border border-[#23201c]">
+                        <span className="text-[#6e695f] text-[10px] uppercase block">Location / Route</span>
+                        <span className="text-[#f5f3ef] font-medium">{task.preparedContext.location}</span>
+                      </div>
+                    )}
+                    {task.preparedContext.budget && (
+                      <div className="p-2.5 rounded-lg bg-[#141210] border border-[#23201c]">
+                        <span className="text-[#6e695f] text-[10px] uppercase block">Budget Target</span>
+                        <span className="text-[#c8b99d] font-medium">{String(task.preparedContext.budget)}</span>
+                      </div>
+                    )}
+                    {task.preparedContext.proposedOptionsCount !== undefined && task.preparedContext.proposedOptionsCount > 0 && (
+                      <div className="p-2.5 rounded-lg bg-[#141210] border border-[#23201c]">
+                        <span className="text-[#6e695f] text-[10px] uppercase block">AI Draft Options</span>
+                        <span className="text-cyan-400 font-medium">{task.preparedContext.proposedOptionsCount} options</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {task.preparedContext?.aiResearchNotes && (
+                  <div className="p-3 rounded-lg bg-[#141210] border border-[#23201c] text-xs text-[#c8b99d] space-y-1">
+                    <span className="text-[10px] font-mono uppercase text-[#736f68] block">Specialist &amp; Research Intelligence</span>
+                    <p className="leading-relaxed">{task.preparedContext.aiResearchNotes}</p>
+                  </div>
+                )}
+              </div>
+
               {/* Member Card */}
               <div className="p-4 rounded-xl bg-[#181512] border border-[#26211b] space-y-3">
                 <span className="text-[11px] font-mono text-[#858077] uppercase tracking-wider block font-semibold">
