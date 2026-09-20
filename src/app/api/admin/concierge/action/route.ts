@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireSuperAdmin } from '@/lib/auth/session';
+import { requireConcierge } from '@/lib/auth/session';
 import { sendBookingConfirmationEmail } from '@/lib/email/sender';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const sessionUser = await requireSuperAdmin();
+    const sessionUser = await requireConcierge();
     const body = await req.json();
     const { taskId, action, notes, metadata } = body;
 
