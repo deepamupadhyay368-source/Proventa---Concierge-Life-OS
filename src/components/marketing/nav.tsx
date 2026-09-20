@@ -1,135 +1,114 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
 
 export function PublicNav() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-black/90 backdrop-blur-md border-b border-[#222222] py-4'
-          : 'bg-transparent py-6'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="flex items-center justify-between">
+    <header className="fixed top-0 left-0 right-0 z-50 luxury-glass border-b border-brand-200/60 transition-all">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <span className="text-xl sm:text-2xl font-bold tracking-tight text-white uppercase font-sans">
-              PROVENTA
+          <Link href="/" className="flex items-center gap-3.5 group">
+            <span className="text-2xl sm:text-3xl font-serif tracking-tight text-neutral-900 font-normal">
+              Proventa
             </span>
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-widest bg-[#171717] text-[#a3a3a3] border border-[#262626]">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              LIVE
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-brand-50 text-brand-800 border border-brand-200/80">
+              <span className="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+              Cohort 1
             </span>
           </Link>
 
-          {/* Center Navigation */}
-          <nav className="hidden md:flex items-center gap-8 text-xs uppercase tracking-widest font-mono text-[#a3a3a3]">
-            <Link href="#request-section" className="hover:text-white transition-colors">
-              Concierge
-            </Link>
-            <Link href="#how-it-works" className="hover:text-white transition-colors">
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex items-center gap-9">
+            <Link href="/how-it-works" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
               How It Works
             </Link>
-            <Link href="#services" className="hover:text-white transition-colors">
-              Experiences
+            <Link href="/what-we-handle" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
+              Services
             </Link>
-            <Link href="#human-concierge" className="hover:text-white transition-colors">
-              About
+            <Link href="/about" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
+              Philosophy
+            </Link>
+            <Link href="/faq" className="text-xs uppercase tracking-widest font-medium text-neutral-600 hover:text-neutral-900 transition-colors">
+              FAQ
             </Link>
           </nav>
 
-          {/* Right Action */}
-          <div className="hidden md:flex items-center gap-5">
-            <Link
-              href="/sign-in"
-              className="text-xs uppercase tracking-widest font-mono text-[#a3a3a3] hover:text-white transition-colors"
-            >
-              Sign In
+          {/* Right Side CTAs */}
+          <div className="hidden md:flex items-center gap-6">
+            <Link href="/sign-in" className="text-xs uppercase tracking-widest font-semibold text-neutral-700 hover:text-neutral-950 transition-colors">
+              Member Sign In
             </Link>
+
             <Link
-              href="#request-section"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white text-black text-xs font-mono font-semibold uppercase tracking-wider hover:bg-[#eaeaea] transition-all"
+              href="/wave1"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-[#faf8f5] text-xs font-semibold tracking-wider uppercase hover:bg-brand-950 transition-all shadow-sm hover:shadow-md"
             >
-              <span>Request Concierge</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Early Access</span>
+              <ArrowRight className="h-3.5 w-3.5 text-brand-300" />
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
+          {/* Mobile menu button */}
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden p-2 text-[#a3a3a3] hover:text-white"
-            aria-label="Toggle Navigation"
+            className="md:hidden p-2 text-neutral-700 hover:text-neutral-900"
+            aria-label="Toggle menu"
           >
-            {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile dropdown */}
       {open && (
-        <div className="md:hidden bg-black/95 backdrop-blur-xl border-b border-[#262626] px-6 py-8 space-y-6 animate-fade-in">
-          <nav className="flex flex-col gap-5 text-sm uppercase tracking-widest font-mono text-[#a3a3a3]">
-            <Link
-              href="#request-section"
-              onClick={() => setOpen(false)}
-              className="hover:text-white transition-colors"
-            >
-              Concierge
-            </Link>
-            <Link
-              href="#how-it-works"
-              onClick={() => setOpen(false)}
-              className="hover:text-white transition-colors"
-            >
-              How It Works
-            </Link>
-            <Link
-              href="#services"
-              onClick={() => setOpen(false)}
-              className="hover:text-white transition-colors"
-            >
-              Experiences
-            </Link>
-            <Link
-              href="#human-concierge"
-              onClick={() => setOpen(false)}
-              className="hover:text-white transition-colors"
-            >
-              About
-            </Link>
-          </nav>
-
-          <div className="pt-6 border-t border-[#262626] flex flex-col gap-4">
+        <div className="md:hidden bg-[#faf8f5] border-b border-brand-200 px-6 pt-4 pb-8 space-y-4">
+          <Link
+            href="/how-it-works"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
+          >
+            How It Works
+          </Link>
+          <Link
+            href="/what-we-handle"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
+          >
+            Curated Services
+          </Link>
+          <Link
+            href="/about"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
+          >
+            Philosophy
+          </Link>
+          <Link
+            href="/faq"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-neutral-900"
+          >
+            Frequently Asked
+          </Link>
+          <div className="pt-4 border-t border-brand-200 flex flex-col gap-3">
             <Link
               href="/sign-in"
               onClick={() => setOpen(false)}
-              className="text-xs uppercase tracking-widest font-mono text-[#a3a3a3] hover:text-white transition-colors"
+              className="text-center py-3 text-xs uppercase tracking-widest font-bold text-neutral-900 border border-brand-300 rounded-xl"
             >
               Member Sign In
             </Link>
             <Link
-              href="#request-section"
+              href="/wave1"
               onClick={() => setOpen(false)}
-              className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-full bg-white text-black text-xs font-mono font-semibold uppercase tracking-wider"
+              className="text-center py-3.5 text-xs uppercase tracking-widest font-bold bg-neutral-900 text-white rounded-xl shadow-sm"
             >
-              <span>Request Concierge</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              Request Cohort 1 Access
             </Link>
           </div>
         </div>
