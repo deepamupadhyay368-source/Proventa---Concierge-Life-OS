@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireConcierge } from '@/lib/auth/session';
+import { requireConcierge, requireSuperAdmin } from '@/lib/auth/session';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    await requireConcierge();
+    try {
+      await requireConcierge();
+    } catch {
+      await requireSuperAdmin();
+    }
 
     const { searchParams } = new URL(req.url);
     const tab = searchParams.get('tab') || 'all';

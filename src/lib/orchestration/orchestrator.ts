@@ -385,14 +385,20 @@ export class RequestOrchestrator {
     });
     if (!taskRecord) throw new Error(`Task ${taskId} not found`);
 
-    // Defensive recovery: if client submitted an option without providerId, look up in taskRecord.proposedOptions
-    if (!option.providerId && Array.isArray(taskRecord.proposedOptions)) {
+    // Defensive recovery: if option is missing or submitted without providerId, look up in taskRecord.proposedOptions
+    if (!option && Array.isArray(taskRecord.proposedOptions) && taskRecord.proposedOptions.length > 0) {
+      option = (taskRecord.proposedOptions as any[])[0];
+    }
+    if (option && !option.providerId && Array.isArray(taskRecord.proposedOptions)) {
       const storedOption = (taskRecord.proposedOptions as any[]).find(
         (o: any) => o.id === option.id || o.title === option.title
       );
       if (storedOption?.providerId) {
         option = { ...option, providerId: storedOption.providerId, venueId: storedOption.venueId };
       }
+    }
+    if (!option) {
+      throw new Error('No option available to execute for this task');
     }
 
     const assignedAgent = findAgentForTask(taskRecord.category, taskRecord.intent);

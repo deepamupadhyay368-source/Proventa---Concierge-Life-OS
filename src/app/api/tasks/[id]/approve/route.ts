@@ -26,9 +26,22 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized to approve task' }, { status: 403 });
     }
 
+    let selectedOption = body.option;
+    if (!selectedOption && body.optionId && Array.isArray(task.proposedOptions)) {
+      selectedOption = (task.proposedOptions as any[]).find(
+        (o: any) => o.id === body.optionId
+      );
+    }
+    if (!selectedOption && Array.isArray(task.proposedOptions) && task.proposedOptions.length > 0) {
+      selectedOption = (task.proposedOptions as any[])[0];
+    }
+    if (!selectedOption) {
+      return NextResponse.json({ error: 'No option specified and no proposed options available' }, { status: 400 });
+    }
+
     const result = await RequestOrchestrator.executeApprovedTask({
       taskId: id,
-      option,
+      option: selectedOption,
       userId: user.id,
     });
 

@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/lib/auth/session', () => ({
   requireSuperAdmin: vi.fn(),
@@ -34,7 +34,7 @@ vi.mock('@/lib/db', () => ({
   },
 }));
 
-import { requireSuperAdmin } from '@/lib/auth/session';
+import { requireConcierge, requireSuperAdmin } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { POST as actionHandler } from '@/app/api/admin/concierge/action/route';
 import { GET as queueHandler } from '@/app/api/admin/concierge/queue/route';
@@ -42,13 +42,15 @@ import { GET as queueHandler } from '@/app/api/admin/concierge/queue/route';
 describe('Admin Concierge Inbox & Operator Action API', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (requireSuperAdmin as any).mockResolvedValue({
+    const mockUser = {
       id: 'admin_concierge_01',
       name: 'Senior Concierge Lead',
       email: 'concierge@proventa.in',
       role: 'ADMIN',
       roles: ['CONCIERGE', 'ADMIN'],
-    });
+    };
+    (requireConcierge as any).mockResolvedValue(mockUser);
+    (requireSuperAdmin as any).mockResolvedValue(mockUser);
   });
 
   describe('1. GET /api/admin/concierge/queue', () => {
