@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireConcierge, requireSuperAdmin } from '@/lib/auth/session';
+import { isAppError } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -186,8 +187,11 @@ export async function GET(req: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
+    }
     if (error?.name === 'AuthorizationError' || error?.message?.includes('Authorization')) {
-      return NextResponse.json({ error: 'Unauthorized: SUPER_ADMIN required' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized: Concierge access required' }, { status: 403 });
     }
     if (error?.name === 'AuthenticationError' || error?.message?.includes('Authentication')) {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });
