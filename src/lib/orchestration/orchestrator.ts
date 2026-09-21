@@ -139,11 +139,11 @@ export class RequestOrchestrator {
     };
 
     // 3. Check client persistent preferences
-    const preferencesRecords = await db.customerPreference.findMany({
+    const preferencesRecords = (await db.customerPreference?.findMany?.({
       where: { customerId },
-    });
+    })) || [];
     const preferences: Record<string, any> = {};
-    preferencesRecords.forEach((p) => {
+    preferencesRecords.forEach((p: any) => {
       preferences[p.key] = p.value;
     });
 
@@ -488,6 +488,29 @@ export class RequestOrchestrator {
     }
 
     return { task, proposals, missingInfo, decision };
+  }
+
+  /**
+   * Convenience wrapper to process an existing task by ID.
+   */
+  static async processTask(taskId: string) {
+    const task = await db.task.findUnique({ where: { id: taskId } });
+    if (!task) throw new Error(`Task ${taskId} not found`);
+    const res = await this.processRequest({
+      rawInput: task.originalRequest || task.intent,
+      customerId: task.customerId,
+      existingTaskId: task.id,
+      urgency: task.priority as any,
+    });
+    return {
+      success: true,
+      task: res.task,
+      proposals: (Array.isArray(res.task?.proposedOptions) && (res.task.proposedOptions as any[]).length > 0)
+        ? (res.task.proposedOptions as any[])
+        : res.proposals.slice(0, 5),
+      missingInfo: res.missingInfo,
+      decision: res.decision,
+    };
   }
 
   /**
@@ -1175,7 +1198,7 @@ export class RequestOrchestrator {
    */
   static async cycleOptionBatch(params: {
     taskId: string;
-    userId: string;
+    userId?: string;
     action?: 'REJECT_ALL' | 'REPLACE_OPTION' | 'PARTIAL_REJECT' | 'MODIFY_REQUEST' | 'ASK_CONCIERGE';
     feedback?: string;
     replaceOptionId?: string;
@@ -1190,7 +1213,7 @@ export class RequestOrchestrator {
     message: string;
     escalatedToConcierge?: boolean;
   }> {
-    const { taskId, userId, action = 'REJECT_ALL' } = params;
+    const { taskId, action = 'REJECT_ALL' } = params;
 
     const task = await db.task.findUnique({
       where: { id: taskId },
@@ -1198,6 +1221,8 @@ export class RequestOrchestrator {
     });
 
     if (!task) throw new Error('Task not found');
+
+    const userId = params.userId || task.customer?.userId || task.customerId || 'system';
 
     const currentPrefs = (task.clientPreferences as Record<string, any>) || {};
     let batchHistory: ProposalBatch[] = Array.isArray(currentPrefs.batchHistory) ? [...currentPrefs.batchHistory] : [];

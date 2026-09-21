@@ -3,7 +3,7 @@ import { AhmedabadVerifiedAdapter } from './ahmedabad-verified.adapter';
 import { SwiggyAdapter } from './swiggy.adapter';
 import { FlightsAdapter } from './flights.adapter';
 import { CinemaAdapter } from './cinema.adapter';
-import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter } from './mock-adapters';
+import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter, MockResearchPlanningAdapter } from './mock-adapters';
 
 export class AdapterRegistry {
   private static adapters: Map<string, ProviderAdapterInterface[]> = new Map();
@@ -19,10 +19,15 @@ export class AdapterRegistry {
     this.register('food_delivery', new SwiggyAdapter());
     this.register('delivery', new SwiggyAdapter());
     this.register('flights', new FlightsAdapter());
+    this.register('flight', new FlightsAdapter());
+    this.register('airline', new FlightsAdapter());
     this.register('travel', new FlightsAdapter());
-    this.register('travel', new MockHotelAdapter());
     this.register('hotel', new MockHotelAdapter());
     this.register('hotels', new MockHotelAdapter());
+    this.register('hotels_accommodation', new MockHotelAdapter());
+    this.register('accommodation', new MockHotelAdapter());
+    this.register('stay', new MockHotelAdapter());
+    this.register('resort', new MockHotelAdapter());
     this.register('movies', new CinemaAdapter());
     this.register('cinema', new CinemaAdapter());
     this.register('movies_entertainment', new CinemaAdapter());
@@ -35,6 +40,10 @@ export class AdapterRegistry {
     this.register('gifts', new MockShoppingAdapter());
     this.register('weekend_escapes', new AhmedabadVerifiedAdapter());
     this.register('weekend_escapes', new MockHotelAdapter());
+    this.register('research', new MockResearchPlanningAdapter());
+    this.register('planning', new MockResearchPlanningAdapter());
+    this.register('research_planning', new MockResearchPlanningAdapter());
+    this.register('personal', new MockResearchPlanningAdapter());
     this.initialized = true;
   }
 

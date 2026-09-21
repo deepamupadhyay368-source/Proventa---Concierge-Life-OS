@@ -369,6 +369,22 @@ export class EntityIntegrityValidator {
       const title = (p.title || '').toUpperCase();
       const desc = (p.description || '').toUpperCase();
       const providerName = (p.providerName || '').toUpperCase();
+      const providerId = (p.providerId || '').toLowerCase();
+
+      // Strict Domain Isolation:
+      // If customer requested hotels/accommodations, never return a flight proposal
+      if (cat.includes('hotel') || cat.includes('accommodation') || cat === 'stay') {
+        if (providerId.includes('flight') || meta.departureAirport || meta.arrivalAirport) {
+          return false;
+        }
+      }
+
+      // If customer requested flights/air travel, never return a hotel proposal
+      if (cat.includes('flight') || cat.includes('airline')) {
+        if (providerId.includes('hotel') || meta.address || meta.luxuryScore) {
+          return false;
+        }
+      }
 
       // 1. Flights validation
       if (cat.includes('flight') || cat.includes('travel') || meta.departureAirport || meta.arrivalAirport) {

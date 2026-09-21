@@ -1151,7 +1151,7 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
 export class MockShoppingAdapter implements ProviderAdapterInterface {
   readonly providerId = 'mock_shopping';
   name = 'Luxury Retail & Concierge Gifting Adapter';
-  supportedCategories = ['shopping', 'gift'];
+  supportedCategories = ['shopping', 'gift', 'gifts'];
   readonly environment = 'SANDBOX' as const;
 
   async search(query: {
@@ -1162,19 +1162,84 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
   }): Promise<OptionProposal[]> {
     return [
       {
-        id: `mock-shop-1-${Date.now()}`,
+        id: `mock-gft-hamper-1`,
         providerId: this.providerId,
-        providerName: 'Bandhej & Raw Mango Curated Gifting',
-        title: 'Bespoke Handwoven Silk Stole Gift Box',
-        description: 'Handcrafted pure mulberry silk stole with custom handwritten calligraphy note and luxury gift box.',
-        priceAmount: 14500,
+        providerName: 'Forest Essentials & Bateel Confections',
+        title: 'Bespoke Royal Amber & Saffron Luxury Hamper',
+        description: 'Artisanal organic Ayurvedic body care collection paired with organic medjool dates in a handcrafted brass-inlay box.',
+        priceAmount: 8500,
         priceCurrency: 'INR',
-        priceFormatted: '₹14,500',
-        availability: 'Same-day courier packaging available',
+        priceFormatted: '₹8,500',
+        availability: 'Ready for Express White-Glove Dispatch',
         bookingMethod: 'API',
-        cancellationPolicy: 'Customized luxury orders non-refundable once packed.',
+        cancellationPolicy: 'Complimentary cancellation prior to courier dispatch.',
         environment: 'SANDBOX',
         isMock: true,
+        metadata: { category: 'gift', boutique: true, delivery: 'Same Day' },
+      },
+      {
+        id: `mock-gft-silver-2`,
+        providerId: this.providerId,
+        providerName: 'MMTC-PAMP & Frazer and Haws',
+        title: 'Hallmarked Pure Silver Lotus Tea-Light & Coin Gift Set',
+        description: '999.9 purity fine silver coin and hand-engraved silver lotus votive with embossed Proventa velvet presentation box.',
+        priceAmount: 7200,
+        priceCurrency: 'INR',
+        priceFormatted: '₹7,200',
+        availability: 'Available for Immediate Dispatch',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Refundable prior to courier pickup.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { category: 'gift', boutique: true, delivery: 'Express' },
+      },
+      {
+        id: `mock-gft-silk-3`,
+        providerId: this.providerId,
+        providerName: 'Bandhej Heritage Textiles',
+        title: 'Handcrafted Tussar & Mulberry Silk Stole Gift Box',
+        description: 'Authentic Indian handloom silk stole in rich jewel tones with calligraphy note and silk-tied packaging.',
+        priceAmount: 6500,
+        priceCurrency: 'INR',
+        priceFormatted: '₹6,500',
+        availability: 'In Stock — Gift Box Ready',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Refundable before fulfillment.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { category: 'gift', delivery: 'Same Day' },
+      },
+      {
+        id: `mock-gft-scent-4`,
+        providerId: this.providerId,
+        providerName: 'Bombay Perfumery & Artisanal Fragrances',
+        title: 'Rare Botanicals Discovery Curation & Brass Candle Set',
+        description: 'Limited-edition Eau de Parfum paired with small-batch hand-poured soy wax candles in polished brass vessels.',
+        priceAmount: 4800,
+        priceCurrency: 'INR',
+        priceFormatted: '₹4,800',
+        availability: 'Allocated for Proventa Members',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Refundable before dispatch.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { category: 'gift', delivery: 'Standard' },
+      },
+      {
+        id: `mock-gft-gourmet-5`,
+        providerId: this.providerId,
+        providerName: 'Subko Coffee & Paul and Mike Cacao',
+        title: 'Reserve Estate Single-Origin Coffee & Rare Chocolate Chest',
+        description: 'Selection of three single-estate micro-lot coffees and artisanal farmer-direct dark chocolate tablets.',
+        priceAmount: 3800,
+        priceCurrency: 'INR',
+        priceFormatted: '₹3,800',
+        availability: 'Immediate Dispatch Available',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Complimentary cancellation 2 hours prior.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { category: 'gift', delivery: 'Express' },
       },
     ];
   }
@@ -1210,6 +1275,133 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
       isMock: referenceId.includes('MOCK') || true,
       verifiedAt: new Date(),
       auditTrail: `Boutique order verified via retail partner mock inventory system. Reference: ${referenceId}`,
+    };
+  }
+}
+
+export class MockResearchPlanningAdapter implements ProviderAdapterInterface {
+  readonly providerId = 'mock_research_planning';
+  name = 'Proventa Research & Intelligence Desk';
+  supportedCategories = ['research', 'planning', 'research_planning', 'personal'];
+  readonly environment = 'SANDBOX' as const;
+
+  async search(query: {
+    category: string;
+    intent?: string;
+    rawInput: string;
+    constraints?: Record<string, any>;
+  }): Promise<OptionProposal[]> {
+    const raw = (query.rawInput || '').toLowerCase();
+    const city = raw.includes('delhi') ? 'Delhi' : raw.includes('mumbai') ? 'Mumbai' : 'Ahmedabad';
+
+    return [
+      {
+        id: 'plan-delhi-curated-3day-1',
+        providerId: this.providerId,
+        providerName: 'Proventa Curatorial Desk',
+        title: `Curated Three-Day Private Cultural & Heritage Dossier — ${city}`,
+        description: `Comprehensive 72-hour executive itinerary featuring VIP monument entries, private heritage walks, curated dining, and chauffeur scheduling in ${city}.`,
+        priceAmount: 0,
+        priceCurrency: 'INR',
+        priceFormatted: 'Complimentary Member Curation',
+        availability: 'Instant Digital Dossier Ready',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Flexible consultation itinerary.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { city, isDeliverable: true, duration: '3 Days', private: true },
+      },
+      {
+        id: 'plan-delhi-lutyens-architecture-2',
+        providerId: this.providerId,
+        providerName: 'Lutyens Heritage Advisory',
+        title: `Imperial Architectural & Historic Walking Guide — ${city}`,
+        description: `Private architectural exploration of historic estates, colonial landmarks, and diplomatic avenues with reservations at iconic tea rooms.`,
+        priceAmount: 0,
+        priceCurrency: 'INR',
+        priceFormatted: 'Complimentary Member Curation',
+        availability: 'Customized Dossier Generated',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Flexible itinerary.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { city, isDeliverable: true, private: true },
+      },
+      {
+        id: 'plan-delhi-private-art-museums-3',
+        providerId: this.providerId,
+        providerName: 'Contemporary Art & Culture Bureau',
+        title: `Private Gallery & Collector Studio Access Circuit — ${city}`,
+        description: `Curated gallery trail covering Kiran Nadar Museum of Art, private foundation studios, and behind-the-scenes previews.`,
+        priceAmount: 0,
+        priceCurrency: 'INR',
+        priceFormatted: 'Complimentary Member Curation',
+        availability: 'Available Immediately',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Flexible itinerary.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { city, isDeliverable: true },
+      },
+      {
+        id: 'plan-delhi-culinary-spice-trail-4',
+        providerId: this.providerId,
+        providerName: 'Culinary Intelligence Guild',
+        title: `Royal Spice Trail & Progressive Gastronomy Guide — ${city}`,
+        description: `Chronological tasting trail from centuries-old Old City haveli kitchens to progressive Michelin-caliber tasting menus.`,
+        priceAmount: 0,
+        priceCurrency: 'INR',
+        priceFormatted: 'Complimentary Member Curation',
+        availability: 'Immediate Download',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Flexible itinerary.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { city, isDeliverable: true },
+      },
+      {
+        id: 'plan-delhi-wellness-retreat-golf-5',
+        providerId: this.providerId,
+        providerName: 'NCR Sporting & Wellness Guild',
+        title: `Exclusive Golf Course & Private Spa Day Itinerary — ${city}`,
+        description: `Championship course tee times, Kaya Kalp / Lodhi spa hydrotherapy sessions, and secluded dining arrangements.`,
+        priceAmount: 0,
+        priceCurrency: 'INR',
+        priceFormatted: 'Complimentary Member Curation',
+        availability: 'Instant Dossier Ready',
+        bookingMethod: 'API',
+        cancellationPolicy: 'Flexible itinerary.',
+        environment: 'SANDBOX',
+        isMock: true,
+        metadata: { city, isDeliverable: true },
+      },
+    ];
+  }
+
+  async execute(proposal: OptionProposal, details: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      providerName: proposal.providerName,
+      status: 'CONFIRMED',
+      environment: 'SANDBOX',
+      isMock: true,
+      confirmedDetails: {
+        deliverableType: 'CURATED_DOSSIER',
+        title: proposal.title,
+        content: proposal.description,
+      },
+    };
+  }
+
+  async verify(referenceId: string): Promise<VerificationResult> {
+    return {
+      verified: true,
+      status: 'CONFIRMED',
+      environment: 'SANDBOX',
+      isMock: true,
+      verifiedAt: new Date(),
+      auditTrail: 'Dossier curation verified by Curatorial Intelligence Desk.',
     };
   }
 }

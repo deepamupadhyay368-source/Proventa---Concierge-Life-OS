@@ -149,13 +149,13 @@ export class TaskDecisionEngine {
     if (raw.includes('weekend getaway') || raw.includes('plan my entire weekend') || raw.includes('weekend escape')) {
       return 'WEEKEND_ESCAPES';
     }
-    if (raw.includes('compare three hotels') || raw.includes('compare hotels') || raw.includes('market survey') || raw.includes('research')) {
+    if (raw.includes('compare three hotels') || raw.includes('compare hotels') || raw.includes('market survey') || raw.includes('research') || raw.includes('itinerary') || raw.includes('plan a ') || raw.includes('planning')) {
       return 'RESEARCH_PLANNING';
     }
     if (raw.includes('hotel') || raw.includes('suite') || raw.includes('villa') || raw.includes('resort') || raw.includes('stay')) {
       return 'HOTELS';
     }
-    if (raw.includes('flight') || raw.includes('airline') || raw.includes('airfare') || raw.includes('fly to') || raw.includes('pnr')) {
+    if (raw.includes('flight') || raw.includes('airline') || raw.includes('airfare') || raw.includes('fly') || raw.includes('pnr') || raw.includes('aviation')) {
       return 'TRAVEL';
     }
     if (raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table for') || raw.includes('dining') || raw.includes('lunch') || raw.includes('agashiye')) {

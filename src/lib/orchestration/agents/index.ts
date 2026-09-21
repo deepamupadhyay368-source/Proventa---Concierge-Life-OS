@@ -21,7 +21,36 @@ class BaseDomainAgent implements TaskAgentInterface {
   }
 
   async search(entities: ExtractedEntities, preferences?: Record<string, any>): Promise<OptionProposal[]> {
-    const adapters = AdapterRegistry.getAdaptersForCategory(this.category);
+    const rawLower = (entities.rawInput || '').toLowerCase();
+    let searchCategory = this.category;
+
+    if (
+      entities.category === 'hotels' ||
+      entities.category === 'hotel' ||
+      entities.category === 'hotels_accommodation' ||
+      rawLower.includes('hotel') ||
+      rawLower.includes('stay') ||
+      rawLower.includes('resort') ||
+      rawLower.includes('villa') ||
+      rawLower.includes('suite')
+    ) {
+      if (!rawLower.includes('flight') && !rawLower.includes('fly') && !rawLower.includes('airline')) {
+        searchCategory = 'hotels';
+      }
+    } else if (
+      entities.category === 'flights' ||
+      entities.category === 'flight' ||
+      rawLower.includes('flight') ||
+      rawLower.includes('fly') ||
+      rawLower.includes('airline') ||
+      rawLower.includes('airport')
+    ) {
+      if (!rawLower.includes('hotel') && !rawLower.includes('resort') && !rawLower.includes('stay')) {
+        searchCategory = 'flights';
+      }
+    }
+
+    const adapters = AdapterRegistry.getAdaptersForCategory(searchCategory);
     const proposals: OptionProposal[] = [];
 
     const constraints = {
@@ -38,7 +67,7 @@ class BaseDomainAgent implements TaskAgentInterface {
 
     for (const adapter of adapters) {
       const results = await adapter.search({
-        category: this.category,
+        category: searchCategory,
         intent: entities.intent,
         rawInput: entities.rawInput,
         constraints,
@@ -50,7 +79,7 @@ class BaseDomainAgent implements TaskAgentInterface {
     const validProposals = EntityIntegrityValidator.filterProposalsByConstraints(
       proposals,
       {
-        category: this.category,
+        category: searchCategory,
         destination: entities.destination,
         destinationAirport: entities.destinationAirport,
         origin: entities.origin,
@@ -182,13 +211,27 @@ export class DiningAgent extends BaseDomainAgent {
 
 export class TravelAgent extends BaseDomainAgent {
   constructor() {
-    super('Travel & Accommodations Agent', 'travel');
+    super('Travel & Flight Specialist Agent', 'flights');
+  }
+
+  override identifyMissingInformation(entities: ExtractedEntities): string[] {
+    const missing: string[] = [];
+    if (!entities.destination && !entities.destinationAirport && !entities.location && !entities.rawInput.toLowerCase().includes('flight')) {
+      missing.push('destination city or airport');
+    }
+    return missing;
+  }
+}
+
+export class HotelAgent extends BaseDomainAgent {
+  constructor() {
+    super('Hotels & Accommodations Agent', 'hotels');
   }
 
   override identifyMissingInformation(entities: ExtractedEntities): string[] {
     const missing: string[] = [];
     if (!entities.destination && !entities.location && !entities.rawInput.toLowerCase().includes('hotel')) {
-      missing.push('destination or property');
+      missing.push('destination city or location');
     }
     return missing;
   }
@@ -274,11 +317,15 @@ export class HumanConciergeAgent extends BaseDomainAgent {
 export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   dining: new DiningAgent(),
   travel: new TravelAgent(),
-  hotel: new TravelAgent(),
-  hotels: new TravelAgent(),
   flight: new TravelAgent(),
   flights: new TravelAgent(),
   airline: new TravelAgent(),
+  hotel: new HotelAgent(),
+  hotels: new HotelAgent(),
+  hotels_accommodation: new HotelAgent(),
+  accommodation: new HotelAgent(),
+  stay: new HotelAgent(),
+  resort: new HotelAgent(),
   transport: new MobilityAgent(),
   mobility: new MobilityAgent(),
   transit: new MobilityAgent(),
@@ -303,8 +350,8 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   events: new EventsAgent(),
   event: new EventsAgent(),
   business: new EventsAgent(),
-  weekend_escapes: new TravelAgent(),
-  weekend_escape: new TravelAgent(),
+  weekend_escapes: new HotelAgent(),
+  weekend_escape: new HotelAgent(),
   research_planning: new ResearchAgent(),
   research: new ResearchAgent(),
   planning: new ResearchAgent(),
@@ -317,5 +364,17 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
 
 export function findAgentForTask(category: string, intent?: string): TaskAgentInterface {
   const cat = (category || 'other').toLowerCase().replace(/[\s-]/g, '_');
+  const raw = (intent || '').toLowerCase();
+
+  // Explicit disambiguation when category is generic or ambiguously classified
+  if (cat === 'travel' || cat === 'other' || !AGENT_REGISTRY[cat]) {
+    if (raw.includes('hotel') || raw.includes('stay') || raw.includes('resort') || raw.includes('villa') || raw.includes('suite')) {
+      return AGENT_REGISTRY['hotels'];
+    }
+    if (raw.includes('flight') || raw.includes('fly') || raw.includes('airline') || raw.includes('airport')) {
+      return AGENT_REGISTRY['flights'];
+    }
+  }
+
   return AGENT_REGISTRY[cat] || AGENT_REGISTRY['other'];
 }

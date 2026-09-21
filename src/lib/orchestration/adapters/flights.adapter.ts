@@ -358,7 +358,29 @@ export class FlightsAdapter implements ProviderAdapterInterface {
       },
     ];
 
-    return schedules.map((item) => ({
+    const isMorning = rawLower.includes('morning') || rawLower.includes('dawn') || rawLower.includes('early');
+
+    let candidateSchedules = [...schedules];
+
+    if (isMorning) {
+      candidateSchedules.sort((a, b) => {
+        const aM = parseInt(a.time.replace(':', ''), 10) < 1200;
+        const bM = parseInt(b.time.replace(':', ''), 10) < 1200;
+        if (aM && !bM) return -1;
+        if (!aM && bM) return 1;
+        return 0;
+      });
+    }
+
+    if (isBusiness) {
+      candidateSchedules.sort((a, b) => {
+        if (a.isBiz && !b.isBiz) return -1;
+        if (!a.isBiz && b.isBiz) return 1;
+        return 0;
+      });
+    }
+
+    return candidateSchedules.map((item) => ({
       id: `flt-${item.slug}`,
       providerId: this.providerId,
       providerName: item.airline,

@@ -138,8 +138,10 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
     lower.includes('call the');
 
   let compatCategory = decision.category.toLowerCase();
-  if (decision.category === 'TRAVEL' && (lower.includes('flight') || lower.includes('airline') || lower.includes('airfare'))) {
+  if (decision.category === 'TRAVEL' && (lower.includes('flight') || lower.includes('airline') || lower.includes('airfare') || lower.includes('fly'))) {
     compatCategory = 'flights';
+  } else if (decision.category === 'HOTELS' || lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('suite') || lower.includes('villa')) {
+    compatCategory = 'hotels';
   } else if (decision.category === 'MOVIES_ENTERTAINMENT') {
     compatCategory = 'movies';
   }
