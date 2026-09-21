@@ -15,7 +15,11 @@ import {
   UserCheck,
   ChevronRight,
   Receipt,
-  FileCheck
+  FileCheck,
+  RotateCcw,
+  SlidersHorizontal,
+  X,
+  MessageSquare
 } from 'lucide-react';
 import { DAGGraphView } from '@/components/tasks/dag-graph-view';
 import { ApprovalActionCard } from '@/components/tasks/approval-action-card';
@@ -28,7 +32,16 @@ export default function TaskDetailPage() {
   const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [approving, setApproving] = useState(false);
+  const [cycling, setCycling] = useState(false);
+  const [userNotice, setUserNotice] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'TIMELINE' | 'RAW'>('OVERVIEW');
+
+  // Recommendation cycle & selection state
+  const [selectedKeptIds, setSelectedKeptIds] = useState<string[]>([]);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [feedbackReason, setFeedbackReason] = useState('');
+  const [showModifyModal, setShowModifyModal] = useState(false);
+  const [modifyPrompt, setModifyPrompt] = useState('');
 
   // Manual concierge resolution state
   const [manualRef, setManualRef] = useState('');
@@ -54,6 +67,7 @@ export default function TaskDetailPage() {
 
   const handleApprove = async (option: any) => {
     setApproving(true);
+    setUserNotice('Authorizing your selection and executing...');
     try {
       const res = await fetch(`/api/tasks/${taskId}/approve`, {
         method: 'POST',
@@ -67,24 +81,135 @@ export default function TaskDetailPage() {
       }
     } finally {
       setApproving(false);
+      setUserNotice(null);
     }
   };
 
-  const handleDecline = async () => {
-    setApproving(true);
+  const handleRejectAll = async (feedback?: string) => {
+    setCycling(true);
+    setShowRejectModal(false);
+    setUserNotice("No problem. I'll find you 5 different options.");
     try {
       const res = await fetch(`/api/tasks/${taskId}/reject`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: 'Client requested alternate proposal or schedule.' }),
+        body: JSON.stringify({
+          action: 'REJECT_ALL',
+          feedback: feedback || feedbackReason || undefined,
+        }),
       });
       const data = await res.json();
       if (data.task) {
         setTask(data.task);
-        loadTask();
+        setSelectedKeptIds([]);
+        setFeedbackReason('');
       }
+    } catch (err) {
+      console.error('Failed to cycle options', err);
     } finally {
-      setApproving(false);
+      setCycling(false);
+      setTimeout(() => setUserNotice(null), 4000);
+    }
+  };
+
+  const handleReplaceOption = async (optionId: string) => {
+    setCycling(true);
+    setUserNotice('Curating a fresh alternative for this option...');
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'REPLACE_OPTION',
+          replaceOptionId: optionId,
+        }),
+      });
+      const data = await res.json();
+      if (data.task) {
+        setTask(data.task);
+        setSelectedKeptIds((prev) => prev.filter((id) => id !== optionId));
+      }
+    } catch (err) {
+      console.error('Failed to replace option', err);
+    } finally {
+      setCycling(false);
+      setTimeout(() => setUserNotice(null), 4000);
+    }
+  };
+
+  const handlePartialReject = async () => {
+    if (selectedKeptIds.length === 0) return;
+    setCycling(true);
+    setUserNotice(`Retaining ${selectedKeptIds.length} preferred option(s) and refreshing the others...`);
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'PARTIAL_REJECT',
+          keptOptionIds: selectedKeptIds,
+        }),
+      });
+      const data = await res.json();
+      if (data.task) {
+        setTask(data.task);
+        setSelectedKeptIds([]);
+      }
+    } catch (err) {
+      console.error('Failed partial rejection', err);
+    } finally {
+      setCycling(false);
+      setTimeout(() => setUserNotice(null), 4000);
+    }
+  };
+
+  const handleModifyRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modifyPrompt.trim()) return;
+    setCycling(true);
+    setShowModifyModal(false);
+    setUserNotice('Updating your preferences and sourcing 5 new tailored options...');
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'MODIFY_REQUEST',
+          newRawInput: modifyPrompt.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (data.task) {
+        setTask(data.task);
+        setModifyPrompt('');
+        setSelectedKeptIds([]);
+      }
+    } catch (err) {
+      console.error('Failed to modify request', err);
+    } finally {
+      setCycling(false);
+      setTimeout(() => setUserNotice(null), 4000);
+    }
+  };
+
+  const handleAskConcierge = async () => {
+    setCycling(true);
+    setUserNotice('Transferring to your Senior Concierge for bespoke private sourcing...');
+    try {
+      const res = await fetch(`/api/tasks/${taskId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'ASK_CONCIERGE' }),
+      });
+      const data = await res.json();
+      if (data.task) {
+        setTask(data.task);
+      }
+    } catch (err) {
+      console.error('Failed to escalate to concierge', err);
+    } finally {
+      setCycling(false);
+      setTimeout(() => setUserNotice(null), 4000);
     }
   };
 
@@ -325,18 +450,264 @@ export default function TaskDetailPage() {
         </div>
       )}
 
-      {/* Proposal & Approval Card */}
-      {isAwaitingApproval && proposedOptions.length > 0 && (
-        <div className="space-y-4">
-          {proposedOptions.map((opt, idx) => (
-            <ApprovalActionCard
-              key={idx}
-              proposal={opt}
-              onApprove={handleApprove}
-              onDecline={handleDecline}
-              approving={approving}
-            />
-          ))}
+      {/* Real-time Reassuring Recommendation Notice */}
+      {userNotice && (
+        <div className="bg-[#141312] text-[#faf8f5] rounded-2xl p-4 border border-[#8a7053]/40 shadow-lg flex items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <RefreshCw className="h-4 w-4 text-[#8a7053] animate-spin" />
+            <span className="text-xs font-medium tracking-wide">{userNotice}</span>
+          </div>
+          <button
+            onClick={() => setUserNotice(null)}
+            className="text-neutral-400 hover:text-white p-1 rounded-md text-xs"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Proposal & Approval Section */}
+      {isAwaitingApproval && proposedOptions.length > 0 && (() => {
+        const clientPrefs = typeof task.clientPreferences === 'string'
+          ? (() => { try { return JSON.parse(task.clientPreferences); } catch { return {}; } })()
+          : (task.clientPreferences || {});
+        const currentBatchId = clientPrefs.currentBatchId || 'BATCH-001';
+        const batchNum = clientPrefs.batchHistory?.length || 1;
+
+        return (
+          <div className="space-y-4">
+            {/* Recommendation Batch Header & Multi-Action Control Bar */}
+            <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#141312] text-[#e8dfd5] font-mono tracking-wider">
+                      {currentBatchId}
+                    </span>
+                    <span className="text-xs font-semibold text-neutral-900">
+                      Recommendation Cycle {batchNum}
+                    </span>
+                    <span className="text-neutral-300">·</span>
+                    <span className="text-xs text-neutral-500">
+                      {proposedOptions.length} curated option{proposedOptions.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-600 mt-1">
+                    Select an option to approve and execute immediately, or request new alternatives below.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowRejectModal(true)}
+                    disabled={cycling || approving}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Reject All & Show 5 New Options</span>
+                  </button>
+
+                  {selectedKeptIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handlePartialReject}
+                      disabled={cycling || approving}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors disabled:opacity-50"
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span>Keep ({selectedKeptIds.length}) & Replace Others</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setShowModifyModal(true)}
+                    disabled={cycling || approving}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-neutral-300 hover:bg-neutral-50 text-neutral-700 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+                  >
+                    <SlidersHorizontal className="h-3.5 w-3.5 text-neutral-500" />
+                    <span>Modify Criteria</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleAskConcierge}
+                    disabled={cycling || approving}
+                    className="inline-flex items-center gap-1.5 px-3 py-2 border border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-900 rounded-xl text-xs font-semibold transition-colors disabled:opacity-50"
+                  >
+                    <UserCheck className="h-3.5 w-3.5 text-purple-700" />
+                    <span>Ask Concierge</span>
+                  </button>
+                </div>
+              </div>
+
+              {selectedKeptIds.length > 0 ? (
+                <div className="text-xs text-amber-800 bg-amber-50/70 border border-amber-200/60 rounded-xl px-3.5 py-2 flex items-center justify-between">
+                  <span>
+                    <strong>{selectedKeptIds.length}</strong> option{selectedKeptIds.length === 1 ? '' : 's'} locked. Clicking &ldquo;Keep &amp; Replace Others&rdquo; will replace only unselected options.
+                  </span>
+                  <button
+                    onClick={() => setSelectedKeptIds([])}
+                    className="text-amber-900 font-semibold underline text-[11px]"
+                  >
+                    Clear selection
+                  </button>
+                </div>
+              ) : (
+                <div className="text-[11px] text-neutral-500 flex items-center gap-2">
+                  <Sparkles className="h-3 w-3 text-[#8a7053]" />
+                  <span>Tip: You can replace any single option directly, or select options to keep while replacing the rest.</span>
+                </div>
+              )}
+            </div>
+
+            {/* Render Candidates */}
+            <div className="space-y-4">
+              {proposedOptions.map((opt, idx) => (
+                <ApprovalActionCard
+                  key={opt.id || idx}
+                  proposal={opt}
+                  optionNumber={idx + 1}
+                  isSelected={selectedKeptIds.includes(opt.id)}
+                  onToggleSelect={(id) =>
+                    setSelectedKeptIds((prev) =>
+                      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+                    )
+                  }
+                  onReplace={(id) => handleReplaceOption(id)}
+                  onApprove={handleApprove}
+                  onDecline={() => setShowRejectModal(true)}
+                  approving={approving || cycling}
+                />
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Reject All & Cycle Options Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-neutral-200 max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-neutral-900">Request 5 Fresh Alternatives</h3>
+                <p className="text-xs text-neutral-500">Provide quick guidance so we can tailor the next batch</p>
+              </div>
+              <button
+                onClick={() => setShowRejectModal(false)}
+                className="p-1 hover:bg-neutral-100 rounded-lg text-neutral-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-neutral-700 block mb-2">Quick Preference Refinements</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    'Too expensive',
+                    'Not luxurious enough',
+                    'Show something more private',
+                    'Earlier timing',
+                    'Later timing',
+                    'Different airline / provider',
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() => handleRejectAll(chip)}
+                      className="px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 text-neutral-800 rounded-lg text-xs font-medium transition-colors"
+                    >
+                      {chip}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="font-semibold text-neutral-700 block mb-1">Or provide specific feedback (optional):</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Prefer direct nonstop flights before 10 AM, or prefer an outdoor courtyard table..."
+                  value={feedbackReason}
+                  onChange={(e) => setFeedbackReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-xs"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
+                <button
+                  type="button"
+                  onClick={() => setShowRejectModal(false)}
+                  className="px-4 py-2 border border-neutral-200 rounded-lg text-xs font-semibold hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRejectAll()}
+                  disabled={cycling}
+                  className="px-5 py-2 bg-neutral-900 text-white rounded-lg text-xs font-semibold hover:bg-neutral-800 disabled:opacity-50"
+                >
+                  {cycling ? 'Curating Options...' : 'Curate 5 New Options'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modify Request Criteria Modal */}
+      {showModifyModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl border border-neutral-200 max-w-lg w-full p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-neutral-900">Modify Request Criteria</h3>
+                <p className="text-xs text-neutral-500">Update your itinerary, dates, or party details</p>
+              </div>
+              <button
+                onClick={() => setShowModifyModal(false)}
+                className="p-1 hover:bg-neutral-100 rounded-lg text-neutral-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleModifyRequest} className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-neutral-700 block mb-1">Updated Request Description</label>
+                <textarea
+                  rows={4}
+                  required
+                  placeholder="e.g. Flight from Ahmedabad to Delhi for 3 passengers next Friday morning, business class preferred..."
+                  value={modifyPrompt}
+                  onChange={(e) => setModifyPrompt(e.target.value)}
+                  className="w-full px-3 py-2 border border-neutral-200 rounded-lg text-xs font-sans"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-neutral-100">
+                <button
+                  type="button"
+                  onClick={() => setShowModifyModal(false)}
+                  className="px-4 py-2 border border-neutral-200 rounded-lg text-xs font-semibold hover:bg-neutral-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={cycling || !modifyPrompt.trim()}
+                  className="px-5 py-2 bg-neutral-900 text-white rounded-lg text-xs font-semibold hover:bg-neutral-800 disabled:opacity-50"
+                >
+                  {cycling ? 'Updating...' : 'Save & Curate 5 New Options'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

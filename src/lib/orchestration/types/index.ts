@@ -65,6 +65,17 @@ export interface OptionProposal {
   isMock?: boolean;
 }
 
+export interface ProposalBatch {
+  batchId: string;
+  batchNumber: number;
+  generatedAt: string;
+  options: OptionProposal[];
+  status: 'ACTIVE' | 'REJECTED' | 'APPROVED' | 'PARTIALLY_REJECTED' | 'SUPERSEDED_BY_MODIFICATION' | 'PRESENTED';
+  feedback?: string;
+  rejectedOptionIds?: string[];
+  approvedOptionId?: string;
+}
+
 export interface ExecutionOutput {
   success: boolean;
   providerId?: string;

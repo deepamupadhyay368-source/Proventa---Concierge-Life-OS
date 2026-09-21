@@ -9,7 +9,7 @@ import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
-import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities } from './types';
+import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities, ProposalBatch } from './types';
 
 export class RequestOrchestrator {
   /**
@@ -360,22 +360,39 @@ export class RequestOrchestrator {
 
         const currentPrefs = (task.clientPreferences as Record<string, any>) || {};
         const currentContext = currentPrefs.preparedContext || {};
+
+        // Format exactly up to 5 options for Batch 1
+        const batch1Options = proposals.slice(0, 5);
+        const batchId = 'BATCH-001';
+        const initialBatch: ProposalBatch = {
+          batchId,
+          batchNumber: 1,
+          generatedAt: new Date().toISOString(),
+          options: batch1Options,
+          status: 'ACTIVE',
+        };
+
         task = await db.task.update({
           where: { id: task.id },
           data: {
             status: nextStatus,
-            proposedOptions: proposals as any,
+            proposedOptions: batch1Options as any,
             approvalRequired: requiresApproval,
             approvalStatus: requiresApproval ? 'PENDING' : 'APPROVED',
             vendorName: bestOption.providerName,
             budgetAmount: bestOption.priceAmount,
             clientPreferences: {
               ...currentPrefs,
+              currentBatchId: batchId,
+              batchHistory: [initialBatch],
+              rejectedOptionIds: [],
+              rejectedOptionKeys: [],
               preparedContext: {
                 ...currentContext,
-                proposedOptionsCount: proposals.length,
+                proposedOptionsCount: batch1Options.length,
+                batchId,
               },
-            },
+            } as any,
           },
         });
 
@@ -539,6 +556,15 @@ export class RequestOrchestrator {
     // State transition -> EXECUTING
     validateTransition(taskRecord.status as TaskStatus, 'EXECUTING');
 
+    const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
+    const batchHistory: ProposalBatch[] = Array.isArray(existingPrefs.batchHistory) ? [...existingPrefs.batchHistory] : [];
+    const updatedHistory = batchHistory.map((b) => {
+      if (b.status === 'ACTIVE' || b.options.some((o) => o.id === option.id)) {
+        return { ...b, status: 'APPROVED' as const, approvedOptionId: option.id };
+      }
+      return b;
+    });
+
     await db.task.update({
       where: { id: taskId },
       data: {
@@ -546,6 +572,12 @@ export class RequestOrchestrator {
         approvalStatus: 'APPROVED',
         vendorName: option.providerName,
         budgetAmount: option.priceAmount,
+        clientPreferences: {
+          ...existingPrefs,
+          approvedOption: option as any,
+          approvedAt: new Date().toISOString(),
+          batchHistory: updatedHistory,
+        } as any,
       },
     });
 
@@ -618,6 +650,7 @@ export class RequestOrchestrator {
 
       return {
         success: true,
+        status: 'NEEDS_HUMAN',
         handedToConcierge: true,
         task: pendingTask,
         execution,
@@ -681,6 +714,7 @@ export class RequestOrchestrator {
 
       return {
         success: true,
+        status: 'NEEDS_HUMAN',
         handedToConcierge: true,
         task: escalatedTask,
         execution,
@@ -720,6 +754,7 @@ export class RequestOrchestrator {
         });
         return {
           success: true,
+          status: 'NEEDS_HUMAN',
           handedToConcierge: true,
           task: escalatedTask,
           execution,
@@ -860,10 +895,676 @@ export class RequestOrchestrator {
 
     return {
       success: true,
+      status: 'NEEDS_HUMAN',
       handedToConcierge: true,
       task: escalatedTask,
       execution,
       message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+    };
+  }
+
+  /**
+   * Generates a stable deduplication and rejection key for an option.
+   */
+  static getOptionStableKey(opt: OptionProposal): string {
+    const flightNo = opt.metadata?.flightNumber;
+    const placeId = opt.metadata?.placeId || opt.venueId;
+    const title = (opt.title || '').toLowerCase().trim();
+    return `${opt.providerId || 'prov'}:${flightNo || placeId || title}`.toLowerCase().trim();
+  }
+
+  /**
+   * Evaluates candidate options against historical exclusions, deduplicates,
+   * validates entity integrity, hard constraints, and ranks using customer feedback cues.
+   */
+  static filterAndRankCandidates(params: {
+    candidates: OptionProposal[];
+    rejectedOptionIds: string[];
+    rejectedOptionKeys: string[];
+    constraints: {
+      category?: string;
+      destination?: string;
+      destinationAirport?: string;
+      origin?: string;
+      originAirport?: string;
+      location?: string;
+      budget?: number | string;
+      budgetAmount?: number;
+      partySize?: number;
+      dateTime?: string;
+    };
+    feedback?: string;
+    preferences?: Record<string, any>;
+  }): OptionProposal[] {
+    const { candidates, rejectedOptionIds, rejectedOptionKeys, constraints, feedback, preferences } = params;
+
+    const rejectedIdSet = new Set(rejectedOptionIds);
+    const rejectedKeySet = new Set(rejectedOptionKeys.map((k) => k.toLowerCase().trim()));
+
+    // 1. Remove previously rejected options across ALL historical batches
+    const unrejected = candidates.filter((c) => {
+      if (rejectedIdSet.has(c.id)) return false;
+      const key = RequestOrchestrator.getOptionStableKey(c);
+      if (rejectedKeySet.has(key)) return false;
+      return true;
+    });
+
+    // 2. Remove duplicate options within the current candidate pool
+    const seenKeys = new Set<string>();
+    const deduplicated: OptionProposal[] = [];
+    for (const c of unrejected) {
+      const key = RequestOrchestrator.getOptionStableKey(c);
+      if (!seenKeys.has(key)) {
+        seenKeys.add(key);
+        deduplicated.push(c);
+      }
+    }
+
+    // 3. Entity Integrity Validation (origin, destination, airports, cities)
+    const entityValid = EntityIntegrityValidator.filterProposalsByConstraints(deduplicated, constraints);
+
+    // 4. Hard Constraints (Budget & Party Size)
+    const hardConstraintValid = entityValid.filter((c) => {
+      if (constraints.budgetAmount && constraints.budgetAmount > 0 && c.priceAmount) {
+        if (c.priceAmount > constraints.budgetAmount * 1.35) return false;
+      }
+      return true;
+    });
+
+    const candidatePool = hardConstraintValid.length > 0 ? hardConstraintValid : entityValid;
+
+    // 5. Rank with feedback refinement
+    const ranked = [...candidatePool].sort((a, b) => {
+      const fb = (feedback || '').toLowerCase();
+
+      // Real provider over mock preference
+      if (a.isMock === false && b.isMock === true) return -1;
+      if (a.isMock === true && b.isMock === false) return 1;
+
+      // Price-based feedback
+      if (fb.includes('expensive') || fb.includes('budget') || fb.includes('cheap') || fb.includes('cost') || fb.includes('price')) {
+        return (a.priceAmount || 0) - (b.priceAmount || 0);
+      }
+
+      // Luxury / Premium feedback
+      if (fb.includes('luxury') || fb.includes('luxurious') || fb.includes('premium') || fb.includes('5-star') || fb.includes('five star')) {
+        const aScore = a.metadata?.luxuryScore || (a.priceAmount || 0);
+        const bScore = b.metadata?.luxuryScore || (b.priceAmount || 0);
+        return bScore - aScore;
+      }
+
+      // Privacy / Seclusion / Boutique feedback
+      if (fb.includes('private') || fb.includes('secluded') || fb.includes('boutique') || fb.includes('quiet') || fb.includes('discreet')) {
+        const aPrivate = (a.metadata?.private || a.metadata?.secluded || a.metadata?.boutique) ? 1 : 0;
+        const bPrivate = (b.metadata?.private || b.metadata?.secluded || b.metadata?.boutique) ? 1 : 0;
+        if (aPrivate !== bPrivate) return bPrivate - aPrivate;
+      }
+
+      // Early timing feedback for flights / appointments
+      if (fb.includes('early') || fb.includes('morning') || fb.includes('dawn')) {
+        const aTime = a.metadata?.departureTime || '';
+        const bTime = b.metadata?.departureTime || '';
+        if (aTime && bTime) return aTime.localeCompare(bTime);
+      }
+
+      // Specific airline preferences
+      if (fb.includes('vistara') || fb.includes('air india') || fb.includes('indigo') || fb.includes('akasa')) {
+        const airlineKeyword = fb.includes('vistara') ? 'vistara' : fb.includes('indigo') ? 'indigo' : fb.includes('akasa') ? 'akasa' : 'air india';
+        const aMatch = (a.providerName || a.title).toLowerCase().includes(airlineKeyword) ? 1 : 0;
+        const bMatch = (b.providerName || b.title).toLowerCase().includes(airlineKeyword) ? 1 : 0;
+        if (aMatch !== bMatch) return bMatch - aMatch;
+      }
+
+      return 0;
+    });
+
+    return ranked;
+  }
+
+  /**
+   * Perpetual Iterative 5-Option Recommendation Cycle:
+   * Enables customers to reject full batches, replace individual options, partially reject,
+   * or modify constraints across unlimited cycles with zero fabrication and complete audit history.
+   */
+  static async cycleOptionBatch(params: {
+    taskId: string;
+    userId: string;
+    action?: 'REJECT_ALL' | 'REPLACE_OPTION' | 'PARTIAL_REJECT' | 'MODIFY_REQUEST' | 'ASK_CONCIERGE';
+    feedback?: string;
+    replaceOptionId?: string;
+    keptOptionIds?: string[];
+    newRawInput?: string;
+    newConstraints?: Record<string, any>;
+  }): Promise<{
+    success: boolean;
+    status?: string;
+    batch?: ProposalBatch;
+    task: any;
+    message: string;
+    escalatedToConcierge?: boolean;
+  }> {
+    const { taskId, userId, action = 'REJECT_ALL' } = params;
+
+    const task = await db.task.findUnique({
+      where: { id: taskId },
+      include: { customer: { include: { user: true } } },
+    });
+
+    if (!task) throw new Error('Task not found');
+
+    const currentPrefs = (task.clientPreferences as Record<string, any>) || {};
+    let batchHistory: ProposalBatch[] = Array.isArray(currentPrefs.batchHistory) ? [...currentPrefs.batchHistory] : [];
+    let rejectedOptionIds: string[] = Array.isArray(currentPrefs.rejectedOptionIds) ? [...currentPrefs.rejectedOptionIds] : [];
+    let rejectedOptionKeys: string[] = Array.isArray(currentPrefs.rejectedOptionKeys) ? [...currentPrefs.rejectedOptionKeys] : [];
+    let currentOptions: OptionProposal[] = Array.isArray(task.proposedOptions) ? [...(task.proposedOptions as any[])] : [];
+    const preparedContext = currentPrefs.preparedContext || {};
+    const category = task.category;
+
+    // Retroactive Batch 1 setup if legacy task
+    if (batchHistory.length === 0 && currentOptions.length > 0) {
+      batchHistory.push({
+        batchId: 'BATCH-001',
+        batchNumber: 1,
+        generatedAt: task.createdAt.toISOString(),
+        options: currentOptions,
+        status: 'ACTIVE',
+      });
+    }
+
+    const activeBatch = batchHistory.find((b) => b.status === 'ACTIVE') || batchHistory[batchHistory.length - 1];
+
+    // Build context entities
+    const entities: ExtractedEntities = {
+      intent: task.intent,
+      category,
+      rawInput: params.newRawInput || task.originalRequest,
+      origin: params.newConstraints?.origin || preparedContext.origin,
+      originAirport: params.newConstraints?.originAirport || preparedContext.originAirport,
+      destination: params.newConstraints?.destination || preparedContext.destination,
+      destinationAirport: params.newConstraints?.destinationAirport || preparedContext.destinationAirport,
+      location: params.newConstraints?.location || preparedContext.location || preparedContext.destination,
+      partySize: params.newConstraints?.partySize || preparedContext.partySize,
+      budgetAmount: params.newConstraints?.budgetAmount || task.budgetAmount || undefined,
+      budgetRange: params.newConstraints?.budgetRange || undefined,
+      urgency: task.priority,
+      requiresClarification: false,
+    };
+
+    // ----------------------------------------------------
+    // Action 0: ASK CONCIERGE (Escalate to Senior Concierge Desk)
+    // ----------------------------------------------------
+    if (action === 'ASK_CONCIERGE') {
+      const escalatedTask = await db.task.update({
+        where: { id: task.id },
+        data: {
+          status: 'NEEDS_HUMAN',
+          isEscalated: true,
+          failedReason: params.feedback || 'Client requested Senior Concierge assistance for bespoke sourcing.',
+          clientPreferences: {
+            ...currentPrefs,
+            batchHistory,
+            rejectedOptionIds,
+            rejectedOptionKeys,
+            lastFeedback: params.feedback || 'Client requested Senior Concierge assistance.',
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'CONCIERGE_ESCALATED',
+        actorRole: 'CUSTOMER',
+        message: 'Client requested direct Senior Concierge assistance.',
+        data: { feedback: params.feedback },
+      });
+
+      return {
+        success: true,
+        status: 'NEEDS_HUMAN',
+        task: escalatedTask,
+        batch: activeBatch,
+        escalatedToConcierge: true,
+        message: 'Your request has been routed to your Senior Concierge for bespoke assistance.',
+      };
+    }
+
+    // ----------------------------------------------------
+    // Action 1: REPLACE A SINGLE OPTION
+    // ----------------------------------------------------
+    if (action === 'REPLACE_OPTION') {
+      const targetId = params.replaceOptionId;
+      const targetIndex = currentOptions.findIndex((o) => o.id === targetId);
+      const replacedOption = targetIndex >= 0 ? currentOptions[targetIndex] : null;
+
+      if (replacedOption) {
+        if (!rejectedOptionIds.includes(replacedOption.id)) rejectedOptionIds.push(replacedOption.id);
+        const key = RequestOrchestrator.getOptionStableKey(replacedOption);
+        if (!rejectedOptionKeys.includes(key)) rejectedOptionKeys.push(key);
+      }
+
+      const keptOptions = currentOptions.filter((o) => o.id !== targetId);
+      const assignedAgent = findAgentForTask(category, entities.intent);
+      const rawCandidates = await assignedAgent.search(entities, currentPrefs);
+
+      const keptOptionIds = keptOptions.map((o) => o.id);
+      const keptOptionKeys = keptOptions.map(RequestOrchestrator.getOptionStableKey);
+
+      const validCandidates = RequestOrchestrator.filterAndRankCandidates({
+        candidates: rawCandidates,
+        rejectedOptionIds: [...rejectedOptionIds, ...keptOptionIds],
+        rejectedOptionKeys: [...rejectedOptionKeys, ...keptOptionKeys],
+        constraints: {
+          category,
+          destination: entities.destination,
+          destinationAirport: entities.destinationAirport,
+          origin: entities.origin,
+          originAirport: entities.originAirport,
+          location: entities.location,
+          budgetAmount: entities.budgetAmount,
+          partySize: entities.partySize,
+        },
+        feedback: params.feedback,
+        preferences: currentPrefs,
+      });
+
+      if (validCandidates.length === 0) {
+        const escalatedTask = await db.task.update({
+          where: { id: task.id },
+          data: {
+            status: 'NEEDS_HUMAN',
+            isEscalated: true,
+            failedReason: 'Customer has rejected previous recommendation batches and requires additional alternatives.',
+            clientPreferences: {
+              ...currentPrefs,
+              batchHistory,
+              rejectedOptionIds,
+              rejectedOptionKeys,
+              lastFeedback: params.feedback,
+            } as any,
+          },
+        });
+        return {
+          success: true,
+          task: escalatedTask,
+          escalatedToConcierge: true,
+          message: 'Your Proventa Concierge is actively sourcing additional verified alternatives.',
+        };
+      }
+
+      const replacement = validCandidates[0];
+      const newOptions = [...keptOptions];
+      if (targetIndex >= 0 && targetIndex <= newOptions.length) {
+        newOptions.splice(targetIndex, 0, replacement);
+      } else {
+        newOptions.push(replacement);
+      }
+
+      if (activeBatch) {
+        activeBatch.options = newOptions;
+        activeBatch.status = 'PARTIALLY_REJECTED';
+        if (!activeBatch.rejectedOptionIds) activeBatch.rejectedOptionIds = [];
+        if (replacedOption && !activeBatch.rejectedOptionIds.includes(replacedOption.id)) {
+          activeBatch.rejectedOptionIds.push(replacedOption.id);
+        }
+      }
+
+      const updatedTask = await db.task.update({
+        where: { id: task.id },
+        data: {
+          proposedOptions: newOptions as any,
+          clientPreferences: {
+            ...currentPrefs,
+            batchHistory,
+            rejectedOptionIds,
+            rejectedOptionKeys,
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'OPTION_REPLACED',
+        actorRole: 'CUSTOMER',
+        message: `Replaced option: ${replacedOption?.title || targetId}. New proposal: ${replacement.title}`,
+        data: { replacedId: targetId, newId: replacement.id },
+      });
+
+      return {
+        success: true,
+        batch: activeBatch,
+        task: updatedTask,
+        message: 'Option replaced with a new verified alternative.',
+      };
+    }
+
+    // ----------------------------------------------------
+    // Action 2: PARTIAL REJECTION (Keep Selected, Replace Others)
+    // ----------------------------------------------------
+    if (action === 'PARTIAL_REJECT') {
+      const keptIds = new Set(params.keptOptionIds || []);
+      const keptOptions = currentOptions.filter((o) => keptIds.has(o.id));
+      const rejectedOptions = currentOptions.filter((o) => !keptIds.has(o.id));
+
+      for (const rej of rejectedOptions) {
+        if (!rejectedOptionIds.includes(rej.id)) rejectedOptionIds.push(rej.id);
+        const key = RequestOrchestrator.getOptionStableKey(rej);
+        if (!rejectedOptionKeys.includes(key)) rejectedOptionKeys.push(key);
+      }
+
+      const neededCount = Math.max(0, 5 - keptOptions.length);
+      const assignedAgent = findAgentForTask(category, entities.intent);
+      const rawCandidates = await assignedAgent.search(entities, currentPrefs);
+
+      const keptOptionKeys = keptOptions.map(RequestOrchestrator.getOptionStableKey);
+
+      const validCandidates = RequestOrchestrator.filterAndRankCandidates({
+        candidates: rawCandidates,
+        rejectedOptionIds: [...rejectedOptionIds, ...Array.from(keptIds)],
+        rejectedOptionKeys: [...rejectedOptionKeys, ...keptOptionKeys],
+        constraints: {
+          category,
+          destination: entities.destination,
+          destinationAirport: entities.destinationAirport,
+          origin: entities.origin,
+          originAirport: entities.originAirport,
+          location: entities.location,
+          budgetAmount: entities.budgetAmount,
+          partySize: entities.partySize,
+        },
+        feedback: params.feedback,
+        preferences: currentPrefs,
+      });
+
+      const replacements = validCandidates.slice(0, neededCount);
+      const newOptions = [...keptOptions, ...replacements];
+
+      const nextBatchNumber = batchHistory.length + 1;
+      const nextBatchId = `BATCH-${nextBatchNumber.toString().padStart(3, '0')}`;
+
+      const newBatch: ProposalBatch = {
+        batchId: nextBatchId,
+        batchNumber: nextBatchNumber,
+        generatedAt: new Date().toISOString(),
+        options: newOptions,
+        status: 'ACTIVE',
+        feedback: params.feedback,
+        rejectedOptionIds: rejectedOptions.map((o) => o.id),
+      };
+
+      if (activeBatch) {
+        activeBatch.status = 'PARTIALLY_REJECTED';
+        activeBatch.feedback = params.feedback;
+      }
+      batchHistory.push(newBatch);
+
+      const updatedTask = await db.task.update({
+        where: { id: task.id },
+        data: {
+          status: 'AWAITING_APPROVAL',
+          approvalStatus: 'PENDING',
+          proposedOptions: newOptions as any,
+          clientPreferences: {
+            ...currentPrefs,
+            currentBatchId: nextBatchId,
+            batchHistory,
+            rejectedOptionIds,
+            rejectedOptionKeys,
+            lastFeedback: params.feedback,
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'CUSTOMER_PARTIAL_REJECTION',
+        actorRole: 'CUSTOMER',
+        message: `Kept ${keptOptions.length} option(s), requested replacements for ${rejectedOptions.length} option(s).`,
+        data: { keptCount: keptOptions.length, replacedCount: replacements.length },
+      });
+
+      return {
+        success: true,
+        batch: newBatch,
+        task: updatedTask,
+        message: 'Updated options preserving your selected preferences.',
+      };
+    }
+
+    // ----------------------------------------------------
+    // Action 3: MODIFY REQUEST CONSTRAINTS
+    // ----------------------------------------------------
+    if (action === 'MODIFY_REQUEST') {
+      const newRaw = params.newRawInput || task.originalRequest;
+      const parsed = EntityIntegrityValidator.extractTravelEntities(newRaw);
+
+      const newOrigin = params.newConstraints?.origin || (parsed.originCity ? parsed.originCity : undefined) || entities.origin;
+      const newOriginAirport = params.newConstraints?.originAirport || (parsed.originAirportCode ? parsed.originAirportCode : undefined) || entities.originAirport;
+      const newDest = params.newConstraints?.destination || (parsed.destinationCity ? parsed.destinationCity : undefined) || entities.destination;
+      const newDestAirport = params.newConstraints?.destinationAirport || (parsed.destinationAirportCode ? parsed.destinationAirportCode : undefined) || entities.destinationAirport;
+      const newLoc = params.newConstraints?.location || newDest || entities.location;
+      const newBudget = params.newConstraints?.budgetAmount || (parsed.budget?.value ? Number(parsed.budget.value) : undefined) || entities.budgetAmount;
+
+      const updatedEntities: ExtractedEntities = {
+        ...entities,
+        rawInput: newRaw,
+        origin: newOrigin,
+        originAirport: newOriginAirport,
+        destination: newDest,
+        destinationAirport: newDestAirport,
+        location: newLoc,
+        budgetAmount: newBudget,
+      };
+
+      if (activeBatch) {
+        activeBatch.status = 'SUPERSEDED_BY_MODIFICATION';
+      }
+
+      const assignedAgent = findAgentForTask(category, updatedEntities.intent);
+      const rawCandidates = await assignedAgent.search(updatedEntities, currentPrefs);
+
+      const validCandidates = RequestOrchestrator.filterAndRankCandidates({
+        candidates: rawCandidates,
+        rejectedOptionIds: [],
+        rejectedOptionKeys: [],
+        constraints: {
+          category,
+          destination: updatedEntities.destination,
+          destinationAirport: updatedEntities.destinationAirport,
+          origin: updatedEntities.origin,
+          originAirport: updatedEntities.originAirport,
+          location: updatedEntities.location,
+          budgetAmount: updatedEntities.budgetAmount,
+          partySize: updatedEntities.partySize,
+        },
+        feedback: params.feedback,
+        preferences: currentPrefs,
+      });
+
+      const selectedOptions = validCandidates.slice(0, 5);
+      const nextBatchNumber = batchHistory.length + 1;
+      const nextBatchId = `BATCH-${nextBatchNumber.toString().padStart(3, '0')}`;
+
+      const newBatch: ProposalBatch = {
+        batchId: nextBatchId,
+        batchNumber: nextBatchNumber,
+        generatedAt: new Date().toISOString(),
+        options: selectedOptions,
+        status: 'ACTIVE',
+      };
+      batchHistory.push(newBatch);
+
+      const updatedTask = await db.task.update({
+        where: { id: task.id },
+        data: {
+          status: 'AWAITING_APPROVAL',
+          approvalStatus: 'PENDING',
+          originalRequest: newRaw,
+          intent: newRaw.length > 80 ? `${newRaw.slice(0, 77)}...` : newRaw,
+          budgetAmount: newBudget || task.budgetAmount,
+          proposedOptions: selectedOptions as any,
+          clientPreferences: {
+            ...currentPrefs,
+            currentBatchId: nextBatchId,
+            batchHistory,
+            preparedContext: {
+              ...preparedContext,
+              destination: newDest,
+              destinationAirport: newDestAirport,
+              origin: newOrigin,
+              originAirport: newOriginAirport,
+              location: newLoc,
+              budgetAmount: newBudget,
+            },
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'REQUEST_MODIFIED',
+        actorRole: 'CUSTOMER',
+        message: `Customer modified request: "${newRaw.slice(0, 80)}"`,
+        data: { newDestination: newDest, newBudget },
+      });
+
+      return {
+        success: true,
+        batch: newBatch,
+        task: updatedTask,
+        message: 'Updated search criteria and prepared 5 new options.',
+      };
+    }
+
+    // ----------------------------------------------------
+    // Action 4: REJECT ALL & GENERATE COMPLETE NEW BATCH
+    // ----------------------------------------------------
+    if (activeBatch) {
+      activeBatch.status = 'REJECTED';
+      activeBatch.feedback = params.feedback || 'Client requested 5 alternate options.';
+      activeBatch.rejectedOptionIds = currentOptions.map((o) => o.id);
+    }
+
+    for (const opt of currentOptions) {
+      if (!rejectedOptionIds.includes(opt.id)) rejectedOptionIds.push(opt.id);
+      const key = RequestOrchestrator.getOptionStableKey(opt);
+      if (!rejectedOptionKeys.includes(key)) rejectedOptionKeys.push(key);
+    }
+
+    const assignedAgent = findAgentForTask(category, entities.intent);
+    const rawCandidates = await assignedAgent.search(entities, currentPrefs);
+
+    const validCandidates = RequestOrchestrator.filterAndRankCandidates({
+      candidates: rawCandidates,
+      rejectedOptionIds,
+      rejectedOptionKeys,
+      constraints: {
+        category,
+        destination: entities.destination,
+        destinationAirport: entities.destinationAirport,
+        origin: entities.origin,
+        originAirport: entities.originAirport,
+        location: entities.location,
+        budgetAmount: entities.budgetAmount,
+        partySize: entities.partySize,
+      },
+      feedback: params.feedback,
+      preferences: currentPrefs,
+    });
+
+    if (validCandidates.length === 0) {
+      const escalatedTask = await db.task.update({
+        where: { id: task.id },
+        data: {
+          status: 'NEEDS_HUMAN',
+          isEscalated: true,
+          failedReason: 'Customer has rejected previous recommendation batches and requires additional alternatives.',
+          clientPreferences: {
+            ...currentPrefs,
+            batchHistory,
+            rejectedOptionIds,
+            rejectedOptionKeys,
+            lastFeedback: params.feedback,
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId: task.id,
+        eventType: 'CONCIERGE_ESCALATED',
+        actorRole: 'SYSTEM',
+        message: 'Customer has rejected previous recommendation batches and requires additional alternatives.',
+        data: {
+          previousBatchesCount: batchHistory.length,
+          rejectedOptionsCount: rejectedOptionIds.length,
+          feedback: params.feedback,
+        },
+      });
+
+      return {
+        success: true,
+        task: escalatedTask,
+        escalatedToConcierge: true,
+        message: 'Your Proventa Concierge is actively sourcing additional verified alternatives.',
+      };
+    }
+
+    const nextOptions = validCandidates.slice(0, 5);
+    const nextBatchNumber = batchHistory.length + 1;
+    const nextBatchId = `BATCH-${nextBatchNumber.toString().padStart(3, '0')}`;
+
+    const newBatch: ProposalBatch = {
+      batchId: nextBatchId,
+      batchNumber: nextBatchNumber,
+      generatedAt: new Date().toISOString(),
+      options: nextOptions,
+      status: 'ACTIVE',
+    };
+    batchHistory.push(newBatch);
+
+    const updatedTask = await db.task.update({
+      where: { id: task.id },
+      data: {
+        status: 'AWAITING_APPROVAL',
+        approvalStatus: 'PENDING',
+        proposedOptions: nextOptions as any,
+        failedReason: null,
+        clientPreferences: {
+          ...currentPrefs,
+          currentBatchId: nextBatchId,
+          batchHistory,
+          rejectedOptionIds,
+          rejectedOptionKeys,
+          lastFeedback: params.feedback,
+        } as any,
+      },
+    });
+
+    await appendTaskEvent({
+      taskId: task.id,
+      eventType: 'CUSTOMER_REJECTED_BATCH',
+      actorRole: 'CUSTOMER',
+      message: params.feedback ? `Client rejected batch: ${params.feedback}` : 'Client requested 5 alternate options.',
+      data: { batchId: activeBatch?.batchId, feedback: params.feedback },
+    });
+
+    await appendTaskEvent({
+      taskId: task.id,
+      eventType: 'OPTIONS_FOUND',
+      actorRole: 'AI_AGENT',
+      message: 'I found 5 new options for you.',
+      data: { batchId: nextBatchId, optionsCount: nextOptions.length },
+    });
+
+    const customerMessage =
+      batchHistory.length <= 2
+        ? "No problem. I'll find you 5 different options."
+        : "Understood. I'm refining the search based on your preferences.";
+
+    return {
+      success: true,
+      batch: newBatch,
+      task: updatedTask,
+      message: customerMessage,
     };
   }
 }

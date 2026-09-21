@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
-import { appendTaskEvent } from '@/lib/orchestration/timeline';
+import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
 
 export async function POST(
   req: NextRequest,
@@ -11,7 +11,15 @@ export async function POST(
     const user = await requireAuth();
     const { id } = await params;
     const body = await req.json().catch(() => ({}));
-    const { reason } = body;
+    const {
+      reason,
+      feedback,
+      action = 'REJECT_ALL',
+      replaceOptionId,
+      keptOptionIds,
+      newRawInput,
+      newConstraints,
+    } = body;
 
     const task = await db.task.findUnique({
       where: { id },
@@ -21,32 +29,25 @@ export async function POST(
     if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
 
     const isOwner = task.customer?.userId === user.id;
-    const isStaff = user.roles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r));
+    const isStaff = user.roles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN', 'SUPER_ADMIN'].includes(r));
     if (!isOwner && !isStaff) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const updatedTask = await db.task.update({
-      where: { id },
-      data: {
-        approvalStatus: 'DECLINED',
-        status: 'NEEDS_HUMAN',
-        isEscalated: true,
-        failedReason: reason || 'Customer declined proposal. Escalated to concierge for alternate options.',
-      },
-    });
-
-    await appendTaskEvent({
+    const result = await RequestOrchestrator.cycleOptionBatch({
       taskId: id,
-      eventType: 'PROPOSAL_DECLINED',
-      actorRole: 'CUSTOMER',
-      actorId: user.id,
-      message: `Client declined proposal: ${reason || 'Requested alternate options'}. Escalated to Concierge Desk.`,
-      data: { reason },
+      userId: user.id,
+      action,
+      feedback: feedback || reason,
+      replaceOptionId,
+      keptOptionIds,
+      newRawInput,
+      newConstraints,
     });
 
-    return NextResponse.json({ success: true, task: updatedTask });
+    return NextResponse.json(result);
   } catch (error: any) {
-    return NextResponse.json({ error: error.message || 'Failed to reject option' }, { status: 500 });
+    console.error('[POST /api/tasks/[id]/reject]', error);
+    return NextResponse.json({ error: error.message || 'Failed to process recommendation cycle' }, { status: 500 });
   }
 }

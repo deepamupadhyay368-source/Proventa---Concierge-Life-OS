@@ -1,17 +1,25 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Check, X, Plane, Clock, Luggage, Info } from 'lucide-react';
+import { ShieldCheck, Check, X, Plane, Clock, Luggage, Info, RefreshCw } from 'lucide-react';
 
 export function ApprovalActionCard({
   proposal,
   onApprove,
   onDecline,
+  onReplace,
+  isSelected,
+  onToggleSelect,
+  optionNumber,
   approving,
 }: {
   proposal: any;
   onApprove: (proposal: any) => void;
   onDecline?: () => void;
+  onReplace?: (optionId: string) => void;
+  isSelected?: boolean;
+  onToggleSelect?: (optionId: string) => void;
+  optionNumber?: number;
   approving: boolean;
 }) {
   if (!proposal) return null;
@@ -36,22 +44,52 @@ export function ApprovalActionCard({
   const isSandbox = proposal.environment === 'SANDBOX' || proposal.isMock;
 
   return (
-    <div className="rounded-2xl bg-white border-2 border-[#8a7053] p-6 sm:p-8 shadow-xl shadow-brand-900/5 relative overflow-hidden">
+    <div className={`rounded-2xl bg-white border-2 p-6 sm:p-8 shadow-xl shadow-brand-900/5 relative overflow-hidden transition-all ${
+      isSelected ? 'border-amber-600 ring-2 ring-amber-400/20 bg-amber-50/10' : 'border-[#8a7053]'
+    }`}>
       {/* Decorative Brand Accent */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-amber-100/50 to-transparent pointer-events-none rounded-bl-full" />
 
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
         <div className="flex items-center gap-2">
+          {optionNumber !== undefined && (
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-900 text-amber-300 number-mono">
+              Option {optionNumber}
+            </span>
+          )}
           <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
           <span className="text-[11px] uppercase tracking-widest font-bold text-[#8a7053] font-sans">
             Client Authorization Required
           </span>
         </div>
-        {isSandbox && (
-          <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
-            Sandbox Preview
-          </span>
-        )}
+
+        <div className="flex items-center gap-2">
+          {onToggleSelect && (
+            <button
+              type="button"
+              onClick={() => onToggleSelect(proposal.id)}
+              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-colors flex items-center gap-1.5 ${
+                isSelected
+                  ? 'bg-amber-100 border-amber-400 text-amber-900'
+                  : 'bg-neutral-50 border-neutral-200 text-neutral-600 hover:bg-neutral-100'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={Boolean(isSelected)}
+                onChange={() => {}}
+                className="rounded text-amber-700 pointer-events-none"
+              />
+              <span>{isSelected ? 'Kept in list' : 'Keep option'}</span>
+            </button>
+          )}
+
+          {isSandbox && (
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
+              Sandbox Preview
+            </span>
+          )}
+        </div>
       </div>
 
       <h3 className="text-xl sm:text-2xl font-serif font-normal text-[#141312] mb-2">
@@ -153,6 +191,19 @@ export function ApprovalActionCard({
           <Check className="h-4 w-4 text-emerald-400" />
           <span>{approving ? 'Authorizing & Executing...' : isFlight ? 'Approve & Reserve Flight' : 'Approve & Book'}</span>
         </button>
+
+        {onReplace && (
+          <button
+            type="button"
+            onClick={() => onReplace(proposal.id)}
+            disabled={approving}
+            className="px-4 py-3.5 rounded-xl border border-neutral-300 hover:bg-neutral-50 text-neutral-700 text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
+            title={`Replace Option ${optionNumber || ''} with an alternative`}
+          >
+            <RefreshCw className="h-3.5 w-3.5 text-neutral-500" />
+            <span>Replace This Option</span>
+          </button>
+        )}
 
         {onDecline && (
           <button

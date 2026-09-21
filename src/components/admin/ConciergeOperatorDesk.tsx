@@ -323,6 +323,51 @@ export function ConciergeOperatorDesk({
                     </div>
                   )}
 
+                  {/* Recommendation Cycle History */}
+                  {(() => {
+                    const clientPrefs = typeof t.clientPreferences === 'string'
+                      ? (() => { try { return JSON.parse(t.clientPreferences); } catch { return {}; } })()
+                      : (t.clientPreferences || {});
+                    const batchHistory = (clientPrefs.batchHistory || []) as any[];
+                    const currentBatchId = clientPrefs.currentBatchId || (batchHistory.length > 0 ? batchHistory[batchHistory.length - 1].batchId : null);
+                    const rejectedCount = (clientPrefs.rejectedOptionIds || []).length;
+
+                    if (batchHistory.length === 0 && rejectedCount === 0) return null;
+
+                    return (
+                      <div className="text-xs bg-purple-50/50 border border-purple-200/60 rounded-lg p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-purple-900 uppercase text-[10px] tracking-wider">
+                            Recommendation Cycles ({batchHistory.length} Batches · {rejectedCount} Rejected Options)
+                          </span>
+                          {currentBatchId && (
+                            <span className="font-mono text-[10px] bg-purple-200/60 text-purple-900 px-2 py-0.5 rounded font-semibold">
+                              Active: {currentBatchId}
+                            </span>
+                          )}
+                        </div>
+                        <div className="space-y-1.5">
+                          {batchHistory.map((batch: any, bIdx: number) => (
+                            <div key={batch.batchId || bIdx} className="flex items-start justify-between text-[11px] gap-2 border-t border-purple-100/80 pt-1.5 first:border-0 first:pt-0">
+                              <div>
+                                <strong className="font-mono text-purple-950 font-semibold">{batch.batchId}</strong>
+                                <span className="text-purple-700 ml-1.5">({batch.options?.length || 0} options presented)</span>
+                                {batch.feedback && (
+                                  <p className="text-purple-800 italic mt-0.5">&ldquo;{batch.feedback}&rdquo;</p>
+                                )}
+                              </div>
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
+                                batch.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : 'bg-neutral-100 text-neutral-600'
+                              }`}>
+                                {batch.status}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   {/* Actions Row */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-100">
                     <div className="flex items-center gap-2 flex-1">

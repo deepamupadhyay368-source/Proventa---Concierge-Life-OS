@@ -50,7 +50,7 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
 
     const results = matchedPlaces.length > 0 ? matchedPlaces : AHMEDABAD_PLACES.filter((p) => p.categorySlug === targetSlug);
 
-    return results.slice(0, 3).map((place, idx) => {
+    return results.slice(0, 25).map((place, idx) => {
       const firstService = place.services?.[0];
       let estimate = 2500;
       if (firstService?.priceRange) {
@@ -59,7 +59,7 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
       }
 
       return {
-        id: `prop-${place.id}-${Date.now()}-${idx}`,
+        id: `prop-${place.id}`,
         providerId: this.providerId,
         venueId: place.id,
         providerName: place.name,

@@ -62,7 +62,9 @@ describe('Phase 8.2 & 8.3 — Entity Integrity & Destination Preservation', () =
   // Test 5: Hotel Delhi -> Delhi results only (no Ahmedabad/Mumbai)
   it('5. returns Delhi hotel results only for Hotel Delhi request, rejecting Ahmedabad/Mumbai hotels', async () => {
     const adapter = new MockHotelAdapter();
-    const constraints: TravelConstraints = {
+    const constraints = {
+      category: 'hotels',
+      rawInput: 'Hotel in Delhi',
       location: 'Delhi',
       destination: 'Delhi',
     };
@@ -80,7 +82,9 @@ describe('Phase 8.2 & 8.3 — Entity Integrity & Destination Preservation', () =
   // Test 6: Hotel Mumbai -> Mumbai results only
   it('6. returns Mumbai hotel results only for Hotel Mumbai request', async () => {
     const adapter = new MockHotelAdapter();
-    const constraints: TravelConstraints = {
+    const constraints = {
+      category: 'hotels',
+      rawInput: 'Hotel in Mumbai',
       location: 'Mumbai',
       destination: 'Mumbai',
     };

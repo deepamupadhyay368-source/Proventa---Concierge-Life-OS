@@ -492,5 +492,33 @@ export class EntityIntegrityValidator {
 
     return { isValid: true };
   }
+
+  /**
+   * Validates a proposal for zero-fabrication invariants and structural integrity.
+   */
+  static validateProposal(proposal: any): { isValid: boolean; errors: string[] } {
+    const errors: string[] = [];
+    if (!proposal) {
+      return { isValid: false, errors: ['Proposal is missing or null'] };
+    }
+
+    if (proposal.isMock || proposal.environment === 'SANDBOX') {
+      errors.push('Simulated or mock proposals are prohibited in production');
+    }
+
+    const titleAndDesc = `${proposal.title || ''} ${proposal.description || ''} ${proposal.providerName || ''}`.toUpperCase();
+    if (/(?:PV-|MOCK-|DEMO-|SIMULATED|SYNTHETIC|FILLER)/i.test(titleAndDesc)) {
+      errors.push('Synthetic or placeholder option markers detected in proposal content');
+    }
+
+    if (!proposal.id || !proposal.title || !proposal.providerId) {
+      errors.push('Proposal is missing required entity attributes (id, title, providerId)');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+    };
+  }
 }
 
