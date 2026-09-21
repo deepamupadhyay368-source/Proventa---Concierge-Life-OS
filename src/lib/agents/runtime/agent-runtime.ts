@@ -14,6 +14,7 @@ export interface RuntimeExecutionResult {
   verification?: VerificationResult;
   error?: string;
   isEscalated?: boolean;
+  message?: string;
 }
 
 export class AgentRuntime {
@@ -185,23 +186,26 @@ export class AgentRuntime {
           where: { id: taskId },
           data: {
             status: 'NEEDS_HUMAN',
+            executionMethod: 'HUMAN_CONCIERGE',
             isEscalated: true,
-            failedReason: 'Simulated or sandbox verification rejected. Cannot mark booking as confirmed.',
+            approvalStatus: 'APPROVED',
+            failedReason: null,
           },
         });
         await appendTaskEvent({
           taskId,
-          eventType: 'EXECUTION_REJECTED_MOCK',
+          eventType: 'AWAITING_CONCIERGE_EXECUTION',
           actorRole: 'SYSTEM',
-          message: 'Mock/sandbox execution rejected: Real-world reservations require genuine external confirmation.',
+          message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
           data: { reference: verification.confirmationReference, isMock: true },
         });
         return {
-          success: false,
+          success: true,
           step: 'VERIFY',
           taskStatus: 'NEEDS_HUMAN',
           verification,
           isEscalated: true,
+          message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
         };
       }
 

@@ -40,10 +40,12 @@ export async function POST(
       upperRef.startsWith('PV-AMD-') ||
       upperRef.startsWith('MOCK-') ||
       upperRef.startsWith('DEMO-') ||
+      upperRef.startsWith('TEST-') ||
+      upperRef.startsWith('FAKE-') ||
       upperRef.includes('SANDBOX')
     ) {
       return NextResponse.json(
-        { error: 'Synthetic, simulated, or mock references (e.g. PV-*, MOCK-*) are strictly prohibited by Proventa zero-fabrication policy.' },
+        { error: 'Synthetic, simulated, or mock references (e.g. PV-*, MOCK-*, TEST-*, FAKE-*, DEMO-*) are strictly prohibited by Proventa zero-fabrication policy. Enter the authentic confirmation reference issued by the airline, hotel, restaurant, or merchant.' },
         { status: 400 }
       );
     }

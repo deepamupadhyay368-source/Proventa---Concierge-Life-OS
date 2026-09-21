@@ -242,9 +242,9 @@ export default function TaskDetailPage() {
             assignedAgent: task.assignedAgent || `${task.category} Specialist`,
             objective: task.intent || task.originalRequest,
             executionType: 'SEQUENTIAL',
-            status: isConfirmed ? 'COMPLETED' : isAwaitingApproval ? 'RUNNING' : isNeedsHuman ? 'FAILED' : 'RUNNING',
+            status: isConfirmed ? 'COMPLETED' : (task.status === 'FAILED' || task.status === 'CANCELLED') ? 'FAILED' : 'RUNNING',
             verificationReference: task.externalReferenceId || undefined,
-            error: task.failedReason || undefined,
+            error: task.status === 'FAILED' ? task.failedReason || undefined : undefined,
           },
           ...(task.category === 'dining' || task.category === 'travel'
             ? [
@@ -279,13 +279,13 @@ export default function TaskDetailPage() {
               <UserCheck className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-purple-950">Proventa Human Concierge Escalation</h2>
+              <h2 className="text-sm font-semibold text-purple-950">Proventa Concierge Execution</h2>
               <p className="text-xs text-purple-800 mt-1 leading-relaxed">
-                This request requires customized coordination or direct phone verification with our partner network. Our concierge team is actively handling this.
+                Your request is approved and has been handed to your Proventa Concierge for execution.
               </p>
               {task.failedReason && (
                 <p className="text-xs text-purple-700 mt-1 font-mono bg-purple-100/50 p-2 rounded">
-                  Handoff reason: {task.failedReason}
+                  Coordination Note: {task.failedReason}
                 </p>
               )}
             </div>

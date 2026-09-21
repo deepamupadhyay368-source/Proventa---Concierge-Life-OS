@@ -243,60 +243,119 @@ export function ConciergeOperatorDesk({
             The following tasks require direct human coordination, telephone reservation with partner desks, or bespoke proposal crafting.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {needsHumanTasks.map((t) => (
-              <div
-                key={t.id}
-                className="bg-white border border-purple-200 rounded-xl p-4 shadow-2xs flex flex-col justify-between gap-3"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-xs font-bold text-neutral-900">#{t.publicId}</span>
-                    <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-900 font-semibold rounded-full uppercase">
-                      {t.category || 'concierge'}
+          <div className="grid grid-cols-1 gap-4">
+            {needsHumanTasks.map((t) => {
+              const approvedOption = t.approvedOption || (Array.isArray(t.proposedOptions) && t.proposedOptions[0]) || null;
+              const ctx = t.preparedContext || {};
+              const origin = ctx.origin || ctx.originAirport || null;
+              const destination = ctx.destination || ctx.destinationAirport || ctx.location || null;
+              const dateTime = ctx.dateTime || ctx.dates || null;
+              const partySize = ctx.partySize || null;
+              const budget = t.budgetAmount ? `₹${Number(t.budgetAmount).toLocaleString('en-IN')}` : (ctx.budget ? `₹${ctx.budget}` : null);
+              const specialReqs = Array.isArray(ctx.constraints) ? ctx.constraints.join(', ') : ctx.constraints || null;
+              const contactChannel = t.vendorName || approvedOption?.providerName || ctx.providerConsidered || 'Direct Partner Desk';
+
+              return (
+                <div
+                  key={t.id}
+                  className="bg-white border border-purple-200 rounded-xl p-5 shadow-sm space-y-4"
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-purple-100 pb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-neutral-900 bg-neutral-100 px-2 py-0.5 rounded">
+                        #{t.publicId}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 bg-purple-100 text-purple-900 font-semibold rounded-full uppercase">
+                        {t.category || 'concierge'}
+                      </span>
+                      <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-900 font-semibold rounded-full uppercase">
+                        Execution: Awaiting Human Booking
+                      </span>
+                    </div>
+                    <span className="text-xs text-neutral-500 font-medium">
+                      Client: <strong className="text-neutral-900">{t.customerName || t.customer?.user?.name || 'VIP Member'}</strong>
                     </span>
                   </div>
 
-                  <h3 className="text-xs font-semibold text-neutral-900 mt-1 line-clamp-1">
-                    {t.intent || t.originalRequest}
-                  </h3>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">
-                    Client: {t.customer?.user?.name || 'VIP Member'}
-                  </p>
-                  {t.failedReason && (
-                    <p className="text-[10px] text-purple-700 bg-purple-50 p-1.5 rounded mt-2 font-mono">
-                      Reason: {t.failedReason}
-                    </p>
+                  {/* Operational Brief Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                    <div className="space-y-1.5 bg-purple-50/40 p-3 rounded-lg border border-purple-100">
+                      <span className="text-[10px] font-bold text-purple-900 uppercase tracking-wider block">Customer Mandate</span>
+                      <p className="font-medium text-neutral-900 leading-snug">{t.originalRequest || t.intent}</p>
+                    </div>
+
+                    <div className="space-y-1.5 bg-emerald-50/40 p-3 rounded-lg border border-emerald-100">
+                      <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider block">Approved / Recommended Proposal</span>
+                      <p className="font-medium text-neutral-900 leading-snug">
+                        {approvedOption?.title || 'Bespoke Private Arrangement'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Key Constraints Row */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                    <div>
+                      <span className="text-[10px] text-neutral-500 block uppercase">Origin / Destination</span>
+                      <span className="font-semibold text-neutral-900">
+                        {origin ? `${origin} ➔ ` : ''}{destination || 'Local Venue'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-neutral-500 block uppercase">Schedule</span>
+                      <span className="font-semibold text-neutral-900">{dateTime || 'As Requested'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-neutral-500 block uppercase">Party / Budget</span>
+                      <span className="font-semibold text-neutral-900">
+                        {partySize ? `${partySize} pax` : '1-2 pax'} · {budget || 'Direct'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-neutral-500 block uppercase">Channel / Partner</span>
+                      <span className="font-semibold text-purple-900">{contactChannel}</span>
+                    </div>
+                  </div>
+
+                  {specialReqs && (
+                    <div className="text-xs text-neutral-600 bg-amber-50/50 px-3 py-1.5 rounded border border-amber-100">
+                      <span className="font-semibold text-amber-900">Special Requirements: </span>
+                      {specialReqs}
+                    </div>
                   )}
+
+                  {/* Actions Row */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-100">
+                    <div className="flex items-center gap-2 flex-1">
+                      <button
+                        onClick={() => openPhoneModal(t)}
+                        className="inline-flex items-center justify-center gap-1.5 py-2 px-4 bg-purple-700 hover:bg-purple-800 text-white rounded-lg text-xs font-semibold shadow-xs transition-colors"
+                      >
+                        <CheckCircle2 className="h-4 w-4" />
+                        <span>Enter Genuine Provider Confirmation</span>
+                      </button>
+
+                      <button
+                        onClick={() => openInjectModal(t)}
+                        className="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <PlusCircle className="h-3.5 w-3.5 text-amber-500" />
+                        <span>Inject Alternative Proposal</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/tasks/${t.id}`}
+                        className="inline-flex items-center gap-1 py-1.5 px-2.5 border border-neutral-200 hover:bg-neutral-50 rounded-lg text-xs font-medium text-neutral-700 transition-colors"
+                      >
+                        <span>Inspect Task</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-2 pt-2 border-t border-neutral-100">
-                  <button
-                    onClick={() => openInjectModal(t)}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-3 bg-neutral-900 text-white hover:bg-neutral-800 rounded-lg text-xs font-medium transition-colors"
-                  >
-                    <PlusCircle className="h-3.5 w-3.5 text-amber-400" />
-                    <span>Inject Proposal</span>
-                  </button>
-
-                  <button
-                    onClick={() => openPhoneModal(t)}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-1.5 px-3 bg-purple-700 text-white hover:bg-purple-800 rounded-lg text-xs font-medium transition-colors"
-                  >
-                    <PhoneCall className="h-3.5 w-3.5" />
-                    <span>Log Phone Booking</span>
-                  </button>
-
-                  <Link
-                    href={`/tasks/${t.id}`}
-                    className="p-1.5 border border-neutral-200 hover:bg-neutral-50 rounded-lg text-neutral-600 transition-colors"
-                    title="Open task view"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

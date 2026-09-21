@@ -566,12 +566,24 @@ export class RequestOrchestrator {
       option.bookingMethod === 'PHONE'
     ) {
       validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+      const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
       const pendingTask = await db.task.update({
         where: { id: taskId },
         data: {
           status: 'NEEDS_HUMAN',
           executionMethod: 'HUMAN_CONCIERGE',
           isEscalated: true,
+          approvalStatus: 'APPROVED',
+          failedReason: null,
+          vendorName: option.providerName || taskRecord.vendorName,
+          budgetAmount: option.priceAmount || taskRecord.budgetAmount,
+          clientPreferences: {
+            ...existingPrefs,
+            approvedOption: option as any,
+            approvedAt: new Date().toISOString(),
+            executionTier: 'ASSISTED',
+            handoffMessage: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+          } as any,
         },
       });
 
@@ -580,7 +592,7 @@ export class RequestOrchestrator {
         taskId,
         eventType: 'AWAITING_CONCIERGE_CALL',
         actorRole: 'AI_AGENT',
-        message: 'I\'ve found the option. Our concierge team is completing this for you.',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
         data: {
           providerId: execution.providerId || option.providerId,
           dispatchPayload: dispatch,
@@ -604,34 +616,117 @@ export class RequestOrchestrator {
         console.error('[Orchestrator] Concierge dispatch notice failed:', e);
       }
 
-      return { success: true, task: pendingTask, execution };
+      return {
+        success: true,
+        handedToConcierge: true,
+        task: pendingTask,
+        execution,
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+      };
     }
 
-    // 1b. Safety Guard: Simulated, mock, or sandbox bookings must NEVER be confirmed in production execution paths
+    // 1b. Safety Guard: When automated execution is simulated, mock, or sandbox, seamlessly
+    // transition to Human Concierge execution. Never generate synthetic references and never reject the customer's task.
     if (execution.isMock || execution.environment === 'SANDBOX') {
       validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+      const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
       const escalatedTask = await db.task.update({
         where: { id: taskId },
         data: {
           status: 'NEEDS_HUMAN',
           executionMethod: 'HUMAN_CONCIERGE',
           isEscalated: true,
-          failedReason: 'Simulated, mock, or sandbox bookings cannot be confirmed in production paths.',
+          approvalStatus: 'APPROVED',
+          failedReason: null,
+          vendorName: option.providerName || taskRecord.vendorName,
+          budgetAmount: option.priceAmount || taskRecord.budgetAmount,
+          clientPreferences: {
+            ...existingPrefs,
+            approvedOption: option as any,
+            approvedAt: new Date().toISOString(),
+            executionTier: 'ASSISTED',
+            handoffMessage: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+          } as any,
         },
       });
 
       await appendTaskEvent({
         taskId,
-        eventType: 'EXECUTION_REJECTED_MOCK',
-        actorRole: 'SYSTEM',
-        message: 'Mock/sandbox execution rejected: Production execution paths strictly require genuine partner reservations.',
-        data: { providerId: execution.providerId, environment: execution.environment },
+        eventType: 'AWAITING_CONCIERGE_EXECUTION',
+        actorRole: 'CONCIERGE',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        data: {
+          providerId: execution.providerId,
+          environment: execution.environment,
+          optionTitle: option.title,
+          optionProvider: option.providerName,
+        },
       });
 
-      return { success: false, task: escalatedTask, execution };
+      try {
+        if (taskRecord.customer?.user?.phone) {
+          await sendWhatsAppNotification({
+            phone: taskRecord.customer.user.phone,
+            template: 'AWAITING_CONCIERGE_CALL',
+            params: {
+              name: taskRecord.customer.user.name || 'Member',
+              details: `${option.title} (${option.providerName})`,
+              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${taskId}`,
+            },
+          });
+        }
+      } catch (e) {
+        console.error('[Orchestrator] Concierge dispatch notice failed:', e);
+      }
+
+      return {
+        success: true,
+        handedToConcierge: true,
+        task: escalatedTask,
+        execution,
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+      };
     }
 
     if (execution.success && execution.externalReferenceId) {
+      // Validate externalReferenceId does not contain synthetic markers
+      const upperRef = (execution.externalReferenceId || '').toUpperCase();
+      if (
+        upperRef.startsWith('PV-') ||
+        upperRef.startsWith('MOCK-') ||
+        upperRef.startsWith('TEST-') ||
+        upperRef.startsWith('DEMO-') ||
+        upperRef.startsWith('FAKE-') ||
+        upperRef.includes('SANDBOX')
+      ) {
+        // Escalate to Human Concierge instead of accepting synthetic reference
+        validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+        const escalatedTask = await db.task.update({
+          where: { id: taskId },
+          data: {
+            status: 'NEEDS_HUMAN',
+            executionMethod: 'HUMAN_CONCIERGE',
+            isEscalated: true,
+            approvalStatus: 'APPROVED',
+            failedReason: null,
+          },
+        });
+        await appendTaskEvent({
+          taskId,
+          eventType: 'AWAITING_CONCIERGE_EXECUTION',
+          actorRole: 'SYSTEM',
+          message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+          data: { reason: 'SYNTHETIC_REFERENCE_PREVENTED' },
+        });
+        return {
+          success: true,
+          handedToConcierge: true,
+          task: escalatedTask,
+          execution,
+          message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        };
+      }
+
       // State transition -> VERIFYING
       validateTransition('EXECUTING', 'VERIFYING');
       await db.task.update({
@@ -658,10 +753,25 @@ export class RequestOrchestrator {
             status: 'NEEDS_HUMAN',
             executionMethod: 'HUMAN_CONCIERGE',
             isEscalated: true,
-            failedReason: 'Simulated or sandbox verification rejected. Cannot mark booking as confirmed.',
+            approvalStatus: 'APPROVED',
+            failedReason: null,
           },
         });
-        return { success: false, task: escalatedTask, execution, verification };
+        await appendTaskEvent({
+          taskId,
+          eventType: 'AWAITING_CONCIERGE_EXECUTION',
+          actorRole: 'SYSTEM',
+          message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+          data: { providerId: execution.providerId },
+        });
+        return {
+          success: true,
+          handedToConcierge: true,
+          task: escalatedTask,
+          execution,
+          verification,
+          message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        };
       }
 
       if (verification.verified) {
@@ -735,18 +845,25 @@ export class RequestOrchestrator {
         status: 'NEEDS_HUMAN',
         executionMethod: 'HUMAN_CONCIERGE',
         isEscalated: true,
-        failedReason: execution.errorMessage || 'Automated reservation could not be verified by partner system.',
+        approvalStatus: 'APPROVED',
+        failedReason: null,
       },
     });
 
     await appendTaskEvent({
       taskId,
-      eventType: 'EXECUTION_FAILED_ESCALATED',
+      eventType: 'CONCIERGE_TAKEOVER',
       actorRole: 'SYSTEM',
-      message: 'I couldn\'t complete this request automatically. Our concierge desk is taking over to complete this for you.',
+      message: 'Your request is approved and has been handed to your Proventa Concierge for direct execution with the provider.',
       data: { error: execution.errorMessage },
     });
 
-    return { success: false, task: escalatedTask, execution };
+    return {
+      success: true,
+      handedToConcierge: true,
+      task: escalatedTask,
+      execution,
+      message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+    };
   }
 }
