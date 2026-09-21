@@ -275,10 +275,28 @@ export async function POST(req: NextRequest) {
         eventMessage = notes || 'Escalated to Lead Concierge for senior intervention.';
         break;
 
+      case 'REVIEW':
+        eventType = 'CONCIERGE_REVIEWED';
+        eventMessage = notes || 'Request placed under active review by Concierge Desk.';
+        break;
+
+      case 'VERIFY':
+      case 'VERIFY_REFERENCE':
+        eventType = 'REFERENCE_VERIFIED';
+        eventMessage = notes || `External provider reference ${taskRecord.externalReferenceId || ''} verified with venue maître d' / partner dispatch.`;
+        break;
+
+      case 'CANCEL':
+        updatedStatus = 'CANCELLED';
+        isEscalated = false;
+        eventType = 'TASK_CANCELLED';
+        eventMessage = notes || 'Task cancelled by concierge operator.';
+        break;
+
       case 'COMPLETE':
         updatedStatus = 'COMPLETED';
         isEscalated = false;
-        eventType = 'TASK_COMPLETED_BY_CONCIERGE';
+        eventType = 'TASK_COMPLETED';
         eventMessage = notes || 'Task successfully fulfilled and verified by concierge desk.';
         break;
 
@@ -325,6 +343,22 @@ export async function POST(req: NextRequest) {
         },
       },
     });
+
+    if (action === 'CONFIRM') {
+      await db.taskEvent.create({
+        data: {
+          taskId,
+          eventType: 'PROVIDER_CONFIRMED',
+          actorRole: 'CONCIERGE',
+          message: `Provider confirmed booking. Reference: ${externalReferenceId}`,
+          data: {
+            operator: sessionUser.email,
+            reference: externalReferenceId,
+            confirmedAt: new Date().toISOString(),
+          },
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,

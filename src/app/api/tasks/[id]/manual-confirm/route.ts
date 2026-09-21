@@ -86,7 +86,7 @@ export async function POST(
       }
     }
 
-    const updatedTask = await db.task.update({
+    let updatedTask = await db.task.update({
       where: { id: taskId },
       data: {
         status: 'CONFIRMED',
@@ -113,6 +113,42 @@ export async function POST(
         confirmedAt: new Date().toISOString(),
       },
     });
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'PROVIDER_CONFIRMED',
+      actorRole: 'CONCIERGE',
+      actorId: user.id,
+      message: `Provider confirmed booking. Confirmation code: ${cleanRef}`,
+      data: {
+        confirmationRef: cleanRef,
+        vendorName: vendorName || task.vendorName,
+        confirmedBy: user.email,
+        confirmedAt: new Date().toISOString(),
+      },
+    });
+
+    if (body.andComplete) {
+      validateTransition('CONFIRMED', 'COMPLETED');
+      updatedTask = await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'COMPLETED',
+          updatedAt: new Date(),
+        },
+      });
+      await appendTaskEvent({
+        taskId,
+        eventType: 'TASK_COMPLETED',
+        actorRole: 'CONCIERGE',
+        actorId: user.id,
+        message: notes ? `Task completed: ${notes}` : `Task completed and fulfilled with reference ${cleanRef}.`,
+        data: {
+          confirmationRef: cleanRef,
+          notes,
+        },
+      });
+    }
 
     // Create authoritative booking record
     if (task.customerId && (requestId || task.requestId)) {

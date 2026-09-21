@@ -128,7 +128,29 @@ export function ConciergeOperatorDesk({
   const [phoneVendor, setPhoneVendor] = useState('');
   const [phoneNotes, setPhoneNotes] = useState('');
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [phoneAndComplete, setPhoneAndComplete] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleOperatorAction = async (taskId: string, action: string, notes?: string) => {
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/admin/concierge/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          taskId,
+          action,
+          notes,
+        }),
+      });
+      if (res.ok) {
+        if (onRefresh) onRefresh();
+        else window.location.reload();
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const needsHumanTasks = tasks.filter((t) => t.status === 'NEEDS_HUMAN' || t.isEscalated);
 
@@ -149,6 +171,7 @@ export function ConciergeOperatorDesk({
     setPhoneVendor(sheet.venueName !== 'Not provided' ? sheet.venueName : (task.vendorName || ''));
     setPhoneNotes('');
     setPhoneError(null);
+    setPhoneAndComplete(false);
     setModalMode('LOG_PHONE');
   };
 
@@ -206,6 +229,7 @@ export function ConciergeOperatorDesk({
           confirmationRef: phoneRef.trim(),
           vendorName: phoneVendor.trim() || undefined,
           notes: phoneNotes.trim() || undefined,
+          andComplete: phoneAndComplete,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -377,6 +401,26 @@ export function ConciergeOperatorDesk({
                       >
                         <CheckCircle2 className="h-4 w-4" />
                         <span>Enter Genuine Provider Confirmation</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleOperatorAction(t.id, 'COMPLETE', 'Task fulfilled by concierge desk')}
+                        disabled={submitting}
+                        className="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                        title="Mark Task Completed / Deliverable Fulfilled"
+                      >
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span>Fulfill & Complete</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleOperatorAction(t.id, 'CONTACT_PROVIDER', 'Concierge reached out to partner desk')}
+                        disabled={submitting}
+                        className="inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-xs font-medium transition-colors disabled:opacity-50"
+                        title="Log Vendor Contact"
+                      >
+                        <Phone className="h-3.5 w-3.5 text-neutral-600" />
+                        <span>Log Outreach</span>
                       </button>
 
                       <button
@@ -658,6 +702,19 @@ export function ConciergeOperatorDesk({
                   onChange={(e) => setPhoneNotes(e.target.value)}
                   className="w-full px-3 py-2 border border-neutral-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-700"
                 />
+              </div>
+
+              <div className="flex items-center gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  id="phoneAndComplete"
+                  checked={phoneAndComplete}
+                  onChange={(e) => setPhoneAndComplete(e.target.checked)}
+                  className="rounded border-neutral-300 text-purple-700 focus:ring-purple-700 h-3.5 w-3.5"
+                />
+                <label htmlFor="phoneAndComplete" className="text-neutral-700 text-xs font-medium cursor-pointer">
+                  Mark task as Completed immediately upon recording confirmation
+                </label>
               </div>
 
               <div className="pt-3 border-t border-neutral-100 flex items-center justify-end gap-2">

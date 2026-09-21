@@ -74,7 +74,7 @@ export class EntityIntegrityValidator {
    * Resolves a city name and airport code from any city name, alias, or IATA code.
    */
   static resolveCityAirport(input: string): { city: string; code: string } | null {
-    if (!input) return null;
+    if (!input || typeof input !== 'string') return null;
     const upper = input.trim().toUpperCase();
     for (const entry of CITY_AIRPORT_REGISTRY) {
       for (const alias of entry.aliases) {
@@ -484,6 +484,36 @@ export class EntityIntegrityValidator {
         for (const other of otherCities) {
           if (proposalText.includes(other) && !proposalText.includes(expected.city.toUpperCase())) {
             const reason = `Pre-Execution Safety Gate Blocked: Requested hotel city is ${expected.city}, but proposal is for ${other}.`;
+            return { isValid: false, reason, violationReason: reason };
+          }
+        }
+      }
+    }
+
+    // Dining / Restaurant check
+    if (
+      (task?.category?.includes('dine') || task?.category?.includes('dining') || task?.category?.includes('restaurant')) &&
+      (requestedDest || task?.intent || task?.originalRequest)
+    ) {
+      let expectedCity: string | null = null;
+      const combinedText = `${requestedDest} ${task?.intent || ''} ${task?.originalRequest || ''}`;
+      for (const entry of CITY_AIRPORT_REGISTRY) {
+        for (const alias of entry.aliases) {
+          const regex = new RegExp(`\\b${alias}\\b`, 'i');
+          if (regex.test(combinedText)) {
+            expectedCity = entry.city;
+            break;
+          }
+        }
+        if (expectedCity) break;
+      }
+
+      if (expectedCity) {
+        const proposalText = `${proposal.title || ''} ${proposal.description || ''} ${meta.city || ''} ${meta.location || ''} ${meta.address || ''}`.toUpperCase();
+        const otherCities = ['AHMEDABAD', 'MUMBAI', 'DELHI', 'BENGALURU', 'GOA'].filter(c => c !== expectedCity!.toUpperCase());
+        for (const other of otherCities) {
+          if (proposalText.includes(other) && !proposalText.includes(expectedCity.toUpperCase())) {
+            const reason = `Pre-Execution Safety Gate Blocked: Requested dining city is ${expectedCity}, but proposal is for ${other}.`;
             return { isValid: false, reason, violationReason: reason };
           }
         }

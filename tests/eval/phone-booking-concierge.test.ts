@@ -138,8 +138,8 @@ describe('Phase 2, Priority 1: Ahmedabad Verified Phone-Booking Workflow', () =>
       expect(result.task.status).toBe('NEEDS_HUMAN');
       expect(result.task.executionMethod).toBe('HUMAN_CONCIERGE');
       expect(result.task.isEscalated).toBe(true);
-      expect(result.execution.status).toBe('AWAITING_CONCIERGE_CALL');
-      expect(result.execution.externalReferenceId).toBeUndefined();
+      expect(result.execution?.status).toBe('AWAITING_CONCIERGE_CALL');
+      expect(result.execution?.externalReferenceId).toBeUndefined();
 
       // Ensure it was NOT marked CONFIRMED
       expect(result.task.status).not.toBe('CONFIRMED');

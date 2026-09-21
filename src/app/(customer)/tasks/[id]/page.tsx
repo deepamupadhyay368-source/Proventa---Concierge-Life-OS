@@ -262,6 +262,35 @@ export default function TaskDetailPage() {
   const events = task.events || [];
   const proposedOptions = (task.proposedOptions || []) as any[];
 
+  const clientPreferences = typeof task.clientPreferences === 'string'
+    ? (() => { try { return JSON.parse(task.clientPreferences); } catch { return {}; } })()
+    : (task.clientPreferences || {});
+  const approvedOption = clientPreferences?.approvedOption;
+  const deliverable = clientPreferences?.deliverable;
+
+  const getStatusMessage = (taskStatus: string) => {
+    switch (taskStatus) {
+      case 'APPROVED':
+        return 'Your approved option has been locked and execution has begun.';
+      case 'EXECUTING':
+        return 'Executing your request with the partner provider.';
+      case 'NEEDS_HUMAN':
+        return 'Your request is approved and has been handed to your Proventa Concierge for execution.';
+      case 'CONFIRMED':
+        return task.externalReferenceId
+          ? `Confirmed. Your booking reference is ${task.externalReferenceId}.`
+          : 'Confirmed. Your reservation has been authenticated.';
+      case 'COMPLETED':
+        return deliverable
+          ? 'Completed. Your deliverable is ready.'
+          : 'Completed. Your reservation is confirmed and finalized.';
+      case 'FAILED':
+        return 'Our concierge team is reviewing alternative arrangements for your request.';
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6 pb-20 max-w-4xl mx-auto">
       {/* Back & Status Header */}
@@ -310,6 +339,35 @@ export default function TaskDetailPage() {
         </div>
       </div>
 
+      {/* Reassuring Status Banner */}
+      {getStatusMessage(task.status) && (
+        <div className={`p-4 rounded-2xl border text-xs flex items-center justify-between gap-3 shadow-xs ${
+          task.status === 'COMPLETED' || task.status === 'CONFIRMED'
+            ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
+            : task.status === 'NEEDS_HUMAN'
+            ? 'bg-purple-50/90 border-purple-200 text-purple-950'
+            : task.status === 'FAILED'
+            ? 'bg-neutral-50 border-neutral-200 text-neutral-800'
+            : 'bg-amber-50/80 border-amber-200 text-amber-950'
+        }`}>
+          <div className="flex items-center gap-2.5">
+            {task.status === 'COMPLETED' || task.status === 'CONFIRMED' ? (
+              <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
+            ) : task.status === 'NEEDS_HUMAN' ? (
+              <UserCheck className="h-4 w-4 text-purple-700 shrink-0" />
+            ) : task.status === 'EXECUTING' || task.status === 'APPROVED' ? (
+              <RefreshCw className="h-4 w-4 text-amber-700 shrink-0 animate-spin" />
+            ) : (
+              <Clock className="h-4 w-4 text-neutral-600 shrink-0" />
+            )}
+            <span className="font-medium text-xs sm:text-sm">{getStatusMessage(task.status)}</span>
+          </div>
+          <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-white/80 border border-current font-bold shrink-0">
+            {task.status}
+          </span>
+        </div>
+      )}
+
       {/* 4-Step Orchestration Progress Flow */}
       <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
         <div className="grid grid-cols-4 gap-2 text-center relative">
@@ -351,6 +409,62 @@ export default function TaskDetailPage() {
           ))}
         </div>
       </div>
+
+      {/* Deliverable Presentation Card (Non-Booking Tasks) */}
+      {deliverable && (
+        <div className="bg-white border-2 border-emerald-500/30 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="flex items-start justify-between gap-4 border-b border-neutral-100 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs tracking-wider">
+                DLV
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-700">
+                  {deliverable.type || 'Curated Deliverable'}
+                </span>
+                <h2 className="text-base font-bold text-neutral-900">{deliverable.title}</h2>
+              </div>
+            </div>
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+              Completed
+            </span>
+          </div>
+
+          <div className="prose prose-neutral text-xs text-neutral-800 whitespace-pre-line leading-relaxed bg-neutral-50/70 p-4 rounded-xl border border-neutral-100 font-sans">
+            {deliverable.content}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500 pt-2 border-t border-neutral-100">
+            <span>Prepared by {deliverable.preparedBy || 'Proventa Private Concierge'}</span>
+            <span className="font-mono text-[11px]">Ref: DLV-{task.publicId || task.id.slice(-6).toUpperCase()}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Locked & Approved Option Card */}
+      {approvedOption && !deliverable && !task.externalReferenceId && (
+        <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-3">
+          <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <h3 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">
+                Locked Approved Option
+              </h3>
+            </div>
+            <span className="text-xs font-mono font-bold text-neutral-900">
+              {approvedOption.priceFormatted || (approvedOption.priceAmount ? `₹${approvedOption.priceAmount.toLocaleString('en-IN')}` : 'Included')}
+            </span>
+          </div>
+
+          <div className="space-y-1">
+            <h4 className="text-sm font-semibold text-neutral-900">{approvedOption.title}</h4>
+            <p className="text-xs text-neutral-500">{approvedOption.providerName}</p>
+            {approvedOption.description && (
+              <p className="text-xs text-neutral-600 mt-2 leading-relaxed">{approvedOption.description}</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Confirmed Authoritative Digital Pass Card */}
       {isConfirmed && task.externalReferenceId && (

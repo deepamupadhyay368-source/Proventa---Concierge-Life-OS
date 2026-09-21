@@ -6,6 +6,7 @@ import { appendTaskEvent } from './timeline';
 import { evaluateApproval } from './approval/approval-engine';
 import { findAgentForTask } from './agents';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
+import { sendBookingConfirmationEmail } from '@/lib/email/sender';
 import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
@@ -495,10 +496,11 @@ export class RequestOrchestrator {
    */
   static async executeApprovedTask(params: {
     taskId: string;
-    option: OptionProposal;
+    option?: OptionProposal;
+    optionId?: string;
     userId?: string;
   }) {
-    let { taskId, option } = params;
+    let { taskId, option, optionId } = params;
 
     const taskRecord = await db.task.findUnique({
       where: { id: taskId },
@@ -506,16 +508,20 @@ export class RequestOrchestrator {
     });
     if (!taskRecord) throw new Error(`Task ${taskId} not found`);
 
-    // Defensive recovery: if option is missing or submitted without providerId, look up in taskRecord.proposedOptions
+    // Defensive recovery: if optionId provided or option is missing, look up in taskRecord.proposedOptions
+    if (!option && optionId && Array.isArray(taskRecord.proposedOptions)) {
+      option = (taskRecord.proposedOptions as any[]).find((o: any) => o.id === optionId);
+    }
     if (!option && Array.isArray(taskRecord.proposedOptions) && taskRecord.proposedOptions.length > 0) {
       option = (taskRecord.proposedOptions as any[])[0];
     }
-    if (option && !option.providerId && Array.isArray(taskRecord.proposedOptions)) {
+    const selectedOpt = option;
+    if (selectedOpt && !selectedOpt.providerId && Array.isArray(taskRecord.proposedOptions)) {
       const storedOption = (taskRecord.proposedOptions as any[]).find(
-        (o: any) => o.id === option.id || o.title === option.title
+        (o: any) => o.id === selectedOpt.id || o.title === selectedOpt.title
       );
       if (storedOption?.providerId) {
-        option = { ...option, providerId: storedOption.providerId, venueId: storedOption.venueId };
+        option = { ...selectedOpt, providerId: storedOption.providerId, venueId: storedOption.venueId };
       }
     }
     if (!option) {
@@ -556,6 +562,19 @@ export class RequestOrchestrator {
     // State transition -> EXECUTING
     validateTransition(taskRecord.status as TaskStatus, 'EXECUTING');
 
+    await appendTaskEvent({
+      taskId,
+      eventType: 'CUSTOMER_APPROVED',
+      actorRole: 'CUSTOMER',
+      message: `Client approved option: ${option.title} (${option.providerName})`,
+      data: {
+        optionId: option.id,
+        title: option.title,
+        providerName: option.providerName,
+        priceFormatted: option.priceFormatted,
+      },
+    });
+
     const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
     const batchHistory: ProposalBatch[] = Array.isArray(existingPrefs.batchHistory) ? [...existingPrefs.batchHistory] : [];
     const updatedHistory = batchHistory.map((b) => {
@@ -564,6 +583,105 @@ export class RequestOrchestrator {
       }
       return b;
     });
+
+    // Handle Non-Booking Deliverables (Research, Curation, Advisory, Planning)
+    const nonBookingCategories = [
+      'research',
+      'curation',
+      'advisory',
+      'planning',
+      'inquiry',
+      'general',
+      'education',
+      'gift',
+      'itinerary',
+    ];
+    const catLower = (taskRecord.category || '').toLowerCase();
+    const isNonBooking =
+      nonBookingCategories.includes(catLower) ||
+      Boolean(option.metadata?.isDeliverable) ||
+      Boolean(option.metadata?.deliverableType) ||
+      option.bookingMethod === 'DELIVERABLE' ||
+      option.bookingMethod === 'CURATION';
+
+    if (isNonBooking) {
+      validateTransition('EXECUTING', 'COMPLETED');
+      const deliverableContent =
+        option.description ||
+        option.metadata?.deliverableContent ||
+        option.metadata?.report ||
+        option.metadata?.reportText ||
+        option.metadata?.content ||
+        `Curated Deliverable for ${taskRecord.intent || taskRecord.originalRequest}: ${option.title}.`;
+
+      const deliverable = {
+        title: option.title,
+        category: taskRecord.category,
+        providerName: option.providerName || 'Proventa Concierge',
+        content: deliverableContent,
+        metadata: option.metadata || {},
+        deliveredAt: new Date().toISOString(),
+        status: 'FULFILLED',
+      };
+
+      const completedTask = await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'COMPLETED',
+          completedAt: new Date(),
+          approvalStatus: 'APPROVED',
+          vendorName: option.providerName,
+          budgetAmount: option.priceAmount,
+          clientPreferences: {
+            ...existingPrefs,
+            approvedOption: option as any,
+            approvedAt: new Date().toISOString(),
+            batchHistory: updatedHistory,
+            deliverable,
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'DELIVERABLE_PREPARED',
+        actorRole: 'AI_AGENT',
+        message: `Deliverable prepared: "${option.title}".`,
+        data: { deliverableTitle: option.title },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'TASK_COMPLETED',
+        actorRole: 'SYSTEM',
+        message: `Task completed. Deliverable delivered to client.`,
+        data: { deliverableTitle: option.title },
+      });
+
+      try {
+        if (taskRecord.customer?.user?.email) {
+          await sendBookingConfirmationEmail({
+            email: taskRecord.customer.user.email,
+            name: taskRecord.customer.user.name || 'Valued Member',
+            title: option.title,
+            reference: `DLV-${taskRecord.publicId || taskId.slice(-6).toUpperCase()}`,
+            vendor: option.providerName || 'Proventa Concierge',
+            notes: deliverableContent,
+            actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskId}`,
+          });
+        }
+      } catch (e) {
+        console.error('[Orchestrator] Deliverable notification error:', e);
+      }
+
+      return {
+        success: true,
+        status: 'COMPLETED',
+        task: completedTask,
+        deliverable,
+        message: 'Your deliverable has been curated and completed.',
+      };
+    }
 
     await db.task.update({
       where: { id: taskId },
@@ -832,6 +950,18 @@ export class RequestOrchestrator {
           },
         });
 
+        await appendTaskEvent({
+          taskId,
+          eventType: 'PROVIDER_CONFIRMED',
+          actorRole: 'AI_AGENT',
+          message: `Genuine provider confirmed booking with ${option.providerName}. Reference: ${execution.externalReferenceId}`,
+          data: {
+            provider: option.providerName,
+            reference: execution.externalReferenceId,
+            details: execution.confirmedDetails,
+          },
+        });
+
         // Record authoritative Booking record
         if (confirmedTask.customerId) {
           await db.booking.create({
@@ -867,6 +997,23 @@ export class RequestOrchestrator {
           }
         } catch (e) {
           console.error('[Orchestrator] Confirmation notification error:', e);
+        }
+
+        // Dispatch confirmed pass to member's Email
+        try {
+          if (taskRecord.customer?.user?.email) {
+            await sendBookingConfirmationEmail({
+              email: taskRecord.customer.user.email,
+              name: taskRecord.customer.user.name || 'Valued Member',
+              title: option.title,
+              reference: execution.externalReferenceId,
+              vendor: option.providerName || 'Verified Partner Desk',
+              notes: 'Your reservation has been confirmed with genuine partner confirmation reference.',
+              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskId}`,
+            });
+          }
+        } catch (e) {
+          console.error('[Orchestrator] Confirmation email error:', e);
         }
 
         return { success: true, task: confirmedTask, execution, verification };
@@ -1567,4 +1714,80 @@ export class RequestOrchestrator {
       message: customerMessage,
     };
   }
+
+  /**
+   * Authoritative task completion method.
+   * Transitions task to COMPLETED, persists final deliverables/notes,
+   * logs TASK_COMPLETED timeline event, and notifies customer if appropriate.
+   */
+  static async completeTask(params: {
+    taskId: string;
+    operatorId?: string;
+    notes?: string;
+    deliverable?: Record<string, any>;
+  }) {
+    const taskRecord = await db.task.findUnique({
+      where: { id: params.taskId },
+      include: {
+        customer: {
+          include: { user: true },
+        },
+      },
+    });
+
+    if (!taskRecord) {
+      throw new Error(`Task not found: ${params.taskId}`);
+    }
+
+    validateTransition(taskRecord.status as TaskStatus, 'COMPLETED');
+
+    const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
+    const updatedPrefs = {
+      ...existingPrefs,
+      completedAt: new Date().toISOString(),
+      completionNotes: params.notes,
+      deliverable: params.deliverable || existingPrefs.deliverable,
+    };
+
+    const completedTask = await db.task.update({
+      where: { id: params.taskId },
+      data: {
+        status: 'COMPLETED',
+        clientPreferences: updatedPrefs as any,
+        updatedAt: new Date(),
+      },
+    });
+
+    await appendTaskEvent({
+      taskId: params.taskId,
+      eventType: 'TASK_COMPLETED',
+      actorRole: params.operatorId ? 'CONCIERGE' : 'SYSTEM',
+      actorId: params.operatorId,
+      message: params.notes || 'Task successfully completed and fulfilled.',
+      data: {
+        notes: params.notes,
+        deliverable: params.deliverable || existingPrefs.deliverable,
+      },
+    });
+
+    // Send confirmation notification if not already sent
+    if (taskRecord.customer?.user?.email && !taskRecord.externalReferenceId) {
+      try {
+        await sendBookingConfirmationEmail({
+          email: taskRecord.customer.user.email,
+          name: taskRecord.customer.user.name || 'Valued Member',
+          title: taskRecord.intent || taskRecord.originalRequest,
+          reference: `COMPLETED-${taskRecord.publicId || taskRecord.id.slice(-6).toUpperCase()}`,
+          vendor: taskRecord.vendorName || 'Proventa Concierge',
+          notes: params.notes || 'Your request has been successfully fulfilled.',
+          actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${params.taskId}`,
+        });
+      } catch (e) {
+        console.error('[Orchestrator.completeTask] Email notification error:', e);
+      }
+    }
+
+    return completedTask;
+  }
 }
+
