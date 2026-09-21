@@ -13,6 +13,9 @@ export interface ExtractedEntities {
   timeframe?: string;
   origin?: string;
   destination?: string;
+  originAirport?: string;
+  destinationAirport?: string;
+  entityProvenance?: Record<string, string>;
   dates?: {
     exact?: string;
     start?: string;

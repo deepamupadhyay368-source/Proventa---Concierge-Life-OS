@@ -112,17 +112,193 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
   readonly environment = 'SANDBOX' as const;
 
   async search(query: {
-    category: string;
+    category?: string;
     intent?: string;
-    rawInput: string;
+    rawInput?: string;
     constraints?: Record<string, any>;
+    location?: string;
+    destination?: string;
   }): Promise<OptionProposal[]> {
+    const anyQuery = query as any;
+    const raw = (anyQuery.rawInput || '').toLowerCase();
+    let targetCity = anyQuery.constraints?.destination || anyQuery.constraints?.location || anyQuery.destination || anyQuery.location;
+    if (!targetCity) {
+      if (raw.includes('delhi')) targetCity = 'Delhi';
+      else if (raw.includes('mumbai') || raw.includes('bombay')) targetCity = 'Mumbai';
+      else if (raw.includes('bengaluru') || raw.includes('bangalore')) targetCity = 'Bengaluru';
+      else if (raw.includes('goa')) targetCity = 'Goa';
+      else if (raw.includes('udaipur')) targetCity = 'Udaipur';
+      else if (raw.includes('jaipur')) targetCity = 'Jaipur';
+      else if (raw.includes('hyderabad')) targetCity = 'Hyderabad';
+      else if (raw.includes('kolkata')) targetCity = 'Kolkata';
+      else targetCity = 'Ahmedabad';
+    }
+
+    const cityUpper = (targetCity || 'AHMEDABAD').toUpperCase();
+
+    if (cityUpper.includes('DELHI')) {
+      return [
+        {
+          id: `htl-delhi-imperial-${Date.now()}`,
+          providerId: this.providerId,
+          providerName: 'The Imperial, New Delhi',
+          title: 'Heritage Deco Suite — The Imperial, New Delhi',
+          description: 'Historic luxury 5-star property on Janpath, Connaught Place. Italian marble bath, butler service, breakfast included.',
+          priceAmount: 26000,
+          priceCurrency: 'INR',
+          priceFormatted: '₹26,000 / night',
+          availability: 'Guaranteed Room Availability via GDS Partner Desk',
+          bookingMethod: 'API',
+          cancellationPolicy: 'Complimentary cancellation up to 24 hours prior to check-in.',
+          environment: 'SANDBOX',
+          isMock: true,
+          location: 'Delhi',
+          metadata: {
+            city: 'Delhi',
+            arrivalCity: 'Delhi',
+            address: 'Janpath, Connaught Place, New Delhi 110001',
+            checkIn: '14:00',
+            checkOut: '12:00',
+          },
+        } as any,
+        {
+          id: `htl-delhi-leela-${Date.now()}`,
+          providerId: this.providerId,
+          providerName: 'The Leela Palace New Delhi',
+          title: 'Grand Deluxe Room — The Leela Palace, Chanakyapuri, New Delhi',
+          description: 'Palatial luxury in Diplomatic Enclave with rooftop infinity pool, 24-hr personal butler, airport transfer privileges.',
+          priceAmount: 32000,
+          priceCurrency: 'INR',
+          priceFormatted: '₹32,000 / night',
+          availability: '3 Rooms Remaining',
+          bookingMethod: 'API',
+          cancellationPolicy: 'Refundable up to 48 hours prior.',
+          environment: 'SANDBOX',
+          isMock: true,
+          location: 'Delhi',
+          metadata: {
+            city: 'Delhi',
+            arrivalCity: 'Delhi',
+            address: 'Diplomatic Enclave, Chanakyapuri, New Delhi 110023',
+            checkIn: '14:00',
+            checkOut: '12:00',
+          },
+        } as any,
+      ];
+    }
+
+    if (cityUpper.includes('MUMBAI')) {
+      return [
+        {
+          id: `htl-mumbai-tajpalace-${Date.now()}`,
+          providerId: this.providerId,
+          providerName: 'The Taj Mahal Palace, Mumbai',
+          title: 'Sea View Luxury Room — The Taj Mahal Palace, Colaba, Mumbai',
+          description: 'Iconic heritage landmark facing the Gateway of India. Sea-facing view, Palace lounge access, butler service.',
+          priceAmount: 35000,
+          priceCurrency: 'INR',
+          priceFormatted: '₹35,000 / night',
+          availability: 'Guaranteed Heritage Wing Allocation',
+          bookingMethod: 'API',
+          cancellationPolicy: 'Full refund 24 hours prior.',
+          environment: 'SANDBOX',
+          isMock: true,
+          location: 'Mumbai',
+          metadata: {
+            city: 'Mumbai',
+            arrivalCity: 'Mumbai',
+            address: 'Apollo Bunder, Colaba, Mumbai 400001',
+            checkIn: '14:00',
+            checkOut: '12:00',
+          },
+        } as any,
+        {
+          id: `htl-mumbai-oberoi-${Date.now()}`,
+          providerId: this.providerId,
+          providerName: 'The Oberoi, Mumbai',
+          title: 'Premier Ocean View — The Oberoi, Marine Drive, Nariman Point, Mumbai',
+          description: 'Panoramic views of the Arabian Sea and Marine Drive. Floor-to-ceiling glass, 24-hr butler, luxury bath.',
+          priceAmount: 28000,
+          priceCurrency: 'INR',
+          priceFormatted: '₹28,000 / night',
+          availability: '2 Rooms Remaining',
+          bookingMethod: 'API',
+          cancellationPolicy: 'Complimentary cancellation up to 24 hours prior.',
+          environment: 'SANDBOX',
+          isMock: true,
+          location: 'Mumbai',
+          metadata: {
+            city: 'Mumbai',
+            arrivalCity: 'Mumbai',
+            address: 'Nariman Point, Marine Drive, Mumbai 400021',
+            checkIn: '14:00',
+            checkOut: '12:00',
+          },
+        } as any,
+      ];
+    }
+
+    if (cityUpper.includes('BENGALURU') || cityUpper.includes('BANGALORE')) {
+      return [
+        {
+          id: `htl-blr-leela-${Date.now()}`,
+          providerId: this.providerId,
+          providerName: 'The Leela Palace Bengaluru',
+          title: 'Royal Premier Room — The Leela Palace, Old Airport Road, Bengaluru',
+          description: 'Architecture inspired by the Mysore Royal Palace, set in 7 acres of lush gardens. Balcony with waterfall view.',
+          priceAmount: 24000,
+          priceCurrency: 'INR',
+          priceFormatted: '₹24,000 / night',
+          availability: 'Confirmed Available',
+          bookingMethod: 'API',
+          cancellationPolicy: 'Full refund 24 hours prior.',
+          environment: 'SANDBOX',
+          isMock: true,
+          metadata: {
+            city: 'Bengaluru',
+            arrivalCity: 'Bengaluru',
+            address: '23 HAL Old Airport Rd, Bengaluru 560008',
+            checkIn: '14:00',
+            checkOut: '12:00',
+          },
+        },
+      ];
+    }
+
+    if (cityUpper.includes('GOA')) {
+      return [
+        {
+          id: `htl-goa-tajexotica-${Date.now()}`,
+          providerId: this.providerId,
+          providerName: 'Taj Exotica Resort & Spa, Goa',
+          title: 'Mediterranean Sea-Facing Villa — Taj Exotica, Benaulim, Goa',
+          description: 'Spread across 56 acres along the pristine Benaulim beach. Private plunge pool, Jiva Spa access, breakfast included.',
+          priceAmount: 32000,
+          priceCurrency: 'INR',
+          priceFormatted: '₹32,000 / night',
+          availability: 'Confirmed Villa Availability',
+          bookingMethod: 'API',
+          cancellationPolicy: 'Complimentary cancellation up to 72 hours prior.',
+          environment: 'SANDBOX',
+          isMock: true,
+          metadata: {
+            city: 'Goa',
+            arrivalCity: 'Goa',
+            address: 'Calwaddo, Benaulim, Goa 403716',
+            checkIn: '15:00',
+            checkOut: '11:00',
+          },
+        },
+      ];
+    }
+
+    // Default: Ahmedabad Luxury Inventory
     return [
       {
         id: `mock-hotel-1-${Date.now()}`,
         providerId: this.providerId,
         providerName: 'ITC Narmada, a Luxury Collection Hotel',
-        title: 'Executive Suite, Bodakdev Ahmedabad',
+        title: `Executive Suite — ITC Narmada, Bodakdev, ${targetCity}`,
         description: 'King bed suite with skyline views, club lounge access, breakfast included.',
         priceAmount: 24000,
         priceCurrency: 'INR',
@@ -132,12 +308,17 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
         cancellationPolicy: 'Full refund 24 hours prior to check-in.',
         environment: 'SANDBOX',
         isMock: true,
+        metadata: {
+          city: targetCity,
+          arrivalCity: targetCity,
+          address: `Bodakdev, ${targetCity}`,
+        },
       },
       {
         id: `mock-hotel-2-${Date.now()}`,
         providerId: this.providerId,
-        providerName: 'Taj Skyline, Ahmedabad',
-        title: 'Luxury King Room - Sindhu Bhavan Road',
+        providerName: 'Taj Skyline',
+        title: `Luxury King Room — Taj Skyline, ${targetCity}`,
         description: 'Contemporary luxury room with city view, complimentary airport transfer.',
         priceAmount: 18500,
         priceCurrency: 'INR',
@@ -147,6 +328,11 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
         cancellationPolicy: 'Non-refundable rate.',
         environment: 'SANDBOX',
         isMock: true,
+        metadata: {
+          city: targetCity,
+          arrivalCity: targetCity,
+          address: `Sindhu Bhavan Road, ${targetCity}`,
+        },
       },
     ];
   }

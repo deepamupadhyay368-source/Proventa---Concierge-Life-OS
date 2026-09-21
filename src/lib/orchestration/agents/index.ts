@@ -1,5 +1,6 @@
 import type { TaskAgentInterface, ExtractedEntities, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
 import { AdapterRegistry } from '../adapters';
+import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
 
 class BaseDomainAgent implements TaskAgentInterface {
   name: string;
@@ -23,21 +24,42 @@ class BaseDomainAgent implements TaskAgentInterface {
     const adapters = AdapterRegistry.getAdaptersForCategory(this.category);
     const proposals: OptionProposal[] = [];
 
+    const constraints = {
+      origin: entities.origin,
+      originAirport: entities.originAirport,
+      destination: entities.destination,
+      destinationAirport: entities.destinationAirport,
+      location: entities.location || entities.destination,
+      dateTime: entities.dateTime,
+      partySize: entities.partySize,
+      budget: entities.budgetRange || entities.budgetAmount,
+      preferences,
+    };
+
     for (const adapter of adapters) {
       const results = await adapter.search({
         category: this.category,
         intent: entities.intent,
         rawInput: entities.rawInput,
-        constraints: {
-          partySize: entities.partySize,
-          budget: entities.budgetRange || entities.budgetAmount,
-          preferences,
-        },
+        constraints,
       });
       proposals.push(...results);
     }
 
-    return this.rankOptions(proposals, preferences);
+    // Deterministic validation: Filter out any proposals violating critical constraints
+    const validProposals = EntityIntegrityValidator.filterProposalsByConstraints(
+      proposals,
+      {
+        category: this.category,
+        destination: entities.destination,
+        destinationAirport: entities.destinationAirport,
+        origin: entities.origin,
+        originAirport: entities.originAirport,
+        location: entities.location,
+      }
+    );
+
+    return this.rankOptions(validProposals, preferences);
   }
 
   rankOptions(options: OptionProposal[], preferences?: Record<string, any>): OptionProposal[] {

@@ -12,7 +12,7 @@ export class AdapterRegistry {
 
   private static init() {
     if (this.initialized) return;
-    this.register('all', new AhmedabadVerifiedAdapter());
+    this.register('dining', new AhmedabadVerifiedAdapter());
     this.register('dining', new SwiggyAdapter());
     this.register('dining', new MockDiningAdapter());
     this.register('food', new SwiggyAdapter());
@@ -47,6 +47,14 @@ export class AdapterRegistry {
     if (adapter.providerId) {
       this.adaptersById.set(adapter.providerId, adapter);
     }
+  }
+
+  static getAdapters(category: string): ProviderAdapterInterface[] {
+    return this.getAdaptersForCategory(category);
+  }
+
+  getAdapters(category: string): ProviderAdapterInterface[] {
+    return AdapterRegistry.getAdaptersForCategory(category);
   }
 
   static getAdaptersForCategory(category: string): ProviderAdapterInterface[] {

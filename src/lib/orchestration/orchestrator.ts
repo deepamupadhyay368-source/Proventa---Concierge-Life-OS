@@ -8,6 +8,7 @@ import { findAgentForTask } from './agents';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
+import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
 import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities } from './types';
 
 export class RequestOrchestrator {
@@ -502,6 +503,35 @@ export class RequestOrchestrator {
     }
     if (!option) {
       throw new Error('No option available to execute for this task');
+    }
+
+    // Pre-Execution Constraint Gate: Verify approved option matches original customer constraints
+    const constraintCheck = EntityIntegrityValidator.verifyPreExecutionConstraints(taskRecord, option);
+    if (!constraintCheck.isValid) {
+      await appendTaskEvent({
+        taskId: taskRecord.id,
+        eventType: 'INTENT_CONSTRAINT_MISMATCH',
+        actorRole: 'SYSTEM',
+        message: constraintCheck.violationReason || 'Pre-execution constraint check failed.',
+        data: {
+          originalRequest: taskRecord.originalRequest,
+          category: taskRecord.category,
+          proposalTitle: option.title,
+          proposalMetadata: option.metadata,
+        },
+      });
+
+      await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'NEEDS_HUMAN',
+          isEscalated: true,
+          executionMethod: 'HUMAN_CONCIERGE',
+          failedReason: constraintCheck.violationReason,
+        },
+      });
+
+      throw new Error(constraintCheck.violationReason);
     }
 
     const assignedAgent = findAgentForTask(taskRecord.category, taskRecord.intent);

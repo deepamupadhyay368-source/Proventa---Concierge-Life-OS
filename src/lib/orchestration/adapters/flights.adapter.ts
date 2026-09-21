@@ -54,21 +54,31 @@ export class FlightsAdapter implements ProviderAdapterInterface {
     const isPremiumEco = rawLower.includes('premium economy');
     const cabinClass = isBusiness ? 'BUSINESS' : isPremiumEco ? 'PREMIUM_ECONOMY' : 'ECONOMY';
 
-    // Origin detection (Default: AMD / Sardar Vallabhbhai Patel International)
-    let origin = 'AMD';
-    const fromMatch = raw.match(/from\s+([A-Za-z\s]+?)(?:\s+to|\s+on|\s+for|$)/i);
-    if (fromMatch) {
-      origin = parseAirportCode(fromMatch[1], 'AMD');
+    // 1. Origin detection (Prioritize structured constraints, fallback to regex, default: AMD)
+    let origin = query.constraints?.originAirport || (query.constraints?.origin ? parseAirportCode(query.constraints.origin, 'AMD') : null);
+    if (!origin) {
+      const fromMatch = raw.match(/from\s+([A-Za-z\s]+?)(?:\s+to|\s+on|\s+for|$)/i);
+      if (fromMatch) {
+        origin = parseAirportCode(fromMatch[1], 'AMD');
+      } else {
+        origin = 'AMD';
+      }
     }
 
-    // Destination detection (Default: BOM / Mumbai)
-    let destination = 'BOM';
-    const toMatch = raw.match(/to\s+([A-Za-z\s]+?)(?:\s+on|\s+for|\s+in|$)/i);
-    if (toMatch) {
-      destination = parseAirportCode(toMatch[1], 'BOM');
-    } else {
-      destination = parseAirportCode(raw, 'BOM');
-      if (destination === origin) destination = origin === 'AMD' ? 'DEL' : 'AMD';
+    // 2. Destination detection (Prioritize structured constraints, fallback to regex, never silently default to BOM if other specified)
+    let destination = query.constraints?.destinationAirport || (query.constraints?.destination ? parseAirportCode(query.constraints.destination, '') : null);
+    if (!destination) {
+      const toMatch = raw.match(/(?:to|flight\s+to|fly\s+to)\s+([A-Za-z\s]+?)(?:\s+(?:on|at|for|by|in|with|class|tomorrow|today|tonight|this|next|\d)|$)/i);
+      if (toMatch) {
+        destination = parseAirportCode(toMatch[1], '');
+      }
+    }
+    if (!destination) {
+      destination = parseAirportCode(raw, 'DEL');
+    }
+
+    if (destination === origin) {
+      destination = origin === 'AMD' ? 'DEL' : 'AMD';
     }
 
     const passengers = query.constraints?.partySize || 1;

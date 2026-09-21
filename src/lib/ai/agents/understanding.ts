@@ -2,6 +2,7 @@ import { getGeminiModel, isAIAvailable } from '../client';
 import { logger } from '@/lib/logger';
 import { TaskDecisionEngine } from '@/lib/capabilities/task-decision-engine';
 import type { ServiceCategory, TaskObjective } from '@/lib/capabilities/types';
+import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
 
 export interface ExtractedRequestData {
   category: string;
@@ -11,6 +12,10 @@ export interface ExtractedRequestData {
   intent: string;
   location?: string;
   destination?: string;
+  origin?: string;
+  originAirport?: string;
+  destinationAirport?: string;
+  provenance?: Record<string, string>;
   dateTime?: string;
   timeframe?: string;
   date?: string;
@@ -96,20 +101,20 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
       ? 'URGENT'
       : 'NORMAL';
 
-  // 5. Extract Locations & Destinations
-  let location: string | undefined = undefined;
-  let destination: string | undefined = undefined;
+  // 5. Deterministic Travel & Location Entity Extraction
+  const deterministic = EntityIntegrityValidator.extractTravelEntities(rawInput);
+  let location: string = deterministic.location?.value || 'Ahmedabad';
+  let destination: string | undefined = deterministic.destination?.value;
+  let origin: string | undefined = deterministic.origin?.value;
+  let originAirport: string | undefined = deterministic.originAirport?.value;
+  let destinationAirport: string | undefined = deterministic.destinationAirport?.value;
 
-  if (lower.includes('ahmedabad')) location = 'Ahmedabad';
-  if (lower.includes('mumbai')) destination = 'Mumbai';
-  else if (lower.includes('delhi')) destination = 'Delhi';
-  else if (lower.includes('bengaluru') || lower.includes('bangalore')) destination = 'Bengaluru';
-  else if (lower.includes('goa')) destination = 'Goa';
-  else if (lower.includes('itc narmada')) destination = 'ITC Narmada, Ahmedabad';
-  else if (lower.includes('agashiye')) destination = 'Agashiye — The House of MG';
-
-  // If destination found but location empty, and location not specified, set default location to Ahmedabad for Cohort 1
-  if (!location) {
+  // Local landmark recognition in Ahmedabad
+  if (lower.includes('itc narmada')) {
+    destination = 'ITC Narmada, Ahmedabad';
+    location = 'Ahmedabad';
+  } else if (lower.includes('agashiye')) {
+    destination = 'Agashiye — The House of MG';
     location = 'Ahmedabad';
   }
 
@@ -139,6 +144,12 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
     compatCategory = 'movies';
   }
 
+  const effectivePartySize = deterministic.partySize?.value || partySize || 2;
+  const rawBudgetVal = deterministic.budget?.value;
+  const effectiveBudget = typeof rawBudgetVal === 'number'
+    ? rawBudgetVal
+    : (typeof rawBudgetVal === 'string' ? parseInt(rawBudgetVal.replace(/[^\d]/g, ''), 10) || undefined : budgetAmount);
+
   const heuristicResult: ExtractedRequestData = {
     category: compatCategory,
     serviceCategory: decision.category,
@@ -147,14 +158,24 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
     intent: rawInput,
     location,
     destination,
+    origin,
+    originAirport,
+    destinationAirport,
+    provenance: {
+      destination: deterministic.destination?.source || 'UNKNOWN',
+      origin: deterministic.origin?.source || 'UNKNOWN',
+      location: deterministic.location?.source || 'INFERRED',
+      partySize: deterministic.partySize?.source || (partySize ? 'EXPLICIT' : 'INFERRED'),
+      budget: deterministic.budget?.source || (budgetRange ? 'EXPLICIT' : 'UNKNOWN'),
+    },
     dateTime,
     timeframe: dateTime,
     date,
     time,
-    partySize: partySize || 2,
-    guests: partySize || 2,
-    budgetRange,
-    budgetAmount,
+    partySize: effectivePartySize,
+    guests: effectivePartySize,
+    budgetRange: budgetRange || (effectiveBudget ? `₹${effectiveBudget.toLocaleString('en-IN')}` : undefined),
+    budgetAmount: effectiveBudget,
     budgetCurrency: 'INR',
     preferences,
     constraints: [],
@@ -180,12 +201,13 @@ Analyze the customer request below and extract a strict JSON object with these k
 - objective: One of [BOOK, SEARCH, RECOMMEND, RESEARCH, COMPARE, CANCEL, INQUIRE, ARRANGE]
 - action: One-word summary of desired action
 - intent: Normalized short sentence stating the core mandate
-- location: Origin or relevant city (default "Ahmedabad" if not stated)
+- origin: Departure city or airport if travel
 - destination: Target destination, hotel, restaurant, or city
+- location: Origin or relevant city
 - date: Day or date of event/booking
 - time: Preferred time
 - dateTime: Combined date and time
-- partySize: Integer count of people/guests (default 2 for dining/travel if unspecified)
+- partySize: Integer count of people/guests
 - budgetRange: String representation of budget if mentioned (e.g. "₹5,000")
 - budgetAmount: Integer numeric budget
 - preferences: Array of extracted preference keywords
@@ -203,6 +225,17 @@ Respond strictly with valid JSON. No markdown ticks, no preamble.`;
     const text = result.response.text().trim().replace(/^```json\s*|\s*```$/g, '');
     const parsed = JSON.parse(text);
 
+    // Reconcile AI extraction with deterministic customer constraints
+    const reconciled = EntityIntegrityValidator.validateAndReconcile({
+      rawInput,
+      aiCategory: parsed.category,
+      aiDestination: parsed.destination || destination,
+      aiOrigin: parsed.origin || origin,
+      aiLocation: parsed.location || location,
+      aiPartySize: parsed.partySize || effectivePartySize,
+      aiBudget: parsed.budgetAmount || parsed.budgetRange || effectiveBudget,
+    });
+
     return {
       ...heuristicResult,
       ...parsed,
@@ -211,8 +244,19 @@ Respond strictly with valid JSON. No markdown ticks, no preamble.`;
       objective: (parsed.objective || heuristicResult.objective) as TaskObjective,
       action: parsed.action || heuristicResult.action,
       intent: parsed.intent || heuristicResult.intent,
-      partySize: parsed.partySize || heuristicResult.partySize,
-      guests: parsed.partySize || heuristicResult.guests,
+      origin: reconciled.origin,
+      destination: reconciled.destination,
+      originAirport: reconciled.originAirport,
+      destinationAirport: reconciled.destinationAirport,
+      location: reconciled.location,
+      partySize: reconciled.partySize || heuristicResult.partySize,
+      guests: reconciled.partySize || heuristicResult.guests,
+      provenance: reconciled.provenance,
+      customerProvidedDetails: {
+        rawInput,
+        mismatchDetected: reconciled.isMismatchDetected,
+        mismatchDetails: reconciled.mismatchDetails,
+      },
       executionRequired: parsed.executionRequired !== undefined ? parsed.executionRequired : heuristicResult.executionRequired,
       approvalRequired: parsed.approvalRequired !== undefined ? parsed.approvalRequired : heuristicResult.approvalRequired,
     };
