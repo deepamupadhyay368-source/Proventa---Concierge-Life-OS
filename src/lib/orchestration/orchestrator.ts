@@ -1509,8 +1509,18 @@ export class RequestOrchestrator {
       const newRaw = params.newRawInput || task.originalRequest;
       const parsed = EntityIntegrityValidator.extractTravelEntities(newRaw);
 
-      const newOrigin = params.newConstraints?.origin || (parsed.originCity ? parsed.originCity : undefined) || entities.origin;
-      const newOriginAirport = params.newConstraints?.originAirport || (parsed.originAirportCode ? parsed.originAirportCode : undefined) || entities.originAirport;
+      // For non-flight categories (hotel, dining, etc.), only use an explicitly stated origin —
+      // never an inferred default (e.g. 'Ahmedabad' inferred when only destination found in text).
+      const isFlightCategory = category.includes('flight') || category.includes('travel') || category.includes('airline');
+      const parsedOriginExplicit = parsed.provenance?.origin === 'EXPLICIT';
+      const useInferredOrigin = isFlightCategory; // Only allow inferred origin for flight searches
+
+      const newOrigin = params.newConstraints?.origin ||
+        ((parsedOriginExplicit || useInferredOrigin) && parsed.originCity ? parsed.originCity : undefined) ||
+        entities.origin;
+      const newOriginAirport = params.newConstraints?.originAirport ||
+        ((parsedOriginExplicit || useInferredOrigin) && parsed.originAirportCode ? parsed.originAirportCode : undefined) ||
+        entities.originAirport;
       const newDest = params.newConstraints?.destination || (parsed.destinationCity ? parsed.destinationCity : undefined) || entities.destination;
       const newDestAirport = params.newConstraints?.destinationAirport || (parsed.destinationAirportCode ? parsed.destinationAirportCode : undefined) || entities.destinationAirport;
       const newLoc = params.newConstraints?.location || newDest || entities.location;
@@ -1529,6 +1539,14 @@ export class RequestOrchestrator {
 
       if (activeBatch) {
         activeBatch.status = 'SUPERSEDED_BY_MODIFICATION';
+        activeBatch.feedback = params.feedback;
+        activeBatch.rejectedOptionIds = currentOptions.map((o) => o.id);
+      }
+
+      for (const opt of currentOptions) {
+        if (!rejectedOptionIds.includes(opt.id)) rejectedOptionIds.push(opt.id);
+        const key = RequestOrchestrator.getOptionStableKey(opt);
+        if (!rejectedOptionKeys.includes(key)) rejectedOptionKeys.push(key);
       }
 
       const assignedAgent = findAgentForTask(category, updatedEntities.intent);
@@ -1536,8 +1554,8 @@ export class RequestOrchestrator {
 
       const validCandidates = RequestOrchestrator.filterAndRankCandidates({
         candidates: rawCandidates,
-        rejectedOptionIds: [],
-        rejectedOptionKeys: [],
+        rejectedOptionIds,
+        rejectedOptionKeys,
         constraints: {
           category,
           destination: updatedEntities.destination,
@@ -1562,6 +1580,8 @@ export class RequestOrchestrator {
         generatedAt: new Date().toISOString(),
         options: selectedOptions,
         status: 'ACTIVE',
+        feedback: params.feedback,
+        rejectedOptionIds: currentOptions.map((o) => o.id),
       };
       batchHistory.push(newBatch);
 
@@ -1578,6 +1598,9 @@ export class RequestOrchestrator {
             ...currentPrefs,
             currentBatchId: nextBatchId,
             batchHistory,
+            rejectedOptionIds,
+            rejectedOptionKeys,
+            lastFeedback: params.feedback,
             preparedContext: {
               ...preparedContext,
               destination: newDest,
