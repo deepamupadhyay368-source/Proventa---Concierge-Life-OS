@@ -21,10 +21,13 @@ export async function POST(
     if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
 
     const isOwner = task.customer?.userId === user.id;
-    const isStaff = user.roles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r));
+    const isStaff = user.roles.some((r) =>
+      ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE_MANAGER', 'CONCIERGE'].includes(r)
+    );
     if (!isOwner && !isStaff) {
       return NextResponse.json({ error: 'Unauthorized to approve task' }, { status: 403 });
     }
+
 
     let selectedOption = body.option;
     if (!selectedOption && body.optionId && Array.isArray(task.proposedOptions)) {

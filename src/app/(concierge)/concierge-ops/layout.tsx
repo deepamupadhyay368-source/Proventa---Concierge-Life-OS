@@ -22,6 +22,12 @@ export default function ConciergeOpsLayout({ children }: { children: React.React
 
           <nav className="flex items-center gap-2 text-xs">
             <Link
+              href="/concierge"
+              className="px-3 py-1.5 rounded-md font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition-colors"
+            >
+              ✦ Concierge Portal (New)
+            </Link>
+            <Link
               href="/concierge-ops/queue"
               className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
                 pathname.startsWith('/concierge-ops/queue')
@@ -29,7 +35,7 @@ export default function ConciergeOpsLayout({ children }: { children: React.React
                   : 'text-neutral-400 hover:text-white'
               }`}
             >
-              Operations Queue
+              Legacy Queue
             </Link>
             <Link
               href="/concierge-ops/agents"

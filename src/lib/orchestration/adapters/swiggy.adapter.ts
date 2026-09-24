@@ -18,6 +18,57 @@ export class SwiggyAdapter implements ProviderAdapterInterface {
     return hasLiveCreds ? 'REAL' : 'SANDBOX';
   }
 
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: true,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: (this.environment === 'REAL' ? 'AUTOMATED' : 'ASSISTED') as any,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    return {
+      quoteAmount: query.budget || 3500,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      quoteId: `SWG-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    logger.info({ externalReferenceId, modifications }, '[SwiggyAdapter] Modifying dining/order booking');
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'CONFIRMED',
+      confirmedDetails: {
+        bookingId: externalReferenceId,
+        modifiedSchedule: modifications.dateTime || 'Updated Time Slot',
+      },
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    logger.info({ externalReferenceId, reason }, '[SwiggyAdapter] Cancelling dining/order reservation');
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `SWG-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'CONFIRMED';
+  }
+
   async search(query: {
     category: string;
     intent?: string;

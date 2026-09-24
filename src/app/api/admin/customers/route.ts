@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { requireSuperAdmin } from '@/lib/auth/session';
+import { requireAdmin } from '@/lib/auth/session';
+import { isAppError } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    await requireSuperAdmin();
+    await requireAdmin();
 
     const searchParams = req.nextUrl.searchParams;
     const query = searchParams.get('q')?.toLowerCase()?.trim();
@@ -27,13 +28,16 @@ export async function GET(req: NextRequest) {
               ],
             }
           : {}),
-        ...(statusFilter ? { status: statusFilter as any } : {}),
+        ...(statusFilter && statusFilter !== 'ALL' ? { status: statusFilter as any } : {}),
       },
       ...(cityFilter ? { city: { equals: cityFilter, mode: 'insensitive' } } : {}),
     };
 
-    const [totalCount, customers] = await Promise.all([
+    const [totalCount, activeCount, pendingCount, suspendedCount, customers] = await Promise.all([
       db.customerProfile.count({ where: whereClause }),
+      db.customerProfile.count({ where: { user: { status: 'ACTIVE' } } }),
+      db.customerProfile.count({ where: { user: { status: 'PENDING_VERIFICATION' } } }),
+      db.customerProfile.count({ where: { user: { status: 'SUSPENDED' } } }),
       db.customerProfile.findMany({
         where: whereClause,
         include: {
@@ -45,6 +49,25 @@ export async function GET(req: NextRequest) {
               phone: true,
               status: true,
               createdAt: true,
+              userRoles: {
+                select: {
+                  role: true,
+                },
+              },
+            },
+          },
+          preferences: {
+            select: {
+              id: true,
+              category: true,
+              key: true,
+              value: true,
+            },
+          },
+          tasks: {
+            select: {
+              id: true,
+              status: true,
             },
           },
           _count: {
@@ -60,19 +83,49 @@ export async function GET(req: NextRequest) {
       }),
     ]);
 
+    const formattedCustomers = customers.map((c) => {
+      const activeTasks = c.tasks.filter((t) => !['COMPLETED', 'CANCELLED', 'FAILED'].includes(t.status)).length;
+      const completedTasks = c.tasks.filter((t) => t.status === 'COMPLETED').length;
+      return {
+        id: c.id,
+        userId: c.userId,
+        city: c.city,
+        preferredComm: c.preferredComm,
+        onboardingCompleted: c.onboardingCompleted,
+        createdAt: c.createdAt,
+        user: c.user,
+        preferencesCount: c.preferences.length,
+        taskStats: {
+          total: c._count.tasks,
+          active: activeTasks,
+          completed: completedTasks,
+        },
+        bookingsCount: c._count.bookings,
+      };
+    });
+
     return NextResponse.json({
       success: true,
       data: {
         totalCount,
+        stats: {
+          total: totalCount,
+          active: activeCount,
+          pending: pendingCount,
+          suspended: suspendedCount,
+        },
         page,
         pageSize,
         totalPages: Math.ceil(totalCount / pageSize),
-        customers,
+        customers: formattedCustomers,
       },
     });
   } catch (error: any) {
+    if (isAppError(error)) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     if (error?.name === 'AuthorizationError' || error?.message?.includes('Authorization')) {
-      return NextResponse.json({ error: 'Unauthorized: SUPER_ADMIN required' }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized: ADMIN privilege required' }, { status: 403 });
     }
     if (error?.name === 'AuthenticationError' || error?.message?.includes('Authentication')) {
       return NextResponse.json({ error: 'Unauthenticated' }, { status: 401 });

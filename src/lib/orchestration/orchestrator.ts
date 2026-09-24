@@ -10,7 +10,13 @@ import { sendBookingConfirmationEmail } from '@/lib/email/sender';
 import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
-import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities, ProposalBatch } from './types';
+
+import { CompositeOrchestrator } from './automation/composite-executor';
+import { IdempotencyEngine } from './automation/idempotency';
+import { getCategoryContract } from './automation/contracts';
+import { AdapterRegistry } from './adapters';
+import { PaymentAutomationEngine } from '@/lib/payments/engine';
+import type { TaskStatus, TaskPriority, OptionProposal, ExtractedEntities, ProposalBatch, ModificationResult, CancellationResult } from './types';
 
 export class RequestOrchestrator {
   /**
@@ -522,8 +528,10 @@ export class RequestOrchestrator {
     option?: OptionProposal;
     optionId?: string;
     userId?: string;
+    skipPaymentGate?: boolean;
+    paymentMethod?: string;
   }) {
-    let { taskId, option, optionId } = params;
+    let { taskId, option, optionId, skipPaymentGate, paymentMethod } = params;
 
     const taskRecord = await db.task.findUnique({
       where: { id: taskId },
@@ -578,6 +586,34 @@ export class RequestOrchestrator {
       });
 
       throw new Error(constraintCheck.violationReason);
+    }
+
+    // Upfront Payment Gate Check
+    const requiresPayment = PaymentAutomationEngine.requiresUpfrontPayment({
+      category: taskRecord.category,
+      option,
+    });
+
+    if (requiresPayment && taskRecord.paymentStatus !== 'CAPTURED' && !skipPaymentGate) {
+      const paymentInit = await PaymentAutomationEngine.initiateTaskPayment({
+        taskId,
+        option,
+        customerId: taskRecord.customerId,
+        userId: params.userId || taskRecord.customer?.userId || taskRecord.customerId,
+        paymentMethod,
+      });
+
+      if (!paymentInit.executedAutomatically) {
+        const updatedPendingTask = await db.task.findUnique({ where: { id: taskId } });
+        return {
+          success: true,
+          status: updatedPendingTask?.status || 'APPROVED',
+          paymentRequired: true,
+          paymentOrder: paymentInit,
+          task: updatedPendingTask || taskRecord,
+          message: 'Payment required before booking execution. Complete payment to dispatch provider booking.',
+        };
+      }
     }
 
     const assignedAgent = findAgentForTask(taskRecord.category, taskRecord.intent);
@@ -729,8 +765,71 @@ export class RequestOrchestrator {
       message: `Executing reservation with ${option.providerName}...`,
     });
 
-    // 1. Execute via Agent & Adapter (resolved strictly by providerId)
-    const execution = await assignedAgent.execute(taskRecord, option);
+    // 1. Composite Multi-Component Orchestration (Weekend Escapes & Travel Packages)
+    if (taskRecord.category === 'weekend_escapes' && Boolean(option.metadata?.isCompositePackage)) {
+      const compositeResult = await CompositeOrchestrator.executeCompositeWeekendEscape({
+        taskId,
+        option,
+        customerName: taskRecord.customer?.user?.name || 'Valued Member',
+        customerPhone: taskRecord.customer?.user?.phone || undefined,
+      });
+
+      const updatedPrefs = {
+        ...existingPrefs,
+        approvedOption: option as any,
+        approvedAt: new Date().toISOString(),
+        compositeFulfillment: compositeResult,
+      };
+
+      if (!compositeResult.allMandatoryFulfilled) {
+        validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+        const escalatedTask = await db.task.update({
+          where: { id: taskId },
+          data: {
+            status: 'NEEDS_HUMAN',
+            executionMethod: 'HUMAN_CONCIERGE',
+            isEscalated: true,
+            approvalStatus: 'APPROVED',
+            clientPreferences: updatedPrefs as any,
+          },
+        });
+        return {
+          success: true,
+          status: 'NEEDS_HUMAN',
+          handedToConcierge: true,
+          task: escalatedTask,
+          compositeResult,
+          message: 'Your Proventa Concierge is personally coordinating the remaining components of your escape.',
+        };
+      }
+
+      validateTransition('EXECUTING', 'COMPLETED');
+      const completedTask = await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'COMPLETED',
+          completedAt: new Date(),
+          approvalStatus: 'APPROVED',
+          externalReferenceId: compositeResult.components[0]?.externalReferenceId || `CMP-${taskId.slice(-6).toUpperCase()}`,
+          clientPreferences: updatedPrefs as any,
+        },
+      });
+
+      return {
+        success: true,
+        status: 'COMPLETED',
+        task: completedTask,
+        compositeResult,
+        message: 'Your luxury weekend escape has been fully confirmed across all components.',
+      };
+    }
+
+    // 2. Execute via Agent & Adapter with Idempotency & Safe Retry Protection
+    const idempotencyKey = IdempotencyEngine.generateIdempotencyKey(taskId, 'EXECUTE', { optionId: option.id });
+    const execution = await IdempotencyEngine.executeWithRetry(
+      { idempotencyKey, actionName: `Execute-${option.providerName}` },
+      () => assignedAgent.execute(taskRecord, option)
+    );
 
     // 1a. Handle Phone Booking / Concierge Call Workflow (e.g. Ahmedabad Verified Network or offline venue)
     if (
@@ -951,6 +1050,37 @@ export class RequestOrchestrator {
       }
 
       if (verification.verified) {
+        // Run Post-Execution Response Safety Gate
+        const postCheck = EntityIntegrityValidator.verifyPostExecutionResponse(taskRecord, execution, option);
+        if (!postCheck.isValid) {
+          validateTransition('VERIFYING', 'NEEDS_HUMAN');
+          const escalatedTask = await db.task.update({
+            where: { id: taskId },
+            data: {
+              status: 'NEEDS_HUMAN',
+              executionMethod: 'HUMAN_CONCIERGE',
+              isEscalated: true,
+              approvalStatus: 'APPROVED',
+              failedReason: postCheck.violationReason || postCheck.reason,
+            },
+          });
+          await appendTaskEvent({
+            taskId,
+            eventType: 'INTENT_CONSTRAINT_MISMATCH',
+            actorRole: 'SYSTEM',
+            message: postCheck.violationReason || postCheck.reason || 'Post-execution validation mismatch.',
+            data: { reason: postCheck.reason },
+          });
+          return {
+            success: false,
+            status: 'NEEDS_HUMAN',
+            handedToConcierge: true,
+            task: escalatedTask,
+            execution,
+            message: 'Post-execution validation failed. Handed to Proventa Concierge.',
+          };
+        }
+
         validateTransition('VERIFYING', 'CONFIRMED');
         const confirmedTask = await db.task.update({
           where: { id: taskId },
@@ -1134,7 +1264,7 @@ export class RequestOrchestrator {
     const entityValid = EntityIntegrityValidator.filterProposalsByConstraints(deduplicated, constraints);
 
     // 4. Hard Constraints (Budget & Party Size)
-    const hardConstraintValid = entityValid.filter((c) => {
+    const hardConstraintValid = entityValid.filter((c: OptionProposal) => {
       if (constraints.budgetAmount && constraints.budgetAmount > 0 && c.priceAmount) {
         if (c.priceAmount > constraints.budgetAmount * 1.35) return false;
       }
@@ -1837,5 +1967,262 @@ export class RequestOrchestrator {
 
     return completedTask;
   }
+
+  /**
+   * Automated / Assisted task modification engine.
+   * Modifies an existing approved/confirmed reservation with provider verification.
+   * If automated API modification is unsupported, seamlessly transitions to Assisted Concierge.
+   */
+  static async modifyApprovedTask(params: {
+    taskId: string;
+    modifications: Record<string, any>;
+    notes?: string;
+    userId?: string;
+  }) {
+    const { taskId, modifications, notes } = params;
+    const taskRecord = await db.task.findUnique({
+      where: { id: taskId },
+      include: { customer: { include: { user: true } } },
+    });
+
+    if (!taskRecord) throw new Error(`Task ${taskId} not found`);
+
+    const contract = getCategoryContract(taskRecord.category);
+    const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
+    const approvedOption = existingPrefs.approvedOption as OptionProposal | undefined;
+    const providerId = approvedOption?.providerId || contract.primaryProviderId;
+    const adapter = AdapterRegistry.getAdapter(providerId);
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'TASK_MODIFICATION_REQUESTED',
+      actorRole: 'CUSTOMER',
+      message: `Modification requested: ${JSON.stringify(modifications)}`,
+      data: { modifications, notes },
+    });
+
+    // Check if adapter supports direct automated modification
+    const canAutomate = Boolean(
+      adapter &&
+      adapter.capabilities?.modify &&
+      typeof adapter.modifyBooking === 'function' &&
+      taskRecord.externalReferenceId
+    );
+
+    if (canAutomate && adapter && taskRecord.externalReferenceId) {
+      try {
+        const idempotencyKey = IdempotencyEngine.generateIdempotencyKey(taskId, 'MODIFY', modifications);
+        const modifyResult = await IdempotencyEngine.executeWithRetry(
+          { idempotencyKey, actionName: `Modify-${adapter.name}` },
+          () => adapter.modifyBooking!(taskRecord.externalReferenceId!, modifications)
+        );
+
+        const updatedPrefs = {
+          ...existingPrefs,
+          modifiedAt: new Date().toISOString(),
+          lastModification: modifications,
+          modificationResult: modifyResult,
+        };
+
+        const updatedTask = await db.task.update({
+          where: { id: taskId },
+          data: {
+            clientPreferences: updatedPrefs as any,
+            updatedAt: new Date(),
+          },
+        });
+
+        await appendTaskEvent({
+          taskId,
+          eventType: 'TASK_MODIFIED',
+          actorRole: 'AI_AGENT',
+          message: `Itinerary modification successfully confirmed with ${adapter.name}.`,
+          data: { modifications, result: modifyResult },
+        });
+
+        // Notify customer
+        try {
+          if (taskRecord.customer?.user?.phone) {
+            await sendWhatsAppNotification({
+              phone: taskRecord.customer.user.phone,
+              template: 'BOOKING_CONFIRMED',
+              params: {
+                name: taskRecord.customer.user.name || 'Member',
+                details: `Modified: ${taskRecord.intent || taskRecord.originalRequest} · Ref: ${taskRecord.externalReferenceId}`,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${taskId}`,
+              },
+            });
+          }
+        } catch (e) {
+          console.error('[Orchestrator.modifyApprovedTask] Notification error:', e);
+        }
+
+        return {
+          success: true,
+          status: 'MODIFIED',
+          automated: true,
+          task: updatedTask,
+          result: modifyResult,
+          message: 'Your reservation has been successfully updated with the provider.',
+        };
+      } catch (err: any) {
+        console.error('[Orchestrator.modifyApprovedTask] Automated modification error, falling back to concierge:', err);
+      }
+    }
+
+    // Fallback: Route to Senior Concierge Desk
+    const escalatedTask = await db.task.update({
+      where: { id: taskId },
+      data: {
+        status: 'NEEDS_HUMAN',
+        executionMethod: 'HUMAN_CONCIERGE',
+        isEscalated: true,
+        clientPreferences: {
+          ...existingPrefs,
+          modificationRequested: modifications,
+          modificationNotes: notes,
+          executionTier: 'ASSISTED',
+        } as any,
+      },
+    });
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'MODIFICATION_ESCALATED_CONCIERGE',
+      actorRole: 'SYSTEM',
+      message: 'Modification requires direct concierge coordination with provider.',
+      data: { modifications, notes },
+    });
+
+    return {
+      success: true,
+      status: 'NEEDS_HUMAN',
+      automated: false,
+      handedToConcierge: true,
+      task: escalatedTask,
+      message: 'Your Proventa Concierge is personally coordinating your requested changes with the venue.',
+    };
+  }
+
+  /**
+   * Automated / Assisted task cancellation engine.
+   * Cancels reservation with genuine provider verification and refund calculation.
+   * If automated cancellation is unsupported, escalates to Assisted Concierge.
+   */
+  static async cancelApprovedTask(params: {
+    taskId: string;
+    reason?: string;
+    userId?: string;
+  }) {
+    const { taskId, reason } = params;
+    const taskRecord = await db.task.findUnique({
+      where: { id: taskId },
+      include: { customer: { include: { user: true } } },
+    });
+
+    if (!taskRecord) throw new Error(`Task ${taskId} not found`);
+
+    const contract = getCategoryContract(taskRecord.category);
+    const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
+    const approvedOption = existingPrefs.approvedOption as OptionProposal | undefined;
+    const providerId = approvedOption?.providerId || contract.primaryProviderId;
+    const adapter = AdapterRegistry.getAdapter(providerId);
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'TASK_CANCELLATION_REQUESTED',
+      actorRole: 'CUSTOMER',
+      message: reason ? `Cancellation requested: ${reason}` : 'Cancellation requested by customer.',
+      data: { reason },
+    });
+
+    // Check if adapter supports direct automated cancellation
+    const canAutomate = Boolean(
+      adapter &&
+      adapter.capabilities?.cancel &&
+      typeof adapter.cancelBooking === 'function' &&
+      taskRecord.externalReferenceId
+    );
+
+    if (canAutomate && adapter && taskRecord.externalReferenceId) {
+      try {
+        const idempotencyKey = IdempotencyEngine.generateIdempotencyKey(taskId, 'CANCEL', { reason });
+        const cancelResult = await IdempotencyEngine.executeWithRetry(
+          { idempotencyKey, actionName: `Cancel-${adapter.name}` },
+          () => adapter.cancelBooking!(taskRecord.externalReferenceId!, reason)
+        );
+
+        validateTransition(taskRecord.status as TaskStatus, 'CANCELLED');
+
+        const updatedPrefs = {
+          ...existingPrefs,
+          cancelledAt: new Date().toISOString(),
+          cancellationReason: reason,
+          cancellationResult: cancelResult,
+        };
+
+        const cancelledTask = await db.task.update({
+          where: { id: taskId },
+          data: {
+            status: 'CANCELLED',
+            clientPreferences: updatedPrefs as any,
+            updatedAt: new Date(),
+          },
+        });
+
+        await appendTaskEvent({
+          taskId,
+          eventType: 'TASK_CANCELLED',
+          actorRole: 'AI_AGENT',
+          message: `Reservation successfully cancelled with ${adapter.name}.`,
+          data: { reason, result: cancelResult },
+        });
+
+        return {
+          success: true,
+          status: 'CANCELLED',
+          automated: true,
+          task: cancelledTask,
+          result: cancelResult,
+          message: 'Your reservation has been cancelled with the provider.',
+        };
+      } catch (err: any) {
+        console.error('[Orchestrator.cancelApprovedTask] Automated cancellation error, falling back to concierge:', err);
+      }
+    }
+
+    // Fallback: Route cancellation to Senior Concierge Desk
+    const escalatedTask = await db.task.update({
+      where: { id: taskId },
+      data: {
+        status: 'NEEDS_HUMAN',
+        executionMethod: 'HUMAN_CONCIERGE',
+        isEscalated: true,
+        clientPreferences: {
+          ...existingPrefs,
+          cancellationReason: reason,
+          executionTier: 'ASSISTED',
+        } as any,
+      },
+    });
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'CANCELLATION_ESCALATED_CONCIERGE',
+      actorRole: 'SYSTEM',
+      message: 'Cancellation requires direct concierge processing with provider.',
+      data: { reason },
+    });
+
+    return {
+      success: true,
+      status: 'NEEDS_HUMAN',
+      automated: false,
+      handedToConcierge: true,
+      task: escalatedTask,
+      message: 'Your Proventa Concierge is personally processing your cancellation and refund.',
+    };
+  }
 }
+
 

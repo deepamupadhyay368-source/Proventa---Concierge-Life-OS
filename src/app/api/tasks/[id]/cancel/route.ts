@@ -23,10 +23,13 @@ export async function POST(
     if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
 
     const isOwner = task.customer?.userId === user.id;
-    const isStaff = user.roles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r));
+    const isStaff = user.roles.some((r) =>
+      ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE_MANAGER', 'CONCIERGE'].includes(r)
+    );
     if (!isOwner && !isStaff) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
+
 
     validateTransition(task.status as any, 'CANCELLED');
 

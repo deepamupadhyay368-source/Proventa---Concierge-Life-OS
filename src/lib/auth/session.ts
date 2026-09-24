@@ -50,24 +50,44 @@ export async function requireAnyRole(roles: UserRole[]): Promise<SessionUser> {
   return user;
 }
 
+export async function requireFounder(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER']);
+}
+
 export async function requireSuperAdmin(): Promise<SessionUser> {
-  return requireRole('SUPER_ADMIN');
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER']);
 }
 
 export async function requireAdmin(): Promise<SessionUser> {
-  return requireAnyRole(['SUPER_ADMIN', 'ADMIN']);
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN']);
+}
+
+export async function requireConciergeManager(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER']);
+}
+
+export async function requireSeniorConcierge(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE']);
+}
+
+export async function requireFinance(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'FINANCE']);
 }
 
 export async function requireSupport(): Promise<SessionUser> {
-  return requireAnyRole(['SUPER_ADMIN', 'ADMIN', 'SUPPORT']);
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'SUPPORT']);
 }
 
 export async function requireConcierge(): Promise<SessionUser> {
-  return requireAnyRole(['SUPER_ADMIN', 'ADMIN', 'CONCIERGE_MANAGER', 'CONCIERGE']);
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE']);
+}
+
+export async function requireEmployee(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE', 'FINANCE', 'SUPPORT']);
 }
 
 export async function requireCustomer(): Promise<SessionUser> {
-  return requireAnyRole(['CUSTOMER', 'SUPER_ADMIN', 'ADMIN']);
+  return requireAnyRole(['CUSTOMER', 'SUPER_ADMIN', 'FOUNDER', 'ADMIN']);
 }
 
 export function hasRole(user: SessionUser, role: UserRole): boolean {
@@ -77,4 +97,5 @@ export function hasRole(user: SessionUser, role: UserRole): boolean {
 export function hasAnyRole(user: SessionUser, roles: UserRole[]): boolean {
   return roles.some((r) => (user.roles ?? []).includes(r));
 }
+
 

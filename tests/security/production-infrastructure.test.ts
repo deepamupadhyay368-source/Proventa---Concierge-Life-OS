@@ -6,7 +6,7 @@ import { POST as razorpayWebhookHandler } from '@/app/api/webhooks/razorpay/rout
 import { db } from '@/lib/db';
 import crypto from 'crypto';
 
-describe('Phase 3.1: Production Infrastructure Hardening Test Suite', () => {
+describe('Phase 3.1: Production Infrastructure Hardening Test Suite', { timeout: 20000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });

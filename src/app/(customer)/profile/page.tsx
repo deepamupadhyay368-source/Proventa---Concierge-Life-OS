@@ -2,6 +2,7 @@ import { requireAuth } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { Shield } from 'lucide-react';
 import { DataControls } from './DataControls';
+import { ProfileEditForm } from './ProfileEditForm';
 
 export default async function ProfilePage() {
   const sessionUser = await requireAuth();
@@ -43,11 +44,11 @@ export default async function ProfilePage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-neutral-100 text-xs">
           <div>
             <span className="text-neutral-400 font-medium block mb-0.5">Primary Location</span>
-            <span className="font-semibold text-neutral-900">{user?.customerProfile?.city || 'Early Access · Cohort 1'}</span>
+            <span className="font-semibold text-neutral-900">{user?.customerProfile?.city || 'Ahmedabad'}</span>
           </div>
           <div>
             <span className="text-neutral-400 font-medium block mb-0.5">Preferred Channel</span>
-            <span className="font-semibold text-neutral-900">{user?.customerProfile?.preferredComm || 'In-App'}</span>
+            <span className="font-semibold text-neutral-900">{user?.customerProfile?.preferredComm || 'IN_APP'}</span>
           </div>
           <div>
             <span className="text-neutral-400 font-medium block mb-0.5">Member Since</span>
@@ -56,6 +57,23 @@ export default async function ProfilePage() {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Profile Settings & Preferences Editor */}
+      <div className="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div>
+          <h2 className="text-base font-semibold text-neutral-900">Edit Profile &amp; Preferences</h2>
+          <p className="text-xs text-neutral-500 mt-0.5">Update your contact details and concierge communication channels.</p>
+        </div>
+        <ProfileEditForm
+          initialUser={{
+            name: user?.name ?? null,
+            email: user?.email ?? '',
+            phone: user?.phone ?? null,
+            city: user?.customerProfile?.city ?? 'Ahmedabad',
+            preferredComm: user?.customerProfile?.preferredComm ?? 'IN_APP',
+          }}
+        />
       </div>
 
       {/* Data Sovereignty & GDPR/DPDP Section */}

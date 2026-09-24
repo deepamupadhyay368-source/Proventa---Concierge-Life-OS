@@ -41,7 +41,7 @@ export interface ExtractedEntities {
   rawInput: string;
 }
 
-export type ExecutionEnvironment = 'REAL' | 'SANDBOX' | 'HUMAN_FALLBACK';
+export type ExecutionEnvironment = 'REAL' | 'SANDBOX' | 'MOCK' | 'CURATED' | 'PHONE' | 'HUMAN_FALLBACK';
 
 export interface OptionProposal {
   id: string;
@@ -113,11 +113,49 @@ export interface TaskAgentInterface {
   verify(execution: ExecutionOutput): Promise<VerificationResult>;
 }
 
+export type TaskAutomationLevel = 'AUTOMATED' | 'ASSISTED' | 'HUMAN_CONCIERGE';
+
+export interface ProviderCapabilities {
+  search: boolean;
+  availability: boolean;
+  quote: boolean;
+  execute: boolean;
+  book?: boolean;
+  modify: boolean;
+  cancel: boolean;
+  getStatus: boolean;
+  status?: boolean;
+  refund?: boolean;
+  environment?: ExecutionEnvironment;
+  automationTier?: TaskAutomationLevel;
+}
+
+export interface CancellationResult {
+  success: boolean;
+  cancellationReference?: string;
+  refundAmount?: number;
+  refundCurrency?: string;
+  status?: 'CANCELLED' | 'PENDING_OPERATOR' | 'FAILED';
+  errorMessage?: string;
+  details?: Record<string, any>;
+}
+
+export interface ModificationResult {
+  success: boolean;
+  modificationReference?: string;
+  newExternalReferenceId?: string;
+  modifiedDetails?: Record<string, any>;
+  priceDifference?: number;
+  status?: 'MODIFIED' | 'PENDING_OPERATOR' | 'FAILED';
+  errorMessage?: string;
+}
+
 export interface ProviderAdapterInterface {
   providerId: string;
   name: string;
   supportedCategories: string[];
   environment?: ExecutionEnvironment;
+  capabilities?: ProviderCapabilities;
   search(query: {
     category: string;
     intent?: string;
@@ -126,11 +164,13 @@ export interface ProviderAdapterInterface {
   }): Promise<OptionProposal[]>;
   getDetails?(providerId: string): Promise<Record<string, any>>;
   checkAvailability?(query: Record<string, any>): Promise<{ available: boolean; slots?: string[]; price?: number }>;
+  getQuote?(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }>;
   createBooking?(proposal: OptionProposal, bookingDetails: Record<string, any>): Promise<ExecutionOutput>;
-  cancelBooking?(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number }>;
-  modifyBooking?(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput>;
+  cancelBooking?(externalReferenceId: string, reason?: string): Promise<CancellationResult | { success: boolean; refundAmount?: number; cancellationReference?: string }>;
+  modifyBooking?(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput | ModificationResult>;
   getBooking?(externalReferenceId: string): Promise<Record<string, any>>;
   getStatus?(externalReferenceId: string): Promise<string>;
   execute(proposal: OptionProposal, bookingDetails: Record<string, any>): Promise<ExecutionOutput>;
-  verify(externalReferenceId: string): Promise<VerificationResult>;
+  verify(externalReferenceId: string | ExecutionOutput): Promise<VerificationResult>;
 }
+

@@ -44,7 +44,6 @@ export default auth(async (req) => {
     pathname.startsWith('/api/wave1') ||
     pathname.startsWith('/_next') ||
     pathname.startsWith('/services') ||
-    pathname.startsWith('/concierge') ||
     pathname.startsWith('/favicon') ||
     pathname.startsWith('/robots.txt') ||
     pathname.startsWith('/sitemap.xml') ||
@@ -61,7 +60,7 @@ export default auth(async (req) => {
 
   // Special handling for admin routes
   if (pathname === '/admin/login') {
-    if (isLoggedIn && userRoles.some((r) => ['SUPER_ADMIN', 'ADMIN', 'SUPPORT'].includes(r))) {
+    if (isLoggedIn && userRoles.some((r) => ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'SUPPORT'].includes(r))) {
       return NextResponse.redirect(new URL('/admin', nextUrl));
     }
     return NextResponse.next();
@@ -70,15 +69,31 @@ export default auth(async (req) => {
   // Allow public routes
   if (isPublic) return NextResponse.next();
 
-  // Admin route protection: must be logged in with SUPER_ADMIN privileges, else go to /admin/login
+  // Admin route protection: must be logged in with admin privileges
   if (pathname.startsWith('/admin')) {
     if (!isLoggedIn) {
       const adminLoginUrl = new URL('/admin/login', nextUrl);
       adminLoginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(adminLoginUrl);
     }
-    if (!userRoles.includes('SUPER_ADMIN')) {
+    if (!userRoles.some((r) => ['SUPER_ADMIN', 'FOUNDER', 'ADMIN'].includes(r))) {
       return NextResponse.redirect(new URL('/admin/login?error=Unauthorized', nextUrl));
+    }
+  }
+
+  // Concierge operations portal protection: employees only
+  const isConciergeRoute = pathname.startsWith('/concierge') || pathname.startsWith('/concierge-ops');
+  if (isConciergeRoute) {
+    if (!isLoggedIn) {
+      const signInUrl = new URL('/sign-in', nextUrl);
+      signInUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+    const isAuthorizedEmployee = userRoles.some((r) =>
+      ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE', 'FINANCE', 'SUPPORT'].includes(r)
+    );
+    if (!isAuthorizedEmployee) {
+      return NextResponse.redirect(new URL('/dashboard', nextUrl));
     }
   }
 
@@ -93,10 +108,6 @@ export default auth(async (req) => {
     const signInUrl = new URL('/sign-in', nextUrl);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
-  }
-
-  if (pathname.startsWith('/concierge-ops') && !userRoles.some((r) => ['SUPER_ADMIN', 'CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r))) {
-    return NextResponse.redirect(new URL('/dashboard', nextUrl));
   }
 
   const response = NextResponse.next();

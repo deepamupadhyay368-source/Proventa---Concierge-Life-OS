@@ -83,6 +83,10 @@ export class AdapterRegistry {
     return this.adaptersById.get(providerId);
   }
 
+  static getAdapter(providerId: string): ProviderAdapterInterface | undefined {
+    return this.getAdapterById(providerId);
+  }
+
   static getAllAdapters(): ProviderAdapterInterface[] {
     this.init();
     return Array.from(this.adaptersById.values());

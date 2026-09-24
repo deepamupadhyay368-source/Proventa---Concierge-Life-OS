@@ -23,15 +23,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password, phone, city, preferredComm, dob, address } = parsed.data;
 
     const normalizedEmail = email.trim().toLowerCase();
+    const cleanPhone = phone ? phone.trim() : null;
     const passwordHash = await hashPassword(password);
 
     // Check for existing user
     const existing = await db.user.findUnique({
       where: { email: normalizedEmail },
-      include: { userRoles: true },
+      include: { userRoles: true, customerProfile: true },
     });
 
     if (existing) {
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
         data: {
           passwordHash,
           name: existing.name || name,
+          phone: cleanPhone || existing.phone,
           status: 'ACTIVE',
           emailVerified: existing.emailVerified ?? new Date(),
         },
@@ -59,8 +61,15 @@ export async function POST(req: NextRequest) {
       // Ensure customer profile exists
       await db.customerProfile.upsert({
         where: { userId: existing.id },
-        update: {},
-        create: { userId: existing.id, city: 'Ahmedabad' },
+        update: {
+          city: city || existing.customerProfile?.city || 'Ahmedabad',
+          preferredComm: preferredComm || existing.customerProfile?.preferredComm || 'IN_APP',
+        },
+        create: {
+          userId: existing.id,
+          city: city || 'Ahmedabad',
+          preferredComm: preferredComm || 'IN_APP',
+        },
       });
 
       void trackEvent({ event: 'account_created', userId: existing.id });
@@ -72,6 +81,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         message: 'Credentials configured successfully. Your account is active.',
         email: updatedUser.email,
+        name: updatedUser.name,
         isAdmin,
       });
     }
@@ -81,6 +91,7 @@ export async function POST(req: NextRequest) {
       data: {
         email: normalizedEmail,
         name,
+        phone: cleanPhone,
         passwordHash,
         status: 'ACTIVE',
         emailVerified: new Date(),
@@ -90,7 +101,38 @@ export async function POST(req: NextRequest) {
     });
 
     // Create customer profile
-    await db.customerProfile.create({ data: { userId: user.id, city: 'Ahmedabad' } });
+    const profile = await db.customerProfile.create({
+      data: {
+        userId: user.id,
+        city: city || 'Ahmedabad',
+        preferredComm: preferredComm || 'IN_APP',
+      },
+    });
+
+    // If initial address or dob provided, record as initial preferences
+    if (address) {
+      await db.customerPreference.create({
+        data: {
+          customerId: profile.id,
+          category: 'general',
+          key: 'residence_address',
+          value: { address },
+          source: 'explicit',
+        },
+      });
+    }
+
+    if (dob) {
+      await db.customerPreference.create({
+        data: {
+          customerId: profile.id,
+          category: 'personal',
+          key: 'date_of_birth',
+          value: { dob },
+          source: 'explicit',
+        },
+      });
+    }
 
     void trackEvent({ event: 'account_created', userId: user.id });
     void createAuditLog({ actorId: user.id, action: 'CREATE', resourceType: 'User', resourceId: user.id });
@@ -98,7 +140,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: 'Account created and activated successfully.',
-        email: user.email,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          phone: user.phone,
+        },
         isAdmin: false,
       },
       { status: 201 },

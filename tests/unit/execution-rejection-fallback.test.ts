@@ -108,6 +108,7 @@ describe('Execution Rejection Fix & Human Concierge Fallback Suite', () => {
       intent: 'Book luxury hotel in Delhi',
       originalRequest: 'Book luxury hotel in Delhi',
       status: 'AWAITING_APPROVAL',
+      paymentStatus: 'CAPTURED',
       executionMethod: 'API',
       customerId: 'cust-123',
       clientPreferences: {
@@ -424,6 +425,7 @@ describe('Execution Rejection Fix & Human Concierge Fallback Suite', () => {
       id: 'task-preservation-1',
       publicId: 'TSK-0100',
       status: 'AWAITING_APPROVAL',
+      paymentStatus: 'CAPTURED',
       category: 'travel',
       intent: 'Fly from Ahmedabad to Delhi business class for 2 passengers',
       originalRequest: 'Fly from Ahmedabad to Delhi business class for 2 passengers',

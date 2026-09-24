@@ -11,6 +11,54 @@ export class CinemaAdapter implements ProviderAdapterInterface {
     return hasLiveKeys ? 'REAL' : 'SANDBOX';
   }
 
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: false,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: (this.environment === 'REAL' ? 'AUTOMATED' : 'ASSISTED') as any,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    const tickets = Number(query.numberOfTickets) || 2;
+    return {
+      quoteAmount: 950 * tickets,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+      quoteId: `CIN-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: false,
+      providerId: this.providerId,
+      providerName: this.name,
+      status: 'NEEDS_OPERATOR',
+      errorMessage: 'Direct cinema ticket showtime modification not supported by box office API; cancellation & rebooking required.',
+      confirmedDetails: {},
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    logger.info({ externalReferenceId, reason }, '[CinemaAdapter] Processing cinema ticket cancellation');
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `CIN-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'BOOKED_CONFIRMED';
+  }
+
   async search(query: {
     category: string;
     intent?: string;

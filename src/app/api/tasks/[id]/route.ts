@@ -21,9 +21,11 @@ export async function GET(
 
     if (!task) return NextResponse.json({ error: 'Task not found' }, { status: 404 });
 
-    // IDOR Protection: Must be task owner or Concierge/Admin
+    // IDOR Protection: Must be task owner or Concierge/Admin/SuperAdmin
     const isOwner = task.customer?.userId === user.id;
-    const isStaff = user.roles.some((r) => ['CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN'].includes(r));
+    const isStaff = user.roles.some((r) =>
+      ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE_MANAGER', 'CONCIERGE'].includes(r)
+    );
 
     if (!isOwner && !isStaff) {
       return NextResponse.json({ error: 'Unauthorized access to task' }, { status: 403 });
@@ -44,6 +46,9 @@ export async function GET(
 
     return NextResponse.json({ task });
   } catch (error: any) {
+    if (error?.statusCode) {
+      return NextResponse.json({ error: error.message }, { status: error.statusCode });
+    }
     return NextResponse.json({ error: error.message || 'Unauthorized' }, { status: 401 });
   }
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import { requireSuperAdmin } from '@/lib/auth/session';
+import { requireAdmin } from '@/lib/auth/session';
 import {
   ArrowLeft,
   User,
@@ -29,11 +29,14 @@ export default async function AdminCustomerDetailPage({
 }: {
   params: Promise<{ id: string }> | { id: string };
 }) {
-  await requireSuperAdmin();
+  await requireAdmin();
   const resolvedParams = await Promise.resolve(params);
 
-  const customer = await db.customerProfile.findUnique({
-    where: { id: resolvedParams.id },
+  const customer = await db.customerProfile.findFirst({
+    where: {
+      OR: [{ id: resolvedParams.id }, { userId: resolvedParams.id }],
+    },
+
     include: {
       user: {
         select: {

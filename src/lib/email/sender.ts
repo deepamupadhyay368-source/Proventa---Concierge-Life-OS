@@ -369,3 +369,102 @@ function buildBookingConfirmationEmail(params: BookingConfirmationEmailParams): 
 </p>
 </div>`);
 }
+
+export async function sendPaymentRequiredEmail(params: {
+  email: string;
+  name: string;
+  title: string;
+  amountFormatted: string;
+  actionUrl: string;
+}) {
+  await dispatchEmail({
+    to: params.email,
+    subject: `Payment Authorization Required: ${params.title} · ${params.amountFormatted}`,
+    html: emailWrapper(`
+<div class="card">
+<div style="display:inline-block;padding:4px 10px;background:#fef3c7;color:#92400e;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
+  PAYMENT AUTHORIZATION REQUIRED
+</div>
+<h2>Payment Required for Dispatch</h2>
+<p>Hello ${params.name},</p>
+<p>Your approved lifestyle arrangement for <strong>${params.title}</strong> is ready for booking dispatch upon payment authorization of <strong>${params.amountFormatted}</strong>.</p>
+<a href="${params.actionUrl}" class="cta">Authorize & Pay via Secure Checkout</a>
+<p style="font-size:13px;color:#928f88;">Payments are securely processed via Razorpay with encrypted UPI & card settlement.</p>
+</div>`),
+  });
+}
+
+export async function sendPaymentConfirmedEmail(params: {
+  email: string;
+  name: string;
+  title: string;
+  amountFormatted: string;
+  paymentRef: string;
+  actionUrl: string;
+}) {
+  await dispatchEmail({
+    to: params.email,
+    subject: `Payment Confirmed: ${params.title} · Ref #${params.paymentRef}`,
+    html: emailWrapper(`
+<div class="card">
+<div style="display:inline-block;padding:4px 10px;background:#ecfdf5;color:#047857;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
+  PAYMENT CONFIRMED & CAPTURED
+</div>
+<h2>Payment Verified Successfully</h2>
+<p>Hello ${params.name},</p>
+<p>We've received your payment of <strong>${params.amountFormatted}</strong> (Ref #${params.paymentRef}) for <strong>${params.title}</strong>.</p>
+<p>Your provider reservation has been dispatched for authoritative execution.</p>
+<a href="${params.actionUrl}" class="cta">Track Live Execution Status</a>
+</div>`),
+  });
+}
+
+export async function sendExecutionFailureEmail(params: {
+  email: string;
+  name: string;
+  title: string;
+  reason: string;
+  actionUrl: string;
+}) {
+  await dispatchEmail({
+    to: params.email,
+    subject: `Concierge Desk Update: ${params.title}`,
+    html: emailWrapper(`
+<div class="card">
+<div style="display:inline-block;padding:4px 10px;background:#fee2e2;color:#991b1b;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
+  CONCIERGE ASSISTANCE INITIATED
+</div>
+<h2>Your Concierge is Handling Your Request</h2>
+<p>Hello ${params.name},</p>
+<p>While processing <strong>${params.title}</strong>, our automated provider gateway encountered a condition requiring direct desk coordination: <em>${params.reason}</em>.</p>
+<p>Your Senior Concierge has claimed this request to complete the reservation directly with the venue.</p>
+<a href="${params.actionUrl}" class="cta">View Live Concierge Updates</a>
+</div>`),
+  });
+}
+
+export async function sendCancellationRefundEmail(params: {
+  email: string;
+  name: string;
+  title: string;
+  refundAmountFormatted?: string;
+  cancellationRef: string;
+  actionUrl: string;
+}) {
+  await dispatchEmail({
+    to: params.email,
+    subject: `Cancelled & Refund Initiated: ${params.title} · Ref #${params.cancellationRef}`,
+    html: emailWrapper(`
+<div class="card">
+<div style="display:inline-block;padding:4px 10px;background:#f1f5f9;color:#475569;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
+  CANCELLATION PROCESSED
+</div>
+<h2>Reservation Cancelled</h2>
+<p>Hello ${params.name},</p>
+<p>Your reservation for <strong>${params.title}</strong> has been cancelled under reference <strong>#${params.cancellationRef}</strong>.</p>
+${params.refundAmountFormatted ? `<p>A refund of <strong>${params.refundAmountFormatted}</strong> has been initiated back to your original payment method.</p>` : ''}
+<a href="${params.actionUrl}" class="cta">View Activity in Dashboard</a>
+</div>`),
+  });
+}
+

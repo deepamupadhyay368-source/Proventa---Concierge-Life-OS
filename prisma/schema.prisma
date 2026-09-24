@@ -25,10 +25,13 @@ enum UserStatus {
 
 enum UserRole {
   SUPER_ADMIN
+  FOUNDER
   ADMIN
   SUPPORT
   CONCIERGE_MANAGER
+  SENIOR_CONCIERGE
   CONCIERGE
+  FINANCE
   CUSTOMER
 }
 
@@ -227,6 +230,24 @@ enum CommunicationPreference {
   WHATSAPP
   SMS
 }
+
+enum MandateStatus {
+  NOT_CONFIGURED
+  PENDING
+  ACTIVE
+  PAUSED
+  REVOKED
+  FAILED
+  EXPIRED
+}
+
+enum PaymentMethodType {
+  UPI_AUTOPAY
+  UPI
+  CARD
+  NETBANKING
+}
+
 
 // ============================================================
 // IDENTITY & AUTH
@@ -589,16 +610,41 @@ model CustomerProfile {
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt
 
-  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  preferences CustomerPreference[]
-  requests    ConciergeRequest[]
-  approvals   Approval[]
-  bookings    Booking[]
-  payments    Payment[]
-  feedback    Feedback[]
-  tasks       Task[]
+  user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferences    CustomerPreference[]
+  requests       ConciergeRequest[]
+  approvals      Approval[]
+  bookings       Booking[]
+  payments       Payment[]
+  feedback       Feedback[]
+  tasks          Task[]
+  paymentProfile CustomerPaymentProfile?
 
   @@map("customer_profiles")
+}
+
+model CustomerPaymentProfile {
+  id                     String            @id @default(cuid())
+  customerId             String            @unique
+  paymentProvider        String            @default("RAZORPAY")
+  providerCustomerId     String?
+  preferredPaymentMethod PaymentMethodType @default(UPI)
+  mandateStatus          MandateStatus     @default(NOT_CONFIGURED)
+  mandateReference       String?           // Razorpay subscription / order / mandate ID
+  mandateMaxAmount       Int?              @default(5000000) // In paise, default ₹50,000 max mandate
+  mandateVpa             String?           // Masked VPA handle e.g. user@okhdfcbank
+  mandateBank            String?           // Bank name if available
+  mandateCreatedAt       DateTime?
+  mandateApprovedAt      DateTime?
+  mandateRevokedAt       DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@index([customerId])
+  @@index([mandateStatus])
+  @@map("customer_payment_profiles")
 }
 
 model CustomerPreference {
@@ -617,6 +663,7 @@ model CustomerPreference {
   @@index([customerId])
   @@map("customer_preferences")
 }
+
 
 // ============================================================
 // CONCIERGE OPERATIONS
@@ -938,29 +985,39 @@ model BookingEvent {
 // ============================================================
 
 model Payment {
-  id              String        @id @default(cuid())
-  bookingId       String        @unique
-  customerId      String
-  amount          Int           // In paise (INR)
-  currency        String        @default("INR")
-  status          PaymentStatus @default(PENDING)
-  idempotencyKey  String        @unique
-  providerRef     String?       // Razorpay payment ID
-  providerOrderId String?       // Razorpay order ID
-  method          String?       // card, upi, netbanking, etc.
-  metadata        Json?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id               String        @id @default(cuid())
+  bookingId        String?       @unique
+  taskId           String?
+  customerId       String
+  approvedOptionId String?
+  amount           Int           // In paise (INR)
+  currency         String        @default("INR")
+  status           PaymentStatus @default(PENDING)
+  idempotencyKey   String        @unique
+  providerRef      String?       // Razorpay payment ID
+  providerOrderId  String?       // Razorpay order ID
+  method           String?       // card, upi, upi_autopay, netbanking, etc.
+  refundStatus     RefundStatus  @default(NONE)
+  refundAmount     Int?          @default(0)
+  refundRef        String?
+  failureReason    String?
+  receiptUrl       String?
+  metadata         Json?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
 
-  booking  Booking         @relation(fields: [bookingId], references: [id])
-  customer CustomerProfile @relation(fields: [customerId], references: [id])
+  booking  Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  task     Task?           @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  customer CustomerProfile @relation(fields: [customerId], references: [id], onDelete: Cascade)
   events   PaymentEvent[]
 
   @@index([customerId])
+  @@index([taskId])
   @@index([status])
   @@index([idempotencyKey])
   @@map("payments")
 }
+
 
 model PaymentEvent {
   id        String   @id @default(cuid())
@@ -1250,11 +1307,13 @@ model Task {
   request             ConciergeRequest?   @relation(fields: [requestId], references: [id], onDelete: SetNull)
   parentTask          Task?               @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: SetNull)
   subtasks            Task[]              @relation("TaskSubtasks")
-  events              TaskEvent[]
-  agentRuns           AgentRunRecord[]
+  events               TaskEvent[]
+  agentRuns            AgentRunRecord[]
   externalTransactions ExternalTransaction[]
-  planSteps           TaskPlanStep[]
-  executionTraces     AgentExecutionTrace[]
+  planSteps            TaskPlanStep[]
+  executionTraces      AgentExecutionTrace[]
+  payments             Payment[]
+
 
   @@index([customerId])
   @@index([parentTaskId])

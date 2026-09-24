@@ -725,6 +725,7 @@ describe('Iterative 5-Option Recommendation Cycle Suite (20 Acceptance Tests)', 
       intent: 'Air India flight AMD to DEL',
       originalRequest: 'Air India flight AMD to DEL',
       status: 'AWAITING_APPROVAL',
+      paymentStatus: 'CAPTURED',
       customerId: 'cust-1',
       clientPreferences: {},
     };

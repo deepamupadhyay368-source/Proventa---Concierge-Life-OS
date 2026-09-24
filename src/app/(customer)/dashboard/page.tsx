@@ -14,8 +14,10 @@ import {
   ChevronRight,
   ListTodo,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  Plus
 } from 'lucide-react';
+import { getWelcomeMessage } from '@/lib/auth/greeting';
 
 function DashboardContent() {
   const router = useRouter();
@@ -27,20 +29,28 @@ function DashboardContent() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [requests, setRequests] = useState<any[]>([]);
+  const [userProfile, setUserProfile] = useState<{ name?: string | null; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/tasks')
-      .then((res) => res.json())
-      .then((tasksData) => {
-        if (tasksData.tasks) setTasks(tasksData.tasks);
+    Promise.all([
+      fetch('/api/tasks')
+        .then((res) => (res.ok ? res.json() : { tasks: [] }))
+        .catch(() => ({ tasks: [] })),
+      fetch('/api/customer/profile')
+        .then((res) => (res.ok ? res.json() : null))
+        .catch(() => null),
+    ])
+      .then(([tasksData, profileData]) => {
+        if (tasksData?.tasks) setTasks(tasksData.tasks);
+        if (profileData?.profile) setUserProfile(profileData.profile);
         setLoading(false);
       })
       .catch(() => {
         setLoading(false);
       });
   }, []);
+
 
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -117,8 +127,52 @@ function DashboardContent() {
   const pendingApprovals = tasks.filter((t) => t.status === 'AWAITING_APPROVAL');
   const confirmedTasks = tasks.filter((t) => ['CONFIRMED', 'COMPLETED'].includes(t.status));
 
+  const welcomeGreeting = getWelcomeMessage({
+    name: userProfile?.name,
+    isFirstLogin: isWelcome,
+  });
+
   return (
     <div className="space-y-8 pb-12">
+      {/* Premium Personalized Welcome Header */}
+      <section className="pt-2 pb-1 border-b border-neutral-200/80">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-brand-50 text-brand-900 border border-brand-200">
+                <Sparkles className="h-3 w-3 text-brand-700" />
+                <span>Private Member Dashboard</span>
+              </span>
+              <span className="text-xs text-neutral-400 font-mono">
+                {new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
+              </span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-neutral-900 animate-fade-in">
+              {welcomeGreeting.title}
+            </h1>
+            <p className="text-sm text-neutral-500 mt-1 font-sans">
+              {welcomeGreeting.subtitle}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById('new-request');
+                el?.scrollIntoView({ behavior: 'smooth' });
+                const textarea = el?.querySelector('textarea');
+                textarea?.focus();
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-medium transition-colors shadow-xs"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>New Request</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
       {isWelcome && (
         <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl text-sm text-brand-900 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -132,11 +186,12 @@ function DashboardContent() {
       <section id="new-request" className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm">
         <div className="mb-4">
           <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Concierge Life OS</p>
-          <h1 className="text-2xl font-semibold text-neutral-900 mt-1">What can we take care of?</h1>
+          <h2 className="text-2xl font-semibold text-neutral-900 mt-1">What can we take care of?</h2>
           <p className="text-xs text-neutral-500 mt-1">
             Plain language. No category selection required. A concierge will review and verify every detail.
           </p>
         </div>
+
 
         {errorMessage && (
           <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2.5 animate-fade-in">

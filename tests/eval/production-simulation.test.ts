@@ -174,6 +174,7 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
       const approvalRes = await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-flight',
         option: approvedOption,
+        skipPaymentGate: true,
       });
 
       expect(approvalRes.success).toBe(true);
@@ -271,6 +272,7 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
       await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-hotel',
         option: selectedHotel,
+        skipPaymentGate: true,
       });
 
       // 4. Concierge Desk Claims, Logs Provider Call, and Enters Authentic Reservation
@@ -352,6 +354,7 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
       await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-dine',
         option: approvedTable,
+        skipPaymentGate: true,
       });
 
       // 4. Operator logs contact with restaurant reservations and records table
@@ -420,6 +423,7 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
       await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-weekend',
         option: retreatOption,
+        skipPaymentGate: true,
       });
 
       // 3. Complete via Concierge Desk
@@ -481,6 +485,7 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
       const execRes = await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-gift',
         option: approvedGift,
+        skipPaymentGate: true,
       });
 
       // Deliverable or concierge completed

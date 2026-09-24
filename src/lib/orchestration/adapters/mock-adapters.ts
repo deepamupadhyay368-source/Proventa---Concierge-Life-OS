@@ -386,6 +386,56 @@ export class MockDiningAdapter implements ProviderAdapterInterface {
     };
   }
 
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: true,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: 'AUTOMATED' as const,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    return {
+      quoteAmount: 5000,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      quoteId: `DIN-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'CONFIRMED',
+      confirmedDetails: {
+        reference: externalReferenceId,
+        modifiedTime: modifications.dateTime || modifications.time || '19:30',
+        status: 'MODIFIED_CONFIRMED',
+      },
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `DIN-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'SEATED_CONFIRMED';
+  }
+
   async verify(referenceId: string): Promise<VerificationResult> {
     return {
       verified: true,
@@ -1471,6 +1521,58 @@ export class MockHotelAdapter implements ProviderAdapterInterface {
     };
   }
 
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: true,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: 'AUTOMATED' as const,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    const rate = query.rate || 18500;
+    const nights = Number(query.nights) || 1;
+    return {
+      quoteAmount: rate * nights,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      quoteId: `HTL-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'CONFIRMED',
+      confirmedDetails: {
+        bookingRef: externalReferenceId,
+        modifiedDates: modifications.checkInDate || 'Updated Dates',
+        status: 'MODIFIED_CONFIRMED',
+      },
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `HTL-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'HOTEL_CONFIRMED';
+  }
+
   async verify(referenceId: string): Promise<VerificationResult> {
     return {
       verified: true,
@@ -1538,6 +1640,56 @@ export class MockMobilityAdapter implements ProviderAdapterInterface {
         pickupTime: details.scheduledTime || 'Promptly as requested',
       },
     };
+  }
+
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: true,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: 'AUTOMATED' as const,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    return {
+      quoteAmount: query.budget || 2500,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+      quoteId: `MOB-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'CONFIRMED',
+      confirmedDetails: {
+        bookingId: externalReferenceId,
+        modifiedPickup: modifications.pickupTime || 'Updated Pickup Time',
+        status: 'MODIFIED_CONFIRMED',
+      },
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `MOB-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'CHAUFFEUR_ASSIGNED';
   }
 
   async verify(referenceId: string): Promise<VerificationResult> {
@@ -1911,6 +2063,55 @@ export class MockShoppingAdapter implements ProviderAdapterInterface {
     };
   }
 
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: false,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: 'AUTOMATED' as const,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    return {
+      quoteAmount: query.budget || 7500,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      quoteId: `GFT-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'CONFIRMED',
+      confirmedDetails: {
+        orderId: externalReferenceId,
+        modifiedAddress: modifications.deliveryAddress || 'Client Residence',
+      },
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `GFT-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'DISPATCHED_IN_TRANSIT';
+  }
+
   async verify(referenceId: string): Promise<VerificationResult> {
     return {
       verified: true,
@@ -2277,6 +2478,56 @@ export class MockResearchPlanningAdapter implements ProviderAdapterInterface {
         content: proposal.description,
       },
     };
+  }
+
+  get capabilities() {
+    return {
+      search: true,
+      availability: false,
+      quote: false,
+      execute: true,
+      modify: true,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: 'AUTOMATED' as const,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    return {
+      quoteAmount: 0,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      quoteId: `PLN-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'CONFIRMED',
+      confirmedDetails: {
+        deliverableType: 'CURATED_DOSSIER_MODIFIED',
+        modifications,
+        status: 'UPDATED',
+      },
+    };
+  }
+
+  async cancelBooking(externalReferenceId: string, reason?: string): Promise<{ success: boolean; refundAmount?: number; cancellationReference?: string }> {
+    return {
+      success: true,
+      refundAmount: 0,
+      cancellationReference: `PLN-CNX-${externalReferenceId}`,
+    };
+  }
+
+  async getStatus(externalReferenceId: string): Promise<string> {
+    return 'DOSSIER_DELIVERED';
   }
 
   async verify(referenceId: string): Promise<VerificationResult> {

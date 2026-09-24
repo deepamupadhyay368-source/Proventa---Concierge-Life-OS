@@ -566,5 +566,77 @@ export class EntityIntegrityValidator {
       errors,
     };
   }
+
+  /**
+   * Validates returned provider execution response against original task constraints.
+   * Detects post-execution INTENT_CONSTRAINT_MISMATCH.
+   */
+  static verifyPostExecutionResponse(
+    task: any,
+    execution: any,
+    option?: any
+  ): { isValid: boolean; mismatchDetected?: boolean; reason?: string; violationReason?: string } {
+    if (!execution || !execution.success) {
+      return { isValid: false, reason: execution?.errorMessage || 'Provider execution was not successful' };
+    }
+
+    const prefs = (task?.clientPreferences || {}) as Record<string, any>;
+    const prep = prefs.preparedContext || {};
+    const confirmed = execution.confirmedDetails || {};
+
+    const requestedDest = (
+      task?.destination ||
+      task?.destinationAirport ||
+      task?.location ||
+      prep.destination ||
+      prep.destinationAirport ||
+      prep.location ||
+      ''
+    ).toUpperCase();
+
+    // 1. Flight destination mismatch verification
+    if (requestedDest && (confirmed.arrivalAirport || confirmed.destination || confirmed.arrivalCity)) {
+      const expected = this.resolveCityAirport(requestedDest);
+      const arr = (confirmed.arrivalAirport || confirmed.destination || confirmed.arrivalCity || '').toUpperCase();
+      if (expected) {
+        const resolvedArr = this.resolveCityAirport(arr);
+        if (resolvedArr && resolvedArr.code !== expected.code) {
+          const reason = `Post-Execution Safety Gate Violation: Requested destination was ${expected.city} (${expected.code}), but provider confirmed for ${resolvedArr.city} (${resolvedArr.code}).`;
+          return { isValid: false, mismatchDetected: true, reason, violationReason: reason };
+        }
+      }
+    }
+
+    // 2. Hotel location mismatch verification
+    if (requestedDest && (task?.category?.includes('hotel') || option?.providerId?.includes('hotel'))) {
+      const hotelLoc = `${confirmed.city || ''} ${confirmed.location || ''} ${confirmed.address || ''} ${confirmed.hotelName || ''}`.toUpperCase();
+      const expected = this.resolveCityAirport(requestedDest);
+      if (expected && hotelLoc) {
+        const otherCities = ['AHMEDABAD', 'MUMBAI', 'DELHI', 'BENGALURU', 'GOA'].filter(c => c !== expected.city.toUpperCase());
+        for (const other of otherCities) {
+          if (hotelLoc.includes(other) && !hotelLoc.includes(expected.city.toUpperCase())) {
+            const reason = `Post-Execution Safety Gate Violation: Requested hotel city was ${expected.city}, but provider confirmed booking in ${other}.`;
+            return { isValid: false, mismatchDetected: true, reason, violationReason: reason };
+          }
+        }
+      }
+    }
+
+    // 3. Synthetic reference marker detection in confirmed reference
+    const ref = (execution.externalReferenceId || '').toUpperCase();
+    if (
+      ref.startsWith('PV-') ||
+      ref.startsWith('MOCK-') ||
+      ref.startsWith('DEMO-') ||
+      ref.startsWith('FAKE-') ||
+      ref.startsWith('TEST-')
+    ) {
+      const reason = `Post-Execution Zero-Fabrication Violation: Synthetic confirmation reference "${ref}" detected.`;
+      return { isValid: false, mismatchDetected: true, reason, violationReason: reason };
+    }
+
+    return { isValid: true };
+  }
 }
+
 

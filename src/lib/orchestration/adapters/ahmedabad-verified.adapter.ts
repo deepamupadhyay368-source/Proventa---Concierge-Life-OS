@@ -4,7 +4,7 @@ import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, Verific
 export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
   readonly providerId = 'ahmedabad_verified';
   name = 'Ahmedabad Verified Provider Network';
-  environment: 'REAL' = 'REAL';
+  readonly environment: 'REAL' = 'REAL';
   supportedCategories = [
     'dining',
     'travel',
@@ -19,6 +19,44 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
     'hotel',
     'other',
   ];
+
+  get capabilities() {
+    return {
+      search: true,
+      availability: true,
+      quote: true,
+      execute: true,
+      modify: true,
+      cancel: true,
+      getStatus: true,
+      environment: this.environment,
+      automationTier: 'ASSISTED' as const,
+    };
+  }
+
+  async getQuote(query: Record<string, any>): Promise<{ quoteAmount: number; currency: string; validUntil?: string; quoteId?: string }> {
+    return {
+      quoteAmount: query.budget || 2500,
+      currency: 'INR',
+      validUntil: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      quoteId: `AMD-QUOTE-${Date.now().toString().slice(-6)}`,
+    };
+  }
+
+  async modifyBooking(externalReferenceId: string, modifications: Record<string, any>): Promise<ExecutionOutput> {
+    return {
+      success: true,
+      providerId: this.providerId,
+      externalReferenceId,
+      providerName: this.name,
+      status: 'AWAITING_CONCIERGE_CALL',
+      confirmedDetails: {
+        reference: externalReferenceId,
+        modifications,
+        status: 'AWAITING_CONCIERGE_CALL',
+      },
+    };
+  }
 
   async search(query: {
     category: string;

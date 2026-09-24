@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
-import { requireSuperAdmin } from '@/lib/auth/session';
+import { requireAdmin } from '@/lib/auth/session';
 import {
   Users,
   Search,
@@ -25,7 +25,8 @@ export default async function AdminCustomersPage({
 }: {
   searchParams?: { q?: string; status?: string; city?: string; page?: string };
 }) {
-  await requireSuperAdmin();
+  await requireAdmin();
+
 
   const query = searchParams?.q?.toLowerCase()?.trim();
   const statusFilter = searchParams?.status;

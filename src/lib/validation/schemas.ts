@@ -6,10 +6,12 @@ import { z } from 'zod';
 
 export const emailSchema = z
   .string()
+  .trim()
   .email('Please enter a valid email address')
   .min(5)
   .max(254)
   .toLowerCase();
+
 
 export const passwordSchema = z
   .string()
@@ -29,15 +31,23 @@ export const phoneSchema = z
   .optional()
   .or(z.literal(''));
 
-export const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
-  email: emailSchema,
-  password: passwordSchema,
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
-  path: ['confirmPassword'],
-});
+export const registerSchema = z
+  .object({
+    name: z.string().min(2, 'Name must be at least 2 characters').max(100),
+    email: emailSchema,
+    password: passwordSchema,
+    confirmPassword: z.string().optional(),
+    phone: phoneSchema.optional(),
+    city: z.string().optional(),
+    preferredComm: z.enum(['IN_APP', 'EMAIL', 'WHATSAPP', 'SMS']).optional(),
+    dob: z.string().optional(),
+    address: z.string().optional(),
+  })
+  .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  });
+
 
 export const loginSchema = z.object({
   email: emailSchema,

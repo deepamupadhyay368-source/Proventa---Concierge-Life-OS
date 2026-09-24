@@ -341,6 +341,7 @@ describe('Post-Approval Task Completion Engine', () => {
       const result = await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-auto-1',
         optionId: 'opt-air-india-1',
+        skipPaymentGate: true,
       });
 
       expect(result.success).toBe(true);
@@ -413,6 +414,7 @@ describe('Post-Approval Task Completion Engine', () => {
       const result = await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-phone-1',
         optionId: 'opt-phone-aga',
+        skipPaymentGate: true,
       });
 
       expect(result.success).toBe(true);
