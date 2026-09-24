@@ -162,7 +162,7 @@ export async function sendBookingConfirmationEmail(params: BookingConfirmationEm
   await dispatchEmail({
     to: params.email,
     subject: `Confirmed: ${params.title} · Ref #${params.reference}`,
-    html: buildBookingConfirmationEmail(params),
+    html: buildDetailedBookingConfirmationEmail(params),
   });
 }
 
@@ -326,46 +326,172 @@ function buildWave1AdminNotificationEmail(details: Wave1RegistrationDetails): st
 </div>`);
 }
 
-function buildBookingConfirmationEmail(params: BookingConfirmationEmailParams): string {
+export interface DetailedBookingConfirmationParams {
+  email: string;
+  name: string;
+  title: string;
+  category?: string;
+  reference: string;
+  vendor: string;
+  partySize?: number;
+  targetDateTime?: string;
+  location?: string;
+  origin?: string;
+  destination?: string;
+  flightNumber?: string;
+  cabin?: string;
+  pnr?: string;
+  checkIn?: string;
+  checkOut?: string;
+  roomType?: string;
+  amountFormatted?: string;
+  notes?: string;
+  specialRequests?: string;
+  documents?: Array<{ name: string; url: string }>;
+  actionUrl?: string;
+  idempotencyKey?: string;
+}
+
+export async function sendDetailedBookingConfirmationEmail(params: DetailedBookingConfirmationParams) {
+  const cat = (params.category || '').toLowerCase();
+  let subjectPrefix = 'Confirmed';
+  if (cat.includes('dine') || cat.includes('dining') || cat.includes('restaurant')) {
+    subjectPrefix = 'Reservation Confirmed';
+  } else if (cat.includes('flight') || cat.includes('aviation')) {
+    subjectPrefix = 'Flight Booking Confirmed';
+  } else if (cat.includes('hotel') || cat.includes('stay') || cat.includes('resort')) {
+    subjectPrefix = 'Hotel Reservation Confirmed';
+  }
+
+  const subject = `${subjectPrefix}: ${params.title} · Ref #${params.reference}`;
+  const html = buildDetailedBookingConfirmationEmail(params);
+
+  return dispatchEmail({
+    to: params.email,
+    subject,
+    html,
+  });
+}
+
+function buildDetailedBookingConfirmationEmail(params: DetailedBookingConfirmationParams): string {
   const actionUrl = params.actionUrl || `${APP_URL}/dashboard`;
+  const cat = (params.category || '').toLowerCase();
+
+  let categoryBadge = 'AUTHENTIC RESERVATION CONFIRMED';
+  let heading = 'Your Reservation is Confirmed';
+
+  if (cat.includes('dine') || cat.includes('dining') || cat.includes('restaurant')) {
+    categoryBadge = 'FINE DINING · CONFIRMED TABLE';
+    heading = 'Your Table is Reserved';
+  } else if (cat.includes('flight') || cat.includes('aviation')) {
+    categoryBadge = 'EXECUTIVE AVIATION · TICKET CONFIRMED';
+    heading = 'Your Flight Itinerary is Confirmed';
+  } else if (cat.includes('hotel') || cat.includes('stay') || cat.includes('resort')) {
+    categoryBadge = 'LUXURY HOSPITALITY · STAY CONFIRMED';
+    heading = 'Your Stay is Confirmed';
+  }
+
+  // Build key-value rows based on genuinely confirmed fields
+  const rows: Array<{ label: string; value: string; isHighlight?: boolean }> = [
+    { label: 'Arrangement', value: params.title },
+    { label: 'Venue / Partner', value: params.vendor },
+    { label: 'Confirmation Ref', value: params.reference, isHighlight: true },
+  ];
+
+  if (params.partySize) {
+    rows.push({ label: 'Guests / Party Size', value: `${params.partySize} Guest${params.partySize > 1 ? 's' : ''}` });
+  }
+  if (params.targetDateTime) {
+    rows.push({ label: 'Target Date & Time', value: params.targetDateTime });
+  }
+  if (params.location) {
+    rows.push({ label: 'Location / Address', value: params.location });
+  }
+  if (params.origin && params.destination) {
+    rows.push({ label: 'Route', value: `${params.origin} → ${params.destination}` });
+  }
+  if (params.flightNumber) {
+    rows.push({ label: 'Flight Number', value: params.flightNumber });
+  }
+  if (params.cabin) {
+    rows.push({ label: 'Cabin Class', value: params.cabin });
+  }
+  if (params.pnr && params.pnr !== params.reference) {
+    rows.push({ label: 'Airline PNR', value: params.pnr, isHighlight: true });
+  }
+  if (params.checkIn) {
+    rows.push({ label: 'Check-In Date', value: params.checkIn });
+  }
+  if (params.checkOut) {
+    rows.push({ label: 'Check-Out Date', value: params.checkOut });
+  }
+  if (params.roomType) {
+    rows.push({ label: 'Room Category', value: params.roomType });
+  }
+  if (params.amountFormatted) {
+    rows.push({ label: 'Authorized Amount', value: params.amountFormatted });
+  }
+  if (params.specialRequests) {
+    rows.push({ label: 'Special Arrangements', value: params.specialRequests });
+  }
+  if (params.notes) {
+    rows.push({ label: 'Concierge Notes', value: params.notes });
+  }
+
+  const tableRowsHtml = rows
+    .map(
+      (r) => `
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 0;color:#64748b;width:35%;font-weight:500;">${r.label}</td>
+      <td style="padding:10px 0;color:${r.isHighlight ? '#047857' : '#0f172a'};font-family:${r.isHighlight ? 'monospace' : 'inherit'};font-weight:${r.isHighlight ? '700' : '600'};">${r.value}</td>
+    </tr>`
+    )
+    .join('');
+
+  // Documents block
+  let docsHtml = '';
+  if (Array.isArray(params.documents) && params.documents.length > 0) {
+    const docLinks = params.documents
+      .map(
+        (doc) => `
+        <li style="margin-bottom:8px;">
+          <a href="${doc.url}" target="_blank" style="color:#6d5941;font-weight:600;text-decoration:underline;">
+            📎 ${doc.name}
+          </a>
+        </li>`
+      )
+      .join('');
+
+    docsHtml = `
+    <div style="margin-top:24px;padding:16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;">
+      <h3 style="margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#475569;">Attached Booking Documents</h3>
+      <ul style="margin:0;padding-left:20px;font-size:14px;">
+        ${docLinks}
+      </ul>
+    </div>`;
+  }
+
   return emailWrapper(`
 <div class="card">
 <div style="display:inline-block;padding:4px 10px;background:#ecfdf5;color:#047857;font-family:monospace;font-size:11px;font-weight:600;border-radius:4px;margin-bottom:16px;">
-  AUTHENTIC RESERVATION CONFIRMED
+  ${categoryBadge}
 </div>
-<h2>Your Reservation is Confirmed</h2>
+<h2>${heading}</h2>
 <p>Hello ${params.name},</p>
-<p>Your lifestyle request has been directly coordinated and confirmed by the Proventa Concierge Desk.</p>
+<p>Your lifestyle arrangement has been directly executed and confirmed with the service provider by your Proventa Concierge.</p>
 
 <table style="width:100%;border-collapse:collapse;margin:24px 0;font-size:14px;text-align:left;">
   <tbody>
-    <tr style="border-bottom:1px solid #f1f5f9;">
-      <td style="padding:10px 0;color:#64748b;width:35%;font-weight:500;">Arrangement</td>
-      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${params.title}</td>
-    </tr>
-    <tr style="border-bottom:1px solid #f1f5f9;">
-      <td style="padding:10px 0;color:#64748b;font-weight:500;">Venue / Partner</td>
-      <td style="padding:10px 0;color:#0f172a;font-weight:600;">${params.vendor}</td>
-    </tr>
-    <tr style="border-bottom:1px solid #f1f5f9;">
-      <td style="padding:10px 0;color:#64748b;font-weight:500;">Confirmation Ref</td>
-      <td style="padding:10px 0;color:#047857;font-family:monospace;font-weight:700;font-size:15px;">${params.reference}</td>
-    </tr>
-    ${
-      params.notes
-        ? `<tr style="border-bottom:1px solid #f1f5f9;">
-      <td style="padding:10px 0;color:#64748b;vertical-align:top;font-weight:500;">Desk Notes</td>
-      <td style="padding:10px 0;color:#334155;">${params.notes}</td>
-    </tr>`
-        : ''
-    }
+    ${tableRowsHtml}
   </tbody>
 </table>
 
-<a href="${actionUrl}" class="cta">View in Your Life OS Timeline</a>
+${docsHtml}
+
+<a href="${actionUrl}" class="cta">View in Your Proventa Life OS</a>
 
 <p style="font-size:13px;color:#928f88;margin-top:24px;">
-  Your table or service is reserved under this reference. For immediate adjustments, reply to this email or contact your personal concierge.
+  Your service is secured under this reference. If you require schedule modifications or additional concierge assistance, reply directly to this email or reach your dedicated desk.
 </p>
 </div>`);
 }

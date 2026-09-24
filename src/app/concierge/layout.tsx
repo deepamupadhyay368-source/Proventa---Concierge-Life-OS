@@ -160,27 +160,6 @@ export default function ConciergePortalLayout({ children }: { children: React.Re
             </Link>
           )}
 
-          {/* Customer / Admin Switcher for admins */}
-          {userRoles.some((r: string) => ['SUPER_ADMIN', 'FOUNDER', 'ADMIN'].includes(r)) && (
-            <Link
-              href="/admin"
-              className="hidden sm:flex items-center gap-1.5 text-xs text-neutral-400 hover:text-neutral-200 border border-neutral-800 hover:border-neutral-700 bg-neutral-900/50 px-2.5 py-1.5 rounded-md transition-colors"
-            >
-              <ShieldCheck className="h-3.5 w-3.5 text-amber-400" />
-              <span>Admin Center</span>
-            </Link>
-          )}
-
-          <Link
-            href="/dashboard"
-            target="_blank"
-            className="hidden sm:flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-200 border border-neutral-800 hover:border-neutral-700 bg-neutral-900/50 px-2.5 py-1.5 rounded-md transition-colors"
-            title="Preview Customer App"
-          >
-            <span>Customer View</span>
-            <ExternalLink className="h-3 w-3 text-neutral-500" />
-          </Link>
-
           {/* User badge */}
           <div className="flex items-center gap-2 pl-2 border-l border-neutral-800">
             <Link
@@ -197,9 +176,14 @@ export default function ConciergePortalLayout({ children }: { children: React.Re
             </Link>
 
             <button
-              onClick={() => signOut({ callbackUrl: '/sign-in' })}
-              className="p-1.5 text-neutral-400 hover:text-rose-400 hover:bg-neutral-800/80 rounded-md transition-colors"
-              title="Sign Out"
+              onClick={async () => {
+                try {
+                  await fetch('/api/concierge/auth/sign-out', { method: 'POST' });
+                } catch {}
+                window.location.href = '/concierge/sign-in';
+              }}
+              className="p-1.5 text-neutral-400 hover:text-rose-400 hover:bg-neutral-800/80 rounded-md transition-colors cursor-pointer"
+              title="Sign Out of Concierge Desk"
             >
               <LogOut className="h-4 w-4" />
             </button>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireConcierge } from '@/lib/auth/session';
-import { sendBookingConfirmationEmail, sendExecutionFailureEmail } from '@/lib/email/sender';
+import { sendBookingConfirmationEmail, sendDetailedBookingConfirmationEmail, sendExecutionFailureEmail } from '@/lib/email/sender';
 import { sendWhatsAppNotification } from '@/lib/notifications/whatsapp';
 import { isAppError } from '@/lib/errors';
 
@@ -31,6 +31,10 @@ export async function POST(req: NextRequest) {
       providerResponse,
       hostName,
       amount,
+      documents,
+      confirmedProvider,
+      confirmedDate,
+      confirmedPartySize,
     } = body;
 
     if (!taskId || !action) {
@@ -60,6 +64,7 @@ export async function POST(req: NextRequest) {
     let eventMessage = notes || note || `Concierge operator ${sessionUser.name || sessionUser.email} performed ${action}`;
 
     const operatorIdentifier = sessionUser.name || sessionUser.email;
+    const approvedOption = updatedPreferences.approvedOption || (Array.isArray(taskRecord.proposedOptions) ? taskRecord.proposedOptions[0] : null);
 
     switch (action) {
       case 'CLAIM':
@@ -238,6 +243,7 @@ export async function POST(req: NextRequest) {
         break;
       }
 
+      case 'VERIFY_AND_COMPLETE':
       case 'CONFIRM': {
         const ref = confirmationReference || reference || externalReference || metadata?.externalReference || body.ref;
         if (!ref || typeof ref !== 'string' || !ref.trim()) {
@@ -247,7 +253,7 @@ export async function POST(req: NextRequest) {
           );
         }
 
-        // Strict zero-fabrication validation
+        // Strict Zero-Fabrication validation (Part 15)
         const upperRef = ref.trim().toUpperCase();
         if (
           upperRef.startsWith('PV-') ||
@@ -265,13 +271,48 @@ export async function POST(req: NextRequest) {
           );
         }
 
+        // Constraint Integrity Check (Part 16)
+        if (confirmedProvider && approvedOption?.providerName) {
+          const normConfirmed = confirmedProvider.toLowerCase().trim();
+          const normApproved = (approvedOption.providerName || '').toLowerCase().trim();
+          if (!normConfirmed.includes(normApproved) && !normApproved.includes(normConfirmed)) {
+            if (db.taskEvent) {
+              await db.taskEvent.create({
+                data: {
+                  taskId,
+                  eventType: 'INTENT_CONSTRAINT_MISMATCH',
+                  actorRole: sessionUser.roles[0] || 'CONCIERGE',
+                  message: `Provider mismatch detected: Customer approved "${approvedOption.providerName}" but operator confirmed "${confirmedProvider}".`,
+                  data: { approvedOption, confirmedProvider, operator: operatorIdentifier },
+                },
+              });
+            }
+            return NextResponse.json(
+              { error: `Constraint Mismatch: Approved option is for "${approvedOption.providerName}", but confirmation was entered for "${confirmedProvider}". Escalated for verification.` },
+              { status: 400 }
+            );
+          }
+        }
+
         updatedStatus = 'CONFIRMED';
         isEscalated = false;
         externalReferenceId = ref.trim();
-        eventType = 'CONFIRMED_BY_CONCIERGE';
+        eventType = 'PROVIDER_CONFIRMED';
         eventMessage = `Confirmed by Concierge ${operatorIdentifier}. Host: ${hostName || 'Direct Desk'}, Ref: ${externalReferenceId}`;
 
-        // Create Authoritative Booking Record if models exist
+        // Store attached documents if genuinely provided
+        let attachedDocs: Array<{ name: string; url: string }> = [];
+        if (Array.isArray(documents) && documents.length > 0) {
+          attachedDocs = documents.filter((d: any) => d && d.name && d.url);
+          if (attachedDocs.length > 0) {
+            updatedPreferences = {
+              ...updatedPreferences,
+              attachedDocuments: attachedDocs,
+            };
+          }
+        }
+
+        // 1. Create/Update Authoritative Booking Record (Part 17)
         if (taskRecord.customerId && db.city && db.conciergeRequest && db.booking) {
           try {
             let reqId = taskRecord.requestId;
@@ -311,33 +352,123 @@ export async function POST(req: NextRequest) {
                     confirmedAt: new Date().toISOString(),
                     amount,
                     notes: notes || note,
+                    documents: attachedDocs,
                     ...metadata,
                   },
                 },
               });
+
+              if (db.taskEvent) {
+                await db.taskEvent.create({
+                  data: {
+                    taskId,
+                    eventType: 'BOOKING_CREATED',
+                    actorRole: 'CONCIERGE',
+                    message: `Authoritative booking record created with reference #${externalReferenceId}`,
+                    data: { confirmationRef: externalReferenceId, vendor: taskRecord.vendorName },
+                  },
+                });
+              }
             }
           } catch (bookingErr) {
             console.warn('[concierge/action] Booking model creation skipped/mocked:', bookingErr);
           }
         }
 
-        // Dual-Channel Notification Dispatch
-        if (taskRecord.customer?.user?.email) {
+        // Record document event if present
+        if (attachedDocs.length > 0 && db.taskEvent) {
+          await db.taskEvent.create({
+            data: {
+              taskId,
+              eventType: 'DOCUMENT_ATTACHED',
+              actorRole: 'CONCIERGE',
+              message: `${attachedDocs.length} genuine booking document(s) attached to reservation.`,
+              data: { documents: attachedDocs },
+            },
+          });
+        }
+
+        // 2. Automatic Customer Completion Email with Idempotency (Part 18-28)
+        const idempotencyKey = `TASK_COMPLETION:${taskRecord.id}`;
+        const alreadyDispatched = updatedPreferences.completionEmailDispatchedKey === idempotencyKey;
+
+        if (taskRecord.customer?.user?.email && !alreadyDispatched) {
           try {
-            await sendBookingConfirmationEmail({
+            if (db.taskEvent) {
+              await db.taskEvent.create({
+                data: {
+                  taskId,
+                  eventType: 'CUSTOMER_COMPLETION_EMAIL_QUEUED',
+                  actorRole: 'SYSTEM',
+                  message: `Completion email queued for ${taskRecord.customer.user.email} (Idempotency: ${idempotencyKey})`,
+                  data: { recipient: taskRecord.customer.user.email, idempotencyKey },
+                },
+              });
+            }
+
+            const prep = updatedPreferences.preparedContext || {};
+            const emailSuccess = await sendDetailedBookingConfirmationEmail({
               email: taskRecord.customer.user.email,
               name: taskRecord.customer.user.name || 'Valued Member',
-              title: taskRecord.intent || taskRecord.originalRequest,
+              title: approvedOption?.title || taskRecord.intent || taskRecord.originalRequest,
+              category: taskRecord.category,
               reference: externalReferenceId,
-              vendor: taskRecord.vendorName || metadata?.vendorName || 'Verified Partner Desk',
+              vendor: approvedOption?.providerName || taskRecord.vendorName || metadata?.vendorName || 'Verified Partner Desk',
+              partySize: prep.partySize || updatedPreferences.partySize,
+              targetDateTime: prep.dates || prep.dateTime || prep.time,
+              location: prep.location || prep.city,
+              amountFormatted: taskRecord.budgetAmount ? `₹${taskRecord.budgetAmount.toLocaleString('en-IN')}` : undefined,
               notes: notes || note,
+              documents: attachedDocs,
               actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskRecord.id}`,
+              idempotencyKey,
             });
-          } catch (e) {
-            console.error('[concierge/action] Confirmation email error:', e);
+
+            if (emailSuccess) {
+              updatedPreferences.completionEmailDispatchedKey = idempotencyKey;
+              updatedPreferences.completionEmailSentAt = new Date().toISOString();
+
+              if (db.taskEvent) {
+                await db.taskEvent.create({
+                  data: {
+                    taskId,
+                    eventType: 'CUSTOMER_COMPLETION_EMAIL_SENT',
+                    actorRole: 'SYSTEM',
+                    message: `Confirmation email delivered to ${taskRecord.customer.user.email}`,
+                    data: { recipient: taskRecord.customer.user.email, reference: externalReferenceId },
+                  },
+                });
+              }
+            } else {
+              if (db.taskEvent) {
+                await db.taskEvent.create({
+                  data: {
+                    taskId,
+                    eventType: 'CUSTOMER_COMPLETION_EMAIL_FAILED',
+                    actorRole: 'SYSTEM',
+                    message: `Email dispatch could not reach external provider. Booking remains confirmed.`,
+                    data: { recipient: taskRecord.customer.user.email },
+                  },
+                });
+              }
+            }
+          } catch (emailErr) {
+            console.error('[concierge/action] Confirmation email dispatch error:', emailErr);
+            if (db.taskEvent) {
+              await db.taskEvent.create({
+                data: {
+                  taskId,
+                  eventType: 'CUSTOMER_COMPLETION_EMAIL_FAILED',
+                  actorRole: 'SYSTEM',
+                  message: `Email delivery error encountered. Booking remains confirmed.`,
+                  data: { error: String(emailErr) },
+                },
+              });
+            }
           }
         }
 
+        // Dual-Channel WhatsApp Notification Dispatch
         if (taskRecord.customer?.user?.phone) {
           try {
             await sendWhatsAppNotification({
@@ -352,6 +483,10 @@ export async function POST(req: NextRequest) {
           } catch (e) {
             console.error('[concierge/action] WhatsApp notification error:', e);
           }
+        }
+
+        if (action === 'VERIFY_AND_COMPLETE') {
+          updatedStatus = 'COMPLETED';
         }
         break;
       }

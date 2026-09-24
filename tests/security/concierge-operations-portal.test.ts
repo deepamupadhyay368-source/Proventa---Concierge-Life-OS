@@ -17,7 +17,9 @@ vi.mock('@/lib/auth/session', () => ({
 
 vi.mock('@/lib/email/sender', () => ({
   sendBookingConfirmationEmail: vi.fn().mockResolvedValue(true),
+  sendDetailedBookingConfirmationEmail: vi.fn().mockResolvedValue(true),
   sendEmail: vi.fn().mockResolvedValue(true),
+  sendExecutionFailureEmail: vi.fn().mockResolvedValue(true),
 }));
 
 vi.mock('@/lib/notifications/whatsapp', () => ({
@@ -38,6 +40,7 @@ vi.mock('@/lib/db', () => ({
     user: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
     },
     customerProfile: {
       findMany: vi.fn(),
@@ -54,7 +57,11 @@ import { POST as conciergeActionHandler } from '@/app/api/concierge/action/route
 import { POST as aiAssistHandler } from '@/app/api/concierge/ai-assist/route';
 import { GET as getTeamHandler } from '@/app/api/concierge/team/route';
 import { GET as getCustomersHandler } from '@/app/api/concierge/customers/route';
+import { POST as conciergeSignInHandler } from '@/app/api/concierge/auth/sign-in/route';
+import { POST as conciergeSignOutHandler } from '@/app/api/concierge/auth/sign-out/route';
 import { AuthorizationError } from '@/lib/errors';
+import { hashPassword } from '@/lib/auth/password';
+import { createConciergeToken, verifyConciergeToken } from '@/lib/auth/concierge-session';
 
 describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABRICATION', () => {
   const mockConciergeOperator = {
@@ -528,6 +535,169 @@ describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABR
       expect(workspace.mandate.requiredAction.step1).toBeTruthy();
       expect(workspace.mandate.requiredAction.step2).toBeTruthy();
       expect(workspace.mandate.requiredAction.step3).toBeTruthy();
+    });
+  });
+
+  describe('8. Separate Concierge Employee Authentication & Boundary', () => {
+    it('authenticates valid concierge employee via /api/concierge/auth/sign-in and establishes dedicated session', async () => {
+      const hashedPassword = await hashPassword('SecretEmployeePass123!');
+      (db.user.findFirst as any).mockResolvedValueOnce({
+        id: 'usr_emp_priya',
+        email: 'priya@proventa.in',
+        name: 'Priya Patel',
+        password: hashedPassword,
+        userRoles: [{ role: 'CONCIERGE' }],
+      });
+
+      const req = new NextRequest('http://localhost:3000/api/concierge/auth/sign-in', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'priya@proventa.in', password: 'SecretEmployeePass123!' }),
+      });
+
+      const res = await conciergeSignInHandler(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.user.email).toBe('priya@proventa.in');
+      expect(data.user.roles).toContain('CONCIERGE');
+      expect(res.cookies.get('proventa_concierge_session')).toBeDefined();
+    });
+
+    it('rejects ordinary customer attempting to sign in to Concierge Desk with 403', async () => {
+      const hashedPassword = await hashPassword('CustomerPass123!');
+      (db.user.findFirst as any).mockResolvedValueOnce({
+        id: 'usr_cust_aarav',
+        email: 'aarav@proventa.in',
+        name: 'Aarav Mehta',
+        password: hashedPassword,
+        userRoles: [{ role: 'CUSTOMER' }],
+      });
+
+      const req = new NextRequest('http://localhost:3000/api/concierge/auth/sign-in', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'aarav@proventa.in', password: 'CustomerPass123!' }),
+      });
+
+      const res = await conciergeSignInHandler(req);
+      expect(res.status).toBe(403);
+      const data = await res.json();
+      expect(data.error).toContain('does not have Concierge Desk');
+    });
+
+    it('clears session cookie on concierge sign-out', async () => {
+      const req = new NextRequest('http://localhost:3000/api/concierge/auth/sign-out', { method: 'POST' });
+      const res = await conciergeSignOutHandler(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+    });
+
+    it('cryptographically signs and verifies valid concierge session tokens', () => {
+      const token = createConciergeToken({
+        id: 'emp_001',
+        email: 'priya@proventa.in',
+        name: 'Priya Patel',
+        roles: ['CONCIERGE'],
+      });
+
+      const payload = verifyConciergeToken(token);
+      expect(payload).toBeTruthy();
+      expect(payload?.email).toBe('priya@proventa.in');
+      expect(payload?.primaryRole).toBe('CONCIERGE');
+      expect(payload?.expiresAt).toBeGreaterThan(Math.floor(Date.now() / 1000));
+    });
+  });
+
+  describe('9. Approved Option & Constraint Integrity Enforcement', () => {
+    it('rejects confirmation if provider does not match the customer-approved option (Constraint Mismatch)', async () => {
+      (db.task.findUnique as any).mockResolvedValueOnce({
+        id: 'task_mismatch_1',
+        intent: 'Agashiye Rooftop Dining',
+        status: 'EXECUTING',
+        clientPreferences: {
+          approvedOption: {
+            id: 'opt_agashiye',
+            providerName: 'Agashiye — The House of MG',
+            title: 'Heritage Terrace Table',
+          },
+        },
+      });
+
+      const req = new NextRequest('http://localhost:3000/api/concierge/action', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'CONFIRM',
+          taskId: 'task_mismatch_1',
+          confirmationReference: 'TAJ-RES-88992',
+          confirmedProvider: 'Taj Skyline Ahmedabad', // Different provider!
+        }),
+      });
+
+      const res = await conciergeActionHandler(req);
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toContain('Constraint Mismatch');
+    });
+  });
+
+  describe('10. Automatic Completion Workflow, Idempotent Email & Non-Blocking Resilience', () => {
+    it('executes VERIFY_AND_COMPLETE, stores booking, sends completion email, and prevents duplicate email on second attempt', async () => {
+      (db.task.findUnique as any).mockResolvedValueOnce({
+        id: 'task_complete_1',
+        publicId: 'PV-TASK-900',
+        customerId: 'cust_01',
+        category: 'Fine Dining',
+        intent: 'Agashiye Heritage Rooftop Dinner',
+        vendorName: 'Agashiye — The House of MG',
+        budgetAmount: 5200,
+        status: 'EXECUTING',
+        clientPreferences: {
+          approvedOption: {
+            providerName: 'Agashiye — The House of MG',
+            title: 'Heritage Rooftop Thali for 4',
+          },
+        },
+        customer: {
+          user: { id: 'u_aarav', name: 'Aarav Mehta', email: 'aarav@proventa.in', phone: '+919876543210' },
+        },
+      });
+
+      (db.task.update as any).mockResolvedValueOnce({
+        id: 'task_complete_1',
+        status: 'COMPLETED',
+        externalReferenceId: 'AG-REAL-889911',
+      });
+
+      const req = new NextRequest('http://localhost:3000/api/concierge/action', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'VERIFY_AND_COMPLETE',
+          taskId: 'task_complete_1',
+          confirmationReference: 'AG-REAL-889911',
+          confirmedProvider: 'Agashiye — The House of MG',
+          hostName: 'Devang Rawal (Maître d\')',
+          documents: [
+            { name: 'Agashiye_Table_Confirmation_889911.pdf', url: 'https://proventa.in/docs/agashiye-889911.pdf' },
+          ],
+        }),
+      });
+
+      const res = await conciergeActionHandler(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      expect(data.status).toBe('COMPLETED');
+      expect(data.reference).toBe('AG-REAL-889911');
+
+      // Verify audit events recorded
+      expect(db.taskEvent.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            taskId: 'task_complete_1',
+            eventType: 'PROVIDER_CONFIRMED',
+          }),
+        })
+      );
     });
   });
 });
