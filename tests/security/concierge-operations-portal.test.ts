@@ -425,4 +425,109 @@ describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABR
       expect(data.customers[0].tasksCount).toBe(4);
     });
   });
+
+  describe('7. Automatic Concierge Task Routing & Mandate Enrichment', () => {
+    it('automatically delivers the complete customer mandate, constraints, payment status, AI script, and required action to the employee workspace', async () => {
+      (db.task.findUnique as any).mockResolvedValueOnce({
+        id: 'task_mandate_001',
+        publicId: 'PV-TASK-789',
+        customerId: 'cust_mandate_1',
+        category: 'Fine Dining',
+        intent: 'Agashiye Heritage Dining Reservation',
+        originalRequest: 'Reserve a VIP rooftop table for 4 at Agashiye Ahmedabad this Friday at 8:00 PM with vegetarian preferences.',
+        priority: 'HIGH',
+        status: 'NEEDS_HUMAN',
+        executionMethod: 'HUMAN_CONCIERGE',
+        vendorName: 'Agashiye — The House of MG',
+        budgetAmount: 4800,
+        budgetCurrency: 'INR',
+        paymentStatus: 'CAPTURED',
+        paymentId: 'pay_rzp_987123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        clientPreferences: {
+          approvedAt: '2026-09-24T12:00:00.000Z',
+          approvedOption: {
+            id: 'opt_agashiye_1',
+            providerName: 'Agashiye — The House of MG',
+            title: 'Heritage Rooftop Thali — Table for 4',
+            price: 4800,
+            priceFormatted: '₹4,800',
+            bookingMethod: 'PHONE',
+          },
+          preparedContext: {
+            dates: 'Friday, 8:00 PM',
+            partySize: 4,
+            location: 'Ahmedabad',
+            seatingPreference: 'Outdoor Heritage Terrace',
+          },
+          seating: 'Outdoor Heritage Terrace',
+          dietary: ['Vegetarian', 'Jain Option for 1 guest'],
+          paymentStatus: 'CAPTURED',
+          paymentMethod: 'UPI Autopay',
+        },
+        customer: {
+          id: 'cust_mandate_1',
+          user: {
+            id: 'usr_aarav',
+            name: 'Aarav Mehta',
+            email: 'aarav.m@example.com',
+            phone: '+919876543210',
+          },
+        },
+        events: [
+          {
+            id: 'evt_1',
+            eventType: 'AWAITING_CONCIERGE_CALL',
+            actorRole: 'AI_AGENT',
+            message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+            data: {},
+            createdAt: new Date(),
+          },
+        ],
+      });
+
+      (db.task.count as any).mockResolvedValue(1);
+
+      const req = new NextRequest('http://localhost:3000/api/concierge/tasks/task_mandate_001');
+      const res = await getTaskDetailHandler(req, { params: Promise.resolve({ id: 'task_mandate_001' }) });
+      expect(res.status).toBe(200);
+
+      const data = await res.json();
+      expect(data.success).toBe(true);
+      const workspace = data.workspace;
+
+      // 1. Verify complete customer mandate
+      expect(workspace.mandate).toBeDefined();
+      expect(workspace.mandate.originalRequest).toContain('Reserve a VIP rooftop table for 4 at Agashiye');
+      expect(workspace.mandate.approvedOptionTitle).toBe('Heritage Rooftop Thali — Table for 4');
+      expect(workspace.mandate.approvedOptionProvider).toBe('Agashiye — The House of MG');
+
+      // 2. Verify operational constraints
+      expect(workspace.mandate.constraints.partySize).toBe(4);
+      expect(workspace.mandate.constraints.targetDateTime).toBe('Friday, 8:00 PM');
+      expect(workspace.mandate.constraints.seatingPreference).toBe('Outdoor Heritage Terrace');
+      expect(workspace.mandate.constraints.dietaryRestrictions).toEqual(expect.arrayContaining(['Vegetarian', 'Jain Option for 1 guest']));
+
+      // 3. Verify payment status
+      expect(workspace.mandate.payment.status).toBe('CAPTURED');
+      expect(workspace.mandate.payment.isPrePaid).toBe(true);
+      expect(workspace.mandate.payment.amountInr).toBe(4800);
+
+      // 4. Verify AI pre-call script draft
+      expect(workspace.brief.callScriptDraft).toContain('Proventa Executive Concierge desk');
+      expect(workspace.brief.callScriptDraft).toContain('Aarav Mehta');
+      expect(workspace.brief.callScriptDraft).toContain('Party of 4');
+
+      // 5. Verify provider contact details
+      expect(workspace.providerContact).toBeDefined();
+      expect(workspace.providerContact.phone).toBeTruthy();
+
+      // 6. Verify required action checklist
+      expect(workspace.mandate.requiredAction.code).toBe('CALL_PROVIDER_AND_CONFIRM');
+      expect(workspace.mandate.requiredAction.step1).toBeTruthy();
+      expect(workspace.mandate.requiredAction.step2).toBeTruthy();
+      expect(workspace.mandate.requiredAction.step3).toBeTruthy();
+    });
+  });
 });

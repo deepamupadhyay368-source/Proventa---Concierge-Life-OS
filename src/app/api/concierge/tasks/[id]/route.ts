@@ -122,6 +122,26 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         completedTasksCount: completedCount,
       },
 
+      mandate: {
+        originalRequest: task.originalRequest,
+        intent: task.intent,
+        category: task.category,
+        approvedAt: prefs.approvedAt || null,
+        approvedOptionTitle: approvedOption?.title || task.vendorName,
+        approvedOptionProvider: approvedOption?.providerName || task.vendorName,
+        approvedOptionPrice: approvedOption?.priceFormatted || (task.budgetAmount ? `₹${task.budgetAmount.toLocaleString('en-IN')}` : undefined),
+        constraints: brief.constraints || {},
+        payment: brief.paymentInfo || { status: 'PENDING', isPrePaid: false },
+        requiredAction: brief.requiredAction || {
+          code: 'CALL_PROVIDER_AND_CONFIRM',
+          title: 'Confirm Booking with Provider',
+          summary: 'Contact provider desk to secure reservation.',
+          step1: 'Call provider desk.',
+          step2: 'State member name & verify seating/preferences.',
+          step3: 'Obtain authentic confirmation code.',
+        },
+      },
+
       brief,
       providerContact,
 
@@ -137,6 +157,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({
       success: true,
+      workspace: workspaceData,
       task: workspaceData,
       currentUser: {
         id: sessionUser.id,

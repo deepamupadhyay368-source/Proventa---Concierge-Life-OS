@@ -335,6 +335,116 @@ export default function TaskWorkspacePage() {
           {/* TAB 1: WORKSPACE / EXECUTION OVERVIEW */}
           {activeTab === 'workspace' && (
             <div className="space-y-6">
+              {/* Required Action Directive Banner */}
+              {workspace.mandate?.requiredAction && (
+                <div className="bg-gradient-to-r from-amber-950/40 via-neutral-900 to-neutral-900 border border-amber-500/40 rounded-2xl p-5 space-y-3 shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center justify-center font-bold text-xs">
+                        ⚡
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white tracking-wide uppercase font-mono">
+                          Operator Directive: {workspace.mandate.requiredAction.title}
+                        </h3>
+                        <p className="text-xs text-amber-200/90">{workspace.mandate.requiredAction.summary}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase font-semibold">
+                      Action Required
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 pt-2 text-xs">
+                    <div className="p-2.5 bg-neutral-950/80 rounded-xl border border-neutral-800 space-y-1">
+                      <div className="text-[10px] font-mono text-neutral-400 font-semibold uppercase">Step 1: Contact Provider</div>
+                      <div className="text-neutral-200 text-[11px] leading-relaxed">{workspace.mandate.requiredAction.step1}</div>
+                    </div>
+                    <div className="p-2.5 bg-neutral-950/80 rounded-xl border border-neutral-800 space-y-1">
+                      <div className="text-[10px] font-mono text-neutral-400 font-semibold uppercase">Step 2: State Mandate & Lock</div>
+                      <div className="text-neutral-200 text-[11px] leading-relaxed">{workspace.mandate.requiredAction.step2}</div>
+                    </div>
+                    <div className="p-2.5 bg-neutral-950/80 rounded-xl border border-neutral-800 space-y-1">
+                      <div className="text-[10px] font-mono text-neutral-400 font-semibold uppercase">Step 3: Record Real Ref</div>
+                      <div className="text-neutral-200 text-[11px] leading-relaxed">{workspace.mandate.requiredAction.step3}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Customer Mandate & Operational Constraints Matrix */}
+              <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <h3 className="text-sm font-semibold text-white">Complete Customer Mandate & Constraints</h3>
+                  </div>
+                  <span className="text-[10px] font-mono uppercase bg-neutral-800 text-neutral-300 border border-neutral-700 px-2 py-0.5 rounded">
+                    Zero Interpretation Required
+                  </span>
+                </div>
+
+                <div className="p-3.5 bg-neutral-950/80 rounded-xl border border-neutral-800 space-y-2">
+                  <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-500 font-semibold">
+                    Original Customer Request
+                  </div>
+                  <div className="text-sm text-neutral-100 font-medium leading-relaxed">
+                    "{workspace.originalRequest}"
+                  </div>
+                </div>
+
+                {/* Constraints Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="p-3 bg-neutral-950/60 rounded-xl border border-neutral-800/80 space-y-1">
+                    <div className="text-neutral-500 font-mono text-[10px] uppercase">Target Schedule</div>
+                    <div className="text-neutral-100 font-bold">
+                      {workspace.mandate?.constraints?.targetDateTime || brief?.targetDateTime || 'Requested Date/Time'}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-neutral-950/60 rounded-xl border border-neutral-800/80 space-y-1">
+                    <div className="text-neutral-500 font-mono text-[10px] uppercase">Party / Guest Count</div>
+                    <div className="text-neutral-100 font-bold">
+                      {workspace.mandate?.constraints?.partySize || brief?.partySize || 2} Guests
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-neutral-950/60 rounded-xl border border-neutral-800/80 space-y-1">
+                    <div className="text-neutral-500 font-mono text-[10px] uppercase">Seating Preference</div>
+                    <div className="text-neutral-100 font-bold truncate">
+                      {workspace.mandate?.constraints?.seatingPreference || 'Quiet / Prime Table'}
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-neutral-950/60 rounded-xl border border-neutral-800/80 space-y-1">
+                    <div className="text-neutral-500 font-mono text-[10px] uppercase">Payment Status</div>
+                    <div className="flex items-center gap-1.5 font-mono font-bold">
+                      <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] ${
+                        workspace.mandate?.payment?.isPrePaid || workspace.mandate?.payment?.status === 'CAPTURED'
+                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                      }`}>
+                        {workspace.mandate?.payment?.status || 'CAPTURED'}
+                      </span>
+                      <span className="text-neutral-300 text-[11px]">
+                        {workspace.mandate?.payment?.amountFormatted || `₹${workspace.budgetAmount || 0}`}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dietary & Special Notes if any */}
+                {workspace.mandate?.constraints?.dietaryRestrictions && workspace.mandate.constraints.dietaryRestrictions.length > 0 && (
+                  <div className="p-3 bg-rose-950/20 border border-rose-800/40 rounded-xl flex items-center gap-2 text-xs text-rose-300">
+                    <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0" />
+                    <div>
+                      <strong className="font-semibold">Dietary Restrictions: </strong>
+                      <span>{workspace.mandate.constraints.dietaryRestrictions.join(', ')}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Approved Option Card (Target of Execution) */}
               <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">
@@ -355,7 +465,7 @@ export default function TaskWorkspacePage() {
                           {approvalHistory.approvedOption.title || approvalHistory.approvedOption.name}
                         </div>
                         <div className="text-xs text-amber-400 font-medium mt-0.5">
-                          Provider: {approvalHistory.approvedOption.provider || 'Curated Partner'}
+                          Provider: {approvalHistory.approvedOption.provider || approvalHistory.approvedOption.providerName || 'Curated Partner'}
                         </div>
                       </div>
                       {approvalHistory.approvedOption.price && (

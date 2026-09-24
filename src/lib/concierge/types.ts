@@ -2,6 +2,44 @@ import type { TaskPriority, TaskStatus, UserRole } from '@prisma/client';
 
 export type SLAStatus = 'NORMAL' | 'DUE_SOON' | 'URGENT' | 'OVERDUE';
 
+export interface OperationalConstraints {
+  partySize?: number;
+  targetDateTime?: string;
+  targetLocation?: string;
+  origin?: string;
+  destination?: string;
+  seatingPreference?: string;
+  dietaryRestrictions?: string[];
+  budgetFormatted?: string;
+  budgetAmount?: number | null;
+  specialRequests?: string[];
+  clientNotes?: string;
+}
+
+export interface PaymentInfo {
+  status: string;
+  amountFormatted?: string;
+  amountInr?: number | null;
+  paymentMethod?: string;
+  mandateReference?: string | null;
+  paymentId?: string | null;
+  orderId?: string | null;
+  paidAt?: string | null;
+  isPrePaid: boolean;
+  notes?: string;
+}
+
+export interface RequiredAction {
+  code: 'CALL_PROVIDER_AND_CONFIRM' | 'EMAIL_PROVIDER_INQUIRY' | 'OFFLINE_DESK_PLACEMENT' | 'VERIFY_AVAILABILITY';
+  title: string;
+  summary: string;
+  step1: string;
+  step2: string;
+  step3: string;
+  targetContact?: string;
+  targetPhone?: string;
+}
+
 export interface ConciergeBrief {
   customerName: string;
   customerPhone?: string;
@@ -22,6 +60,9 @@ export interface ConciergeBrief {
   recommendedNextAction: string;
   callScriptDraft?: string;
   missingInformation?: string[];
+  constraints?: OperationalConstraints;
+  paymentInfo?: PaymentInfo;
+  requiredAction?: RequiredAction;
 }
 
 export interface ProviderContactDetails {
@@ -35,6 +76,7 @@ export interface ProviderContactDetails {
   bookingMethod: 'PHONE' | 'EMAIL' | 'API' | 'WEBSITE' | 'DIRECT_DESK';
   reliabilityScore?: number;
   notes?: string;
+  contactPerson?: string;
 }
 
 export interface HumanExecutionLogEntry {
@@ -86,6 +128,19 @@ export interface TaskWorkspaceData {
     preferences?: Record<string, any>;
     activeTasksCount?: number;
     completedTasksCount?: number;
+  };
+
+  mandate: {
+    originalRequest: string;
+    intent: string;
+    category: string;
+    approvedAt?: string;
+    approvedOptionTitle?: string;
+    approvedOptionProvider?: string;
+    approvedOptionPrice?: string | number;
+    constraints: OperationalConstraints;
+    payment: PaymentInfo;
+    requiredAction: RequiredAction;
   };
 
   brief: ConciergeBrief;
