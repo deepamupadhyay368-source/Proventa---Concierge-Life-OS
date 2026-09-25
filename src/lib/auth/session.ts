@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth/config';
+import { getConciergeSession } from '@/lib/auth/concierge-session';
 import { AuthenticationError, AuthorizationError } from '@/lib/errors';
 import { UserRole } from '@prisma/client';
 
@@ -12,7 +13,20 @@ export type SessionUser = {
 };
 
 export async function getSession() {
-  return auth();
+  const nextAuthSession = await auth();
+  if (nextAuthSession?.user?.id) return nextAuthSession;
+  const conciergeSession = await getConciergeSession();
+  if (conciergeSession?.id) {
+    return {
+      user: {
+        id: conciergeSession.id,
+        email: conciergeSession.email,
+        name: conciergeSession.name,
+        roles: conciergeSession.roles,
+      },
+    };
+  }
+  return null;
 }
 
 export async function requireAuth(): Promise<SessionUser> {
@@ -25,10 +39,19 @@ export async function requireAuth(): Promise<SessionUser> {
     };
   }
   const session = await auth();
-  if (!session?.user?.id) {
-    throw new AuthenticationError();
+  if (session?.user?.id) {
+    return session.user as SessionUser;
   }
-  return session.user as SessionUser;
+  const conciergeSession = await getConciergeSession();
+  if (conciergeSession?.id) {
+    return {
+      id: conciergeSession.id,
+      email: conciergeSession.email,
+      name: conciergeSession.name,
+      roles: conciergeSession.roles,
+    };
+  }
+  throw new AuthenticationError();
 }
 
 export async function requireRole(role: UserRole): Promise<SessionUser> {

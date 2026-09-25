@@ -50,6 +50,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Check account lifecycle status
+    if (user.status === 'PENDING_VERIFICATION') {
+      return NextResponse.json(
+        { error: 'Account is pending manager verification and operational role assignment.' },
+        { status: 403 }
+      );
+    }
+
+    if (user.status === 'SUSPENDED' || user.status === 'DELETED') {
+      return NextResponse.json(
+        { error: 'Account is suspended or deactivated. Please contact your administrator.' },
+        { status: 403 }
+      );
+    }
+
     // Check employee authorization roles
     const roles: UserRole[] = user.userRoles?.map((r) => r.role as UserRole) || [];
     const isAuthorizedConcierge = roles.some((r) =>

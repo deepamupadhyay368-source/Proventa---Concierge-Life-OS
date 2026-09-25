@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -139,6 +140,17 @@ function ConciergeSignInForm() {
             )}
           </button>
         </form>
+
+        {/* First-time onboarding link */}
+        <div className="pt-2 text-center text-xs text-neutral-400">
+          New staff member?{' '}
+          <Link
+            href="/concierge/sign-up"
+            className="text-amber-400 hover:text-amber-300 font-semibold transition-colors"
+          >
+            Register for Concierge Desk
+          </Link>
+        </div>
 
         {/* Policy footer */}
         <div className="pt-4 border-t border-neutral-800/80 text-center space-y-2">

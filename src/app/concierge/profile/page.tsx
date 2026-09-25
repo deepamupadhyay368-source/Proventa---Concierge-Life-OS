@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import {
   User,
   ShieldCheck,
@@ -12,28 +12,104 @@ import {
   Calendar,
   Layers,
   CheckCircle2,
+  Save,
+  Loader2,
+  AlertCircle,
+  Building,
 } from 'lucide-react';
 
 export default function ConciergeProfilePage() {
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const router = useRouter();
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
 
   useEffect(() => {
-    async function loadSession() {
+    async function loadProfile() {
       try {
-        const res = await fetch('/api/auth/session');
+        setLoading(true);
+        const res = await fetch('/api/concierge/profile');
         if (res.ok) {
-          const s = await res.json();
-          if (s?.user) setCurrentUser(s.user);
+          const data = await res.json();
+          if (data?.profile) {
+            setProfile(data.profile);
+            setName(data.profile.name || '');
+            setPhone(data.profile.phone || '');
+          }
+        } else {
+          // Fallback to session
+          const sRes = await fetch('/api/concierge/auth/session');
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            if (sData?.user) {
+              setProfile(sData.user);
+              setName(sData.user.name || '');
+            }
+          }
         }
-      } catch (e) {}
+      } catch (e) {
+        setError('Failed to load profile details');
+      } finally {
+        setLoading(false);
+      }
     }
-    loadSession();
+    loadProfile();
   }, []);
 
-  const roles: string[] = currentUser?.roles || [];
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const res = await fetch('/api/concierge/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Failed to save changes');
+      } else {
+        setSuccess('Profile updated successfully');
+        setProfile((prev: any) => ({ ...prev, name, phone }));
+      }
+    } catch (e) {
+      setError('Network error updating profile');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSignOut() {
+    try {
+      await fetch('/api/concierge/auth/sign-out', { method: 'POST' });
+      router.push('/concierge/sign-in');
+      router.refresh();
+    } catch (e) {
+      router.push('/concierge/sign-in');
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-12 text-xs text-amber-400">
+        <Loader2 className="h-5 w-5 animate-spin mr-2" />
+        <span>Loading Operator Profile...</span>
+      </div>
+    );
+  }
+
+  const roles: string[] = profile?.roles || ['CONCIERGE'];
   const primaryRole = roles[0] || 'CONCIERGE';
-  const name = currentUser?.name || 'Concierge Operator';
-  const email = currentUser?.email || '';
+  const email = profile?.email || '';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -44,15 +120,29 @@ export default function ConciergeProfilePage() {
         </p>
       </div>
 
+      {success && (
+        <div className="p-3.5 bg-emerald-950/40 border border-emerald-800/60 rounded-xl flex items-center gap-3 text-xs text-emerald-300">
+          <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+          <span>{success}</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="p-3.5 bg-rose-950/40 border border-rose-800/50 rounded-xl flex items-center gap-3 text-xs text-rose-300">
+          <AlertCircle className="h-4 w-4 text-rose-400 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-6 space-y-6 shadow-xl">
         {/* Avatar & Header */}
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 border-2 border-neutral-700 flex items-center justify-center text-xl font-bold text-neutral-950">
-            {name.charAt(0).toUpperCase()}
+            {(name || email || 'C').charAt(0).toUpperCase()}
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">{name}</h2>
-            <div className="text-xs text-neutral-400">{email}</div>
+            <h2 className="text-lg font-bold text-white">{name || 'Concierge Operator'}</h2>
+            <div className="text-xs text-neutral-400 font-mono">{email}</div>
             <div className="flex items-center gap-2 mt-2">
               <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-semibold">
                 {primaryRole.replace(/_/g, ' ')}
@@ -65,11 +155,58 @@ export default function ConciergeProfilePage() {
           </div>
         </div>
 
+        {/* Editable Profile Form */}
+        <form onSubmit={handleSave} className="space-y-4 pt-4 border-t border-neutral-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Display / Operator Name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-neutral-200 focus:outline-none focus:border-amber-500/60"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-neutral-300 mb-1.5">
+                Mobile Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+91 98765 43210"
+                  className="w-full pl-10 pr-3.5 py-2.5 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-neutral-200 focus:outline-none focus:border-amber-500/60 font-mono"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-neutral-950 font-semibold text-xs rounded-xl transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              <span>Save Profile</span>
+            </button>
+          </div>
+        </form>
+
         {/* Shift Details */}
         <div className="p-4 bg-neutral-950 rounded-xl border border-neutral-800 space-y-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-neutral-400 font-medium">Current Operational Shift:</span>
-            <span className="font-mono text-neutral-200">09:00 - 21:00 IST</span>
+            <span className="text-neutral-400 font-medium">Operational Shift:</span>
+            <span className="font-mono text-neutral-200">09:00 - 21:00 IST (Active)</span>
           </div>
           <div className="flex items-center justify-between text-xs">
             <span className="text-neutral-400 font-medium">Concierge Desk:</span>
@@ -81,9 +218,12 @@ export default function ConciergeProfilePage() {
           </div>
         </div>
 
-        {/* Roles & Permissions */}
+        {/* Assigned Roles (Read-Only to prevent privilege escalation) */}
         <div className="space-y-2">
-          <div className="text-xs font-semibold text-neutral-300">Assigned System Roles</div>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-neutral-300">Assigned System Roles</span>
+            <span className="text-[10px] text-neutral-500 font-mono">Founder/Admin Controlled</span>
+          </div>
           <div className="flex flex-wrap gap-2">
             {roles.map((r) => (
               <span key={r} className="text-xs font-mono px-2.5 py-1 bg-neutral-800 border border-neutral-700 rounded-md text-neutral-300">
@@ -96,8 +236,8 @@ export default function ConciergeProfilePage() {
         {/* Sign Out Button */}
         <div className="pt-4 border-t border-neutral-800 flex justify-end">
           <button
-            onClick={() => signOut({ callbackUrl: '/sign-in' })}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-rose-950/60 hover:text-rose-300 text-xs font-semibold text-neutral-300 border border-neutral-700 hover:border-rose-700/60 rounded-lg transition-colors"
+            onClick={handleSignOut}
+            className="flex items-center gap-2 px-4 py-2 bg-neutral-800 hover:bg-rose-950/60 hover:text-rose-300 text-xs font-semibold text-neutral-300 border border-neutral-700 hover:border-rose-700/60 rounded-lg transition-colors cursor-pointer"
           >
             <LogOut className="h-4 w-4" />
             <span>End Shift & Sign Out</span>

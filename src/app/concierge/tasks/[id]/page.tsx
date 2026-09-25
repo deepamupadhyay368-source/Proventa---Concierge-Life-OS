@@ -42,9 +42,17 @@ export default function TaskWorkspacePage() {
   useEffect(() => {
     async function loadSession() {
       try {
-        const res = await fetch('/api/auth/session');
+        const res = await fetch('/api/concierge/auth/session');
         if (res.ok) {
           const s = await res.json();
+          if (s?.user) {
+            setCurrentUser(s.user);
+            return;
+          }
+        }
+        const authRes = await fetch('/api/auth/session');
+        if (authRes.ok) {
+          const s = await authRes.json();
           if (s?.user) setCurrentUser(s.user);
         }
       } catch (e) {}
