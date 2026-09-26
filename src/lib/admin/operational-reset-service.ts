@@ -154,10 +154,9 @@ export class OperationalResetService {
       const deletedAttachments = await tx.requestAttachment.deleteMany({});
       const deletedMessages = await tx.requestMessage.deleteMany({});
       const deletedAssignments = await tx.requestAssignment.deleteMany({});
-      const deletedStatusHistory = await tx.requestStatusHistory.deleteMany({});
-      const deletedRecommendations = await tx.aiRecommendation.deleteMany({});
-      const deletedInteractions = await tx.aiInteraction.deleteMany({});
-      const deletedWorkflowRuns = await tx.aiWorkflowRun.deleteMany({});
+      const deletedRecommendations = await tx.aIRecommendation.deleteMany({});
+      const deletedInteractions = await tx.aIInteraction.deleteMany({});
+      const deletedWorkflowRuns = await tx.aIWorkflowRun.deleteMany({});
       const deletedSlaRecords = await tx.sLARecord.deleteMany({});
       const deletedFeedback = await tx.feedback.deleteMany({});
       const deletedSupportTickets = await tx.supportTicket.deleteMany({});
@@ -224,6 +223,9 @@ export class OperationalResetService {
         conciergeRequests: deletedConciergeRequests.count,
         testUsers: deletedUsers.count,
       };
+    }, {
+      maxWait: 15000,
+      timeout: 60000,
     });
 
     void createAuditLog({
