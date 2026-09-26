@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole, ProviderStatus, BookingMethod } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { AHMEDABAD_PLACES } from '../src/data/ahmedabad-places';
 
 const prisma = new PrismaClient();
@@ -156,7 +157,8 @@ async function main() {
     const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } });
     
     if (!existingAdmin) {
-      const passwordHash = await bcrypt.hash('ProvEntaDev2024!', 12);
+      const devSeedPassword = process.env.SEED_DEV_ADMIN_PASSWORD || `DevSeed_${randomBytes(12).toString('hex')}!Aa1`;
+      const passwordHash = await bcrypt.hash(devSeedPassword, 12);
       const admin = await prisma.user.create({
         data: {
           email: adminEmail,

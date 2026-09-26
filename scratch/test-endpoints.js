@@ -9,7 +9,7 @@ async function runTests() {
   console.log('🚀 Starting Proventa API integration tests...\n');
   let cookie = '';
   const testEmail = `test_${Date.now()}@proventa.io`;
-  const testPassword = 'SecurePassword123!';
+  const testPassword = process.env.TEST_PASSWORD || ('Pass_' + Math.random().toString(36).slice(2) + '!Aa1');
 
   try {
     // 1. Sign Up test
@@ -164,7 +164,7 @@ async function runTests() {
         syncSchedule: 'DAILY',
         credentials: {
           clientId: 'qb-client-id-123',
-          clientSecret: 'qb-secret-456'
+          clientSecret: 'qb-sec-b7n3xvoql1o'
         }
       })
     });

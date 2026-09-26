@@ -2,14 +2,17 @@ import { describe, it, expect } from 'vitest';
 import { changePasswordSchema } from '@/lib/validation/schemas';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { checkRateLimit } from '@/lib/security/rate-limit';
+import { randomBytes } from 'crypto';
 
 describe('Founder Password & Account Security Suite', () => {
   describe('Password Complexity & Schema Validation', () => {
     it('accepts strong, compliant new passwords', () => {
+      const curPass = `Cur_${randomBytes(8).toString('hex')}!Aa1`;
+      const newPass = `New_${randomBytes(8).toString('hex')}!Bb2`;
       const validPayload = {
-        currentPassword: 'CurrentPass123!@#',
-        newPassword: 'MyNewStrongPass2026!#',
-        confirmPassword: 'MyNewStrongPass2026!#',
+        currentPassword: curPass,
+        newPassword: newPass,
+        confirmPassword: newPass,
       };
 
       const result = changePasswordSchema.safeParse(validPayload);
@@ -17,8 +20,9 @@ describe('Founder Password & Account Security Suite', () => {
     });
 
     it('rejects passwords shorter than 10 characters', () => {
+      const curPass = `Cur_${randomBytes(8).toString('hex')}!Aa1`;
       const shortPayload = {
-        currentPassword: 'CurrentPass123!@#',
+        currentPassword: curPass,
         newPassword: 'Aa1!short',
         confirmPassword: 'Aa1!short',
       };
@@ -31,8 +35,9 @@ describe('Founder Password & Account Security Suite', () => {
     });
 
     it('rejects passwords missing uppercase letters', () => {
+      const curPass = `Cur_${randomBytes(8).toString('hex')}!Aa1`;
       const noUpper = {
-        currentPassword: 'CurrentPass123!@#',
+        currentPassword: curPass,
         newPassword: 'lowercase12345!@#',
         confirmPassword: 'lowercase12345!@#',
       };
@@ -42,8 +47,9 @@ describe('Founder Password & Account Security Suite', () => {
     });
 
     it('rejects passwords missing special characters', () => {
+      const curPass = `Cur_${randomBytes(8).toString('hex')}!Aa1`;
       const noSpecial = {
-        currentPassword: 'CurrentPass123!@#',
+        currentPassword: curPass,
         newPassword: 'NoSpecialCharacters1234',
         confirmPassword: 'NoSpecialCharacters1234',
       };
@@ -53,10 +59,11 @@ describe('Founder Password & Account Security Suite', () => {
     });
 
     it('rejects passwords when confirmPassword does not match', () => {
+      const curPass = `Cur_${randomBytes(8).toString('hex')}!Aa1`;
       const mismatched = {
-        currentPassword: 'CurrentPass123!@#',
-        newPassword: 'MyNewStrongPass2026!#',
-        confirmPassword: 'DifferentPass2026!#',
+        currentPassword: curPass,
+        newPassword: `NewA_${randomBytes(8).toString('hex')}!Aa1`,
+        confirmPassword: `NewB_${randomBytes(8).toString('hex')}!Bb2`,
       };
 
       const result = changePasswordSchema.safeParse(mismatched);
@@ -67,10 +74,11 @@ describe('Founder Password & Account Security Suite', () => {
     });
 
     it('rejects when new password is identical to current password', () => {
+      const samePass = `Same_${randomBytes(8).toString('hex')}!Aa1`;
       const identical = {
-        currentPassword: 'SamePass12345!@#',
-        newPassword: 'SamePass12345!@#',
-        confirmPassword: 'SamePass12345!@#',
+        currentPassword: samePass,
+        newPassword: samePass,
+        confirmPassword: samePass,
       };
 
       const result = changePasswordSchema.safeParse(identical);
@@ -83,7 +91,7 @@ describe('Founder Password & Account Security Suite', () => {
 
   describe('Bcrypt Hashing Integrity', () => {
     it('generates a secure hash that correctly verifies with verifyPassword', async () => {
-      const raw = 'SuperSecretTestPass987$#@';
+      const raw = `Raw_${randomBytes(8).toString('hex')}!Aa1`;
       const hash = await hashPassword(raw);
 
       expect(hash).not.toBe(raw);
@@ -92,7 +100,7 @@ describe('Founder Password & Account Security Suite', () => {
       const isMatch = await verifyPassword(raw, hash);
       expect(isMatch).toBe(true);
 
-      const isWrongMatch = await verifyPassword('WrongPassword123!', hash);
+      const isWrongMatch = await verifyPassword(`Mismatch_${randomBytes(8).toString('hex')}!Bb2`, hash);
       expect(isWrongMatch).toBe(false);
     });
   });
@@ -114,8 +122,8 @@ describe('Founder Password & Account Security Suite', () => {
 
   describe('Lifecycle Credential Transition & RBAC Safeguards', () => {
     it('successfully transitions from old password to new password', async () => {
-      const passwordA = 'InitialFounderPass2024!@#';
-      const passwordB = 'UpdatedFounderPass2026$%^';
+      const passwordA = `Init_${randomBytes(8).toString('hex')}!Aa1`;
+      const passwordB = `Next_${randomBytes(8).toString('hex')}!Bb2`;
 
       // 1. Initial state: Password A is hashed and active
       let activeHash = await hashPassword(passwordA);
@@ -168,10 +176,12 @@ describe('Founder Password & Account Security Suite', () => {
     });
 
     it('sanitizes audit logs to ensure zero password or hash exposure', () => {
+      const p1 = `PassA_${randomBytes(8).toString('hex')}!Aa1`;
+      const p2 = `PassB_${randomBytes(8).toString('hex')}!Bb2`;
       const sensitivePayload = {
-        currentPassword: 'secretPassword1!',
-        newPassword: 'secretPassword2@',
-        confirmPassword: 'secretPassword2@',
+        currentPassword: p1,
+        newPassword: p2,
+        confirmPassword: p2,
       };
 
       // Simulated audit log construction

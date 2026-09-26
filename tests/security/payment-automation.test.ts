@@ -228,25 +228,25 @@ describe('PROVENTA — PAYMENT CENTER & CUSTOMER PAYMENT AUTOMATION SUITE', { ti
 
   // Scenario 9: Razorpay webhook HMAC signature verification success
   it('9. should verify valid Razorpay webhook signature with configured secret', () => {
-    const secret = 'proventa_webhook_secret_dev';
+    const testSecret = `whsec_${crypto.randomBytes(8).toString('hex')}`;
     const rawPayload = JSON.stringify({ event: 'payment.captured', entity: { id: 'pay_123' } });
 
     const expectedSig = crypto
-      .createHmac('sha256', secret)
+      .createHmac('sha256', testSecret)
       .update(rawPayload)
       .digest('hex');
 
-    const isValid = verifyWebhookSignature(rawPayload, expectedSig, secret);
+    const isValid = verifyWebhookSignature(rawPayload, expectedSig, testSecret);
     expect(isValid).toBe(true);
   });
 
   // Scenario 10: Razorpay webhook signature rejection on mismatch
   it('10. should reject invalid webhook signature', () => {
-    const secret = 'proventa_webhook_secret_dev';
+    const testSecret = `whsec_${crypto.randomBytes(8).toString('hex')}`;
     const rawPayload = JSON.stringify({ event: 'payment.captured' });
     const fakeSig = 'fake_signature_hex';
 
-    const isValid = verifyWebhookSignature(rawPayload, fakeSig, secret);
+    const isValid = verifyWebhookSignature(rawPayload, fakeSig, testSecret);
     expect(isValid).toBe(false);
   });
 

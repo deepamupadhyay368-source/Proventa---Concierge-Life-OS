@@ -30,6 +30,7 @@ import { OptionProposal, ProposalBatch } from '@/lib/orchestration/types';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
 import { createConciergeToken, verifyConciergeToken } from '@/lib/auth/concierge-session';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
+import { randomBytes } from 'crypto';
 
 describe('PROVENTA — PHASE 11: FULL CUSTOMER OPTION CYCLE, CONCIERGE ROUTING & EMPLOYEE ONBOARDING SUITE', () => {
   beforeEach(() => {
@@ -370,7 +371,7 @@ describe('PROVENTA — PHASE 11: FULL CUSTOMER OPTION CYCLE, CONCIERGE ROUTING &
 
   // L, M, N. Employee signup, verification gating, and next-time login
   it('L, M, N. Employee signup sets PENDING_VERIFICATION; active token creates concierge session', async () => {
-    const rawPass = 'SecretShift2026!';
+    const rawPass = `EmpPass_${randomBytes(8).toString('hex')}!Aa1`;
     const hashed = await hashPassword(rawPass);
     const isPassValid = await verifyPassword(rawPass, hashed);
     expect(isPassValid).toBe(true);

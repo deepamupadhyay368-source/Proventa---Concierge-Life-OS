@@ -21,9 +21,17 @@ next-env.d.ts
 # Environment
 .env
 .env.local
+.env.*.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
+*.key
+*.pem
+*.cert
+*.crt
 
 # Debug logs
 npm-debug.log*

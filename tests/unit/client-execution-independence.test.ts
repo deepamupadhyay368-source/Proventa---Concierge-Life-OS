@@ -1,4 +1,4 @@
-﻿import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import { CapabilityRegistry } from '@/lib/capabilities/capability-registry';
 
@@ -14,8 +14,10 @@ describe('Phase 8.1 — Client Execution Independence (Automated -> Assisted -> 
   });
 
   it('1. identifies configured providers as AVAILABLE safely without leaking secrets', () => {
-    process.env.AMADEUS_CLIENT_ID = 'test-client-id';
-    process.env.AMADEUS_CLIENT_SECRET = 'test-client-secret';
+    const mockId = `id_${Math.random().toString(36).slice(2)}`;
+    const mockSec = `sec_${Math.random().toString(36).slice(2)}`;
+    process.env.AMADEUS_CLIENT_ID = mockId;
+    process.env.AMADEUS_CLIENT_SECRET = mockSec;
 
     const health = ExecutionRouter.checkProviderHealth('amadeus_flights');
     expect(health).toBe('AVAILABLE');
@@ -25,8 +27,8 @@ describe('Phase 8.1 — Client Execution Independence (Automated -> Assisted -> 
     const flightHealth = allHealth.find((h) => h.category === 'TRAVEL');
     expect(flightHealth).toBeDefined();
     expect(flightHealth?.status).toBe('AVAILABLE');
-    expect(JSON.stringify(flightHealth)).not.toContain('test-client-id');
-    expect(JSON.stringify(flightHealth)).not.toContain('test-client-secret');
+    expect(JSON.stringify(flightHealth)).not.toContain(mockId);
+    expect(JSON.stringify(flightHealth)).not.toContain(mockSec);
   });
 
   it('2. identifies unconfigured providers as NOT_CONFIGURED safely without failing', () => {
@@ -40,8 +42,8 @@ describe('Phase 8.1 — Client Execution Independence (Automated -> Assisted -> 
   });
 
   it('3. resolves AUTOMATED tier when a verified provider is available and safe', () => {
-    process.env.AMADEUS_CLIENT_ID = 'valid_id';
-    process.env.AMADEUS_CLIENT_SECRET = 'valid_secret';
+    process.env.AMADEUS_CLIENT_ID = `id_${Math.random().toString(36).slice(2)}`;
+    process.env.AMADEUS_CLIENT_SECRET = `sec_${Math.random().toString(36).slice(2)}`;
 
     const resolution = ExecutionRouter.resolveExecutionMode({
       rawInput: 'Book flight Ahmedabad to Mumbai economy',

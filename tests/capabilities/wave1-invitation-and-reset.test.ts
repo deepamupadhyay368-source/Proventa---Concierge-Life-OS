@@ -23,6 +23,7 @@ vi.mock('@/lib/audit', () => ({
 import { generateInvitationToken, hashToken } from '@/lib/auth/tokens';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { OperationalResetService } from '@/lib/admin/operational-reset-service';
+import { randomBytes } from 'crypto';
 
 describe('PROVENTA — WAVE 1 INVITATION & SAFE RESET SUITE', () => {
   beforeEach(() => {
@@ -83,7 +84,7 @@ describe('PROVENTA — WAVE 1 INVITATION & SAFE RESET SUITE', () => {
 
   // I, J, K. Password Security & Account Creation
   it('I, J, K. should securely hash customer passwords on invitation acceptance', async () => {
-    const rawPassword = 'PrivateBetaPass2026!';
+    const rawPassword = `BetaPass_${randomBytes(8).toString('hex')}!Aa1`;
     const hashed = await hashPassword(rawPassword);
 
     expect(hashed).toBeDefined();
@@ -92,7 +93,7 @@ describe('PROVENTA — WAVE 1 INVITATION & SAFE RESET SUITE', () => {
     const isValid = await verifyPassword(rawPassword, hashed);
     expect(isValid).toBe(true);
 
-    const isWrong = await verifyPassword('WrongPassword123!', hashed);
+    const isWrong = await verifyPassword(`MismatchPass_${randomBytes(8).toString('hex')}!Bb2`, hashed);
     expect(isWrong).toBe(false);
   });
 

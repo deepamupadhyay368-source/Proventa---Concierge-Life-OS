@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import { randomBytes } from 'crypto';
 
 vi.mock('@/lib/auth/config', () => ({
   auth: vi.fn(),
@@ -14,11 +15,12 @@ import { AuthorizationError, AuthenticationError } from '@/lib/errors';
 describe('PROVENTA — Customer Identity, Auth & Admin Management Suite', () => {
   describe('1. Customer Sign-Up & Password Hashing', () => {
     it('normalizes email and enforces valid password constraints', () => {
+      const validPass = `RegTest_${randomBytes(8).toString('hex')}!Aa1`;
       const validPayload = {
         name: 'Arjun Mehta',
         email: '  Arjun.Mehta@Example.COM  ',
-        password: 'Password123!',
-        confirmPassword: 'Password123!',
+        password: validPass,
+        confirmPassword: validPass,
         phone: '+919876543210',
         city: 'Ahmedabad',
         preferredComm: 'WHATSAPP' as const,
@@ -46,15 +48,15 @@ describe('PROVENTA — Customer Identity, Auth & Admin Management Suite', () => 
       const mismatchPayload = {
         name: 'Arjun Mehta',
         email: 'arjun@example.com',
-        password: 'Password123!',
-        confirmPassword: 'DifferentPassword123!',
+        password: `PassA_${randomBytes(8).toString('hex')}!Aa1`,
+        confirmPassword: `PassB_${randomBytes(8).toString('hex')}!Bb2`,
       };
       const mismatchParsed = registerSchema.safeParse(mismatchPayload);
       expect(mismatchParsed.success).toBe(false);
     });
 
     it('securely hashes passwords with bcrypt and verifies correctly', async () => {
-      const rawPassword = 'SecretPassw0rd!2026';
+      const rawPassword = `SecPass_${randomBytes(8).toString('hex')}!Aa1`;
       const hash = await hashPassword(rawPassword);
 
       expect(hash).toBeDefined();
@@ -64,7 +66,7 @@ describe('PROVENTA — Customer Identity, Auth & Admin Management Suite', () => 
       const isMatch = await verifyPassword(rawPassword, hash);
       expect(isMatch).toBe(true);
 
-      const isWrong = await verifyPassword('WrongPassword123', hash);
+      const isWrong = await verifyPassword(`Wrong_${randomBytes(8).toString('hex')}!Cc3`, hash);
       expect(isWrong).toBe(false);
     });
   });

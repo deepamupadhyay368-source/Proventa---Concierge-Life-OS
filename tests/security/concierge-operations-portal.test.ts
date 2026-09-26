@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
+import { randomBytes } from 'crypto';
 
 vi.mock('@/lib/auth/session', () => ({
   requireConcierge: vi.fn(),
@@ -540,7 +541,8 @@ describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABR
 
   describe('8. Separate Concierge Employee Authentication & Boundary', () => {
     it('authenticates valid concierge employee via /api/concierge/auth/sign-in and establishes dedicated session', async () => {
-      const hashedPassword = await hashPassword('SecretEmployeePass123!');
+      const testEmpPass = `EmpTest_${randomBytes(8).toString('hex')}!Aa1`;
+      const hashedPassword = await hashPassword(testEmpPass);
       (db.user.findFirst as any).mockResolvedValueOnce({
         id: 'usr_emp_priya',
         email: 'priya@proventa.in',
@@ -551,7 +553,7 @@ describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABR
 
       const req = new NextRequest('http://localhost:3000/api/concierge/auth/sign-in', {
         method: 'POST',
-        body: JSON.stringify({ email: 'priya@proventa.in', password: 'SecretEmployeePass123!' }),
+        body: JSON.stringify({ email: 'priya@proventa.in', password: testEmpPass }),
       });
 
       const res = await conciergeSignInHandler(req);
@@ -564,7 +566,8 @@ describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABR
     });
 
     it('rejects ordinary customer attempting to sign in to Concierge Desk with 403', async () => {
-      const hashedPassword = await hashPassword('CustomerPass123!');
+      const testCustPass = `CustTest_${randomBytes(8).toString('hex')}!Aa1`;
+      const hashedPassword = await hashPassword(testCustPass);
       (db.user.findFirst as any).mockResolvedValueOnce({
         id: 'usr_cust_aarav',
         email: 'aarav@proventa.in',
@@ -575,7 +578,7 @@ describe('PROVENTA CONCIERGE OPERATIONS PORTAL — RBAC, CONCURRENCY & ZERO-FABR
 
       const req = new NextRequest('http://localhost:3000/api/concierge/auth/sign-in', {
         method: 'POST',
-        body: JSON.stringify({ email: 'aarav@proventa.in', password: 'CustomerPass123!' }),
+        body: JSON.stringify({ email: 'aarav@proventa.in', password: testCustPass }),
       });
 
       const res = await conciergeSignInHandler(req);

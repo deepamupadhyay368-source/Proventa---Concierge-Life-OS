@@ -130,7 +130,7 @@ describe('Phase 3.1: Production Infrastructure Hardening Test Suite', { timeout:
 
     it('rejects invalid webhook signatures in production mode', async () => {
       vi.stubEnv('NODE_ENV', 'production');
-      process.env.RAZORPAY_WEBHOOK_SECRET = 'secret_key_123';
+      process.env.RAZORPAY_WEBHOOK_SECRET = `test_sec_${crypto.randomBytes(8).toString('hex')}`;
 
       try {
         const payload = JSON.stringify({ event: 'payment.captured' });
@@ -170,10 +170,10 @@ describe('Phase 3.1: Production Infrastructure Hardening Test Suite', { timeout:
       expect(verifyWebhookSignature('', '', '')).toBe(false);
 
       // Authentic signature test
-      const secret = 'super_secret';
+      const testSecretVal = `sec_${crypto.randomBytes(8).toString('hex')}`;
       const body = JSON.stringify({ event: 'test' });
-      const validSig = crypto.createHmac('sha256', secret).update(body).digest('hex');
-      expect(verifyWebhookSignature(body, validSig, secret)).toBe(true);
+      const validSig = crypto.createHmac('sha256', testSecretVal).update(body).digest('hex');
+      expect(verifyWebhookSignature(body, validSig, testSecretVal)).toBe(true);
     });
 
     it('rejects partner confirmation webhook if secret is omitted or incorrect', async () => {
@@ -199,7 +199,7 @@ describe('Phase 3.1: Production Infrastructure Hardening Test Suite', { timeout:
         body: JSON.stringify({
           taskId: 'task-123',
           externalReferenceId: 'EXT-999',
-          secret: 'wrong_secret',
+          secret: `wrong_${crypto.randomBytes(8).toString('hex')}`,
         }),
       });
 
@@ -210,7 +210,7 @@ describe('Phase 3.1: Production Infrastructure Hardening Test Suite', { timeout:
     it('rejects WhatsApp webhook POST in production when HMAC signature is invalid', async () => {
       const { POST: whatsappPostHandler } = await import('@/app/api/webhooks/whatsapp/route');
       vi.stubEnv('NODE_ENV', 'production');
-      process.env.WHATSAPP_APP_SECRET = 'app_secret_abc';
+      process.env.WHATSAPP_APP_SECRET = `wa_sec_${crypto.randomBytes(8).toString('hex')}`;
 
       try {
         const req = new Request('http://localhost:3000/api/webhooks/whatsapp', {

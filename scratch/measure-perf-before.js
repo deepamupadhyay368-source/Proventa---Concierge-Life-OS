@@ -1,7 +1,7 @@
 const path = require('path');
 const { encode } = require(path.join(process.cwd(), 'node_modules/next-auth/jwt'));
 
-const secret = 'UjFKUyYtprfynbpHKNhA86yqxelkIa7aFCC/3uQ4NNc=';
+const secret = process.env.AUTH_SECRET || '';
 const hostname = 'www.proventa.in';
 
 async function timedFetch(url, options = {}) {
