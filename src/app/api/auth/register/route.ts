@@ -23,11 +23,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, phone, city, preferredComm, dob, address } = parsed.data;
+    const { name, email, password, securityKey, phone, city, preferredComm, dob, address } = parsed.data;
 
     const normalizedEmail = email.trim().toLowerCase();
     const cleanPhone = phone ? phone.trim() : null;
     const passwordHash = await hashPassword(password);
+    const securityKeyHash = securityKey ? await hashPassword(securityKey) : null;
 
     // Check for existing user
     const existing = await db.user.findUnique({
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest) {
         where: { id: existing.id },
         data: {
           passwordHash,
+          securityKeyHash: securityKeyHash || existing.securityKeyHash,
           name: existing.name || name,
           phone: cleanPhone || existing.phone,
           status: 'ACTIVE',
@@ -93,6 +95,7 @@ export async function POST(req: NextRequest) {
         name,
         phone: cleanPhone,
         passwordHash,
+        securityKeyHash,
         status: 'ACTIVE',
         emailVerified: new Date(),
         userRoles: { create: [{ role: 'CUSTOMER' }] },

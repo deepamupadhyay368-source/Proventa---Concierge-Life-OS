@@ -5,10 +5,11 @@ import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
 import { randomBytes } from 'crypto';
 
-describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', () => {
+describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', { timeout: 30000 }, () => {
   const testEmail = `wave1_smoke_${randomBytes(6).toString('hex')}@proventa.internal`;
   const testName = 'Smoke Test Beta VIP';
   const testPassword = `SmokePass_${randomBytes(6).toString('hex')}!Aa1`;
+  const testSecurityKey = '9821-Alpha-Key';
   let testRegistrationId: string;
   let testInvitationId: string;
   let testToken: string;
@@ -105,7 +106,7 @@ describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', () => {
   });
 
   // Step 6 - 9: Acceptance & Customer Account Creation
-  it('6-9. Accept invitation, securely hash password, verify email, and activate Wave 1 customer profile', async () => {
+  it('6-9. Accept invitation, securely hash password & security key, verify email, and activate Wave 1 customer profile', async () => {
     const tokenHash = hashToken(testToken);
     const invitation = await db.invitation.findFirst({
       where: {
@@ -121,11 +122,13 @@ describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', () => {
     const { registration } = invitation!;
 
     const passwordHash = await hashPassword(testPassword);
+    const securityKeyHash = await hashPassword(testSecurityKey);
     const user = await db.user.create({
       data: {
         email: registration.email,
         name: registration.name,
         passwordHash,
+        securityKeyHash,
         status: 'ACTIVE',
         emailVerified: new Date(), // Immediate verification on invite accept
         userRoles: {
@@ -164,14 +167,15 @@ describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', () => {
     expect(user.id).toBeDefined();
     expect(user.status).toBe('ACTIVE');
     expect(user.emailVerified).toBeDefined();
+    expect(user.securityKeyHash).toBeDefined();
 
     const checkReg = await db.earlyAccessRegistration.findUnique({ where: { id: testRegistrationId } });
     expect(checkReg?.status).toBe('REGISTERED');
     expect(checkReg?.convertedUserId).toBe(user.id);
   });
 
-  // Step 10: Sign in validation
-  it('10. Customer sign-in validates password hash successfully', async () => {
+  // Step 10: Sign in validation with Password & Security Key
+  it('10. Customer sign-in validates password hash and security key successfully', async () => {
     const user = await db.user.findUnique({
       where: { email: testEmail },
       include: { userRoles: true },
@@ -179,8 +183,15 @@ describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', () => {
 
     expect(user).toBeDefined();
     expect(user!.status).toBe('ACTIVE');
-    const isValid = await verifyPassword(testPassword, user!.passwordHash!);
-    expect(isValid).toBe(true);
+    const isValidPass = await verifyPassword(testPassword, user!.passwordHash!);
+    expect(isValidPass).toBe(true);
+
+    const isValidKey = await verifyPassword(testSecurityKey, user!.securityKeyHash!);
+    expect(isValidKey).toBe(true);
+
+    const isWrongKey = await verifyPassword('WrongKey999', user!.securityKeyHash!);
+    expect(isWrongKey).toBe(false);
+
     expect(user!.userRoles.map((r) => r.role)).toContain('CUSTOMER');
   });
 

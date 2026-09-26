@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { registerSchema } from '@/lib/validation/schemas';
-import { Loader2 } from 'lucide-react';
+import { Loader2, KeyRound } from 'lucide-react';
 import type { z } from 'zod';
 
 type FormData = z.infer<typeof registerSchema>;
@@ -192,6 +192,41 @@ export function SignUpForm() {
             {...register('confirmPassword')}
           />
           {errors.confirmPassword && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmPassword.message}</p>}
+        </div>
+
+        <div className="pt-2 border-t border-[#ded7cc]/60">
+          <div className="flex items-center justify-between mb-1.5">
+            <label htmlFor="securityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider font-sans flex items-center gap-1.5">
+              <KeyRound className="h-3.5 w-3.5 text-[#8a7053]" />
+              <span>Personal Security Key / PIN</span>
+            </label>
+            <span className="text-[11px] text-[#8a8680] font-sans">Required at every login</span>
+          </div>
+          <input
+            id="securityKey"
+            type="password"
+            autoComplete="new-password"
+            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+            placeholder="Create a confidential PIN or Security Key"
+            {...register('securityKey')}
+          />
+          {errors.securityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.securityKey.message}</p>}
+          <p className="text-[11px] text-[#8a8680] mt-1 font-sans">Keep this confidential. You will be asked for this key on every login.</p>
+        </div>
+
+        <div>
+          <label htmlFor="confirmSecurityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+            Confirm Security Key
+          </label>
+          <input
+            id="confirmSecurityKey"
+            type="password"
+            autoComplete="new-password"
+            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+            placeholder="Re-enter your security key"
+            {...register('confirmSecurityKey')}
+          />
+          {errors.confirmSecurityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmSecurityKey.message}</p>}
         </div>
 
         <button

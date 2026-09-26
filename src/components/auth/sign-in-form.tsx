@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validation/schemas';
-import { Phone, Mail, ArrowRight, Loader2 } from 'lucide-react';
+import { Phone, Mail, ArrowRight, Loader2, KeyRound } from 'lucide-react';
 import type { z } from 'zod';
 
 type FormData = z.infer<typeof loginSchema>;
@@ -29,7 +29,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     resolver: zodResolver(loginSchema),
   });
 
-  // Handle Email + Password submit
+  // Handle Email + Password + Security Key submit
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     setError(null);
@@ -37,10 +37,11 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
+        securityKey: data.securityKey || '',
         redirect: false,
       });
       if (result?.error) {
-        setError('Invalid email or password.');
+        setError('Invalid email, password, or security key.');
       } else {
         router.push(callbackUrl ?? '/dashboard');
         router.refresh();
@@ -277,6 +278,25 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               {...register('password')}
             />
             {errors.password && <p className="mt-1 text-xs text-red-600 font-sans">{errors.password.message}</p>}
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label htmlFor="securityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider font-sans flex items-center gap-1.5">
+                <KeyRound className="h-3.5 w-3.5 text-[#8a7053]" />
+                <span>Security Key / PIN</span>
+              </label>
+              <span className="text-[11px] text-[#8a8680] font-sans">Created at registration</span>
+            </div>
+            <input
+              id="securityKey"
+              type="password"
+              autoComplete="one-time-code"
+              className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              placeholder="Enter your confidential security key or PIN"
+              {...register('securityKey')}
+            />
+            {errors.securityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.securityKey.message}</p>}
           </div>
 
           <button

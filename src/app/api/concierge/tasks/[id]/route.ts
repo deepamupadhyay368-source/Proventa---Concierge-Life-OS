@@ -18,6 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         customer: {
           include: {
             user: { select: { id: true, name: true, email: true, phone: true } },
+            preferences: true,
           },
         },
         events: {
@@ -40,6 +41,67 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       db.task.count({ where: { customerId: task.customerId, status: { notIn: ['COMPLETED', 'CANCELLED'] } } }),
       db.task.count({ where: { customerId: task.customerId, status: 'COMPLETED' } }),
     ]);
+
+    // Resolve accurate client phone number if not stored directly on user record
+    let clientPhone = task.customer?.user?.phone || null;
+    if (!clientPhone && task.customer?.user?.email) {
+      const reg = await db.earlyAccessRegistration.findFirst({
+        where: { email: task.customer.user.email },
+        select: { phone: true },
+      });
+      if (reg?.phone) clientPhone = reg.phone;
+    }
+
+    // Build human-readable, clean member preferences without raw internal system debug data
+    const structuredPreferences: Array<{ category?: string; label: string; value: string }> = [];
+    
+    // 1. Explicit profile preferences
+    if (task.customer?.preferences && Array.isArray(task.customer.preferences)) {
+      for (const p of task.customer.preferences) {
+        const valStr = typeof p.value === 'object' && p.value !== null
+          ? Object.entries(p.value as Record<string, any>).map(([k, v]) => `${k}: ${v}`).join(', ')
+          : String(p.value ?? '');
+        structuredPreferences.push({
+          category: p.category,
+          label: p.key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          value: valStr,
+        });
+      }
+    }
+
+    // 2. Contextual task preferences (filter out internal system keys)
+    const internalKeys = new Set([
+      'batchHistory',
+      'claimedAt',
+      'assignedOperator',
+      'approvedAt',
+      'approvedOption',
+      'rawInput',
+      'isMock',
+      'batchNumber',
+      'status',
+      'taskId',
+      'options',
+      'proposedOptions',
+      'activeBatch',
+      'internalNotes',
+      'vendorId',
+      'operator',
+    ]);
+
+    for (const [key, val] of Object.entries(prefs)) {
+      if (!internalKeys.has(key) && val !== null && val !== undefined && val !== '') {
+        const label = key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+        const value = typeof val === 'object' && val !== null
+          ? Object.entries(val as Record<string, any>).map(([k, v]) => `${k}: ${v}`).join(', ')
+          : String(val);
+        structuredPreferences.push({
+          category: 'Request Context',
+          label,
+          value,
+        });
+      }
+    }
 
     // Parse approval history batches
     const batchHistory = Array.isArray(prefs.batchHistory) ? prefs.batchHistory : [];
@@ -114,10 +176,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         userId: task.customer?.user?.id || '',
         name: task.customer?.user?.name || 'Valued Member',
         email: task.customer?.user?.email || '',
-        phone: task.customer?.user?.phone || null,
-        city: task.customer?.city || null,
+        phone: clientPhone,
+        city: task.customer?.city || 'Ahmedabad, India',
         membershipTier: 'FOUNDING_MEMBER',
-        preferences: prefs,
+        preferences: structuredPreferences,
         activeTasksCount: activeCount,
         completedTasksCount: completedCount,
       },

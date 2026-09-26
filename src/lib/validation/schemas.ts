@@ -31,12 +31,19 @@ export const phoneSchema = z
   .optional()
   .or(z.literal(''));
 
+export const securityKeySchema = z
+  .string()
+  .min(4, 'Security Key must be at least 4 characters')
+  .max(32, 'Security Key is too long');
+
 export const registerSchema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters').max(100),
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string().optional(),
+    securityKey: securityKeySchema.optional(),
+    confirmSecurityKey: z.string().optional(),
     phone: phoneSchema.optional(),
     city: z.string().optional(),
     preferredComm: z.enum(['IN_APP', 'EMAIL', 'WHATSAPP', 'SMS']).optional(),
@@ -46,12 +53,16 @@ export const registerSchema = z
   .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
+  })
+  .refine((data) => !data.securityKey || !data.confirmSecurityKey || data.securityKey === data.confirmSecurityKey, {
+    message: 'Security keys do not match',
+    path: ['confirmSecurityKey'],
   });
-
 
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, 'Password is required'),
+  securityKey: z.string().optional(),
 });
 
 export const passwordResetRequestSchema = z.object({

@@ -13,9 +13,14 @@ const acceptSchema = z.object({
   token: z.string().min(1),
   password: passwordSchema,
   confirmPassword: z.string(),
+  securityKey: z.string().min(4, 'Security Key must be at least 4 characters').max(32).optional(),
+  confirmSecurityKey: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
+}).refine((data) => !data.securityKey || !data.confirmSecurityKey || data.securityKey === data.confirmSecurityKey, {
+  message: 'Security keys do not match',
+  path: ['confirmSecurityKey'],
 });
 
 export async function GET(req: NextRequest) {
@@ -72,7 +77,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Validation failed', fields: parsed.error.flatten().fieldErrors }, { status: 422 });
     }
 
-    const { token, password } = parsed.data;
+    const { token, password, securityKey } = parsed.data;
     const tokenHash = hashToken(token);
 
     const invitation = await db.invitation.findFirst({
@@ -93,12 +98,14 @@ export async function POST(req: NextRequest) {
 
     let user = await db.user.findUnique({ where: { email: registration.email } });
     const passwordHash = await hashPassword(password);
+    const securityKeyHash = securityKey ? await hashPassword(securityKey) : null;
 
     if (user) {
       user = await db.user.update({
         where: { id: user.id },
         data: {
           passwordHash,
+          securityKeyHash: securityKeyHash || user.securityKeyHash,
           status: 'ACTIVE',
           emailVerified: new Date(),
         },
@@ -110,6 +117,7 @@ export async function POST(req: NextRequest) {
           name: registration.name,
           phone: registration.phone,
           passwordHash,
+          securityKeyHash,
           status: 'ACTIVE',
           emailVerified: new Date(),
           userRoles: {

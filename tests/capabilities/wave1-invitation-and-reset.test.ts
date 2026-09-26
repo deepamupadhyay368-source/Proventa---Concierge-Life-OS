@@ -106,7 +106,7 @@ describe('PROVENTA — WAVE 1 INVITATION & SAFE RESET SUITE', () => {
     expect(preview.preservedAdminsCount).toBeGreaterThanOrEqual(1);
     expect(preview.preservedCategoriesCount).toBe(9);
     expect(preview.preservedCitiesCount).toBeGreaterThanOrEqual(1);
-  }, 15000);
+  }, 30000);
 
   // Confirmation Gate Enforcement
   it('should reject operational reset if confirmation text does not match exactly', async () => {

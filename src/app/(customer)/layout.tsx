@@ -1,13 +1,27 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles, HelpCircle, ListTodo } from 'lucide-react';
 import { FloatingConcierge } from '@/components/ui/FloatingConcierge';
+import { getTimeAwareGreeting } from '@/lib/auth/greeting';
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [userProfile, setUserProfile] = useState<{ name?: string | null; email?: string } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/customer/profile')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.profile) setUserProfile(data.profile);
+      })
+      .catch(() => {});
+  }, []);
+
+  const greeting = getTimeAwareGreeting(userProfile?.name);
 
   const navItems = [
     { href: '/dashboard', label: 'Home', icon: Home },
@@ -56,6 +70,12 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
           </div>
 
           <div className="flex items-center gap-3">
+            {userProfile?.name && (
+              <span className="hidden lg:inline-flex text-xs font-medium text-neutral-600 border border-neutral-200/80 bg-neutral-50 px-2.5 py-1 rounded-full">
+                {greeting}
+              </span>
+            )}
+
             <Link
               href="/dashboard#new-request"
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 text-white text-xs font-medium rounded-lg hover:bg-brand-800 transition-colors shadow-sm"

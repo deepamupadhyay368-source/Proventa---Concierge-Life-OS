@@ -17,18 +17,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/sign-in',
   },
   providers: [
-    // Standard Email & Password
+    // Standard Email, Password & Security Key
     Credentials({
       id: 'credentials',
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        securityKey: { label: 'Security Key', type: 'password' },
       },
       async authorize(credentials, request) {
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
-        const { email, password } = parsed.data;
+        const { email, password, securityKey } = parsed.data;
         const user = await db.user.findUnique({
           where: { email, deletedAt: null },
           include: { userRoles: true },
@@ -42,11 +43,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'suspended' } });
           return null;
         }
-        const isValid = await verifyPassword(password, user.passwordHash);
-        if (!isValid) {
+        const isValidPassword = await verifyPassword(password, user.passwordHash);
+        if (!isValidPassword) {
           void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_password' } });
           return null;
         }
+
+        // Validate Security Key if configured on the user profile
+        if (user.securityKeyHash) {
+          if (!securityKey) {
+            void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'missing_security_key' } });
+            return null;
+          }
+          const isValidKey = await verifyPassword(securityKey, user.securityKeyHash);
+          if (!isValidKey) {
+            void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_security_key' } });
+            return null;
+          }
+        }
+
         if (user.status === 'PENDING_VERIFICATION') return null;
         void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
         logger.info({ userId: user.id }, 'User logged in');

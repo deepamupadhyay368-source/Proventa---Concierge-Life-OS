@@ -254,18 +254,19 @@ enum PaymentMethodType {
 // ============================================================
 
 model User {
-  id            String     @id @default(cuid())
-  email         String     @unique
-  emailVerified DateTime?
-  name          String?
-  phone         String?
-  phoneVerified DateTime?
-  passwordHash  String?
-  status        UserStatus @default(PENDING_VERIFICATION)
-  image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  deletedAt     DateTime?
+  id              String     @id @default(cuid())
+  email           String     @unique
+  emailVerified   DateTime?
+  name            String?
+  phone           String?
+  phoneVerified   DateTime?
+  passwordHash    String?
+  securityKeyHash String?    // Client Security Key / PIN hash (required at login)
+  status          UserStatus @default(PENDING_VERIFICATION)
+  image           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
 
   // Relations
   userRoles              UserRoleAssignment[]

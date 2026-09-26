@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ShieldCheck, CheckCircle2, AlertCircle, Loader2, Lock, User, Mail, ArrowRight } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, AlertCircle, Loader2, Lock, User, Mail, ArrowRight, KeyRound } from 'lucide-react';
 
 function AcceptForm() {
   const searchParams = useSearchParams();
@@ -22,6 +22,8 @@ function AcceptForm() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [securityKey, setSecurityKey] = useState('');
+  const [confirmSecurityKey, setConfirmSecurityKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +94,14 @@ function AcceptForm() {
       setError('Password must be at least 8 characters');
       return;
     }
+    if (securityKey && securityKey !== confirmSecurityKey) {
+      setError('Security keys do not match');
+      return;
+    }
+    if (securityKey && securityKey.length < 4) {
+      setError('Security Key must be at least 4 characters');
+      return;
+    }
 
     setLoading(true);
     setError(null);
@@ -100,7 +110,13 @@ function AcceptForm() {
       const res = await fetch('/api/wave1/accept', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password, confirmPassword }),
+        body: JSON.stringify({
+          token,
+          password,
+          confirmPassword,
+          securityKey: securityKey || undefined,
+          confirmSecurityKey: confirmSecurityKey || undefined,
+        }),
       });
 
       const data = await res.json();
@@ -191,6 +207,45 @@ function AcceptForm() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full pl-10 pr-3.5 py-2.5 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-900"
               placeholder="••••••••••••"
+            />
+          </div>
+        </div>
+
+        {/* Create Personal Security Key */}
+        <div className="pt-2 border-t border-neutral-100">
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-medium text-neutral-700 flex items-center gap-1.5">
+              <KeyRound className="h-3.5 w-3.5 text-amber-600" />
+              <span>Personal Security Key / PIN *</span>
+            </label>
+            <span className="text-[10px] text-neutral-400">Required at every login</span>
+          </div>
+          <div className="relative">
+            <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <input
+              type="password"
+              required
+              value={securityKey}
+              onChange={(e) => setSecurityKey(e.target.value)}
+              className="w-full pl-10 pr-3.5 py-2.5 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-900"
+              placeholder="e.g. 6-digit PIN or secret phrase"
+            />
+          </div>
+          <p className="text-[10px] text-neutral-400 mt-1">Keep this confidential. You will insert this security key each time you access Proventa.</p>
+        </div>
+
+        {/* Confirm Security Key */}
+        <div>
+          <label className="block text-xs font-medium text-neutral-700 mb-1">Confirm Security Key *</label>
+          <div className="relative">
+            <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <input
+              type="password"
+              required
+              value={confirmSecurityKey}
+              onChange={(e) => setConfirmSecurityKey(e.target.value)}
+              className="w-full pl-10 pr-3.5 py-2.5 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-900"
+              placeholder="Re-enter your security key"
             />
           </div>
         </div>

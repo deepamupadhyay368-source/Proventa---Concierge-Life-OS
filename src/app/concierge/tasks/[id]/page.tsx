@@ -779,14 +779,34 @@ export default function TaskWorkspacePage() {
                 <div className="text-neutral-400 text-[11px]">{customer.city || 'Ahmedabad, India'}</div>
               </div>
 
-              <div className="space-y-1.5 pt-2 border-t border-neutral-800">
+              <div className="space-y-2 pt-2 border-t border-neutral-800">
                 <div className="flex items-center justify-between text-neutral-400">
-                  <span>Phone:</span>
-                  <span className="font-mono text-neutral-200">{customer.phone || 'Not on file'}</span>
+                  <span>Full Name:</span>
+                  <span className="text-white font-medium">{customer.name}</span>
                 </div>
                 <div className="flex items-center justify-between text-neutral-400">
-                  <span>Email:</span>
-                  <span className="text-neutral-200">{customer.email}</span>
+                  <span>Email Address:</span>
+                  <a
+                    href={`mailto:${customer.email}`}
+                    className="text-neutral-200 hover:text-white truncate max-w-[180px] font-mono"
+                    title={customer.email}
+                  >
+                    {customer.email}
+                  </a>
+                </div>
+                <div className="flex items-center justify-between text-neutral-400">
+                  <span>Contact No:</span>
+                  {customer.phone ? (
+                    <a
+                      href={`tel:${customer.phone}`}
+                      className="font-mono text-amber-300 hover:underline flex items-center gap-1"
+                    >
+                      <Phone className="h-3 w-3" />
+                      <span>{customer.phone}</span>
+                    </a>
+                  ) : (
+                    <span className="font-mono text-neutral-400">Not on file</span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between text-neutral-400">
                   <span>Active Tasks:</span>
@@ -794,14 +814,47 @@ export default function TaskWorkspacePage() {
                 </div>
               </div>
 
-              {customer.preferences && Object.keys(customer.preferences).length > 0 && (
-                <div className="pt-2 border-t border-neutral-800 space-y-1">
-                  <div className="text-[10px] font-mono uppercase text-neutral-500">Member Preferences</div>
-                  <pre className="text-[11px] bg-neutral-950 p-2 rounded-lg text-neutral-300 font-sans whitespace-pre-wrap overflow-x-auto">
-                    {JSON.stringify(customer.preferences, null, 2)}
-                  </pre>
+              <div className="pt-3 border-t border-neutral-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400">Member Preferences</span>
+                  <span className="text-[9px] font-mono text-amber-400/80 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">Tailored Profile</span>
                 </div>
-              )}
+                {Array.isArray(customer.preferences) && customer.preferences.length > 0 ? (
+                  <div className="space-y-1.5">
+                    {customer.preferences.map((pref: any, idx: number) => (
+                      <div
+                        key={idx}
+                        className="p-2 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex items-start justify-between gap-2"
+                      >
+                        <span className="text-[10px] font-mono text-neutral-400 shrink-0">{pref.label || pref.key}:</span>
+                        <span className="text-[11px] text-amber-200 font-medium text-right break-words">{pref.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                ) : typeof customer.preferences === 'object' && customer.preferences && Object.keys(customer.preferences).length > 0 ? (
+                  <div className="space-y-1.5">
+                    {Object.entries(customer.preferences)
+                      .filter(([k]) => !['batchHistory', 'claimedAt', 'assignedOperator', 'approvedAt', 'approvedOption', 'rawInput', 'isMock'].includes(k))
+                      .map(([k, v], idx) => (
+                        <div
+                          key={idx}
+                          className="p-2 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex items-start justify-between gap-2"
+                        >
+                          <span className="text-[10px] font-mono text-neutral-400 shrink-0">
+                            {k.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}:
+                          </span>
+                          <span className="text-[11px] text-amber-200 font-medium text-right break-words">
+                            {typeof v === 'object' ? JSON.stringify(v) : String(v)}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-lg bg-neutral-950/50 border border-neutral-800/50 text-[11px] text-neutral-400 leading-relaxed">
+                    Standard private member preferences apply. No custom dietary or restrictive vectors recorded.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
