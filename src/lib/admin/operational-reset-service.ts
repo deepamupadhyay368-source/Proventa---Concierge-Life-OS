@@ -150,14 +150,27 @@ export class OperationalResetService {
       const deletedBookings = await tx.booking.deleteMany({});
       const deletedApprovals = await tx.approval.deleteMany({});
 
-      // 4. Delete all operational tasks
+      // 4. Delete concierge requests and child interactions
+      const deletedAttachments = await tx.requestAttachment.deleteMany({});
+      const deletedMessages = await tx.requestMessage.deleteMany({});
+      const deletedAssignments = await tx.requestAssignment.deleteMany({});
+      const deletedStatusHistory = await tx.requestStatusHistory.deleteMany({});
+      const deletedRecommendations = await tx.aiRecommendation.deleteMany({});
+      const deletedInteractions = await tx.aiInteraction.deleteMany({});
+      const deletedWorkflowRuns = await tx.aiWorkflowRun.deleteMany({});
+      const deletedSlaRecords = await tx.sLARecord.deleteMany({});
+      const deletedFeedback = await tx.feedback.deleteMany({});
+      const deletedSupportTickets = await tx.supportTicket.deleteMany({});
+      const deletedConciergeRequests = await tx.conciergeRequest.deleteMany({});
+
+      // 5. Delete all operational tasks
       const deletedTasks = await tx.task.deleteMany({});
 
-      // 5. Delete test notifications & internal notes associated with tasks
+      // 6. Delete test notifications & internal notes associated with tasks
       const deletedNotifications = await tx.notification.deleteMany({});
       const deletedInternalNotes = await tx.internalNote.deleteMany({});
 
-      // 6. Delete test customer accounts (excluding protected admins & employees)
+      // 7. Delete test customer accounts (excluding protected admins & employees)
       const protectedAdminEmails = preview.details.protectedAdmins.map((a) => a.email);
       const protectedEmployeeEmails = preview.details.protectedEmployees.map((e) => e.email);
       const protectedEmails = new Set([...protectedAdminEmails, ...protectedEmployeeEmails, 'admin@proventa.dev', 'founder@proventa.in', 'operator@proventa.in']);
@@ -183,6 +196,18 @@ export class OperationalResetService {
       await tx.session.deleteMany({
         where: { userId: { in: testUserIds } },
       });
+      await tx.emailVerification.deleteMany({
+        where: { userId: { in: testUserIds } },
+      });
+      await tx.passwordReset.deleteMany({
+        where: { userId: { in: testUserIds } },
+      });
+      await tx.consentRecord.deleteMany({
+        where: { userId: { in: testUserIds } },
+      });
+      await tx.oAuthAccount.deleteMany({
+        where: { userId: { in: testUserIds } },
+      });
       await tx.userRoleAssignment.deleteMany({
         where: { userId: { in: testUserIds } },
       });
@@ -196,6 +221,7 @@ export class OperationalResetService {
         agentRuns: deletedAgentRuns.count,
         bookings: deletedBookings.count,
         payments: deletedPayments.count,
+        conciergeRequests: deletedConciergeRequests.count,
         testUsers: deletedUsers.count,
       };
     });
