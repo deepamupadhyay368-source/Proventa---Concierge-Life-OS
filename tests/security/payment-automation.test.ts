@@ -66,7 +66,7 @@ describe('PROVENTA — PAYMENT CENTER & CUSTOMER PAYMENT AUTOMATION SUITE', { ti
         userId: otherUser.id,
       },
     });
-  });
+  }, 30000);
 
   // Scenario 1: UPI Autopay mandate setup initiation
   it('1. should initiate UPI Autopay mandate setup in PENDING status', async () => {

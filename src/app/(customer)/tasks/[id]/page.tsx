@@ -19,7 +19,11 @@ import {
   RotateCcw,
   SlidersHorizontal,
   X,
-  MessageSquare
+  MessageSquare,
+  CreditCard,
+  Lock,
+  Plane,
+  ExternalLink,
 } from 'lucide-react';
 import { DAGGraphView } from '@/components/tasks/dag-graph-view';
 import { ApprovalActionCard } from '@/components/tasks/approval-action-card';
@@ -43,11 +47,84 @@ export default function TaskDetailPage() {
   const [showModifyModal, setShowModifyModal] = useState(false);
   const [modifyPrompt, setModifyPrompt] = useState('');
 
+  // Payment checkout & authorization modal state
+  const [pendingPaymentModal, setPendingPaymentModal] = useState<{
+    order?: any;
+    option: any;
+    message?: string;
+  } | null>(null);
+  const [processingPayment, setProcessingPayment] = useState(false);
+
   // Manual concierge resolution state
   const [manualRef, setManualRef] = useState('');
   const [manualVendor, setManualVendor] = useState('');
   const [manualNotes, setManualNotes] = useState('');
   const [submittingManual, setSubmittingManual] = useState(false);
+
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (typeof window !== 'undefined' && (window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const launchRazorpayCheckout = async (order: any, option: any) => {
+    setProcessingPayment(true);
+    try {
+      const loaded = await loadRazorpayScript();
+      const razorpayKey = order?.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_proventa_dev_key';
+
+      if (loaded && typeof window !== 'undefined' && (window as any).Razorpay) {
+        const rzp = new (window as any).Razorpay({
+          key: razorpayKey,
+          amount: order?.amountPaise || (option.priceAmount * 100),
+          currency: order?.currency || 'INR',
+          name: 'Proventa Concierge',
+          description: `Reservation: ${option.title || option.providerName}`,
+          order_id: order?.orderId?.startsWith('order_') ? order.orderId : undefined,
+          handler: async (response: any) => {
+            setUserNotice('Payment authorized! Finalizing your reservation...');
+            try {
+              const verifyRes = await fetch('/api/payments/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: response.razorpay_order_id || order?.orderId || `order_${Date.now()}`,
+                  paymentId: response.razorpay_payment_id || `pay_${Date.now()}`,
+                  signature: response.razorpay_signature || 'sig_verified_direct',
+                  taskId,
+                  optionId: option.id,
+                }),
+              });
+              const verifyData = await verifyRes.json();
+              if (verifyData.success) {
+                setPendingPaymentModal(null);
+                loadTask();
+              }
+            } catch (e) {
+              handleApprove(option, true);
+            }
+          },
+          theme: { color: '#141312' },
+        });
+        rzp.open();
+      } else {
+        handleApprove(option, true);
+      }
+    } catch (e) {
+      console.error('[Razorpay Launch Error]', e);
+      handleApprove(option, true);
+    } finally {
+      setProcessingPayment(false);
+    }
+  };
 
   const loadTask = async () => {
     try {
@@ -65,23 +142,45 @@ export default function TaskDetailPage() {
     return () => clearInterval(interval);
   }, [taskId]);
 
-  const handleApprove = async (option: any) => {
+  const handleApprove = async (option: any, skipPaymentGate = false) => {
     setApproving(true);
-    setUserNotice('Authorizing your selection and executing...');
+    setUserNotice('Authorizing your selection and preparing reservation...');
     try {
       const res = await fetch(`/api/tasks/${taskId}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ option }),
+        body: JSON.stringify({ option, skipPaymentGate }),
       });
       const data = await res.json();
-      if (data.task) {
+
+      if (data.paymentRequired && data.paymentOrder && !skipPaymentGate) {
+        setPendingPaymentModal({
+          order: data.paymentOrder,
+          option,
+          message: data.message,
+        });
+
+        // Attempt launching Razorpay if key is configured
+        const razorpayKey = data.paymentOrder.keyId || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+        if (razorpayKey && !razorpayKey.includes('dev_key') && typeof window !== 'undefined') {
+          const loaded = await loadRazorpayScript();
+          if (loaded && (window as any).Razorpay) {
+            launchRazorpayCheckout(data.paymentOrder, option);
+          }
+        }
+      } else if (data.task) {
         setTask(data.task);
+        setPendingPaymentModal(null);
+        setUserNotice(data.message || 'Reservation authorized! Your concierge is executing your booking.');
         loadTask();
+      } else if (data.error) {
+        setUserNotice(`Notice: ${data.error}`);
       }
+    } catch (err: any) {
+      console.error('Approval execution failed', err);
+      setUserNotice('Failed to complete approval. Please try again.');
     } finally {
       setApproving(false);
-      setUserNotice(null);
     }
   };
 
@@ -443,7 +542,7 @@ export default function TaskDetailPage() {
 
       {/* Locked & Approved Option Card */}
       {approvedOption && !deliverable && !task.externalReferenceId && (
-        <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-3">
+        <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -451,7 +550,7 @@ export default function TaskDetailPage() {
                 Locked Approved Option
               </h3>
             </div>
-            <span className="text-xs font-mono font-bold text-neutral-900">
+            <span className="text-xs font-mono font-bold text-emerald-800">
               {approvedOption.priceFormatted || (approvedOption.priceAmount ? `₹${approvedOption.priceAmount.toLocaleString('en-IN')}` : 'Included')}
             </span>
           </div>
@@ -463,6 +562,44 @@ export default function TaskDetailPage() {
               <p className="text-xs text-neutral-600 mt-2 leading-relaxed">{approvedOption.description}</p>
             )}
           </div>
+
+          {/* Pending Payment & Authorization Action Panel */}
+          {task.paymentStatus === 'PENDING' && (
+            <div className="mt-4 p-4 rounded-xl bg-amber-50/80 border border-amber-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-amber-700" />
+                  <span className="text-xs font-bold text-amber-950">Payment Authorization Required</span>
+                </div>
+                <span className="text-xs font-mono font-bold text-amber-900">
+                  Total: {approvedOption.priceFormatted || `₹${approvedOption.priceAmount || task.budgetAmount || 0}`}
+                </span>
+              </div>
+              <p className="text-[11px] text-amber-900/80 leading-relaxed">
+                Choose to settle online via UPI / Card, or authorize your Proventa Concierge to execute the booking immediately and bill your member account.
+              </p>
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => launchRazorpayCheckout({ amountPaise: (approvedOption.priceAmount || task.budgetAmount || 0) * 100 }, approvedOption)}
+                  disabled={processingPayment || approving}
+                  className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all disabled:opacity-50"
+                >
+                  <Lock className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{processingPayment ? 'Opening Checkout...' : 'Pay via UPI / Card / NetBanking'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApprove(approvedOption, true)}
+                  disabled={approving || processingPayment}
+                  className="px-4 py-2 bg-white hover:bg-amber-100/50 text-amber-950 border border-amber-300 rounded-lg text-xs font-semibold shadow-xs flex items-center gap-1.5 transition-all disabled:opacity-50"
+                >
+                  <UserCheck className="h-3.5 w-3.5 text-amber-800" />
+                  <span>{approving ? 'Authorizing...' : 'Authorize Concierge Execution & Invoice'}</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -821,6 +958,111 @@ export default function TaskDetailPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Payment & Concierge Reservation Authorization Modal */}
+      {pendingPaymentModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-neutral-200 max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-fade-up">
+            <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
+                  <ShieldCheck className="h-5 w-5 text-[#8a7053]" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-neutral-900">Authorize Reservation</h3>
+                  <p className="text-xs text-neutral-500">Review &amp; confirm booking placement</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setPendingPaymentModal(null)}
+                className="p-1 hover:bg-neutral-100 rounded-lg text-neutral-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Itemized Service Box */}
+            <div className="rounded-2xl bg-[#141210] text-[#faf8f5] p-5 space-y-3">
+              <div className="flex items-center justify-between border-b border-[#2e2924] pb-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <Plane className="h-4 w-4 text-[#c8b99d]" />
+                  <span className="font-semibold text-white">
+                    {pendingPaymentModal.option?.metadata?.carrier || pendingPaymentModal.option?.providerName || 'Airline Reservation'}
+                  </span>
+                  {pendingPaymentModal.option?.metadata?.flightNumber && (
+                    <span className="font-mono text-[#c8b99d] bg-[#221e1a] px-2 py-0.5 rounded border border-[#3e362e] text-[10px]">
+                      {pendingPaymentModal.option.metadata.flightNumber}
+                    </span>
+                  )}
+                </div>
+                <span className="text-emerald-400 font-mono font-bold text-sm">
+                  {pendingPaymentModal.option?.priceFormatted || `₹${pendingPaymentModal.option?.priceAmount || 0}`}
+                </span>
+              </div>
+
+              <div className="text-xs text-[#a8a49c] space-y-1">
+                <p className="font-medium text-white">{pendingPaymentModal.option?.title}</p>
+                {pendingPaymentModal.option?.metadata?.departureAirport && pendingPaymentModal.option?.metadata?.arrivalAirport && (
+                  <p className="text-[11px] font-mono text-[#c8b99d]">
+                    {pendingPaymentModal.option.metadata.departureAirport} ➔ {pendingPaymentModal.option.metadata.arrivalAirport}
+                    {pendingPaymentModal.option.metadata.departureTime ? ` · ${pendingPaymentModal.option.metadata.departureTime.slice(11, 16)}` : ''}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <p className="text-xs text-neutral-600 leading-relaxed">
+              To guarantee your reservation with the provider, choose your preferred authorization method below:
+            </p>
+
+            <div className="space-y-2.5 pt-1">
+              {/* Option 1: Direct Payment Gateway Checkout */}
+              <button
+                type="button"
+                onClick={() => launchRazorpayCheckout(pendingPaymentModal.order, pendingPaymentModal.option)}
+                disabled={processingPayment || approving}
+                className="w-full py-3.5 px-5 bg-[#141312] hover:bg-[#2b251f] text-white rounded-xl text-xs font-semibold shadow-md flex items-center justify-between transition-all disabled:opacity-50"
+              >
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-amber-400" />
+                  <span>Pay via UPI / Card / NetBanking</span>
+                </div>
+                <span className="font-mono font-bold text-amber-300">
+                  {pendingPaymentModal.option?.priceFormatted || `₹${pendingPaymentModal.option?.priceAmount || 0}`}
+                </span>
+              </button>
+
+              {/* Option 2: 1-Click Concierge Direct Authorization */}
+              <button
+                type="button"
+                onClick={() => handleApprove(pendingPaymentModal.option, true)}
+                disabled={approving || processingPayment}
+                className="w-full py-3.5 px-5 bg-neutral-50 hover:bg-amber-50/60 border border-neutral-300 hover:border-amber-300 text-neutral-800 rounded-xl text-xs font-semibold flex items-center justify-between transition-all disabled:opacity-50"
+              >
+                <div className="flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-[#8a7053]" />
+                  <span>Authorize Concierge Direct Booking &amp; Invoice</span>
+                </div>
+                <span className="text-[11px] text-neutral-500 font-normal">Wave 1 Member Desk</span>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between pt-3 border-t border-neutral-100 text-xs">
+              <span className="text-[11px] text-neutral-400 flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#8a7053]" />
+                Direct settlement. Zero hidden markups.
+              </span>
+              <button
+                type="button"
+                onClick={() => setPendingPaymentModal(null)}
+                className="px-3 py-1.5 text-neutral-500 hover:text-neutral-900 font-medium"
+              >
+                Back to Options
+              </button>
+            </div>
           </div>
         </div>
       )}

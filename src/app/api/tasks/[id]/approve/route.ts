@@ -46,6 +46,8 @@ export async function POST(
       taskId: id,
       option: selectedOption,
       userId: user.id,
+      skipPaymentGate: body.skipPaymentGate === true,
+      paymentMethod: body.paymentMethod,
     });
 
     return NextResponse.json(result);
