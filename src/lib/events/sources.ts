@@ -41,7 +41,9 @@ export class ProventaVerifiedInventorySource implements EventResearchSource {
     const all = [...VERIFIED_EVENT_DATABASE, ...this.customEvents];
 
     // City resolution
-    const targetCity = constraints.city ? CityResolver.normalizeCity(constraints.city) : 'Ahmedabad';
+    const targetCity = constraints.city 
+      ? CityResolver.normalizeCity(constraints.city) 
+      : (constraints.rawInput ? CityResolver.extractCities(constraints.rawInput).primaryCity : 'Ahmedabad');
     const targetCities = constraints.cities && constraints.cities.length > 0
       ? constraints.cities.map(c => CityResolver.normalizeCity(c))
       : [targetCity];
@@ -73,7 +75,9 @@ export class OfficialVenuesCalendarSource implements EventResearchSource {
 
   async search(constraints: EventSearchConstraints): Promise<NormalizedEvent[]> {
     const rawInput = constraints.rawInput || '';
-    const targetCity = constraints.city ? CityResolver.normalizeCity(constraints.city) : 'Ahmedabad';
+    const targetCity = constraints.city 
+      ? CityResolver.normalizeCity(constraints.city) 
+      : (constraints.rawInput ? CityResolver.extractCities(constraints.rawInput).primaryCity : 'Ahmedabad');
     const targetCities = constraints.cities && constraints.cities.length > 0
       ? constraints.cities.map(c => CityResolver.normalizeCity(c))
       : [targetCity];
@@ -106,7 +110,9 @@ export class PublicEventAgendasSource implements EventResearchSource {
 
   async search(constraints: EventSearchConstraints): Promise<NormalizedEvent[]> {
     const rawInput = constraints.rawInput || '';
-    const targetCity = constraints.city ? CityResolver.normalizeCity(constraints.city) : 'Ahmedabad';
+    const targetCity = constraints.city 
+      ? CityResolver.normalizeCity(constraints.city) 
+      : (constraints.rawInput ? CityResolver.extractCities(constraints.rawInput).primaryCity : 'Ahmedabad');
     const targetCities = constraints.cities && constraints.cities.length > 0
       ? constraints.cities.map(c => CityResolver.normalizeCity(c))
       : [targetCity];

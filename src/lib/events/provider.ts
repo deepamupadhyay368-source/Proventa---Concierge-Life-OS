@@ -144,7 +144,16 @@ export class UniversalEventDiscoveryProvider implements EventProviderInterface {
         const timeoutPromise = new Promise<NormalizedEvent[]>((_, reject) =>
           setTimeout(() => reject(new Error('Source research timeout')), 3000)
         );
-        const results = await Promise.race([source.search(constraints), timeoutPromise]);
+        const resolvedConstraints = {
+          ...constraints,
+          city: targetCities[0],
+          cities: targetCities,
+          date: dateRange.startDate,
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+          category: targetCategory,
+        };
+        const results = await Promise.race([source.search(resolvedConstraints), timeoutPromise]);
         const latencyMs = Date.now() - startMs;
 
         sourceDiagnostics.push({
