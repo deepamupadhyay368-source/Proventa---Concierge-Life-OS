@@ -1,11 +1,11 @@
 /**
  * PROVENTA — UNIVERSAL EVENT DISCOVERY ADAPTER
- * Connects the Proventa Orchestration Engine to the Universal Event Discovery Architecture.
- * Strictly enforces zero-fabrication and transparent availability standards across all cities and dates.
+ * Connects the Proventa Orchestration Engine to the Universal AI Multi-Source Event Discovery Engine.
+ * Strictly enforces zero-fabrication and transparent availability standards across all cities, dates, and event types.
  */
 
 import type { ProviderAdapterInterface, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
-import { universalEventDiscoveryProvider, UniversalEventDiscoveryProvider } from '@/lib/events/provider';
+import { universalEventDiscoveryProvider } from '@/lib/events/provider';
 import { CityResolver } from '@/lib/events/city-resolver';
 import { DateResolver } from '@/lib/events/date-resolver';
 import { EventCategory, NormalizedEvent } from '@/lib/events/types';
@@ -21,19 +21,40 @@ export class EventsDiscoveryAdapter implements ProviderAdapterInterface {
     'event',
     'experiences',
     'culture',
+    'cultural',
     'music',
+    'concert',
+    'concerts',
+    'live_music',
+    'navratri',
+    'garba',
+    'festivals',
+    'festival',
+    'food',
+    'dining_events',
+    'cooking',
+    'baking',
+    'business',
+    'networking',
+    'startup',
+    'conference',
+    'wellness',
+    'yoga',
+    'meditation',
     'comedy',
+    'standup',
     'theatre',
     'theater',
+    'art',
     'art_exhibition',
+    'exhibitions',
+    'workshops',
     'workshop',
-    'conference',
     'sports',
     'family',
-    'food_drink',
-    'nightlife',
-    'luxury_experience',
-    'business',
+    'kids',
+    'shopping',
+    'luxury',
     'all',
   ];
 
@@ -75,24 +96,32 @@ export class EventsDiscoveryAdapter implements ProviderAdapterInterface {
     const targetCity = constraints.location || constraints.destination || extractedCities.primaryCity;
     const allCities = extractedCities.isMultiCity ? extractedCities.allCities : [targetCity];
 
-    // 2. Resolve Category
-    let eventCat: EventCategory | 'ALL' = 'ALL';
-    if (rawLower.includes('comedy') || rawLower.includes('standup') || rawLower.includes('stand-up')) {
+    // 2. Resolve Category (Defaults to ALL if generic)
+    let eventCat: EventCategory = 'ALL';
+    if (rawLower.includes('navratri') || rawLower.includes('garba')) {
+      eventCat = 'NAVRATRI';
+    } else if (rawLower.includes('comedy') || rawLower.includes('standup') || rawLower.includes('stand-up')) {
       eventCat = 'COMEDY';
-    } else if (rawLower.includes('concert') || rawLower.includes('live music') || rawLower.includes('classical music') || rawLower.includes('jazz') || rawLower.includes('sufi')) {
-      eventCat = 'MUSIC';
+    } else if (rawLower.includes('concert') || rawLower.includes('live music') || rawLower.includes('classical music') || rawLower.includes('jazz') || rawLower.includes('sufi') || rawLower.includes('sitar')) {
+      eventCat = 'CONCERTS';
     } else if (rawLower.includes('theatre') || rawLower.includes('theater') || rawLower.includes('drama') || rawLower.includes('play')) {
       eventCat = 'THEATRE';
+    } else if (rawLower.includes('cooking') || rawLower.includes('baking') || rawLower.includes('patisserie')) {
+      eventCat = 'COOKING';
+    } else if (rawLower.includes('food') || rawLower.includes('dining') || rawLower.includes('tasting') || rawLower.includes('culinary')) {
+      eventCat = 'FOOD';
+    } else if (rawLower.includes('business') || rawLower.includes('startup') || rawLower.includes('investor') || rawLower.includes('conference') || rawLower.includes('networking')) {
+      eventCat = 'BUSINESS';
+    } else if (rawLower.includes('wellness') || rawLower.includes('yoga') || rawLower.includes('meditation') || rawLower.includes('mindfulness')) {
+      eventCat = 'WELLNESS';
     } else if (rawLower.includes('art') || rawLower.includes('exhibition') || rawLower.includes('gallery')) {
-      eventCat = 'ART_EXHIBITION';
-    } else if (rawLower.includes('family') || rawLower.includes('kids') || rawLower.includes('children')) {
+      eventCat = 'ART';
+    } else if (rawLower.includes('family') || rawLower.includes('kids') || rawLower.includes('children') || rawLower.includes('stargazing')) {
       eventCat = 'FAMILY';
-    } else if (rawLower.includes('food') || rawLower.includes('wine') || rawLower.includes('culinary') || rawLower.includes('tasting')) {
-      eventCat = 'FOOD_DRINK';
+    } else if (rawLower.includes('shopping') || rawLower.includes('flea market') || rawLower.includes('popup')) {
+      eventCat = 'SHOPPING';
     } else if (rawLower.includes('yacht') || rawLower.includes('polo') || rawLower.includes('exclusive') || rawLower.includes('luxury')) {
-      eventCat = 'LUXURY_EXPERIENCE';
-    } else if (rawLower.includes('conference') || rawLower.includes('summit') || rawLower.includes('symposium')) {
-      eventCat = 'CONFERENCE';
+      eventCat = 'LUXURY';
     }
 
     // 3. Resolve Budget & Party Size
@@ -104,7 +133,7 @@ export class EventsDiscoveryAdapter implements ProviderAdapterInterface {
 
     const partySize = constraints.partySize || constraints.guests || 2;
 
-    // 4. Query Universal Event Discovery Provider
+    // 4. Query Universal Multi-Source Event Discovery Provider
     const rawEvents = await universalEventDiscoveryProvider.searchEvents({
       city: targetCity,
       cities: allCities,
@@ -117,12 +146,11 @@ export class EventsDiscoveryAdapter implements ProviderAdapterInterface {
 
     logger.info(
       { rawInput: raw, targetCity, allCities, eventCat, foundCount: rawEvents.length },
-      '[EventsDiscoveryAdapter] Search completed'
+      '[EventsDiscoveryAdapter] Multi-source search completed'
     );
 
     // 5. Convert to OptionProposal Objects with transparent availability (up to 5 for standard recommendation batch)
-    return rawEvents.slice(0, 5).map((evt: NormalizedEvent, idx: number) => {
-      // Strictly transparent availability messaging
+    return rawEvents.slice(0, 5).map((evt: NormalizedEvent) => {
       const availabilityText =
         evt.availabilityStatus === 'AVAILABLE'
           ? 'Available · Direct Desk Access'
@@ -163,6 +191,7 @@ export class EventsDiscoveryAdapter implements ProviderAdapterInterface {
           priceDisplay: evt.priceDisplay,
           organizer: evt.organizer,
           source: evt.source,
+          sourceId: evt.sourceId,
           bookingUrl: evt.bookingUrl,
           availabilityStatus: evt.availabilityStatus,
           tags: evt.tags,

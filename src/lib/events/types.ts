@@ -1,23 +1,155 @@
 /**
  * PROVENTA — UNIVERSAL EVENT DISCOVERY TYPES & MODELS
- * Canonical domain types for event discovery, normalization, and constraints.
+ * Canonical domain types for event discovery, normalization, taxonomy, and constraints.
+ * Any City • Any Date • Any Event Type • Multi-Source AI Research • Zero Fabrication
  */
 
-export type EventCategory =
-  | 'MUSIC'
-  | 'COMEDY'
-  | 'THEATRE'
-  | 'CULTURE'
-  | 'ART_EXHIBITION'
-  | 'WORKSHOP'
-  | 'CONFERENCE'
-  | 'SPORTS'
-  | 'FAMILY'
-  | 'FOOD_DRINK'
+// ============================================================
+// 1. MASTER EVENT TAXONOMY
+// ============================================================
+
+export type EntertainmentCategory =
+  | 'CONCERTS'
+  | 'LIVE_MUSIC'
+  | 'DJ'
   | 'NIGHTLIFE'
-  | 'LUXURY_EXPERIENCE'
+  | 'PARTIES'
+  | 'DANCE'
+  | 'COMEDY'
+  | 'STANDUP'
+  | 'THEATRE'
+  | 'MUSICALS'
+  | 'PERFORMANCES'
+  | 'OPEN_MIC';
+
+export type FestivalsCultureCategory =
+  | 'FESTIVALS'
+  | 'NAVRATRI'
+  | 'DIWALI'
+  | 'HOLI'
+  | 'GARBA'
+  | 'RELIGIOUS'
+  | 'CULTURAL'
+  | 'FOLK'
+  | 'HERITAGE'
+  | 'FAIRS'
+  | 'CARNIVALS';
+
+export type FoodLifestyleCategory =
+  | 'FOOD'
+  | 'FOOD_FESTIVALS'
+  | 'DINING_EVENTS'
+  | 'TASTINGS'
+  | 'CHEF_EXPERIENCES'
+  | 'COOKING'
+  | 'BAKING'
+  | 'BRUNCH'
+  | 'CULINARY_WORKSHOPS';
+
+export type ArtsCreativeCategory =
+  | 'ART'
+  | 'EXHIBITIONS'
+  | 'PHOTOGRAPHY'
+  | 'FASHION'
+  | 'DESIGN'
+  | 'CRAFT'
+  | 'HANDMADE'
+  | 'LITERATURE'
+  | 'POETRY'
+  | 'BOOK_EVENTS';
+
+export type BusinessProfessionalCategory =
+  | 'BUSINESS'
+  | 'NETWORKING'
+  | 'STARTUP'
+  | 'ENTREPRENEURSHIP'
+  | 'INVESTOR'
+  | 'CONFERENCE'
+  | 'SEMINAR'
+  | 'TRADE_SHOW'
+  | 'EXPO'
+  | 'CORPORATE'
+  | 'CAREER'
+  | 'PROFESSIONAL';
+
+export type HealthWellnessCategory =
+  | 'HEALTH'
   | 'WELLNESS'
+  | 'YOGA'
+  | 'MEDITATION'
+  | 'FITNESS'
+  | 'RUNNING'
+  | 'MINDFULNESS'
+  | 'WELLNESS_WORKSHOPS';
+
+export type SportsCategory =
+  | 'SPORTS'
+  | 'CRICKET'
+  | 'FOOTBALL'
+  | 'BADMINTON'
+  | 'TENNIS'
+  | 'MARATHON'
+  | 'CYCLING'
+  | 'GOLF'
+  | 'ESPORTS';
+
+export type LearningCategory =
+  | 'WORKSHOPS'
+  | 'MASTERCLASS'
+  | 'EDUCATION'
+  | 'TECHNOLOGY'
+  | 'AI'
+  | 'FINANCE'
+  | 'SKILLS'
+  | 'PERSONAL_DEVELOPMENT';
+
+export type FamilyCommunityCategory =
+  | 'FAMILY'
+  | 'KIDS'
   | 'COMMUNITY'
+  | 'PETS'
+  | 'SOCIAL'
+  | 'CHARITY';
+
+export type ShoppingMarketsCategory =
+  | 'FLEA_MARKET'
+  | 'SHOPPING'
+  | 'EXHIBITION_SALE'
+  | 'POPUP'
+  | 'LOCAL_MARKET';
+
+export type ExperiencesCategory =
+  | 'ADVENTURE'
+  | 'OUTDOOR'
+  | 'TRAVEL'
+  | 'LUXURY'
+  | 'PRIVATE_EXPERIENCE'
+  | 'SOCIAL_EXPERIENCE';
+
+export type OtherEventCategory = 'OTHER_EVENT';
+
+export type UniversalCategory = 'ALL';
+
+export type EventCategory =
+  | EntertainmentCategory
+  | FestivalsCultureCategory
+  | FoodLifestyleCategory
+  | ArtsCreativeCategory
+  | BusinessProfessionalCategory
+  | HealthWellnessCategory
+  | SportsCategory
+  | LearningCategory
+  | FamilyCommunityCategory
+  | ShoppingMarketsCategory
+  | ExperiencesCategory
+  | OtherEventCategory
+  | UniversalCategory
+  // Legacy aliases for backwards compatibility
+  | 'MUSIC'
+  | 'ART_EXHIBITION'
+  | 'CULTURE'
+  | 'FOOD_DRINK'
+  | 'LUXURY_EXPERIENCE'
   | 'GENERAL';
 
 export type EventAvailabilityStatus =
@@ -27,46 +159,67 @@ export type EventAvailabilityStatus =
   | 'SOLD_OUT'
   | 'UNVERIFIED';
 
+// ============================================================
+// 2. NORMALIZED EVENT MODEL
+// ============================================================
+
 export interface NormalizedEvent {
-  providerId: string;
   eventId: string;
+  provider?: string;
+  providerId?: string;
+  providerEventId?: string;
   title: string;
   description: string;
   category: EventCategory;
+  subcategories?: string[];
   subcategory?: string;
   venue: string;
-  venueAddress?: string;
   city: string;
+  address?: string;
+  venueAddress?: string;
+  latitude?: number;
+  longitude?: number;
   date: string; // YYYY-MM-DD
-  endDate?: string; // For multi-day festivals / exhibitions
-  startTime?: string; // e.g. "19:30" or "7:30 PM"
+  endDate?: string;
+  startTime?: string;
   endTime?: string;
-  timeDisplay?: string; // e.g. "7:30 PM - 10:00 PM"
-  priceAmount?: number; // In INR
-  priceDisplay?: string; // e.g. "₹1,499 onwards", "Complimentary / RSVP", "₹2,500 - ₹6,000"
+  timeDisplay?: string;
+  timezone: string;
+  priceAmount?: number;
+  priceMin?: number;
+  priceMax?: number;
+  priceDisplay?: string;
   currency: string;
-  bookingUrl?: string;
-  providerUrl?: string;
-  imageUrl?: string;
-  organizer?: string;
   availabilityStatus: EventAvailabilityStatus;
-  source: string; // e.g. "NMACC Verified", "NCPA Mumbai", "Natarani Amphitheatre", "BIC Bangalore"
-  verifiedAt: string;
-  tags?: string[];
+  bookingUrl?: string;
+  sourceUrl?: string;
+  organizer?: string;
+  imageUrl?: string;
+  verified: boolean;
   isExclusive?: boolean;
+  source: string;
+  sourceId?: string;
+  tags?: string[];
+  discoveredAt: string;
+  verifiedAt?: string;
 }
+
+// ============================================================
+// 3. SEARCH & CONSTRAINT TYPES
+// ============================================================
 
 export interface EventSearchConstraints {
   city?: string;
-  cities?: string[]; // For multi-city search e.g. "Ahmedabad or Mumbai"
-  date?: string; // YYYY-MM-DD
+  cities?: string[];
+  date?: string; // YYYY-MM-DD or raw date string
   startDate?: string;
   endDate?: string;
   isDateRange?: boolean;
   timeWindow?: 'MORNING' | 'AFTERNOON' | 'EVENING' | 'NIGHT' | 'ALL_DAY';
   startTime?: string;
   endTime?: string;
-  category?: EventCategory | 'ALL';
+  category?: EventCategory;
+  categories?: EventCategory[];
   subcategory?: string;
   partySize?: number;
   budgetAmount?: number;
@@ -74,6 +227,8 @@ export interface EventSearchConstraints {
   preferences?: string[];
   keywords?: string[];
   rawInput?: string;
+  excludedEventIds?: string[];
+  limit?: number;
 }
 
 export interface ResolvedDateRange {
@@ -84,4 +239,33 @@ export interface ResolvedDateRange {
   isUpcomingWindow: boolean;
   displayText: string;
   resolvedFrom: string;
+}
+
+// ============================================================
+// 4. DIAGNOSTIC & OBSERVABILITY CONTEXT
+// ============================================================
+
+export interface EventResearchDiagnostics {
+  researchStartedAt: string;
+  rawInput: string;
+  resolvedCity: string;
+  resolvedDateFrom: string;
+  resolvedDateTo: string;
+  resolvedCategory: EventCategory;
+  sourcesQueried: Array<{
+    sourceId: string;
+    sourceName: string;
+    isConfigured: boolean;
+    status: 'SUCCESS' | 'FAILED' | 'NOT_CONFIGURED';
+    candidatesFound: number;
+    latencyMs: number;
+    error?: string;
+  }>;
+  rawCandidateCount: number;
+  deduplicatedCount: number;
+  validatedCount: number;
+  rankedCount: number;
+  returnedOptionCount: number;
+  conciergeFallback: boolean;
+  fallbackReason?: string;
 }

@@ -1,6 +1,6 @@
 /**
  * PROVENTA — CANONICAL DATE & TIME WINDOW RESOLVER
- * Resolves exact dates, relative dates, date ranges, and upcoming discovery windows in IST.
+ * Resolves exact dates, DD/MM/YYYY, DD-MM-YYYY, relative dates, date ranges, and upcoming discovery windows in Asia/Kolkata (IST).
  */
 
 import { ResolvedDateRange } from './types';
@@ -32,8 +32,7 @@ const DAY_OF_WEEK_MAP: Record<string, number> = {
 
 export class DateResolver {
   /**
-   * Reference current date for Proventa (supports overriding for tests).
-   * Default anchor is September 27, 2026 (or dynamic current Date).
+   * Reference current date for Proventa in IST (Asia/Kolkata).
    */
   static getNow(customAnchor?: Date): Date {
     if (customAnchor) return new Date(customAnchor);
@@ -55,7 +54,63 @@ export class DateResolver {
     const raw = (rawInput || '').toLowerCase().trim();
     const currentYear = now.getFullYear();
 
-    // 1. Check for Exact Date Range: "from 15 to 20 October" or "15-20 October" or "15 to 20 Oct 2026"
+    // 1. Check for Exact DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY e.g. "29/09/2026", "29-09-2026", "29/9/2026"
+    const ddmmyyyyMatch = raw.match(/\b(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})\b/);
+    if (ddmmyyyyMatch) {
+      const day = parseInt(ddmmyyyyMatch[1], 10);
+      const month = parseInt(ddmmyyyyMatch[2], 10);
+      const year = parseInt(ddmmyyyyMatch[3], 10);
+
+      const dt = new Date(year, month - 1, day);
+      const iso = this.formatDateISO(dt);
+      return {
+        startDate: iso,
+        endDate: iso,
+        isSpecificDate: true,
+        isDateRange: false,
+        isUpcomingWindow: false,
+        displayText: iso,
+        resolvedFrom: ddmmyyyyMatch[0],
+      };
+    }
+
+    // 2. Check for Exact DD/MM or DD-MM without year e.g. "29/09"
+    const ddmmMatch = raw.match(/\b(\d{1,2})[\/\-](\d{1,2})\b/);
+    if (ddmmMatch) {
+      const day = parseInt(ddmmMatch[1], 10);
+      const month = parseInt(ddmmMatch[2], 10);
+      if (day <= 31 && month >= 1 && month <= 12) {
+        const dt = new Date(currentYear, month - 1, day);
+        const iso = this.formatDateISO(dt);
+        return {
+          startDate: iso,
+          endDate: iso,
+          isSpecificDate: true,
+          isDateRange: false,
+          isUpcomingWindow: false,
+          displayText: iso,
+          resolvedFrom: ddmmMatch[0],
+        };
+      }
+    }
+
+    // 3. Check for ISO Date: "2026-09-29"
+    const isoMatch = raw.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
+    if (isoMatch) {
+      const dt = new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10));
+      const iso = this.formatDateISO(dt);
+      return {
+        startDate: iso,
+        endDate: iso,
+        isSpecificDate: true,
+        isDateRange: false,
+        isUpcomingWindow: false,
+        displayText: iso,
+        resolvedFrom: isoMatch[0],
+      };
+    }
+
+    // 4. Check for Exact Date Range: "from 15 to 20 October" or "15-20 October" or "15 to 20 Oct 2026"
     const rangeMatch =
       raw.match(/(?:from\s+)?(\d{1,2})(?:st|nd|rd|th)?\s*(?:to|-|until|through)\s*(\d{1,2})(?:st|nd|rd|th)?\s+([a-zA-Z]+)(?:\s+(\d{4}))?/i) ||
       raw.match(/([a-zA-Z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*(?:to|-|until)\s*(\d{1,2})(?:st|nd|rd|th)?(?:\s+(\d{4}))?/i);
@@ -92,22 +147,7 @@ export class DateResolver {
       }
     }
 
-    // 2. Check for Exact Single Date: "15 October 2026", "20 October", "12 Nov", "2026-10-15"
-    const isoMatch = raw.match(/\b(\d{4})-(\d{2})-(\d{2})\b/);
-    if (isoMatch) {
-      const dt = new Date(parseInt(isoMatch[1], 10), parseInt(isoMatch[2], 10) - 1, parseInt(isoMatch[3], 10));
-      const iso = this.formatDateISO(dt);
-      return {
-        startDate: iso,
-        endDate: iso,
-        isSpecificDate: true,
-        isDateRange: false,
-        isUpcomingWindow: false,
-        displayText: iso,
-        resolvedFrom: isoMatch[0],
-      };
-    }
-
+    // 5. Check for Natural Single Date: "29 September 2026", "29 September", "15 October", "12 Nov"
     const exactMatch =
       raw.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+([a-zA-Z]+)(?:\s+(\d{4}))?\b/i) ||
       raw.match(/\b([a-zA-Z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:\s+(\d{4}))?\b/i);
@@ -141,7 +181,7 @@ export class DateResolver {
       }
     }
 
-    // 3. Check for Relative Terms: "today", "tonight"
+    // 6. Relative Terms: "today", "tonight"
     if (raw.includes('today') || raw.includes('tonight')) {
       const iso = this.formatDateISO(now);
       return {
@@ -155,7 +195,7 @@ export class DateResolver {
       };
     }
 
-    // 4. Check for "tomorrow"
+    // 7. "tomorrow"
     if (raw.includes('tomorrow')) {
       const tomorrow = new Date(now);
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -171,7 +211,7 @@ export class DateResolver {
       };
     }
 
-    // 5. Check for "this weekend" / "next weekend"
+    // 8. "this weekend" / "next weekend" / "weekend"
     if (raw.includes('next weekend')) {
       const sat = new Date(now);
       const currentDay = now.getDay();
@@ -212,7 +252,28 @@ export class DateResolver {
       };
     }
 
-    // 6. Check for Specific Day of Week: "this Friday", "next Saturday", "on Sunday"
+    // 9. "next week"
+    if (raw.includes('next week')) {
+      const startNextWeek = new Date(now);
+      const currentDay = now.getDay();
+      const daysUntilNextMon = ((1 - currentDay + 7) % 7) || 7;
+      startNextWeek.setDate(now.getDate() + daysUntilNextMon);
+
+      const endNextWeek = new Date(startNextWeek);
+      endNextWeek.setDate(startNextWeek.getDate() + 6);
+
+      return {
+        startDate: this.formatDateISO(startNextWeek),
+        endDate: this.formatDateISO(endNextWeek),
+        isSpecificDate: false,
+        isDateRange: true,
+        isUpcomingWindow: false,
+        displayText: 'Next Week',
+        resolvedFrom: 'next week',
+      };
+    }
+
+    // 10. Specific Day of Week: "this Friday", "next Saturday", "on Sunday", "this Saturday", "Saturday"
     for (const [dayName, targetDayNum] of Object.entries(DAY_OF_WEEK_MAP)) {
       const regex = new RegExp(`\\b(this|next|on)?\\s*${dayName}\\b`, 'i');
       const match = raw.match(regex);
@@ -220,7 +281,7 @@ export class DateResolver {
         const modifier = (match[1] || '').toLowerCase();
         const currentDay = now.getDay();
         let daysToAdd = (targetDayNum - currentDay + 7) % 7;
-        if (daysToAdd === 0) daysToAdd = 7; // Default to next occurrence if today is that day
+        if (daysToAdd === 0 && modifier !== 'this') daysToAdd = 7;
         if (modifier === 'next') daysToAdd += 7;
 
         const targetDate = new Date(now);
@@ -240,7 +301,7 @@ export class DateResolver {
       }
     }
 
-    // 7. Check for "next month"
+    // 11. "next month" or "in [month]"
     if (raw.includes('next month')) {
       const startNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
       const endNextMonth = new Date(now.getFullYear(), now.getMonth() + 2, 0);
@@ -255,7 +316,7 @@ export class DateResolver {
       };
     }
 
-    // 8. No explicit date provided -> Default to 30-day upcoming discovery window
+    // 12. Default to upcoming 30-day window
     const windowEnd = new Date(now);
     windowEnd.setDate(now.getDate() + 30);
     return {
