@@ -38,6 +38,8 @@ export default auth(async (req) => {
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname.startsWith('/legal') ||
+    pathname.startsWith('/api/legal') ||
     pathname === '/concierge/sign-in' ||
     pathname.startsWith('/api/concierge/auth') ||
     pathname.startsWith('/api/auth') ||

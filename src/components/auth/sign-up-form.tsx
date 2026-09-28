@@ -194,39 +194,84 @@ export function SignUpForm() {
           {errors.confirmPassword && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmPassword.message}</p>}
         </div>
 
-        <div className="pt-2 border-t border-[#ded7cc]/60">
-          <div className="flex items-center justify-between mb-1.5">
-            <label htmlFor="securityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider font-sans flex items-center gap-1.5">
-              <KeyRound className="h-3.5 w-3.5 text-[#8a7053]" />
-              <span>Personal Security Key / PIN</span>
-            </label>
-            <span className="text-[11px] text-[#8a8680] font-sans">Required at every login</span>
+        {/* Proventa Authentication Key Section */}
+        <div className="pt-4 border-t border-[#ded7cc] space-y-4 bg-[#fbf9f6] p-4 rounded-xl border">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <KeyRound className="h-4 w-4 text-[#8a7053]" />
+              <h3 className="text-xs font-bold tracking-wider uppercase text-[#141312] font-sans">
+                Create Your Proventa Authentication Key
+              </h3>
+            </div>
+            <p className="text-xs text-[#6e6b65] font-sans leading-relaxed">
+              Your private key protects your Proventa identity and will be required every time you sign in.
+            </p>
           </div>
-          <input
-            id="securityKey"
-            type="password"
-            autoComplete="new-password"
-            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
-            placeholder="Create a confidential PIN or Security Key"
-            {...register('securityKey')}
-          />
-          {errors.securityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.securityKey.message}</p>}
-          <p className="text-[11px] text-[#8a8680] mt-1 font-sans">Keep this confidential. You will be asked for this key on every login.</p>
+
+          <div>
+            <label htmlFor="authenticationKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+              Authentication Key
+            </label>
+            <input
+              id="authenticationKey"
+              type="password"
+              autoComplete="new-password"
+              className="w-full px-3.5 py-3 bg-white border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              placeholder="Create private key (min 8 characters)"
+              {...register('authenticationKey')}
+            />
+            {errors.authenticationKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.authenticationKey.message}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="confirmAuthenticationKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+              Confirm Authentication Key
+            </label>
+            <input
+              id="confirmAuthenticationKey"
+              type="password"
+              autoComplete="new-password"
+              className="w-full px-3.5 py-3 bg-white border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              placeholder="Re-enter your private key"
+              {...register('confirmAuthenticationKey')}
+            />
+            {errors.confirmAuthenticationKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmAuthenticationKey.message}</p>}
+          </div>
+
+          <div className="p-2.5 bg-[#f5f3ef] rounded-lg border border-[#e8e2d8] text-[11px] text-[#6d5941] font-sans space-y-0.5">
+            <p className="font-semibold">Your key should be private and memorable.</p>
+            <p className="text-[#8a8680]">Never share your Authentication Key with anyone. Proventa personnel will never ask you to disclose it.</p>
+          </div>
         </div>
 
-        <div>
-          <label htmlFor="confirmSecurityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
-            Confirm Security Key
+        {/* Mandatory Explicit Legal Agreement Checkbox */}
+        <div className="pt-2 border-t border-[#ded7cc]/60 space-y-1.5">
+          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#524e48] font-sans">
+            <input
+              type="checkbox"
+              required
+              {...register('termsConsent', { required: 'You must agree to the Terms of Service, Privacy Policy, and Private Beta Terms to continue.' })}
+              className="mt-0.5 rounded border-[#ded7cc] text-[#1f1b16] focus:ring-[#6d5941]"
+            />
+            <span className="leading-relaxed">
+              I agree to the{' '}
+              <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] underline hover:text-[#8a7053]">
+                Terms of Service
+              </a>
+              , acknowledge the{' '}
+              <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] underline hover:text-[#8a7053]">
+                Privacy Policy
+              </a>
+              , and accept the{' '}
+              <a href="/legal/private-beta" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] underline hover:text-[#8a7053]">
+                Private Beta Terms
+              </a>
+              .
+            </span>
           </label>
-          <input
-            id="confirmSecurityKey"
-            type="password"
-            autoComplete="new-password"
-            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
-            placeholder="Re-enter your security key"
-            {...register('confirmSecurityKey')}
-          />
-          {errors.confirmSecurityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmSecurityKey.message}</p>}
+          {errors.termsConsent && (
+            <p className="text-xs text-red-600 font-sans">{errors.termsConsent.message}</p>
+          )}
         </div>
 
         <button
@@ -239,10 +284,8 @@ export function SignUpForm() {
         </button>
 
         <p className="text-[11px] text-[#8a8680] text-center font-sans">
-          By registering, you agree to our{' '}
-          <a href="/terms" className="underline text-[#141312]">Terms</a>,{' '}
-          <a href="/privacy" className="underline text-[#141312]">Privacy Policy</a>, and{' '}
-          <a href="/ai-concierge-disclosure" className="underline text-[#141312]">AI Concierge Disclosure</a>.
+          Proventa Private Beta · Sovereign Data Protection ·{' '}
+          <a href="/legal" className="underline text-[#141312]">Legal &amp; Trust Center</a>
         </p>
       </form>
     </div>

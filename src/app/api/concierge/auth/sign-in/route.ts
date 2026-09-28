@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { verifyPassword } from '@/lib/auth/password';
+import { verifyPassword, verifyAuthKey, hashAuthKey } from '@/lib/auth/password';
 import { createConciergeToken, CONCIERGE_COOKIE_NAME, CONCIERGE_SESSION_DURATION } from '@/lib/auth/concierge-session';
+import { rateLimitMiddleware } from '@/lib/security/rate-limit';
+import { createSecurityEvent, createAuditLog } from '@/lib/audit';
 import { isAppError } from '@/lib/errors';
 import { UserRole } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimitMiddleware(req, { max: 10, windowMs: 60_000, keyPrefix: 'concierge-signin' });
+  if (rl) return rl;
+
   try {
     const body = await req.json();
-    const { email, password, employeeId } = body;
+    const { email, password, employeeId, authenticationKey, securityKey } = body;
     const identifier = (email || employeeId || '').trim().toLowerCase();
+    const authKey = (authenticationKey || securityKey || '').trim();
 
     if (!identifier || !password) {
       return NextResponse.json(
@@ -34,6 +40,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (!user || (!user.passwordHash && !(user as any).password)) {
+      void createSecurityEvent('LOGIN_PASSWORD_FAILURE', { data: { identifier, reason: 'user_not_found' } });
+      void createSecurityEvent('LOGIN_FAILED', { data: { identifier, reason: 'user_not_found' } });
       return NextResponse.json(
         { error: 'Invalid employee credentials' },
         { status: 401 }
@@ -44,10 +52,45 @@ export async function POST(req: NextRequest) {
     const hash = user.passwordHash || (user as any).password;
     const isPasswordValid = await verifyPassword(password, hash);
     if (!isPasswordValid) {
+      void createSecurityEvent('LOGIN_PASSWORD_FAILURE', { userId: user.id, data: { reason: 'invalid_password' } });
+      void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_password' } });
       return NextResponse.json(
         { error: 'Invalid employee credentials' },
         { status: 401 }
       );
+    }
+
+    void createSecurityEvent('LOGIN_PASSWORD_SUCCESS', { userId: user.id });
+
+    // Verify Proventa Authentication Key
+    if (user.securityKeyHash) {
+      if (!authKey) {
+        void createSecurityEvent('AUTH_KEY_FAILED', { userId: user.id, data: { reason: 'missing_key' } });
+        void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'missing_auth_key' } });
+        return NextResponse.json(
+          { error: 'Proventa Authentication Key is required to access Concierge Workspace.' },
+          { status: 401 }
+        );
+      }
+      const isKeyValid = await verifyAuthKey(authKey, user.securityKeyHash);
+      if (!isKeyValid) {
+        void createSecurityEvent('AUTH_KEY_FAILED', { userId: user.id, data: { reason: 'invalid_key' } });
+        void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_auth_key' } });
+        return NextResponse.json(
+          { error: 'Invalid employee credentials' },
+          { status: 401 }
+        );
+      }
+      void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
+    } else if (authKey) {
+      // Migrate existing employee without an authentication key
+      const keyHash = await hashAuthKey(authKey);
+      await db.user.update({
+        where: { id: user.id },
+        data: { securityKeyHash: keyHash, authKeyUpdatedAt: new Date() },
+      });
+      void createSecurityEvent('AUTH_KEY_CREATED', { userId: user.id, data: { source: 'migration_login' } });
+      void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
     }
 
     // Check account lifecycle status
@@ -59,6 +102,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (user.status === 'SUSPENDED' || user.status === 'DELETED') {
+      void createSecurityEvent('LOGIN_BLOCKED', { userId: user.id, data: { reason: 'suspended' } });
       return NextResponse.json(
         { error: 'Account is suspended or deactivated. Please contact your administrator.' },
         { status: 403 }

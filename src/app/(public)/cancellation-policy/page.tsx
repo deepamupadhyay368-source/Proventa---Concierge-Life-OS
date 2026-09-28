@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
-export default function CancellationPolicyRedirect() {
-  redirect('/refund-cancellation');
+export default function LegacyCancellationPolicyRedirect() {
+  redirect('/legal/refunds');
 }

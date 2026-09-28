@@ -100,6 +100,20 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
         {children}
       </main>
 
+      {/* Discreet Customer Portal Footer */}
+      <footer className="border-t border-neutral-200/80 bg-white/60 py-6 text-xs text-neutral-500 font-sans hidden md:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>© {new Date().getFullYear()} Proventa · Concierge Life OS</p>
+          <div className="flex items-center gap-4 text-[11px]">
+            <Link href="/legal" className="hover:text-neutral-900 transition-colors">Trust Center</Link>
+            <Link href="/legal/privacy" className="hover:text-neutral-900 transition-colors">Privacy Policy</Link>
+            <Link href="/legal/terms" className="hover:text-neutral-900 transition-colors">Terms</Link>
+            <Link href="/legal/privacy-requests" className="hover:text-neutral-900 transition-colors font-medium text-brand-700">Data Rights &amp; Export</Link>
+            <Link href="/legal/grievance" className="hover:text-neutral-900 transition-colors">Grievance Desk</Link>
+          </div>
+        </div>
+      </footer>
+
       {/* Floating Concierge Desk Widget */}
       <FloatingConcierge />
 

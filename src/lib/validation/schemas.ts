@@ -31,10 +31,53 @@ export const phoneSchema = z
   .optional()
   .or(z.literal(''));
 
-export const securityKeySchema = z
+export const authenticationKeySchema = z
   .string()
-  .min(4, 'Security Key must be at least 4 characters')
-  .max(32, 'Security Key is too long');
+  .min(8, 'Authentication Key must be at least 8 characters')
+  .max(32, 'Authentication Key must not exceed 32 characters')
+  .regex(
+    /^[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~ ]+$/,
+    'Authentication Key contains invalid characters',
+  );
+
+// Backward-compatible alias
+export const securityKeySchema = authenticationKeySchema;
+
+export interface AuthKeyStrengthResult {
+  strength: 'WEAK' | 'MODERATE' | 'STRONG';
+  score: number;
+  label: string;
+  feedback: string;
+}
+
+export function getAuthenticationKeyStrength(key: string): AuthKeyStrengthResult {
+  if (!key || key.length === 0) {
+    return { strength: 'WEAK', score: 0, label: 'Weak', feedback: 'Enter at least 8 characters.' };
+  }
+  if (key.length < 8) {
+    return { strength: 'WEAK', score: Math.min(key.length * 4, 30), label: 'Weak', feedback: 'Must be at least 8 characters long.' };
+  }
+
+  let score = 30;
+  const hasLower = /[a-z]/.test(key);
+  const hasUpper = /[A-Z]/.test(key);
+  const hasNumber = /[0-9]/.test(key);
+  const hasSymbol = /[^a-zA-Z0-9]/.test(key);
+
+  if (key.length >= 10) score += 15;
+  if (key.length >= 14) score += 15;
+  if (hasLower && hasUpper) score += 15;
+  if (hasNumber) score += 15;
+  if (hasSymbol) score += 10;
+
+  if (score >= 75) {
+    return { strength: 'STRONG', score: Math.min(score, 100), label: 'Strong', feedback: 'Strong private key complexity.' };
+  }
+  if (score >= 50) {
+    return { strength: 'MODERATE', score, label: 'Moderate', feedback: 'Good key. Mix uppercase, lowercase, numbers, and symbols for maximum strength.' };
+  }
+  return { strength: 'WEAK', score, label: 'Weak', feedback: 'Add numbers, symbols, or mix uppercase and lowercase letters.' };
+}
 
 export const registerSchema = z
   .object({
@@ -42,28 +85,94 @@ export const registerSchema = z
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string().optional(),
-    securityKey: securityKeySchema.optional(),
+    authenticationKey: authenticationKeySchema.optional(),
+    confirmAuthenticationKey: z.string().optional(),
+    securityKey: z.string().optional(),
     confirmSecurityKey: z.string().optional(),
     phone: phoneSchema.optional(),
     city: z.string().optional(),
     preferredComm: z.enum(['IN_APP', 'EMAIL', 'WHATSAPP', 'SMS']).optional(),
     dob: z.string().optional(),
     address: z.string().optional(),
+    termsConsent: z.boolean().optional(),
   })
   .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   })
-  .refine((data) => !data.securityKey || !data.confirmSecurityKey || data.securityKey === data.confirmSecurityKey, {
-    message: 'Security keys do not match',
-    path: ['confirmSecurityKey'],
-  });
+  .refine(
+    (data) => {
+      const key = data.authenticationKey || data.securityKey;
+      const confirm = data.confirmAuthenticationKey || data.confirmSecurityKey;
+      if (!key && !confirm) return true;
+      return key === confirm;
+    },
+    {
+      message: 'Authentication Keys do not match',
+      path: ['confirmAuthenticationKey'],
+    },
+  );
 
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, 'Password is required'),
+  authenticationKey: z.string().optional(),
   securityKey: z.string().optional(),
 });
+
+export const changeAuthenticationKeySchema = z
+  .object({
+    currentAuthenticationKey: z.string().min(1, 'Current Authentication Key is required'),
+    newAuthenticationKey: authenticationKeySchema,
+    confirmNewAuthenticationKey: z.string().min(1, 'Please confirm your new Authentication Key'),
+  })
+  .refine((data) => data.newAuthenticationKey === data.confirmNewAuthenticationKey, {
+    message: 'New Authentication Keys do not match',
+    path: ['confirmNewAuthenticationKey'],
+  })
+  .refine((data) => data.currentAuthenticationKey !== data.newAuthenticationKey, {
+    message: 'New Authentication Key must be different from current key',
+    path: ['newAuthenticationKey'],
+  });
+
+export const forgotAuthenticationKeySchema = z.object({
+  email: emailSchema,
+});
+
+export const resetAuthenticationKeySchema = z
+  .object({
+    token: z.string().min(1, 'Recovery token is required'),
+    newAuthenticationKey: authenticationKeySchema,
+    confirmNewAuthenticationKey: z.string().min(1, 'Please confirm your new Authentication Key'),
+  })
+  .refine((data) => data.newAuthenticationKey === data.confirmNewAuthenticationKey, {
+    message: 'New Authentication Keys do not match',
+    path: ['confirmNewAuthenticationKey'],
+  });
+
+export const conciergeSignUpSchema = z
+  .object({
+    name: z.string().min(2, 'Full legal name must be at least 2 characters').max(100),
+    email: emailSchema,
+    phone: phoneSchema.optional(),
+    employeeId: z.string().optional(),
+    role: z.enum(['CONCIERGE', 'SENIOR_CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN']).default('CONCIERGE'),
+    department: z.string().max(100).default('National Concierge Desk'),
+    city: z.string().max(100).default('Ahmedabad'),
+    password: passwordSchema,
+    confirmPassword: z.string(),
+    authenticationKey: authenticationKeySchema,
+    confirmAuthenticationKey: z.string(),
+    inviteCode: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Passwords do not match',
+    path: ['confirmPassword'],
+  })
+  .refine((data) => data.authenticationKey === data.confirmAuthenticationKey, {
+    message: 'Authentication Keys do not match',
+    path: ['confirmAuthenticationKey'],
+  });
 
 export const passwordResetRequestSchema = z.object({
   email: emailSchema,

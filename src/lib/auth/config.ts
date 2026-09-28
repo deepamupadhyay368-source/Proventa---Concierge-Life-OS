@@ -17,54 +17,82 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/sign-in',
   },
   providers: [
-    // Standard Email, Password & Security Key
+    // Standard Email, Password & Proventa Authentication Key
     Credentials({
       id: 'credentials',
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        authenticationKey: { label: 'Authentication Key', type: 'password' },
         securityKey: { label: 'Security Key', type: 'password' },
       },
       async authorize(credentials, request) {
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
-        const { email, password, securityKey } = parsed.data;
+        const { email, password } = parsed.data;
+        const authKey = parsed.data.authenticationKey || parsed.data.securityKey;
+
         const user = await db.user.findUnique({
           where: { email, deletedAt: null },
           include: { userRoles: true },
         });
+
         if (!user || !user.passwordHash) {
           await verifyPassword('dummy', '$2b$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+          void createSecurityEvent('LOGIN_PASSWORD_FAILURE', { data: { email, reason: 'user_not_found' } });
           void createSecurityEvent('LOGIN_FAILED', { data: { email, reason: 'user_not_found' } });
           return null;
         }
+
         if (user.status === 'SUSPENDED') {
+          void createSecurityEvent('LOGIN_BLOCKED', { userId: user.id, data: { reason: 'suspended' } });
           void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'suspended' } });
           return null;
         }
+
         const isValidPassword = await verifyPassword(password, user.passwordHash);
         if (!isValidPassword) {
+          void createSecurityEvent('LOGIN_PASSWORD_FAILURE', { userId: user.id, data: { reason: 'invalid_password' } });
           void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_password' } });
           return null;
         }
 
-        // Validate Security Key if configured on the user profile
+        void createSecurityEvent('LOGIN_PASSWORD_SUCCESS', { userId: user.id });
+
+        // Validate Proventa Authentication Key if configured on the user profile
         if (user.securityKeyHash) {
-          if (!securityKey) {
-            void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'missing_security_key' } });
+          if (!authKey) {
+            void createSecurityEvent('AUTH_KEY_FAILED', { userId: user.id, data: { reason: 'missing_key' } });
+            void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'missing_auth_key' } });
             return null;
           }
-          const isValidKey = await verifyPassword(securityKey, user.securityKeyHash);
+          const isValidKey = await verifyPassword(authKey, user.securityKeyHash);
           if (!isValidKey) {
-            void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_security_key' } });
+            void createSecurityEvent('AUTH_KEY_FAILED', { userId: user.id, data: { reason: 'invalid_key' } });
+            void createSecurityEvent('LOGIN_FAILED', { userId: user.id, data: { reason: 'invalid_auth_key' } });
             return null;
+          }
+          void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
+        } else if (authKey) {
+          // Existing user setting their Authentication Key during login migration
+          const newKeyHash = await verifyPassword(authKey, '$2b$12$dummy') ? null : await bcrypt.hash(authKey, 12);
+          if (newKeyHash) {
+            await db.user.update({
+              where: { id: user.id },
+              data: { securityKeyHash: newKeyHash, authKeyUpdatedAt: new Date() },
+            });
+            void createSecurityEvent('AUTH_KEY_CREATED', { userId: user.id, data: { source: 'migration_login' } });
+            void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
           }
         }
 
         if (user.status === 'PENDING_VERIFICATION') return null;
+
+        void createSecurityEvent('LOGIN_COMPLETED', { userId: user.id });
         void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
-        logger.info({ userId: user.id }, 'User logged in');
+        logger.info({ userId: user.id }, 'User logged in with Authentication Key');
+
         return {
           id: user.id,
           email: user.email,

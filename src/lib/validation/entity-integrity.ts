@@ -1,3 +1,7 @@
+import { CityResolver } from '@/lib/events/city-resolver';
+import { DateResolver } from '@/lib/events/date-resolver';
+import { ResolvedDateRange, EventCategory } from '@/lib/events/types';
+
 export type ProvenanceType = 'EXPLICIT' | 'INFERRED' | 'UNKNOWN';
 
 export interface ProvenanceField<T> {
@@ -212,6 +216,92 @@ export class EntityIntegrityValidator {
   }
 
   /**
+   * Deterministically parses event discovery entities from raw text.
+   * Extracts city, date range, event category, party size, and budget.
+   */
+  static extractEventEntities(rawInput: string): {
+    primaryCity: string;
+    allCities: string[];
+    isMultiCity: boolean;
+    dateRange: ResolvedDateRange;
+    category?: EventCategory;
+    partySize?: number;
+    budgetAmount?: number;
+    preferences: string[];
+  } {
+    const raw = (rawInput || '').trim();
+    const rawLower = raw.toLowerCase();
+
+    // 1. Extract Cities
+    const cityInfo = CityResolver.extractCities(raw);
+
+    // 2. Extract Date Range
+    const dateRange = DateResolver.resolveDate(raw);
+
+    // 3. Extract Category
+    let category: EventCategory | undefined = undefined;
+    if (rawLower.includes('comedy') || rawLower.includes('standup') || rawLower.includes('stand-up')) {
+      category = 'COMEDY';
+    } else if (rawLower.includes('concert') || rawLower.includes('live music') || rawLower.includes('classical music') || rawLower.includes('jazz') || rawLower.includes('sufi')) {
+      category = 'MUSIC';
+    } else if (rawLower.includes('theatre') || rawLower.includes('theater') || rawLower.includes('drama') || rawLower.includes('play')) {
+      category = 'THEATRE';
+    } else if (rawLower.includes('art') || rawLower.includes('exhibition') || rawLower.includes('gallery')) {
+      category = 'ART_EXHIBITION';
+    } else if (rawLower.includes('family') || rawLower.includes('kids') || rawLower.includes('children')) {
+      category = 'FAMILY';
+    } else if (rawLower.includes('food') || rawLower.includes('wine') || rawLower.includes('culinary') || rawLower.includes('tasting')) {
+      category = 'FOOD_DRINK';
+    } else if (rawLower.includes('polo') || rawLower.includes('sports') || rawLower.includes('cricket') || rawLower.includes('match')) {
+      category = 'SPORTS';
+    } else if (rawLower.includes('yacht') || rawLower.includes('luxury') || rawLower.includes('exclusive')) {
+      category = 'LUXURY_EXPERIENCE';
+    } else if (rawLower.includes('conference') || rawLower.includes('summit') || rawLower.includes('roundtable')) {
+      category = 'CONFERENCE';
+    }
+
+    // 4. Extract Party Size
+    let partySize: number | undefined = undefined;
+    const paxMatch = raw.match(/(\d+)\s*(?:passengers?|pax|people|guests?|persons?|seats?|tickets?)/i) ||
+                     raw.match(/for\s+(\d+)(?:\s+(?:people|guests?|persons?|passengers?|seats?))?/i);
+    if (paxMatch) {
+      partySize = parseInt(paxMatch[1], 10);
+    } else if (rawLower.includes('for two') || rawLower.includes('couple')) {
+      partySize = 2;
+    } else if (rawLower.includes('for four')) {
+      partySize = 4;
+    } else if (rawLower.includes('solo') || rawLower.includes('for myself')) {
+      partySize = 1;
+    }
+
+    // 5. Extract Budget
+    let budgetAmount: number | undefined = undefined;
+    const budgetMatch = raw.match(/(?:under|budget|below|max(?:imum)?)\s*(?:₹|rs\.?|inr)?\s*([\d,]+)/i) ||
+                        raw.match(/(?:₹|rs\.?|inr)\s*([\d,]+)/i);
+    if (budgetMatch) {
+      budgetAmount = parseInt(budgetMatch[1].replace(/,/g, ''), 10);
+    }
+
+    // 6. Preferences
+    const preferences: string[] = [];
+    if (rawLower.includes('vip')) preferences.push('VIP Seating');
+    if (rawLower.includes('outdoor') || rawLower.includes('open air')) preferences.push('Open Air');
+    if (rawLower.includes('evening') || rawLower.includes('night')) preferences.push('Evening Window');
+    if (rawLower.includes('morning')) preferences.push('Morning Window');
+
+    return {
+      primaryCity: cityInfo.primaryCity,
+      allCities: cityInfo.allCities,
+      isMultiCity: cityInfo.isMultiCity,
+      dateRange,
+      category,
+      partySize,
+      budgetAmount,
+      preferences,
+    };
+  }
+
+  /**
    * Checks if the required minimum entities are present for a given category.
    */
   static hasMinimumExecutionEntities(
@@ -359,6 +449,9 @@ export class EntityIntegrityValidator {
       origin?: string;
       originAirport?: string;
       location?: string;
+      dateTime?: string;
+      date?: string;
+      [key: string]: any;
     }
   ): any[] {
     if (!proposals || proposals.length === 0) return [];
@@ -433,6 +526,43 @@ export class EntityIntegrityValidator {
             // Venue in Ahmedabad should not be shown for a Mumbai/Delhi dining request
             if (p.providerId === 'ahmedabad_verified' || title.includes('AHMEDABAD')) {
               return false;
+            }
+          }
+        }
+      }
+
+      // 4. Events & Experiences validation
+      if (
+        cat.includes('event') ||
+        cat.includes('experience') ||
+        cat.includes('music') ||
+        cat.includes('comedy') ||
+        cat.includes('theatre') ||
+        cat.includes('cultural') ||
+        p.providerId === 'events_discovery'
+      ) {
+        // City validation
+        if (constraints.destination || constraints.location) {
+          const targetCity = (constraints.destination || constraints.location || '').toUpperCase();
+          const eventCity = (meta.city || '').toUpperCase();
+          if (targetCity && eventCity) {
+            // Handle aliases (e.g. Bangalore/Bengaluru, Bombay/Mumbai)
+            const resolvedTarget = CityResolver.normalizeCity(targetCity).toUpperCase();
+            const resolvedEvent = CityResolver.normalizeCity(eventCity).toUpperCase();
+            if (resolvedTarget !== resolvedEvent && !resolvedTarget.includes(resolvedEvent) && !resolvedEvent.includes(resolvedTarget)) {
+              return false; // City mismatch! Reject.
+            }
+          }
+        }
+
+        // Date validation (if specific date is requested)
+        if (constraints.dateTime || (constraints as any).date) {
+          const reqDateStr = ((constraints as any).date || constraints.dateTime || '').slice(0, 10);
+          const eventDateStr = (meta.date || '').slice(0, 10);
+          // If a YYYY-MM-DD format is in requested date, ensure exact match
+          if (/^\d{4}-\d{2}-\d{2}$/.test(reqDateStr) && eventDateStr) {
+            if (reqDateStr !== eventDateStr) {
+              return false; // Date mismatch! Reject.
             }
           }
         }

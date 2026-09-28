@@ -13,15 +13,25 @@ const acceptSchema = z.object({
   token: z.string().min(1),
   password: passwordSchema,
   confirmPassword: z.string(),
-  securityKey: z.string().min(4, 'Security Key must be at least 4 characters').max(32).optional(),
+  authenticationKey: z.string().min(8, 'Authentication Key must be at least 8 characters').max(32).optional(),
+  confirmAuthenticationKey: z.string().optional(),
+  securityKey: z.string().optional(),
   confirmSecurityKey: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match',
   path: ['confirmPassword'],
-}).refine((data) => !data.securityKey || !data.confirmSecurityKey || data.securityKey === data.confirmSecurityKey, {
-  message: 'Security keys do not match',
-  path: ['confirmSecurityKey'],
-});
+}).refine(
+  (data) => {
+    const key = data.authenticationKey || data.securityKey;
+    const confirm = data.confirmAuthenticationKey || data.confirmSecurityKey;
+    if (!key && !confirm) return true;
+    return key === confirm;
+  },
+  {
+    message: 'Authentication Keys do not match',
+    path: ['confirmAuthenticationKey'],
+  },
+);
 
 export async function GET(req: NextRequest) {
   try {
@@ -77,7 +87,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Validation failed', fields: parsed.error.flatten().fieldErrors }, { status: 422 });
     }
 
-    const { token, password, securityKey } = parsed.data;
+    const { token, password, authenticationKey, securityKey } = parsed.data;
+    const rawAuthKey = authenticationKey || securityKey;
     const tokenHash = hashToken(token);
 
     const invitation = await db.invitation.findFirst({
@@ -98,7 +109,8 @@ export async function POST(req: NextRequest) {
 
     let user = await db.user.findUnique({ where: { email: registration.email } });
     const passwordHash = await hashPassword(password);
-    const securityKeyHash = securityKey ? await hashPassword(securityKey) : null;
+    const securityKeyHash = rawAuthKey ? await hashPassword(rawAuthKey) : null;
+    const authKeyUpdatedAt = securityKeyHash ? new Date() : null;
 
     if (user) {
       user = await db.user.update({
@@ -106,6 +118,7 @@ export async function POST(req: NextRequest) {
         data: {
           passwordHash,
           securityKeyHash: securityKeyHash || user.securityKeyHash,
+          authKeyUpdatedAt: securityKeyHash ? new Date() : user.authKeyUpdatedAt,
           status: 'ACTIVE',
           emailVerified: new Date(),
         },
@@ -118,6 +131,7 @@ export async function POST(req: NextRequest) {
           phone: registration.phone,
           passwordHash,
           securityKeyHash,
+          authKeyUpdatedAt,
           status: 'ACTIVE',
           emailVerified: new Date(),
           userRoles: {
@@ -125,6 +139,10 @@ export async function POST(req: NextRequest) {
           },
         },
       });
+    }
+
+    if (securityKeyHash) {
+      void createSecurityEvent('AUTH_KEY_CREATED', { userId: user.id, data: { source: 'wave1_acceptance' } });
     }
 
     await db.customerProfile.upsert({
@@ -154,8 +172,21 @@ export async function POST(req: NextRequest) {
       }),
     ]);
 
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || undefined;
+    const userAgent = req.headers.get('user-agent') || undefined;
+
+    // Record formal policy acceptances under Wave 1 onboarding
+    const { recordPolicyAcceptances } = await import('@/lib/legal/consent');
+    await recordPolicyAcceptances({
+      userId: user.id,
+      policyTypes: ['TERMS_OF_SERVICE', 'PRIVACY_POLICY', 'PRIVATE_BETA_TERMS'],
+      context: 'WAVE1_ACCEPT',
+      ipAddress,
+      userAgent,
+    });
+
     void trackEvent({ event: 'invitation_sent', userId: user.id, properties: { email: user.email } });
-    void createAuditLog({ actorId: user.id, action: 'INVITE_ACCEPTED', resourceType: 'Invitation', resourceId: invitation.id });
+    void createAuditLog({ actorId: user.id, action: 'INVITE_ACCEPTED', resourceType: 'Invitation', resourceId: invitation.id, ipAddress, userAgent });
     void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id, data: { source: 'wave1_acceptance' } });
 
     return NextResponse.json({

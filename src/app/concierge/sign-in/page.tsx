@@ -13,6 +13,7 @@ function ConciergeSignInForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [authenticationKey, setAuthenticationKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(
     urlError === 'Unauthorized' ? 'Access denied. Valid Concierge credentials required.' : null
@@ -32,13 +33,13 @@ function ConciergeSignInForm() {
       const res = await fetch('/api/concierge/auth/sign-in', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, authenticationKey }),
       });
 
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        setError(data.error || 'Invalid employee credentials. Please try again.');
+        setError(data.error || 'Invalid employee credentials. Please check your email, password, and Authentication Key.');
         setLoading(false);
         return;
       }
@@ -69,7 +70,7 @@ function ConciergeSignInForm() {
           Employee Operations Sign-In
         </h1>
         <p className="text-xs text-neutral-400 max-w-xs mx-auto">
-          Separate authentication required for Proventa Concierge execution workstations.
+          "Your private key. Your Proventa identity."
         </p>
       </div>
 
@@ -104,9 +105,14 @@ function ConciergeSignInForm() {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-neutral-300 mb-1.5">
-              Password
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-neutral-300">
+                Password
+              </label>
+              <Link href="/forgot-password" className="text-[11px] text-amber-400/80 hover:underline">
+                Forgot password?
+              </Link>
+            </div>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
               <input
@@ -122,6 +128,30 @@ function ConciergeSignInForm() {
             </div>
           </div>
 
+          <div className="pt-2 border-t border-neutral-800/80">
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-neutral-300 flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5 text-amber-400" />
+                <span>Proventa Authentication Key</span>
+              </label>
+              <Link href="/concierge/forgot-auth-key" className="text-[11px] text-amber-400/80 hover:underline">
+                Forgot key?
+              </Link>
+            </div>
+            <input
+              type="password"
+              value={authenticationKey}
+              onChange={(e) => setAuthenticationKey(e.target.value)}
+              placeholder="••••••••••••"
+              className="w-full px-3.5 py-2.5 bg-neutral-950/80 border border-neutral-800 rounded-xl text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-amber-500/60 focus:ring-1 focus:ring-amber-500/30 transition-all tracking-[0.2em]"
+              autoComplete="one-time-code"
+              disabled={loading}
+            />
+            <p className="text-[11px] text-neutral-500 mt-1.5 italic">
+              Required for every Concierge login.
+            </p>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -130,11 +160,11 @@ function ConciergeSignInForm() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Verifying Credentials...</span>
+                <span>Verifying Credentials & Key...</span>
               </>
             ) : (
               <>
-                <span>Sign In to Concierge Desk</span>
+                <span>Access Concierge Workspace</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}

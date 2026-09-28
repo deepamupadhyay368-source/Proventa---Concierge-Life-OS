@@ -24,6 +24,7 @@ function AcceptForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [securityKey, setSecurityKey] = useState('');
   const [confirmSecurityKey, setConfirmSecurityKey] = useState('');
+  const [termsConsent, setTermsConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -86,6 +87,10 @@ function AcceptForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!termsConsent) {
+      setError('You must agree to the Terms of Service, Privacy Policy, and Private Beta Terms to activate your account.');
+      return;
+    }
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -211,12 +216,12 @@ function AcceptForm() {
           </div>
         </div>
 
-        {/* Create Personal Security Key */}
+        {/* Create Proventa Authentication Key */}
         <div className="pt-2 border-t border-neutral-100">
           <div className="flex items-center justify-between mb-1">
             <label className="block text-xs font-medium text-neutral-700 flex items-center gap-1.5">
               <KeyRound className="h-3.5 w-3.5 text-amber-600" />
-              <span>Personal Security Key / PIN *</span>
+              <span>Proventa Authentication Key (min 8 chars) *</span>
             </label>
             <span className="text-[10px] text-neutral-400">Required at every login</span>
           </div>
@@ -228,15 +233,15 @@ function AcceptForm() {
               value={securityKey}
               onChange={(e) => setSecurityKey(e.target.value)}
               className="w-full pl-10 pr-3.5 py-2.5 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-900"
-              placeholder="e.g. 6-digit PIN or secret phrase"
+              placeholder="Create private key"
             />
           </div>
-          <p className="text-[10px] text-neutral-400 mt-1">Keep this confidential. You will insert this security key each time you access Proventa.</p>
+          <p className="text-[10px] text-neutral-400 mt-1">"Your private key. Your Proventa identity." Required whenever you sign in.</p>
         </div>
 
-        {/* Confirm Security Key */}
+        {/* Confirm Authentication Key */}
         <div>
-          <label className="block text-xs font-medium text-neutral-700 mb-1">Confirm Security Key *</label>
+          <label className="block text-xs font-medium text-neutral-700 mb-1">Confirm Authentication Key *</label>
           <div className="relative">
             <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
@@ -245,9 +250,37 @@ function AcceptForm() {
               value={confirmSecurityKey}
               onChange={(e) => setConfirmSecurityKey(e.target.value)}
               className="w-full pl-10 pr-3.5 py-2.5 border border-neutral-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-900"
-              placeholder="Re-enter your security key"
+              placeholder="Re-enter your private key"
             />
           </div>
+        </div>
+
+        {/* Explicit Legal & Beta Acceptance Checkbox */}
+        <div className="pt-2 border-t border-neutral-100 space-y-1.5">
+          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-neutral-600 font-sans">
+            <input
+              type="checkbox"
+              required
+              checked={termsConsent}
+              onChange={(e) => setTermsConsent(e.target.checked)}
+              className="mt-0.5 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+            />
+            <span className="leading-relaxed">
+              I agree to the{' '}
+              <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-neutral-900 underline hover:text-[#8a7053]">
+                Terms of Service
+              </a>
+              , acknowledge the{' '}
+              <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-neutral-900 underline hover:text-[#8a7053]">
+                Privacy Policy
+              </a>
+              , and accept the{' '}
+              <a href="/legal/private-beta" target="_blank" rel="noopener noreferrer" className="font-semibold text-neutral-900 underline hover:text-[#8a7053]">
+                Private Beta Terms
+              </a>
+              .
+            </span>
+          </label>
         </div>
 
         <button

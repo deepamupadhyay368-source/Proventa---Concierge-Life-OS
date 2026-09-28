@@ -3,6 +3,7 @@ import { AhmedabadVerifiedAdapter } from './ahmedabad-verified.adapter';
 import { SwiggyAdapter } from './swiggy.adapter';
 import { FlightsAdapter } from './flights.adapter';
 import { CinemaAdapter } from './cinema.adapter';
+import { EventsDiscoveryAdapter } from './events.adapter';
 import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter, MockResearchPlanningAdapter } from './mock-adapters';
 
 export class AdapterRegistry {
@@ -31,7 +32,13 @@ export class AdapterRegistry {
     this.register('movies', new CinemaAdapter());
     this.register('cinema', new CinemaAdapter());
     this.register('movies_entertainment', new CinemaAdapter());
-    this.register('experiences', new CinemaAdapter());
+    this.register('experiences', new EventsDiscoveryAdapter());
+    this.register('events', new EventsDiscoveryAdapter());
+    this.register('event', new EventsDiscoveryAdapter());
+    this.register('culture', new EventsDiscoveryAdapter());
+    this.register('music', new EventsDiscoveryAdapter());
+    this.register('comedy', new EventsDiscoveryAdapter());
+    this.register('theatre', new EventsDiscoveryAdapter());
     this.register('mobility', new MockMobilityAdapter());
     this.register('transport', new MockMobilityAdapter());
     this.register('transit', new MockMobilityAdapter());

@@ -144,6 +144,29 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
     compatCategory = 'hotels';
   } else if (decision.category === 'MOVIES_ENTERTAINMENT') {
     compatCategory = 'movies';
+  } else if (decision.category === 'EVENTS' || lower.includes('event') || lower.includes('concert') || lower.includes('comedy') || lower.includes('theatre') || lower.includes('show')) {
+    compatCategory = 'events';
+  }
+
+  // If this is an event inquiry, extract specialized event entities
+  if (compatCategory === 'events' || decision.category === 'EVENTS') {
+    const eventEntities = EntityIntegrityValidator.extractEventEntities(rawInput);
+    location = eventEntities.primaryCity;
+    destination = eventEntities.primaryCity;
+    if (!date && eventEntities.dateRange) {
+      date = eventEntities.dateRange.startDate;
+      dateTime = eventEntities.dateRange.displayText;
+    }
+    if (eventEntities.partySize) {
+      partySize = eventEntities.partySize;
+    }
+    if (eventEntities.budgetAmount) {
+      budgetAmount = eventEntities.budgetAmount;
+      budgetRange = `₹${eventEntities.budgetAmount.toLocaleString('en-IN')}`;
+    }
+    if (eventEntities.preferences.length > 0) {
+      preferences.push(...eventEntities.preferences);
+    }
   }
 
   const effectivePartySize = deterministic.partySize?.value || partySize || 2;

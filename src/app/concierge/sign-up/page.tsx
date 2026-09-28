@@ -28,6 +28,8 @@ function ConciergeSignUpForm() {
     phone: '',
     password: '',
     confirmPassword: '',
+    authenticationKey: '',
+    confirmAuthenticationKey: '',
     employeeId: '',
     role: 'CONCIERGE',
     department: 'National Concierge Desk',
@@ -55,6 +57,16 @@ function ConciergeSignUpForm() {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match.');
+      return;
+    }
+
+    if (formData.authenticationKey.length < 8) {
+      setError('Authentication Key must be at least 8 characters long.');
+      return;
+    }
+
+    if (formData.authenticationKey !== formData.confirmAuthenticationKey) {
+      setError('Authentication Keys do not match.');
       return;
     }
 
@@ -286,6 +298,48 @@ function ConciergeSignUpForm() {
                   />
                 </div>
               </div>
+
+              {/* Proventa Authentication Key */}
+              <div>
+                <label className="block text-xs font-medium text-amber-400 mb-1.5">
+                  Proventa Authentication Key (min 8 chars) *
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500" />
+                  <input
+                    type="password"
+                    required
+                    name="authenticationKey"
+                    value={formData.authenticationKey}
+                    onChange={handleChange}
+                    placeholder="Create private key"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-neutral-950/80 border border-amber-500/40 rounded-xl text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40"
+                  />
+                </div>
+              </div>
+
+              {/* Confirm Authentication Key */}
+              <div>
+                <label className="block text-xs font-medium text-amber-400 mb-1.5">
+                  Confirm Authentication Key *
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-amber-500" />
+                  <input
+                    type="password"
+                    required
+                    name="confirmAuthenticationKey"
+                    value={formData.confirmAuthenticationKey}
+                    onChange={handleChange}
+                    placeholder="Re-enter private key"
+                    className="w-full pl-10 pr-3.5 py-2.5 bg-neutral-950/80 border border-amber-500/40 rounded-xl text-xs text-neutral-200 placeholder-neutral-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/40"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-xl text-xs text-amber-300/90 leading-relaxed">
+              <strong>Your private key. Your Proventa identity.</strong> Never share your Authentication Key with anyone. It is required for every Concierge Workspace access session.
             </div>
 
             {/* Invitation / Authorization Code (Optional) */}

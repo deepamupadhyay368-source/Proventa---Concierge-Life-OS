@@ -1,141 +1,214 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Shield, FileText, Lock, RefreshCw, Cpu, Database, AlertCircle } from 'lucide-react';
+import {
+  Shield,
+  FileText,
+  Lock,
+  RefreshCw,
+  Cpu,
+  Database,
+  CreditCard,
+  Building,
+  UserCheck,
+  CheckCircle2,
+  AlertCircle,
+  HelpCircle,
+  ArrowRight,
+} from 'lucide-react';
+import { LEGAL_DOCUMENTS, POLICY_EFFECTIVE_DATES } from '@/lib/legal/versions';
 
 export const metadata: Metadata = {
-  title: 'Legal & Compliance Center | Proventa',
-  description: 'Legal terms, regulatory disclosures, DPDP Act 2023 compliance, and operational policies for Proventa Concierge Life OS.',
+  title: 'Legal & Trust Center | Proventa',
+  description:
+    'Legal framework, sovereign privacy disclosures, concierge service terms, and transparency policies for Proventa Concierge Life OS.',
 };
 
-export default function LegalPage() {
-  const policies = [
-    {
-      title: 'Terms of Membership & Service',
-      href: '/terms',
-      icon: FileText,
-      description: 'The formal agreement governing access, approval gating, intermediary status, and member responsibilities.',
-    },
-    {
-      title: 'Privacy Policy (DPDP Act 2023)',
-      href: '/privacy',
-      icon: Shield,
-      description: 'Complete disclosures on data processing, zero-advertising guarantee, cloud sovereignty, and user rights.',
-    },
-    {
-      title: 'AI Concierge Disclosure',
-      href: '/ai-concierge-disclosure',
-      icon: Cpu,
-      description: 'Boundaries between autonomous AI intent parsing and senior human concierge intervention.',
-    },
-    {
-      title: 'Refund & Cancellation Policy',
-      href: '/refund-cancellation',
-      icon: RefreshCw,
-      description: 'Clear rules on Proventa service fees, third-party vendor non-refundable terms, and dispute resolution.',
-    },
-    {
-      title: 'Member Data Rights & Erasure',
-      href: '/data-rights',
-      icon: Database,
-      description: 'Self-service export (JSON), correction, and erasure procedures under Indian data protection law.',
-    },
-    {
-      title: 'Cookie & Security Disclosures',
-      href: '/cookie-policy',
-      icon: Lock,
-      description: 'Zero third-party tracking cookies. Transparent details on session authentication and CSRF tokens.',
-    },
-  ];
+export default function LegalHubPage() {
+  const coreDocs = LEGAL_DOCUMENTS.filter((d) => d.category === 'CORE');
+  const serviceDocs = LEGAL_DOCUMENTS.filter((d) => d.category === 'SERVICES');
+  const transparencyDocs = LEGAL_DOCUMENTS.filter((d) => d.category === 'TRANSPARENCY');
+  const rightsDocs = LEGAL_DOCUMENTS.filter((d) => d.category === 'RIGHTS');
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-[#141312] pt-24 pb-20 font-sans">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="border-b border-[#e8e2d8] pb-10 mb-12">
-          <p className="text-xs uppercase tracking-widest text-[#8a7053] font-semibold mb-2">
-            Governance &amp; Trust
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-serif font-normal text-[#141312] tracking-tight">
-            Legal &amp; Compliance Center
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Header Banner */}
+        <div className="border-b border-[#e8e2d8] pb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#f5ede0] text-[#8a7053] border border-[#e8e2d8] mb-4">
+            <Shield className="w-3.5 h-3.5" />
+            <span>Sovereign Trust &amp; Governance</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-serif font-normal text-[#141312] tracking-tight">
+            Legal &amp; Trust Center
           </h1>
-          <p className="mt-3 text-sm sm:text-base text-[#6e6b65] leading-relaxed max-w-2xl">
-            Proventa operates on an uncompromising mandate of privacy, sovereign data stewardship, explicit customer consent gating, and verified human execution.
+          <p className="mt-4 text-sm sm:text-base text-[#6e6b65] leading-relaxed max-w-3xl">
+            Proventa operates as an exclusive, private Concierge Life OS combining intelligent request coordination with verified human execution. Our legal foundation is built on explicit consent gating, non-custodial payment safety, zero behavioral advertising, and absolute data stewardship.
           </p>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-[#8a8680]">
+            <span>Active Cohort: Wave 1 Private Beta</span>
+            <span>·</span>
+            <span>Effective: {POLICY_EFFECTIVE_DATES.privacy}</span>
+            <span>·</span>
+            <span>Jurisdiction: Ahmedabad, Gujarat, India</span>
+          </div>
         </div>
 
-        {/* Policy Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          {policies.map((p) => {
-            const Icon = p.icon;
-            return (
+        {/* Section: Core Membership Agreements */}
+        <div className="space-y-4">
+          <h2 className="text-xs uppercase tracking-widest font-bold text-[#8a7053]">
+            Core Membership Agreements
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {coreDocs.map((doc) => (
               <Link
-                key={p.href}
-                href={p.href}
-                className="group block p-6 bg-white rounded-2xl border border-[#ded7cc] hover:border-[#8a7053] transition-all shadow-xs hover:shadow-sm"
+                key={doc.href}
+                href={doc.href}
+                className="group p-6 bg-white rounded-2xl border border-[#ded7cc] hover:border-[#8a7053] transition-all shadow-xs hover:shadow-md flex flex-col justify-between"
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2.5 rounded-xl bg-[#faf8f5] border border-[#e8e2d8] group-hover:bg-[#f5ede0] transition-colors text-[#8a7053]">
-                    <Icon className="w-5 h-5" />
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-neutral-100 text-neutral-600">
+                      v{doc.version}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#8a7053] transition-colors" />
                   </div>
-                  <h2 className="text-base font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors">
-                    {p.title}
-                  </h2>
+                  <h3 className="text-base font-serif font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors mb-2">
+                    {doc.title}
+                  </h3>
+                  <p className="text-xs text-[#6e6b65] leading-relaxed">
+                    {doc.description}
+                  </p>
                 </div>
-                <p className="text-xs text-[#6e6b65] leading-relaxed">
-                  {p.description}
-                </p>
               </Link>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
-        {/* Entity & Regulatory Notice */}
-        <div className="bg-white rounded-2xl p-8 border border-[#ded7cc] space-y-6">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-[#8a7053] mt-0.5 shrink-0" />
+        {/* Section: Concierge Services & Transactions */}
+        <div className="space-y-4">
+          <h2 className="text-xs uppercase tracking-widest font-bold text-[#8a7053]">
+            Concierge Operations &amp; Settlements
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {serviceDocs.map((doc) => (
+              <Link
+                key={doc.href}
+                href={doc.href}
+                className="group p-6 bg-white rounded-2xl border border-[#ded7cc] hover:border-[#8a7053] transition-all shadow-xs hover:shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-neutral-100 text-neutral-600">
+                      v{doc.version}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#8a7053] transition-colors" />
+                  </div>
+                  <h3 className="text-base font-serif font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors mb-2">
+                    {doc.title}
+                  </h3>
+                  <p className="text-xs text-[#6e6b65] leading-relaxed">
+                    {doc.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Section: Technology & Transparency */}
+        <div className="space-y-4">
+          <h2 className="text-xs uppercase tracking-widest font-bold text-[#8a7053]">
+            Technology, AI &amp; Privacy Safeguards
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {transparencyDocs.map((doc) => (
+              <Link
+                key={doc.href}
+                href={doc.href}
+                className="group p-6 bg-white rounded-2xl border border-[#ded7cc] hover:border-[#8a7053] transition-all shadow-xs hover:shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-neutral-100 text-neutral-600">
+                      v{doc.version}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#8a7053] transition-colors" />
+                  </div>
+                  <h3 className="text-base font-serif font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors mb-2">
+                    {doc.title}
+                  </h3>
+                  <p className="text-xs text-[#6e6b65] leading-relaxed">
+                    {doc.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Section: Sovereign Rights & Redressal */}
+        <div className="space-y-4">
+          <h2 className="text-xs uppercase tracking-widest font-bold text-[#8a7053]">
+            Data Rights, Redressal &amp; Grievance Desk
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {rightsDocs.map((doc) => (
+              <Link
+                key={doc.href}
+                href={doc.href}
+                className="group p-6 bg-white rounded-2xl border border-[#ded7cc] hover:border-[#8a7053] transition-all shadow-xs hover:shadow-md flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-neutral-100 text-neutral-600">
+                      v{doc.version}
+                    </span>
+                    <ArrowRight className="w-4 h-4 text-neutral-300 group-hover:text-[#8a7053] transition-colors" />
+                  </div>
+                  <h3 className="text-base font-serif font-semibold text-[#141312] group-hover:text-[#8a7053] transition-colors mb-2">
+                    {doc.title}
+                  </h3>
+                  <p className="text-xs text-[#6e6b65] leading-relaxed">
+                    {doc.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Entity & Venture Transparency Notice */}
+        <div className="bg-white rounded-3xl p-8 border border-[#ded7cc] space-y-6">
+          <div className="flex items-start gap-3.5">
+            <div className="p-2.5 rounded-xl bg-[#faf8f5] border border-[#e8e2d8] text-[#8a7053] shrink-0">
+              <Building className="w-5 h-5" />
+            </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#141312] uppercase tracking-wider mb-1">
-                Corporate Entity &amp; Founder Mandate
+              <h3 className="text-sm font-semibold text-[#141312] uppercase tracking-wider">
+                Venture Operations &amp; Legal Entity Disclosure
               </h3>
-              <p className="text-xs text-[#6e6b65] leading-relaxed">
-                Proventa is developed and operated by Proventa Technologies Private Limited, founded by Deepam G Upadhyay.
+              <p className="text-xs text-[#6e6b65] mt-1 leading-relaxed">
+                Proventa is currently operating as a founder-led technology venture founded by Deepam G Upadhyay in Ahmedabad, Gujarat, India. Formal corporate incorporation details and statutory registration numbers will be updated upon finalization.
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-[#f0ece4] text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-[#f0ece4] text-xs">
             <div>
-              <span className="font-semibold text-[#141312] block mb-1">Registered Entity:</span>
-              <span className="text-[#6e6b65]">Proventa Technologies Private Limited</span>
+              <span className="font-semibold text-[#141312] block mb-1">Venture Brand:</span>
+              <span className="text-[#6e6b65]">Proventa — Concierge Life OS</span>
             </div>
             <div>
-              <span className="font-semibold text-[#141312] block mb-1">Registered Jurisdiction:</span>
+              <span className="font-semibold text-[#141312] block mb-1">Operational Location:</span>
               <span className="text-[#6e6b65]">Ahmedabad, Gujarat, India</span>
             </div>
             <div>
-              <span className="font-semibold text-[#141312] block mb-1">Corporate Identification Number (CIN):</span>
-              <span className="text-[#8a8680] italic">TODO [Founder Configuration: CIN Registration Number]</span>
-            </div>
-            <div>
-              <span className="font-semibold text-[#141312] block mb-1">GSTIN:</span>
-              <span className="text-[#8a8680] italic">TODO [Founder Configuration: GSTIN Number]</span>
-            </div>
-            <div className="sm:col-span-2">
-              <span className="font-semibold text-[#141312] block mb-1">Registered Office Address:</span>
-              <span className="text-[#8a8680] italic">TODO [Founder Configuration: Registered Office Physical Address, Ahmedabad, Gujarat, India]</span>
-            </div>
-            <div className="sm:col-span-2">
-              <span className="font-semibold text-[#141312] block mb-1">DPDP Act Grievance Officer:</span>
-              <span className="text-[#6e6b65]">
-                Grievance Officer: <span className="text-[#8a8680] italic">TODO [Founder Configuration: Grievance Officer Name]</span> · Direct inquiries to:{' '}
-                <a href="mailto:privacy@proventa.in" className="text-[#8a7053] underline">privacy@proventa.in</a> (copy to <a href="mailto:proventa.in@gmail.com" className="text-[#8a7053] underline">proventa.in@gmail.com</a>)
-              </span>
+              <span className="font-semibold text-[#141312] block mb-1">Privacy &amp; Legal Desk:</span>
+              <a href="mailto:privacy@proventa.in" className="text-[#8a7053] underline font-medium">
+                privacy@proventa.in
+              </a>
             </div>
           </div>
-        </div>
-
-        <div className="mt-8 text-center text-xs text-[#8a8680]">
-          Last reviewed and effective: September 18, 2026.
         </div>
       </div>
     </div>

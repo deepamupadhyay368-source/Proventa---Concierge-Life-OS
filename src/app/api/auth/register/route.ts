@@ -5,9 +5,10 @@ import { generateVerificationToken, hashToken } from '@/lib/auth/tokens';
 import { registerSchema } from '@/lib/validation/schemas';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
 import { trackEvent } from '@/lib/analytics';
-import { createAuditLog } from '@/lib/audit';
+import { createAuditLog, createSecurityEvent } from '@/lib/audit';
 import { ConflictError, ValidationError } from '@/lib/errors';
 import { sendVerificationEmail } from '@/lib/email/sender';
+import { recordPolicyAcceptances } from '@/lib/legal/consent';
 
 export async function POST(req: NextRequest) {
   const rl = rateLimitMiddleware(req, { max: 5, windowMs: 60_000, keyPrefix: 'auth-register' });
@@ -23,12 +24,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, securityKey, phone, city, preferredComm, dob, address } = parsed.data;
+    const { name, email, password, authenticationKey, securityKey, phone, city, preferredComm, dob, address } = parsed.data;
+    const rawAuthKey = authenticationKey || securityKey;
 
     const normalizedEmail = email.trim().toLowerCase();
     const cleanPhone = phone ? phone.trim() : null;
     const passwordHash = await hashPassword(password);
-    const securityKeyHash = securityKey ? await hashPassword(securityKey) : null;
+    const securityKeyHash = rawAuthKey ? await hashPassword(rawAuthKey) : null;
+    const authKeyUpdatedAt = securityKeyHash ? new Date() : null;
 
     // Check for existing user
     const existing = await db.user.findUnique({
@@ -52,6 +55,7 @@ export async function POST(req: NextRequest) {
         data: {
           passwordHash,
           securityKeyHash: securityKeyHash || existing.securityKeyHash,
+          authKeyUpdatedAt: securityKeyHash ? new Date() : existing.authKeyUpdatedAt,
           name: existing.name || name,
           phone: cleanPhone || existing.phone,
           status: 'ACTIVE',
@@ -59,6 +63,10 @@ export async function POST(req: NextRequest) {
         },
         include: { userRoles: true },
       });
+
+      if (securityKeyHash) {
+        void createSecurityEvent('AUTH_KEY_CREATED', { userId: existing.id });
+      }
 
       // Ensure customer profile exists
       await db.customerProfile.upsert({
@@ -96,12 +104,17 @@ export async function POST(req: NextRequest) {
         phone: cleanPhone,
         passwordHash,
         securityKeyHash,
+        authKeyUpdatedAt,
         status: 'ACTIVE',
         emailVerified: new Date(),
         userRoles: { create: [{ role: 'CUSTOMER' }] },
       },
       include: { userRoles: true },
     });
+
+    if (securityKeyHash) {
+      void createSecurityEvent('AUTH_KEY_CREATED', { userId: user.id });
+    }
 
     // Create customer profile
     const profile = await db.customerProfile.create({
@@ -137,8 +150,20 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || undefined;
+    const userAgent = req.headers.get('user-agent') || undefined;
+
+    // Record formal policy acceptances
+    await recordPolicyAcceptances({
+      userId: user.id,
+      policyTypes: ['TERMS_OF_SERVICE', 'PRIVACY_POLICY', 'PRIVATE_BETA_TERMS'],
+      context: 'SIGNUP',
+      ipAddress,
+      userAgent,
+    });
+
     void trackEvent({ event: 'account_created', userId: user.id });
-    void createAuditLog({ actorId: user.id, action: 'CREATE', resourceType: 'User', resourceId: user.id });
+    void createAuditLog({ actorId: user.id, action: 'CREATE', resourceType: 'User', resourceId: user.id, ipAddress, userAgent });
 
     return NextResponse.json(
       {

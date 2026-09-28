@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { hashPassword } from '@/lib/auth/password';
+import { hashPassword, hashAuthKey } from '@/lib/auth/password';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
+import { createSecurityEvent, createAuditLog } from '@/lib/audit';
+import { conciergeSignUpSchema } from '@/lib/validation/schemas';
 import { UserRole } from '@prisma/client';
 import { isAppError } from '@/lib/errors';
 
@@ -13,37 +15,28 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+    const parsed = conciergeSignUpSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Validation failed', fields: parsed.error.flatten().fieldErrors },
+        { status: 400 }
+      );
+    }
+
     const {
       name,
       email,
       phone,
       password,
-      confirmPassword,
+      authenticationKey,
       employeeId,
       role = 'CONCIERGE',
       department = 'National Concierge Desk',
       city = 'Ahmedabad',
       inviteCode,
-    } = body;
-
-    // Validation
-    if (!name || name.trim().length < 2) {
-      return NextResponse.json({ error: 'Full legal/display name is required (min 2 characters)' }, { status: 400 });
-    }
-
-    if (!email || !email.includes('@')) {
-      return NextResponse.json({ error: 'Valid work email address is required' }, { status: 400 });
-    }
+    } = parsed.data;
 
     const cleanEmail = email.trim().toLowerCase();
-
-    if (!password || password.length < 8) {
-      return NextResponse.json({ error: 'Password must be at least 8 characters long' }, { status: 400 });
-    }
-
-    if (confirmPassword && password !== confirmPassword) {
-      return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
-    }
 
     // Check if user already exists
     const existing = await db.user.findUnique({
@@ -59,6 +52,7 @@ export async function POST(req: NextRequest) {
     }
 
     const passwordHash = await hashPassword(password);
+    const securityKeyHash = await hashAuthKey(authenticationKey);
 
     // Check if auto-activation applies (e.g. correct invite code or specific dev setting)
     const validInviteCode = process.env.CONCIERGE_INVITE_CODE || 'PROVENTA-CONCIERGE-2026';
@@ -79,6 +73,8 @@ export async function POST(req: NextRequest) {
           email: cleanEmail,
           phone: phone ? phone.trim() : null,
           passwordHash,
+          securityKeyHash,
+          authKeyUpdatedAt: new Date(),
           status: initialStatus,
           emailVerified: isAutoActive ? new Date() : null,
           userRoles: {

@@ -15,3 +15,7 @@ export function generatePasswordResetToken(): string {
 export function generateInvitationToken(): string {
   return randomBytes(40).toString('base64url');
 }
+
+export function generateAuthKeyRecoveryToken(): string {
+  return randomBytes(32).toString('base64url');
+}

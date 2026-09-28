@@ -155,7 +155,7 @@ export class TaskDecisionEngine {
     if (raw.includes('hotel') || raw.includes('suite') || raw.includes('villa') || raw.includes('resort') || raw.includes('stay')) {
       return 'HOTELS';
     }
-    if (raw.includes('flight') || raw.includes('airline') || raw.includes('airfare') || raw.includes('fly') || raw.includes('pnr') || raw.includes('aviation')) {
+    if (raw.includes('flight') || raw.includes('airline') || raw.includes('airfare') || raw.includes('fly') || raw.includes('pnr') || raw.includes('aviation') || raw.includes('vistara') || raw.includes('indigo') || raw.includes('air india') || raw.includes('spicejet') || raw.includes('akasa') || raw.includes('air ticket')) {
       return 'TRAVEL';
     }
     if (raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table for') || raw.includes('dining') || raw.includes('lunch') || raw.includes('agashiye')) {
@@ -182,7 +182,27 @@ export class TaskDecisionEngine {
     if (raw.includes('appointment') || raw.includes('doctor') || raw.includes('dentist') || raw.includes('consultation')) {
       return 'APPOINTMENTS';
     }
-    if (raw.includes('concert') || raw.includes('tickets to') || raw.includes('exhibition') || raw.includes('galas') || raw.includes('event')) {
+    if (
+      raw.includes('concert') ||
+      raw.includes('live music') ||
+      raw.includes('comedy') ||
+      raw.includes('standup') ||
+      raw.includes('stand-up') ||
+      raw.includes('theatre') ||
+      raw.includes('theater') ||
+      raw.includes('drama') ||
+      raw.includes('exhibition') ||
+      raw.includes('festival') ||
+      raw.includes('galas') ||
+      raw.includes('event') ||
+      raw.includes('events') ||
+      raw.includes('happening') ||
+      raw.includes('what\'s happening') ||
+      raw.includes('event ticket') ||
+      raw.includes('show ticket') ||
+      raw.includes('shows in') ||
+      raw.includes('cultural')
+    ) {
       return 'EVENTS';
     }
 

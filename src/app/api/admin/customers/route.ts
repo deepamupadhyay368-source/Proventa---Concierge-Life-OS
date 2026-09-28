@@ -48,6 +48,8 @@ export async function GET(req: NextRequest) {
               email: true,
               phone: true,
               status: true,
+              securityKeyHash: true,
+              authKeyUpdatedAt: true,
               createdAt: true,
               userRoles: {
                 select: {
@@ -93,7 +95,17 @@ export async function GET(req: NextRequest) {
         preferredComm: c.preferredComm,
         onboardingCompleted: c.onboardingCompleted,
         createdAt: c.createdAt,
-        user: c.user,
+        user: {
+          id: c.user.id,
+          name: c.user.name,
+          email: c.user.email,
+          phone: c.user.phone,
+          status: c.user.status,
+          createdAt: c.user.createdAt,
+          userRoles: c.user.userRoles,
+          authKeyStatus: c.user.securityKeyHash ? 'ACTIVE' : 'NOT_CONFIGURED',
+          authKeyUpdatedAt: c.user.authKeyUpdatedAt,
+        },
         preferencesCount: c.preferences.length,
         taskStats: {
           total: c._count.tasks,

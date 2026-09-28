@@ -275,7 +275,7 @@ export class HomeServicesAgent extends BaseDomainAgent {
 
 export class EventsAgent extends BaseDomainAgent {
   constructor() {
-    super('Events & Gatherings Agent', 'business');
+    super('Events & Gatherings Agent', 'events');
   }
 }
 
@@ -333,11 +333,11 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   food: new DiningAgent(),
   delivery: new DiningAgent(),
   movies_entertainment: new EntertainmentAgent(),
-  experiences: new EntertainmentAgent(),
+  experiences: new EventsAgent(),
   movies: new EntertainmentAgent(),
   movie: new EntertainmentAgent(),
   cinema: new EntertainmentAgent(),
-  entertainment: new EntertainmentAgent(),
+  entertainment: new EventsAgent(),
   gifts: new GiftAgent(),
   gift: new GiftAgent(),
   shopping: new ShoppingAgent(),
@@ -349,6 +349,15 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   appointment: new CalendarAgent(),
   events: new EventsAgent(),
   event: new EventsAgent(),
+  concert: new EventsAgent(),
+  concerts: new EventsAgent(),
+  comedy: new EventsAgent(),
+  theatre: new EventsAgent(),
+  theater: new EventsAgent(),
+  culture: new EventsAgent(),
+  cultural: new EventsAgent(),
+  art: new EventsAgent(),
+  exhibition: new EventsAgent(),
   business: new EventsAgent(),
   weekend_escapes: new HotelAgent(),
   weekend_escape: new HotelAgent(),
@@ -373,6 +382,9 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
     }
     if (raw.includes('flight') || raw.includes('fly') || raw.includes('airline') || raw.includes('airport')) {
       return AGENT_REGISTRY['flights'];
+    }
+    if (raw.includes('event') || raw.includes('concert') || raw.includes('comedy') || raw.includes('theatre') || raw.includes('show') || raw.includes('happening')) {
+      return AGENT_REGISTRY['events'];
     }
   }
 

@@ -280,32 +280,37 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
             {errors.password && <p className="mt-1 text-xs text-red-600 font-sans">{errors.password.message}</p>}
           </div>
 
-          <div>
+          <div className="pt-2 border-t border-[#ded7cc]/60">
             <div className="flex items-center justify-between mb-1.5">
               <label htmlFor="securityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider font-sans flex items-center gap-1.5">
                 <KeyRound className="h-3.5 w-3.5 text-[#8a7053]" />
-                <span>Security Key / PIN</span>
+                <span>Proventa Authentication Key</span>
               </label>
-              <span className="text-[11px] text-[#8a8680] font-sans">Created at registration</span>
+              <a href="/forgot-auth-key" className="text-xs text-[#8a7053] hover:underline font-sans">
+                Forgot your Authentication Key?
+              </a>
             </div>
             <input
               id="securityKey"
               type="password"
               autoComplete="one-time-code"
-              className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
-              placeholder="Enter your confidential security key or PIN"
+              className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans tracking-[0.2em]"
+              placeholder="••••••••••••"
               {...register('securityKey')}
             />
             {errors.securityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.securityKey.message}</p>}
+            <p className="text-[11px] text-[#8a8680] mt-1.5 font-sans italic">
+              Your private key. Your Proventa identity.
+            </p>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed font-sans flex items-center justify-center gap-2"
+            className="w-full py-3.5 px-4 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed font-sans flex items-center justify-center gap-2 mt-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin text-[#ddc8a9]" />}
-            <span>{loading ? 'Authenticating...' : 'Sign In with Email'}</span>
+            <span>{loading ? 'Verifying Identity...' : 'Sign In with Authentication Key'}</span>
           </button>
         </form>
       )}
