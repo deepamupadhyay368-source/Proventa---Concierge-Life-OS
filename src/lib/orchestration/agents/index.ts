@@ -291,6 +291,12 @@ export class CalendarAgent extends BaseDomainAgent {
   }
 }
 
+export class HealthcareAgent extends BaseDomainAgent {
+  constructor() {
+    super('Healthcare & Doctor Discovery Agent', 'healthcare');
+  }
+}
+
 export class CommunicationAgent extends BaseDomainAgent {
   constructor() {
     super('Communication & Outbound Agent', 'personal');
@@ -345,8 +351,17 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   wellness: new CalendarAgent(),
   salon: new CalendarAgent(),
   spa: new CalendarAgent(),
-  appointments: new CalendarAgent(),
-  appointment: new CalendarAgent(),
+  appointments: new HealthcareAgent(),
+  appointment: new HealthcareAgent(),
+  healthcare: new HealthcareAgent(),
+  doctor: new HealthcareAgent(),
+  doctors: new HealthcareAgent(),
+  medical: new HealthcareAgent(),
+  clinic: new HealthcareAgent(),
+  hospital: new HealthcareAgent(),
+  dermatologist: new HealthcareAgent(),
+  cardiologist: new HealthcareAgent(),
+  pediatrician: new HealthcareAgent(),
   events: new EventsAgent(),
   event: new EventsAgent(),
   concert: new EventsAgent(),
@@ -385,6 +400,9 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
     }
     if (raw.includes('event') || raw.includes('concert') || raw.includes('comedy') || raw.includes('theatre') || raw.includes('show') || raw.includes('happening')) {
       return AGENT_REGISTRY['events'];
+    }
+    if (raw.includes('doctor') || raw.includes('clinic') || raw.includes('hospital') || raw.includes('appointment') || raw.includes('specialist') || raw.includes('dermatolog') || raw.includes('cardiolog')) {
+      return AGENT_REGISTRY['healthcare'];
     }
   }
 

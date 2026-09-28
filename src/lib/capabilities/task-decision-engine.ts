@@ -179,7 +179,23 @@ export class TaskDecisionEngine {
     if (raw.includes('salon') || raw.includes('spa') || raw.includes('massage') || raw.includes('haircut') || raw.includes('wellness')) {
       return 'SALON_WELLNESS';
     }
-    if (raw.includes('appointment') || raw.includes('doctor') || raw.includes('dentist') || raw.includes('consultation')) {
+    if (
+      raw.includes('appointment') ||
+      raw.includes('doctor') ||
+      raw.includes('dentist') ||
+      raw.includes('consultation') ||
+      raw.includes('dermatolog') ||
+      raw.includes('cardiolog') ||
+      raw.includes('pediatric') ||
+      raw.includes('paediatric') ||
+      raw.includes('orthopedic') ||
+      raw.includes('gynecolog') ||
+      raw.includes('physician') ||
+      raw.includes('clinic') ||
+      raw.includes('hospital') ||
+      raw.includes('teleconsultation') ||
+      raw.includes('specialist')
+    ) {
       return 'APPOINTMENTS';
     }
     if (

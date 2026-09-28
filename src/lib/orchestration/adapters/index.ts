@@ -4,6 +4,7 @@ import { SwiggyAdapter } from './swiggy.adapter';
 import { FlightsAdapter } from './flights.adapter';
 import { CinemaAdapter } from './cinema.adapter';
 import { EventsDiscoveryAdapter } from './events.adapter';
+import { HealthcareDiscoveryAdapter } from './healthcare.adapter';
 import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter, MockResearchPlanningAdapter } from './mock-adapters';
 
 export class AdapterRegistry {
@@ -51,6 +52,17 @@ export class AdapterRegistry {
     this.register('planning', new MockResearchPlanningAdapter());
     this.register('research_planning', new MockResearchPlanningAdapter());
     this.register('personal', new MockResearchPlanningAdapter());
+    this.register('appointments', new HealthcareDiscoveryAdapter());
+    this.register('appointment', new HealthcareDiscoveryAdapter());
+    this.register('healthcare', new HealthcareDiscoveryAdapter());
+    this.register('doctor', new HealthcareDiscoveryAdapter());
+    this.register('doctors', new HealthcareDiscoveryAdapter());
+    this.register('medical', new HealthcareDiscoveryAdapter());
+    this.register('clinic', new HealthcareDiscoveryAdapter());
+    this.register('hospital', new HealthcareDiscoveryAdapter());
+    this.register('dermatologist', new HealthcareDiscoveryAdapter());
+    this.register('cardiologist', new HealthcareDiscoveryAdapter());
+    this.register('pediatrician', new HealthcareDiscoveryAdapter());
     this.initialized = true;
   }
 
