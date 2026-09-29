@@ -59,6 +59,12 @@ export class AIExecutionAgent {
     if (!option && Array.isArray(taskRecord.proposedOptions) && taskRecord.proposedOptions.length > 0) {
       option = (taskRecord.proposedOptions as any[])[0];
     }
+    if (!option && (taskRecord.clientPreferences as any)?.approvedOption) {
+      option = (taskRecord.clientPreferences as any).approvedOption;
+    }
+    if (!option && (taskRecord.clientPreferences as any)?.selectedOption) {
+      option = (taskRecord.clientPreferences as any).selectedOption;
+    }
     const selectedOpt = option;
     if (selectedOpt && !selectedOpt.providerId && Array.isArray(taskRecord.proposedOptions)) {
       const storedOption = (taskRecord.proposedOptions as any[]).find(

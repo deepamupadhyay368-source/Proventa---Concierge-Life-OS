@@ -434,6 +434,133 @@ export class MockAdapterTool implements ExecutionToolInterface {
 }
 
 /**
+ * 10. Duffel Flight Tool (Aviation Gateway)
+ */
+export class DuffelFlightTool implements ExecutionToolInterface {
+  readonly toolName = 'DuffelFlightTool';
+  readonly providerId = 'duffel_flights';
+
+  get capabilityStatus(): CapabilityExecutionStatus {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_flights');
+    return cap?.capabilityStatus || 'NOT_CONFIGURED';
+  }
+
+  get environment(): 'REAL' | 'SANDBOX' | 'MOCK' {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_flights');
+    return cap?.environment || 'SANDBOX';
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const adapter = AdapterRegistry.getAdapterById('duffel_flights');
+    if (!adapter) {
+      return {
+        success: false,
+        provider: this.providerId,
+        status: 'FAILED',
+        isMock: false,
+        environment: this.environment,
+        timestamp: new Date().toISOString(),
+        errorMessage: 'DuffelFlightsAdapter not found in registry.',
+      };
+    }
+
+    const output = await adapter.execute(input.approvedOption, {
+      customer: input.customer,
+      passengers: input.bookingDetails?.passengers,
+      idempotencyKey: input.executionPlan.idempotencyKey,
+    });
+
+    return {
+      success: output.success,
+      provider: output.providerId || this.providerId,
+      providerReference: output.externalReferenceId,
+      status: output.status as any,
+      amount: input.executionPlan.amount,
+      currency: input.executionPlan.currency,
+      timestamp: new Date().toISOString(),
+      evidence: output.rawResponse,
+      confirmedDetails: output.confirmedDetails,
+      errorCode: output.errorCode,
+      errorMessage: output.errorMessage,
+      isMock: output.isMock || this.environment !== 'REAL',
+      environment: (output.environment === 'CURATED' ? 'REAL' : (output.environment as any)) || this.environment,
+    };
+  }
+
+  async verify(reference: string) {
+    const adapter = AdapterRegistry.getAdapterById('duffel_flights');
+    if (adapter?.verify) {
+      return adapter.verify(reference);
+    }
+    return { verified: false, status: 'PENDING' };
+  }
+}
+
+/**
+ * 11. Duffel Stays Tool (Luxury Hotels & Resorts)
+ */
+export class DuffelStaysTool implements ExecutionToolInterface {
+  readonly toolName = 'DuffelStaysTool';
+  readonly providerId = 'duffel_stays';
+
+  get capabilityStatus(): CapabilityExecutionStatus {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_stays');
+    return cap?.capabilityStatus || 'NOT_CONFIGURED';
+  }
+
+  get environment(): 'REAL' | 'SANDBOX' | 'MOCK' {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_stays');
+    return cap?.environment || 'SANDBOX';
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const adapter = AdapterRegistry.getAdapterById('duffel_stays');
+    if (!adapter) {
+      return {
+        success: false,
+        provider: this.providerId,
+        status: 'FAILED',
+        isMock: false,
+        environment: this.environment,
+        timestamp: new Date().toISOString(),
+        errorMessage: 'DuffelStaysAdapter not found in registry.',
+      };
+    }
+
+    const output = await adapter.execute(input.approvedOption, {
+      customer: input.customer,
+      guests: input.bookingDetails?.guests,
+      specialRequests: input.executionPlan.venue || input.bookingDetails?.specialRequests,
+      idempotencyKey: input.executionPlan.idempotencyKey,
+    });
+
+    return {
+      success: output.success,
+      provider: output.providerId || this.providerId,
+      providerReference: output.externalReferenceId,
+      status: output.status as any,
+      amount: input.executionPlan.amount,
+      currency: input.executionPlan.currency,
+      timestamp: new Date().toISOString(),
+      evidence: output.rawResponse,
+      confirmedDetails: output.confirmedDetails,
+      errorCode: output.errorCode,
+      errorMessage: output.errorMessage,
+      isMock: output.isMock || this.environment !== 'REAL',
+      environment: (output.environment === 'CURATED' ? 'REAL' : (output.environment as any)) || this.environment,
+    };
+  }
+
+  async verify(reference: string) {
+    const adapter = AdapterRegistry.getAdapterById('duffel_stays');
+    if (adapter?.verify) {
+      return adapter.verify(reference);
+    }
+    return { verified: false, status: 'PENDING' };
+  }
+}
+
+/**
  * AUTHORITATIVE EXECUTION TOOL REGISTRY
  */
 export class ExecutionToolRegistry {
@@ -443,6 +570,8 @@ export class ExecutionToolRegistry {
   private static init() {
     if (this.initialized) return;
 
+    this.registerTool(new DuffelFlightTool());
+    this.registerTool(new DuffelStaysTool());
     this.registerTool(new AhmedabadVerifiedLiaisonTool());
     this.registerTool(new UniversalEventsLiaisonTool());
     this.registerTool(new HealthcareCoordinationTool());
@@ -457,6 +586,12 @@ export class ExecutionToolRegistry {
     this.registerTool(new MockAdapterTool('mock_research'));
 
     this.initialized = true;
+  }
+
+  static reinitialize() {
+    this.tools.clear();
+    this.initialized = false;
+    this.init();
   }
 
   static registerTool(tool: ExecutionToolInterface) {

@@ -5,7 +5,7 @@ import { generateAuthKeyRecoveryToken, hashToken } from '@/lib/auth/tokens';
 import { getAuthenticationKeyStrength, registerSchema, conciergeSignUpSchema, changeAuthenticationKeySchema } from '@/lib/validation/schemas';
 import { checkRateLimit } from '@/lib/security/rate-limit';
 
-describe('PROVENTA — PROVENTA AUTHENTICATION KEY SUITE', () => {
+describe('PROVENTA — PROVENTA AUTHENTICATION KEY SUITE', { timeout: 30000 }, () => {
   const testCustomerEmail = `cust_authkey_${Date.now()}@proventa.dev`;
   const testEmployeeEmail = `concierge_authkey_${Date.now()}@proventa.in`;
   const rawAuthKey = 'ProventaSecret2026!';

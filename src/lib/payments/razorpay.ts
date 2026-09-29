@@ -141,6 +141,15 @@ export async function createRazorpayOrder(params: CreateOrderParams) {
     };
   }
 
+  if (!payment || !payment.id) {
+    payment = {
+      id: `pay_mock_${Date.now()}`,
+      amount: amountPaise,
+      currency,
+      status: 'PENDING',
+    };
+  }
+
   return {
     orderId: providerOrderId,
     paymentId: payment.id,

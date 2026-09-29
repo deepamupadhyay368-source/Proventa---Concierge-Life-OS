@@ -15,6 +15,21 @@ export class ExecutionCapabilityRegistry {
     if (this.initialized) return;
 
     // Check actual environment variables at runtime
+    const hasDuffelApiKey = Boolean(
+      process.env.DUFFEL_API_KEY && process.env.DUFFEL_API_KEY.trim().length > 0
+    );
+    const isDuffelLiveEnv = process.env.DUFFEL_ENV === 'live';
+    const isDuffelLiveKey = Boolean(process.env.DUFFEL_API_KEY?.startsWith('duffel_live_'));
+    const isDuffelLiveVerified = hasDuffelApiKey && isDuffelLiveEnv && isDuffelLiveKey;
+
+    const duffelCapabilityStatus: CapabilityExecutionStatus = !hasDuffelApiKey
+      ? 'NOT_CONFIGURED'
+      : isDuffelLiveVerified
+      ? 'LIVE_PRODUCTION'
+      : isDuffelLiveEnv
+      ? 'CONFIGURED_BUT_UNVERIFIED'
+      : 'SANDBOX';
+
     const hasAmadeusLive = Boolean(
       (process.env.AMADEUS_CLIENT_ID || process.env.AMADEUS_API_KEY) &&
       (process.env.AMADEUS_CLIENT_SECRET || process.env.AMADEUS_API_SECRET) &&
@@ -37,6 +52,54 @@ export class ExecutionCapabilityRegistry {
     );
 
     const matrix: ExecutionCapability[] = [
+      // 0A. DUFFEL FLIGHTS & AVIATION GATEWAY
+      {
+        capabilityId: 'exec_flights_duffel',
+        service: 'Commercial Aviation & Global Airline Ticketing',
+        provider: 'Duffel Aviation Gateway (300+ Global Airlines)',
+        providerId: 'duffel_flights',
+        toolName: 'DuffelFlightTool',
+        executionMethod: 'API',
+        environment: isDuffelLiveVerified ? 'REAL' : 'SANDBOX',
+        capabilityStatus: duffelCapabilityStatus,
+        credentialsConfigured: hasDuffelApiKey,
+        credentialsVerified: isDuffelLiveVerified,
+        actuallyExecutableInProduction: isDuffelLiveVerified,
+        requiresPayment: true,
+        requiresCustomerApproval: true,
+        supportsAutomatedExecution: isDuffelLiveVerified,
+        supportsAssistedExecution: true,
+        supportsHumanExecution: true,
+        verificationMethod: 'Authentic 6-character Airline PNR / 13-digit e-Ticket Number via Duffel API',
+        fallbackMethod: 'Human Concierge Aviation Desk',
+        risksOrBlockers: isDuffelLiveVerified
+          ? undefined
+          : 'Duffel live key (duffel_live_...) with DUFFEL_ENV=live required for automated production ticketing. Sandbox/unverified mode routes to Concierge.',
+      },
+      // 0B. DUFFEL LUXURY STAYS & HOTELS GATEWAY
+      {
+        capabilityId: 'exec_stays_duffel',
+        service: 'Luxury Hotels, Resorts & Accommodations',
+        provider: 'Duffel Stays Gateway (1M+ Global Properties)',
+        providerId: 'duffel_stays',
+        toolName: 'DuffelStaysTool',
+        executionMethod: 'API',
+        environment: isDuffelLiveVerified ? 'REAL' : 'SANDBOX',
+        capabilityStatus: duffelCapabilityStatus,
+        credentialsConfigured: hasDuffelApiKey,
+        credentialsVerified: isDuffelLiveVerified,
+        actuallyExecutableInProduction: isDuffelLiveVerified,
+        requiresPayment: true,
+        requiresCustomerApproval: true,
+        supportsAutomatedExecution: isDuffelLiveVerified,
+        supportsAssistedExecution: true,
+        supportsHumanExecution: true,
+        verificationMethod: 'Authentic Hotel CRS Confirmation Code & Duffel Stay Reference (`sta_...`)',
+        fallbackMethod: 'Human Concierge Stays Desk',
+        risksOrBlockers: isDuffelLiveVerified
+          ? undefined
+          : 'Duffel live key (duffel_live_...) with DUFFEL_ENV=live required for automated hotel room confirmation. Sandbox/unverified mode routes to Concierge.',
+      },
       // 1. DINING / HERITAGE RESTAURANTS
       {
         capabilityId: 'exec_dining_ahmedabad_verified',
@@ -309,6 +372,12 @@ export class ExecutionCapabilityRegistry {
     }
 
     this.initialized = true;
+  }
+
+  static reinitialize() {
+    this.capabilities.clear();
+    this.initialized = false;
+    this.init();
   }
 
   static getCapability(providerId: string): ExecutionCapability | undefined {

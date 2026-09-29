@@ -5,6 +5,8 @@ import { FlightsAdapter } from './flights.adapter';
 import { CinemaAdapter } from './cinema.adapter';
 import { EventsDiscoveryAdapter } from './events.adapter';
 import { HealthcareDiscoveryAdapter } from './healthcare.adapter';
+import { DuffelFlightsAdapter } from './duffel-flights.adapter';
+import { DuffelStaysAdapter } from './duffel-stays.adapter';
 import { MockDiningAdapter, MockHotelAdapter, MockMobilityAdapter, MockShoppingAdapter, MockResearchPlanningAdapter } from './mock-adapters';
 
 export class AdapterRegistry {
@@ -20,15 +22,25 @@ export class AdapterRegistry {
     this.register('food', new SwiggyAdapter());
     this.register('food_delivery', new SwiggyAdapter());
     this.register('delivery', new SwiggyAdapter());
+    this.register('flights', new DuffelFlightsAdapter());
     this.register('flights', new FlightsAdapter());
+    this.register('flight', new DuffelFlightsAdapter());
     this.register('flight', new FlightsAdapter());
+    this.register('airline', new DuffelFlightsAdapter());
     this.register('airline', new FlightsAdapter());
+    this.register('travel', new DuffelFlightsAdapter());
     this.register('travel', new FlightsAdapter());
+    this.register('hotel', new DuffelStaysAdapter());
     this.register('hotel', new MockHotelAdapter());
+    this.register('hotels', new DuffelStaysAdapter());
     this.register('hotels', new MockHotelAdapter());
+    this.register('hotels_accommodation', new DuffelStaysAdapter());
     this.register('hotels_accommodation', new MockHotelAdapter());
+    this.register('accommodation', new DuffelStaysAdapter());
     this.register('accommodation', new MockHotelAdapter());
+    this.register('stay', new DuffelStaysAdapter());
     this.register('stay', new MockHotelAdapter());
+    this.register('resort', new DuffelStaysAdapter());
     this.register('resort', new MockHotelAdapter());
     this.register('movies', new CinemaAdapter());
     this.register('cinema', new CinemaAdapter());
@@ -118,3 +130,7 @@ export class AdapterRegistry {
 }
 
 export const adapterRegistry = AdapterRegistry;
+
+export * from './duffel-client';
+export * from './duffel-flights.adapter';
+export * from './duffel-stays.adapter';

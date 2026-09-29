@@ -88,6 +88,7 @@ export interface ExecutionOutput {
   isMock?: boolean;
   receiptUrl?: string;
   errorMessage?: string;
+  errorCode?: string;
 }
 
 export interface VerificationResult {

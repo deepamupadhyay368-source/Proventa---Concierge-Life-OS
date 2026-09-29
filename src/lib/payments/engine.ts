@@ -14,7 +14,8 @@ export class PaymentAutomationEngine {
     option: OptionProposal | any;
   }): boolean {
     const { category, option } = params;
-    const cat = category.toLowerCase();
+    const cat = (category || '').toLowerCase();
+    const providerId = (option.providerId || '').toLowerCase();
     const price = option.priceAmount || 0;
 
     // Categories that inherently require upfront settlement (e.g. flight tickets, gifts, prepaid bookings)
@@ -24,10 +25,14 @@ export class PaymentAutomationEngine {
       cat.includes('flight') ||
       cat.includes('travel') ||
       cat.includes('hotel') ||
+      cat.includes('stay') ||
       cat.includes('gift') ||
       cat.includes('shopping') ||
       cat.includes('experience') ||
-      cat.includes('event')
+      cat.includes('event') ||
+      providerId.includes('flight') ||
+      providerId.includes('stay') ||
+      providerId.includes('hotel')
     ) {
       return true;
     }
