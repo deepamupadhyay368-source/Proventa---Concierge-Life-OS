@@ -594,19 +594,30 @@ export class EntityIntegrityValidator {
     const prep = prefs.preparedContext || {};
     const meta = proposal?.metadata || {};
 
-    const requestedDest = (
+    let requestedDest = (
       task?.destination ||
       task?.destinationAirport ||
       task?.location ||
+      prefs.destination ||
+      prefs.destinationAirport ||
+      prefs.destinationCity ||
+      prefs.location ||
       prep.destination ||
       prep.destinationAirport ||
       prep.location ||
       ''
     ).toUpperCase();
 
-    if (requestedDest && (meta.arrivalAirport || meta.arrivalCity || meta.destination)) {
-      const arrAirport = (meta.arrivalAirport || '').toUpperCase();
-      const arrCity = (meta.arrivalCity || meta.destination || '').toUpperCase();
+    if (!requestedDest && (task?.originalRequest || task?.rawInput)) {
+      const travelEnt = this.extractTravelEntities(task.originalRequest || task.rawInput);
+      if (travelEnt.destinationCity || travelEnt.destinationAirportCode || travelEnt.destination?.value) {
+        requestedDest = (travelEnt.destinationAirportCode || travelEnt.destinationCity || travelEnt.destination?.value || '').toUpperCase();
+      }
+    }
+
+    if (requestedDest && (meta.arrivalAirport || meta.arrivalCity || meta.destination || meta.destinationCity || meta.destinationAirport)) {
+      const arrAirport = (meta.arrivalAirport || meta.destinationAirport || (meta.destination && meta.destination.length === 3 ? meta.destination : '')).toUpperCase();
+      const arrCity = (meta.arrivalCity || meta.destinationCity || meta.destination || '').toUpperCase();
       const expected = this.resolveCityAirport(requestedDest);
       if (expected) {
         if (arrAirport && arrAirport !== expected.code) {
