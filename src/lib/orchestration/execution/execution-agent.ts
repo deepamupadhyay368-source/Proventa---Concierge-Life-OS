@@ -52,6 +52,19 @@ export class AIExecutionAgent {
       throw new Error(`[AIExecutionAgent] Task '${taskId}' not found.`);
     }
 
+    // Check ownership if userId is provided
+    if (params.userId) {
+      const taskUserId = taskRecord.customer?.userId || taskRecord.customerId;
+      if (taskUserId && taskUserId !== params.userId) {
+        return {
+          success: false,
+          status: (taskRecord.status as TaskStatus) || 'OPTIONS_READY',
+          handedToConcierge: false,
+          message: 'Forbidden: You do not have permission to execute this task.',
+        };
+      }
+    }
+
     // 2. Resolve Approved Option
     if (!option && optionId && Array.isArray(taskRecord.proposedOptions)) {
       option = (taskRecord.proposedOptions as any[]).find((o: any) => o.id === optionId);
