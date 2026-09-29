@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth/session';
 import { ProventaProviderGateway } from '@/lib/providers/gateway';
 import { initializeStandardProviders } from '@/lib/providers/standard-connectors';
+import { ExecutionCapabilityRegistry } from '@/lib/orchestration/execution/execution-capability-registry';
 
 export async function GET(req: NextRequest) {
   try {
@@ -25,6 +26,9 @@ export async function GET(req: NextRequest) {
       category: p.instance.category,
     }));
 
+    // Authoritative execution capabilities
+    const authoritativeCapabilities = ExecutionCapabilityRegistry.getAllCapabilities();
+
     // Fetch recent transactions
     const transactions = await db.externalTransaction.findMany({
       take: 20,
@@ -41,6 +45,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       dbIntegrations,
       gatewayProviders,
+      authoritativeCapabilities,
       transactions,
       webhookLogs,
     });

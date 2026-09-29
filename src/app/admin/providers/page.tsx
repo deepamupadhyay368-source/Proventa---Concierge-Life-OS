@@ -121,37 +121,113 @@ export default function AdminProvidersPage() {
 
       {/* GATEWAY INTEGRATIONS TAB */}
       {activeTab === 'GATEWAY_INTEGRATIONS' && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {(gatewayData.gatewayProviders || []).map((gw: any) => (
-              <div key={gw.providerKey} className="bg-white border border-neutral-200 rounded-xl p-5 shadow-sm space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-brand-50 text-brand-900 border border-brand-200/60">
-                    {gw.category}
-                  </span>
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    gw.status === 'PRODUCTION_ACTIVE' ? 'bg-emerald-50 text-emerald-700' :
-                    gw.status === 'SANDBOX' ? 'bg-amber-50 text-amber-800 border border-amber-200/60' :
-                    'bg-neutral-100 text-neutral-600'
-                  }`}>
-                    {gw.status === 'SANDBOX' && <Cpu className="h-3 w-3 text-amber-600" />}
-                    {gw.status === 'PRODUCTION_ACTIVE' && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
-                    {gw.status === 'NOT_CONNECTED' && <AlertCircle className="h-3 w-3 text-neutral-400" />}
-                    <span>{gw.status}</span>
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold text-neutral-900">{gw.name}</h3>
-                  <p className="text-xs text-neutral-400 font-mono mt-0.5">{gw.providerKey}</p>
-                </div>
-
-                <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
-                  <span>Routing Priority: #{gw.priority}</span>
-                  <span className="font-semibold text-neutral-700">{gw.isSandbox ? 'Test Sandbox Active' : 'Live Gateway'}</span>
-                </div>
+        <div className="space-y-6">
+          {/* OPERATIONAL CAPABILITY STATUS (Private Beta) */}
+          <div className="bg-neutral-900 text-white rounded-2xl p-6 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-neutral-800">
+              <div>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#c8b99d]">Private Beta Architecture</span>
+                <h2 className="text-base font-bold text-white mt-0.5">Authoritative Operational Capability Status</h2>
               </div>
-            ))}
+              <span className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Zero-Fabrication Enforced
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+              {/* Card 1: DUFFEL FLIGHTS */}
+              <div className="bg-neutral-800/70 border border-neutral-700/60 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400">Provider Gateway</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-950/80 text-amber-300 border border-amber-800/60">
+                    CONFIGURED_BUT_UNVERIFIED
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-white">DUFFEL FLIGHTS</h3>
+                <p className="text-[11px] text-neutral-400 leading-snug">
+                  Integrated adapter awaiting live production credentials. Auto-ticketing safely paused; routes to Concierge.
+                </p>
+              </div>
+
+              {/* Card 2: DUFFEL STAYS */}
+              <div className="bg-neutral-800/70 border border-neutral-700/60 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400">Provider Gateway</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-950/80 text-amber-300 border border-amber-800/60">
+                    CONFIGURED_BUT_UNVERIFIED
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-white">DUFFEL STAYS</h3>
+                <p className="text-[11px] text-neutral-400 leading-snug">
+                  Integrated adapter awaiting live production credentials. Stays booking safely paused; routes to Concierge.
+                </p>
+              </div>
+
+              {/* Card 3: CONCIERGE FLIGHT EXECUTION */}
+              <div className="bg-neutral-800/70 border border-neutral-700/60 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400">Execution Desk</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+                    AVAILABLE
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-white">CONCIERGE FLIGHT EXECUTION</h3>
+                <p className="text-[11px] text-neutral-400 leading-snug">
+                  Human Concierge Aviation Desk with full PNR verification, schedule locks, and member ticketing.
+                </p>
+              </div>
+
+              {/* Card 4: CONCIERGE HOTEL EXECUTION */}
+              <div className="bg-neutral-800/70 border border-neutral-700/60 rounded-xl p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono uppercase text-neutral-400">Execution Desk</span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
+                    AVAILABLE
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold text-white">CONCIERGE HOTEL EXECUTION</h3>
+                <p className="text-[11px] text-neutral-400 leading-snug">
+                  Human Concierge Stays Desk with direct CRS confirmation, room upgrades, and property billing.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Standard Gateway Connectors Grid */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-700">Active Connectors & Gateways</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {(gatewayData.gatewayProviders || []).map((gw: any) => (
+                <div key={gw.providerKey} className="bg-white border border-neutral-200 rounded-xl p-5 shadow-sm space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-brand-50 text-brand-900 border border-brand-200/60">
+                      {gw.category}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      gw.status === 'PRODUCTION_ACTIVE' ? 'bg-emerald-50 text-emerald-700' :
+                      gw.status === 'SANDBOX' ? 'bg-amber-50 text-amber-800 border border-amber-200/60' :
+                      'bg-neutral-100 text-neutral-600'
+                    }`}>
+                      {gw.status === 'SANDBOX' && <Cpu className="h-3 w-3 text-amber-600" />}
+                      {gw.status === 'PRODUCTION_ACTIVE' && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                      {gw.status === 'NOT_CONNECTED' && <AlertCircle className="h-3 w-3 text-neutral-400" />}
+                      <span>{gw.status}</span>
+                    </span>
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-bold text-neutral-900">{gw.name}</h3>
+                    <p className="text-xs text-neutral-400 font-mono mt-0.5">{gw.providerKey}</p>
+                  </div>
+
+                  <div className="pt-3 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
+                    <span>Routing Priority: #{gw.priority}</span>
+                    <span className="font-semibold text-neutral-700">{gw.isSandbox ? 'Test Sandbox Active' : 'Live Gateway'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
