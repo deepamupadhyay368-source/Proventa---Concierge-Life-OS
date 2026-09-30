@@ -184,6 +184,7 @@ export default async function AdminCustomersPage({
               <thead>
                 <tr className="border-b border-[#23201c] bg-[#100f0d] text-[#736f68] font-mono uppercase text-[10px]">
                   <th className="py-3 px-4 font-normal">Customer</th>
+                  <th className="py-3 px-4 font-normal">Plan</th>
                   <th className="py-3 px-4 font-normal">Contact</th>
                   <th className="py-3 px-4 font-normal">Location</th>
                   <th className="py-3 px-4 font-normal text-center">Requests</th>
@@ -197,6 +198,7 @@ export default async function AdminCustomersPage({
                 {customers.map((c) => {
                   const user = c.user;
                   const isVip = user.userRoles?.some((r) => r.role === 'SUPER_ADMIN' || r.role === 'ADMIN');
+                  const plan = c.membershipPlan || 'SELECT';
                   return (
                     <tr key={c.id} className="hover:bg-[#181614] transition-colors group">
                       <td className="py-3.5 px-4">
@@ -216,6 +218,20 @@ export default async function AdminCustomersPage({
                             <div className="text-[11px] text-[#736f68] font-mono">{user.id.slice(0, 10)}...</div>
                           </div>
                         </div>
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <span
+                          className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
+                            plan === 'RESERVE'
+                              ? 'bg-amber-950/60 text-amber-300 border border-amber-800/50'
+                              : plan === 'PRIVATE'
+                              ? 'bg-neutral-800 text-neutral-100 border border-neutral-700'
+                              : 'bg-[#1f1b17] text-[#c8b99d] border border-[#352f27]'
+                          }`}
+                        >
+                          {plan}
+                        </span>
                       </td>
 
                       <td className="py-3.5 px-4 font-mono text-[#a8a49c]">

@@ -37,6 +37,7 @@ export function PublicFooter() {
             </p>
             <ul className="space-y-2.5 text-xs text-[#8795A1]">
               <li><Link href="/how-it-works" className="hover:text-white transition-colors">The Operating Model</Link></li>
+              <li><Link href="/membership" className="hover:text-white transition-colors font-medium text-[#E1E5E8]">Membership &amp; Pricing</Link></li>
               <li><Link href="/about" className="hover:text-white transition-colors">About Proventa</Link></li>
               <li><Link href="/faq" className="hover:text-white transition-colors">Member FAQ</Link></li>
               <li><Link href="/wave1" className="hover:text-white transition-colors">Wave 1 Early Access</Link></li>

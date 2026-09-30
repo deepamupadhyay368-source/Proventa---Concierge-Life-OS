@@ -10,6 +10,7 @@ const updateProfileSchema = z.object({
   phone: z.string().max(20).optional().nullable(),
   city: z.string().max(100).optional(),
   preferredComm: z.enum(['IN_APP', 'EMAIL', 'WHATSAPP', 'SMS']).optional(),
+  membershipPlan: z.enum(['SELECT', 'PRIVATE', 'RESERVE', 'select', 'private', 'reserve']).optional(),
 });
 
 export async function GET() {
@@ -31,6 +32,10 @@ export async function GET() {
             city: true,
             preferredComm: true,
             onboardingCompleted: true,
+            membershipPlan: true,
+            membershipStatus: true,
+            membershipStartedAt: true,
+            membershipRenewsAt: true,
             createdAt: true,
             preferences: true,
           },
@@ -81,7 +86,9 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const { name, phone, city, preferredComm } = parsed.data;
+    const { name, phone, city, preferredComm, membershipPlan } = parsed.data;
+
+    const normalizedPlan = membershipPlan ? membershipPlan.toUpperCase() : undefined;
 
     // Update User record
     const updatedUser = await db.user.update({
@@ -101,17 +108,20 @@ export async function PATCH(req: NextRequest) {
 
     // Update or Upsert CustomerProfile record
     let updatedProfile = null;
-    if (city !== undefined || preferredComm !== undefined) {
+    if (city !== undefined || preferredComm !== undefined || normalizedPlan !== undefined) {
       updatedProfile = await db.customerProfile.upsert({
         where: { userId: user.id },
         update: {
           ...(city !== undefined ? { city } : {}),
           ...(preferredComm !== undefined ? { preferredComm } : {}),
+          ...(normalizedPlan !== undefined ? { membershipPlan: normalizedPlan } : {}),
         },
         create: {
           userId: user.id,
           city: city || 'Ahmedabad',
           preferredComm: preferredComm || 'IN_APP',
+          membershipPlan: normalizedPlan || 'SELECT',
+          membershipStatus: 'ACTIVE',
         },
       });
     } else {
@@ -125,7 +135,7 @@ export async function PATCH(req: NextRequest) {
       action: 'UPDATE',
       resourceType: 'CustomerProfile',
       resourceId: updatedProfile?.id || user.id,
-      after: { name, phone, city, preferredComm },
+      after: { name, phone, city, preferredComm, membershipPlan: normalizedPlan },
     });
 
     return NextResponse.json({

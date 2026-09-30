@@ -33,6 +33,9 @@ export function PublicNav() {
             <Link href="/what-we-handle" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
               Services
             </Link>
+            <Link href="/membership" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
+              Membership
+            </Link>
             <Link href="/about" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
               Philosophy
             </Link>
@@ -83,6 +86,13 @@ export function PublicNav() {
             className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
           >
             Curated Services
+          </Link>
+          <Link
+            href="/membership"
+            onClick={() => setOpen(false)}
+            className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
+          >
+            Membership &amp; Pricing
           </Link>
           <Link
             href="/about"

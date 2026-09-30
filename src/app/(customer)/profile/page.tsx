@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { Shield } from 'lucide-react';
 import { DataControls } from './DataControls';
 import { ProfileEditForm } from './ProfileEditForm';
+import { MembershipManager } from './MembershipManager';
 
 export default async function ProfilePage() {
   const sessionUser = await requireAuth();
@@ -18,8 +19,16 @@ export default async function ProfilePage() {
     <div className="max-w-3xl mx-auto space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">Your Account & Privacy</h1>
-        <p className="text-xs text-neutral-500 mt-1">Manage your identity, communication preferences, and data rights.</p>
+        <p className="text-xs text-neutral-500 mt-1">Manage your identity, membership plan, communication preferences, and data rights.</p>
       </div>
+
+      {/* Membership Plan Manager */}
+      <MembershipManager
+        currentPlanSlug={user?.customerProfile?.membershipPlan || 'SELECT'}
+        status={user?.customerProfile?.membershipStatus || 'ACTIVE'}
+        startedAt={user?.customerProfile?.membershipStartedAt || user?.createdAt}
+        renewsAt={user?.customerProfile?.membershipRenewsAt}
+      />
 
       {/* Profile Card */}
       <div className="bg-white border border-neutral-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">

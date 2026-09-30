@@ -788,8 +788,20 @@ export default function TaskWorkspacePage() {
           <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400">Private Client Profile</h3>
-              <span className="text-[10px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded">
-                {customer.membershipTier || 'Private Client'}
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase font-bold ${
+                  customer.membershipTier === 'RESERVE'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                    : customer.membershipTier === 'PRIVATE'
+                    ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                    : 'bg-neutral-800 text-neutral-300 border border-neutral-700'
+                }`}
+              >
+                {customer.membershipTier === 'RESERVE'
+                  ? 'RESERVE · Dedicated'
+                  : customer.membershipTier === 'PRIVATE'
+                  ? 'PRIVATE · Priority'
+                  : 'SELECT · Standard'}
               </span>
             </div>
 

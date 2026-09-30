@@ -7,6 +7,8 @@ const PUBLIC_ROUTES = [
   '/',
   '/how-it-works',
   '/what-we-handle',
+  '/membership',
+  '/pricing',
   '/about',
   '/faq',
   '/wave1',

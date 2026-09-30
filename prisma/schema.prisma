@@ -712,6 +712,10 @@ model CustomerProfile {
   updatedAt            DateTime                @updatedAt
 
   user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  membershipPlan       String?                 @default("SELECT") // SELECT | PRIVATE | RESERVE
+  membershipStatus     String?                 @default("ACTIVE") // ACTIVE | PAUSED | CANCELLED
+  membershipStartedAt  DateTime?               @default(now())
+  membershipRenewsAt   DateTime?
   preferences    CustomerPreference[]
   requests       ConciergeRequest[]
   approvals      Approval[]

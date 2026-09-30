@@ -149,6 +149,16 @@ export default async function AdminCustomerDetailPage({
             </div>
 
             <div>
+              <span className="text-[10px] font-mono text-[#736f68] uppercase block">Membership Plan &amp; Tier</span>
+              <div className="text-[#c8b99d] font-mono font-bold mt-0.5 flex items-center gap-2">
+                <span>{customer.membershipPlan || 'SELECT'}</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 font-normal">
+                  {customer.membershipStatus || 'ACTIVE'}
+                </span>
+              </div>
+            </div>
+
+            <div>
               <span className="text-[10px] font-mono text-[#736f68] uppercase block">Assigned Residence City</span>
               <div className="text-[#f5f3ef] font-mono mt-0.5 flex items-center gap-1.5">
                 <MapPin className="w-3.5 h-3.5 text-[#524e47]" />
@@ -160,6 +170,15 @@ export default async function AdminCustomerDetailPage({
               <span className="text-[10px] font-mono text-[#736f68] uppercase block">Onboarding State</span>
               <div className="text-[#c8b99d] font-mono mt-0.5">
                 {customer.onboardingCompleted ? 'Completed' : 'Pending Initial Questionnaire'}
+              </div>
+            </div>
+
+            <div>
+              <span className="text-[10px] font-mono text-[#736f68] uppercase block">Membership Started</span>
+              <div className="text-[#858077] font-mono mt-0.5">
+                {customer.membershipStartedAt
+                  ? new Date(customer.membershipStartedAt).toLocaleDateString('en-IN')
+                  : new Date(user.createdAt).toLocaleDateString('en-IN')}
               </div>
             </div>
 
