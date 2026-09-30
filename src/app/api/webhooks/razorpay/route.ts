@@ -76,6 +76,33 @@ export async function POST(req: NextRequest) {
           });
         }
 
+        // Handle Membership Subscription Payment
+        if (notes.type === 'MEMBERSHIP_SUBSCRIPTION' || notes.planId) {
+          const planName = notes.planName || (notes.planId ? notes.planId.toUpperCase() : 'SELECT');
+          const customerId = notes.customerId;
+          const userId = notes.userId;
+
+          if (customerId || userId) {
+            const now = new Date();
+            const renewsAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+            await db.customerProfile.updateMany({
+              where: {
+                OR: [
+                  ...(customerId ? [{ id: customerId }] : []),
+                  ...(userId ? [{ userId }] : []),
+                ],
+              },
+              data: {
+                membershipPlan: planName,
+                membershipStatus: 'ACTIVE',
+                membershipStartedAt: now,
+                membershipRenewsAt: renewsAt,
+              },
+            });
+          }
+        }
+
         // Update task and trigger automated execution if not already completed
         if (taskId) {
           const existingTask = await db.task.findUnique({

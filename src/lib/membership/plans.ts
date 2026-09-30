@@ -140,6 +140,18 @@ export const MEMBERSHIP_COMPARISON_MATRIX = [
 export const MEMBERSHIP_PAYMENT_DISCLOSURE =
   "Membership covers Proventa's Concierge service. Purchases and third-party services are charged separately.";
 
+export function getPlanById(planId?: string | null): MembershipPlan | null {
+  if (!planId) return null;
+  const normalized = planId.toLowerCase().trim() as MembershipTierSlug;
+  return CANONICAL_MEMBERSHIP_PLANS[normalized] || null;
+}
+
+export function isValidPlanId(planId?: string | null): planId is MembershipTierSlug {
+  if (!planId) return false;
+  const normalized = planId.toLowerCase().trim();
+  return normalized === 'select' || normalized === 'private' || normalized === 'reserve';
+}
+
 export function normalizeMembershipPlan(planString?: string | null): MembershipPlan {
   if (!planString) return CANONICAL_MEMBERSHIP_PLANS.select;
   const normalized = planString.toLowerCase().trim();
@@ -147,3 +159,4 @@ export function normalizeMembershipPlan(planString?: string | null): MembershipP
   if (normalized.includes('private')) return CANONICAL_MEMBERSHIP_PLANS.private;
   return CANONICAL_MEMBERSHIP_PLANS.select;
 }
+

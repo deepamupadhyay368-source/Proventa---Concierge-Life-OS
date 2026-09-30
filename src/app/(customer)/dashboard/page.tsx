@@ -29,7 +29,15 @@ function DashboardContent() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [userProfile, setUserProfile] = useState<{ name?: string | null; email?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{
+    name?: string | null;
+    email?: string;
+    customerProfile?: {
+      membershipPlan?: string | null;
+      membershipStatus?: string | null;
+      membershipRenewsAt?: string | null;
+    } | null;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -172,6 +180,58 @@ function DashboardContent() {
           </div>
         </div>
       </section>
+
+      {/* Active Membership Status Banner */}
+      {userProfile && (
+        <section className="bg-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933]">
+              <ShieldCheck className="h-6 w-6 text-[#1F2933]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold tracking-wider uppercase text-[#66717C]">
+                  Active Membership
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  {userProfile.customerProfile?.membershipStatus || 'ACTIVE'}
+                </span>
+              </div>
+              <div className="text-base font-bold text-[#111820] mt-0.5 flex items-center gap-2">
+                <span>PROVENTA {userProfile.customerProfile?.membershipPlan || 'SELECT'}</span>
+                <span className="text-xs font-normal text-[#66717C]">
+                  {userProfile.customerProfile?.membershipPlan === 'RESERVE'
+                    ? '• ₹9,999/month'
+                    : userProfile.customerProfile?.membershipPlan === 'PRIVATE'
+                    ? '• ₹4,999/month'
+                    : '• ₹2,499/month'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 text-xs">
+            <div className="text-left sm:text-right">
+              <span className="text-[#66717C] block text-[11px]">Next Renewal</span>
+              <span className="font-semibold text-[#111820]">
+                {userProfile.customerProfile?.membershipRenewsAt
+                  ? new Date(userProfile.customerProfile.membershipRenewsAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })
+                  : 'Auto-renews monthly'}
+              </span>
+            </div>
+            <Link
+              href="/profile"
+              className="px-3.5 py-2 rounded-xl bg-[#F1F3F5] hover:bg-[#E1E5E8] border border-[#E1E5E8] text-xs font-semibold text-[#1F2933] transition-colors"
+            >
+              Manage Membership
+            </Link>
+          </div>
+        </section>
+      )}
 
       {isWelcome && (
         <div className="p-4 bg-[#F7F8FA] border border-[#E1E5E8] rounded-xl text-sm text-[#1F2933] flex items-center justify-between">

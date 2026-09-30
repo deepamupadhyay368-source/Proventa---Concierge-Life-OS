@@ -152,14 +152,14 @@ export default function MembershipPricingPage() {
                 {/* Card CTA Button */}
                 <div className="mt-8 pt-6 border-t border-[#E1E5E8]">
                   <Link
-                    href={`/wave1?plan=${plan.id}`}
+                    href={`/membership/checkout?plan=${plan.id}`}
                     className={`w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all ${
                       isRecommended
                         ? 'bg-[#1F2933] text-white hover:bg-[#111820] shadow-sm'
                         : 'bg-[#F1F3F5] text-[#1F2933] hover:bg-[#E1E5E8] border border-[#E1E5E8]'
                     }`}
                   >
-                    <span>Choose {plan.name}</span>
+                    <span>Continue with {plan.name}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>

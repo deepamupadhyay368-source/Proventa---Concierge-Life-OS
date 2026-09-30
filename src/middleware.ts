@@ -8,6 +8,7 @@ const PUBLIC_ROUTES = [
   '/how-it-works',
   '/what-we-handle',
   '/membership',
+  '/membership/checkout',
   '/pricing',
   '/about',
   '/faq',
@@ -42,6 +43,8 @@ export default auth(async (req) => {
     PUBLIC_ROUTES.some((r) => pathname === r) ||
     pathname.startsWith('/legal') ||
     pathname.startsWith('/api/legal') ||
+    pathname.startsWith('/membership') ||
+    pathname.startsWith('/api/membership') ||
     pathname === '/concierge/sign-in' ||
     pathname.startsWith('/api/concierge/auth') ||
     pathname.startsWith('/api/auth') ||
