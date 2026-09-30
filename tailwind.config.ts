@@ -134,6 +134,13 @@ const config: Config = {
         'fade-up': 'fadeUp 0.5s ease-out',
         'slide-in': 'slideIn 0.3s ease-out',
         'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
+        'gradient-flow': 'gradientFlow 8s ease infinite',
+        'float-slow': 'floatSlow 14s ease-in-out infinite',
+        'float-reverse': 'floatReverse 18s ease-in-out infinite',
+        'pulse-glow': 'pulseGlow 6s ease-in-out infinite',
+        'shimmer-live': 'shimmerLive 3.5s linear infinite',
+        'ambient-move': 'ambientMove 20s ease-in-out infinite alternate',
+        'spin-slow': 'spin 30s linear infinite',
       },
       keyframes: {
         fadeIn: {
@@ -151,6 +158,34 @@ const config: Config = {
         pulseSoft: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.6' },
+        },
+        gradientFlow: {
+          '0%': { 'background-position': '0% 50%' },
+          '50%': { 'background-position': '100% 50%' },
+          '100%': { 'background-position': '0% 50%' },
+        },
+        floatSlow: {
+          '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(30px, -40px) scale(1.08)' },
+          '66%': { transform: 'translate(-25px, 20px) scale(0.95)' },
+        },
+        floatReverse: {
+          '0%, 100%': { transform: 'translate(0px, 0px) scale(1)' },
+          '33%': { transform: 'translate(-35px, 35px) scale(0.92)' },
+          '66%': { transform: 'translate(25px, -30px) scale(1.06)' },
+        },
+        pulseGlow: {
+          '0%, 100%': { opacity: '0.35', transform: 'scale(1)' },
+          '50%': { opacity: '0.7', transform: 'scale(1.12)' },
+        },
+        shimmerLive: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(200%)' },
+        },
+        ambientMove: {
+          '0%': { transform: 'translate(0, 0) rotate(0deg)' },
+          '50%': { transform: 'translate(50px, 30px) rotate(180deg)' },
+          '100%': { transform: 'translate(-30px, -20px) rotate(360deg)' },
         },
       },
       spacing: {

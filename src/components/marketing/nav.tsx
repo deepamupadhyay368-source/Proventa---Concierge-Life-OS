@@ -8,16 +8,19 @@ export function PublicNav() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#E1E5E8] transition-all">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-[#E1E5E8]/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <span className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1F2933]">
+            <span className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1F2933] group-hover:opacity-90 transition-opacity">
               Proventa
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#1F2933]"></span>
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] shadow-2xs">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10B981]"></span>
+              </span>
               Cohort 1
             </span>
           </Link>

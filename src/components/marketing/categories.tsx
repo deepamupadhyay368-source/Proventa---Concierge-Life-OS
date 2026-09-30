@@ -41,14 +41,19 @@ const CATEGORIES = [
 
 export function CategoriesSection() {
   return (
-    <section className="py-24 bg-[#F7F8FA] border-t border-[#E1E5E8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-[#F7F8FA]/70 relative overflow-hidden border-t border-[#E1E5E8] live-bg-canvas">
+      {/* Moving Ambient Lights */}
+      <div className="absolute top-1/4 right-10 w-[500px] h-[500px] bg-gradient-to-bl from-[#E5E9ED]/50 to-transparent blur-[140px] pointer-events-none -z-10 live-orb-1" />
+      <div className="absolute bottom-10 left-10 w-[450px] h-[450px] bg-gradient-to-tr from-[#F1F3F5]/60 to-transparent blur-[120px] pointer-events-none -z-10 live-orb-2" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-3xl mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-[#E1E5E8] text-[11px] font-semibold tracking-wider text-[#1F2933] uppercase mb-4 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-[#E1E5E8] text-[11px] font-semibold tracking-wider text-[#1F2933] uppercase mb-4 shadow-2xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1F2933]"></span>
             <span>Core Capabilities</span>
           </div>
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1F2933] mb-4">
-            Everything You Need Handled. <span className="text-[#66717C] font-normal">Precisely.</span>
+            Everything You Need Handled. <span className="live-flowing-text font-normal">Precisely.</span>
           </h2>
           <p className="text-base sm:text-lg text-[#66717C] leading-relaxed">
             From verified dining reservations to executive travel and discreet lifestyle coordination. One request, completely handled.
@@ -62,12 +67,12 @@ export function CategoriesSection() {
             return (
               <div
                 key={idx}
-                className={`p-6 rounded-xl bg-white border border-[#E1E5E8] hover:border-[#A7B0B8] flex flex-col justify-between transition-all shadow-xs hover:shadow-sm ${
+                className={`p-6 rounded-2xl bg-white/85 backdrop-blur-xl border border-[#E1E5E8] hover:border-[#A7B0B8] flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-lg hover:-translate-y-1 group ${
                   isFeatured ? 'md:col-span-2 lg:col-span-2' : ''
                 }`}
               >
                 <div>
-                  <div className="w-10 h-10 rounded-lg bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] mb-5">
+                  <div className="w-10 h-10 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] mb-5 group-hover:bg-[#1F2933] group-hover:text-white transition-all duration-300 shadow-2xs">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold text-[#1F2933] mb-2">{cat.name}</h3>
@@ -79,7 +84,7 @@ export function CategoriesSection() {
                     {cat.examples.map((ex, exIdx) => (
                       <span
                         key={exIdx}
-                        className="inline-block px-2.5 py-1 rounded-md text-[11px] bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]"
+                        className="inline-block px-2.5 py-1 rounded-lg text-[11px] bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] group-hover:border-[#A7B0B8]/40 transition-colors"
                       >
                         {ex}
                       </span>
@@ -88,10 +93,10 @@ export function CategoriesSection() {
 
                   <Link
                     href={cat.href}
-                    className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold text-[#1F2933] hover:text-[#111820] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold text-[#1F2933] group-hover:text-[#111820] transition-colors"
                   >
                     <span>Request with Concierge</span>
-                    <ArrowRight className="h-3 w-3 text-[#A7B0B8]" />
+                    <ArrowRight className="h-3 w-3 text-[#A7B0B8] group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
               </div>
