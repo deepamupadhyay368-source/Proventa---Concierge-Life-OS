@@ -6,6 +6,14 @@ import { trackEvent } from '@/lib/analytics';
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
+    const userRoles = (user.roles || []) as string[];
+    if (userRoles.some((r) => ['ADMIN', 'SUPER_ADMIN', 'FOUNDER'].includes(r))) {
+      return NextResponse.json(
+        { error: 'Administrative and Founder accounts cannot be deleted via customer self-service endpoint.', code: 'FORBIDDEN' },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
 
     if (body.confirmation !== 'DELETE_MY_ACCOUNT') {

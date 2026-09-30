@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { db } from '@/lib/db';
-import { requireSuperAdmin } from '@/lib/auth/session';
+import { requireAdmin } from '@/lib/auth/session';
 import {
   Users,
   Bot,
@@ -23,7 +23,7 @@ import {
 export const dynamic = 'force-dynamic';
 
 export default async function AdminMainDashboardPage() {
-  const sessionUser = await requireSuperAdmin();
+  const sessionUser = await requireAdmin();
 
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
