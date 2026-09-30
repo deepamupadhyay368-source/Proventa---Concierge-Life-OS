@@ -3,66 +3,66 @@ import { ShieldCheck, CheckCircle2, Lock, FileCheck, EyeOff, MapPin } from 'luci
 const TRUST_POINTS = [
   {
     icon: CheckCircle2,
-    title: 'Direct Human Verification',
-    description: 'Every dining alcove, bespoke itinerary, and service quotation is confirmed on the ground before presentation.',
+    title: 'Direct Provider Verification',
+    description: 'Every table alcove, flight itinerary, and hotel reservation is verified on the ground with authentic references.',
   },
   {
     icon: Lock,
-    title: 'Sovereign Member Approval',
-    description: 'No funds are ever debited and no reservations finalized without your explicit review on an authorization card. Zero opaque markups.',
+    title: 'Explicit Member Approval',
+    description: 'No reservations finalized or payments executed without your explicit 1-click selection. Zero hidden markups.',
   },
   {
     icon: EyeOff,
-    title: 'Private Discretion Protocol',
-    description: 'Your personal schedule, family itineraries, and residence details remain strictly confidential under encrypted protocol.',
+    title: 'Discretion & Confidentiality',
+    description: 'Your personal schedule, travel details, and notes remain strictly confidential with end-to-end access controls.',
   },
   {
     icon: FileCheck,
-    title: 'Authentic Provider Credentials',
-    description: 'Every confirmation includes verified venue direct vouchers, senior manager contacts, and real reference codes.',
+    title: 'Zero Fabrication Standards',
+    description: 'Strict programmatic rejection of simulated or synthetic codes. Only authentic provider booking vouchers.',
   },
   {
     icon: MapPin,
-    title: 'Premier Ground Mastery',
-    description: 'Deep relationships with premier culinary directors, luxury transport fleets, and boutique heritage retreats.',
+    title: 'Dedicated Ground Concierge',
+    description: 'Direct relationships with premier culinary directors, luxury transport fleets, and boutique hotels.',
   },
   {
     icon: ShieldCheck,
-    title: 'DPDP Act 2023 Sovereignty',
-    description: 'Full data privacy compliance under India’s Digital Personal Data Protection Act, with self-serve export and deletion rights.',
+    title: 'DPDP Act 2023 Compliance',
+    description: 'Full data privacy sovereignty under India’s DPDP Act, with self-serve export and data deletion controls.',
   },
 ];
 
 export function TrustSection() {
   return (
-    <section className="py-28 bg-[#f5f3ef]/40 border-t border-[#e8e2d8]">
+    <section className="py-24 bg-white border-t border-[#E1E5E8]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full luxury-pill text-[11px] font-medium text-[#6d5941] mb-4">
-            <span>OUR COMMITMENT</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F8FA] border border-[#E1E5E8] text-[11px] font-semibold tracking-wider text-[#1F2933] uppercase mb-4 shadow-2xs">
+            <span>Security &amp; Integrity</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-serif font-normal tracking-tight text-[#141312] mb-4">
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1F2933] mb-4">
             Founded on Discretion &amp; Trust.
           </h2>
-          <p className="text-base sm:text-lg text-[#5a4937] leading-relaxed font-sans">
-            Delegating your private time demands absolute integrity. We maintain the highest standards of personal accountability.
+          <p className="text-base sm:text-lg text-[#66717C] leading-relaxed">
+            Delegating your time demands absolute reliability, verifiable execution, and uncompromising privacy.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {TRUST_POINTS.map((tp, idx) => {
             const Icon = tp.icon;
             return (
               <div
                 key={idx}
-                className="luxury-card p-8 rounded-2xl flex flex-col justify-between group hover:border-[#b09a78]/50 transition-all duration-300"
+                className="p-6 rounded-xl bg-[#FFFFFF] border border-[#E1E5E8] hover:border-[#A7B0B8] flex flex-col justify-between transition-all shadow-xs hover:shadow-sm"
               >
                 <div>
-                  <div className="w-12 h-12 rounded-xl bg-[#f5f3ef] border border-[#e8e2d8] flex items-center justify-center text-[#6d5941] group-hover:bg-[#1f1b16] group-hover:text-[#ddc8a9] transition-colors mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] mb-5">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="text-base font-serif font-medium text-[#141312] mb-2">{tp.title}</h3>
-                  <p className="text-xs text-[#6e6b65] leading-relaxed font-sans">{tp.description}</p>
+                  <h3 className="text-sm sm:text-base font-semibold text-[#1F2933] mb-1.5">{tp.title}</h3>
+                  <p className="text-xs sm:text-sm text-[#66717C] leading-relaxed">{tp.description}</p>
                 </div>
               </div>
             );

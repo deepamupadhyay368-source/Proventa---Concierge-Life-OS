@@ -1,130 +1,118 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { ArrowRight, Sparkles, Compass, Shield, Check } from 'lucide-react';
-
-const SUGGESTIONS = [
-  'Reserve a quiet rooftop table for 4 at Agashiye this Saturday evening',
-  'Arrange an executive chauffeured airport pickup from Terminal 2 tomorrow at 8 PM',
-  'Source a handwoven heritage Ashavali silk gift under ₹10,000 for an executive client',
-  'Book a luxury weekend tent stay and safari permits at Gir Forest for next month',
-];
+import { useState } from 'react';
+import { ArrowRight, ShieldCheck, Sparkles, Clock, CheckCircle2 } from 'lucide-react';
 
 export function HeroSection() {
   const [intent, setIntent] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const query = intent.trim() || 'Reserve a quiet rooftop table for 4 this Saturday evening';
+    const query = intent.trim() || 'Reserve a quiet table for 4 this Saturday evening';
     window.location.href = `/wave1?intent=${encodeURIComponent(query)}`;
   };
 
-  const handleChipClick = (suggestion: string) => {
-    setIntent(suggestion);
-  };
-
   return (
-    <section className="relative pt-32 pb-24 md:pt-44 md:pb-36 bg-[#faf8f5] overflow-hidden">
-      {/* Soft Champagne Ambient Aura */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-amber-100/50 via-brand-100/40 to-transparent blur-[140px] pointer-events-none -z-10 rounded-full" />
-      <div className="absolute top-1/3 left-1/5 w-[350px] h-[350px] bg-brand-100/30 blur-[120px] pointer-events-none -z-10 rounded-full" />
+    <section className="relative pt-32 pb-20 md:pt-44 md:pb-32 bg-white overflow-hidden">
+      {/* Subtle Cool Silver/Slate Ambient Aura */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] bg-gradient-to-tr from-[#F1F3F5] via-[#F7F8FA] to-transparent blur-[140px] pointer-events-none -z-10 rounded-full" />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Subtle Membership Tag */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/80 border border-brand-200/80 text-[11px] uppercase tracking-[0.2em] font-medium text-brand-900 mb-8 backdrop-blur-md shadow-xs">
-          <span className="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
-          <span>Early Access · Cohort 1</span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F7F8FA] border border-[#E1E5E8] text-[11px] uppercase tracking-[0.16em] font-semibold text-[#1F2933] mb-8 shadow-2xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#1F2933]"></span>
+          <span>Concierge Life OS · Early Access Cohort 1</span>
         </div>
 
-        {/* Grand Editorial Headline */}
-        <h1 className="text-5xl sm:text-7xl lg:text-8xl font-serif tracking-tight text-neutral-900 mb-6 font-normal leading-[1.06]">
-          Life, <span className="italic font-serif text-brand-700">Handled.</span>
+        {/* Crisp Modern Headline */}
+        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-[#1F2933] mb-6 leading-[1.08]">
+          Life, <span className="text-[#66717C] font-normal">Handled.</span>
         </h1>
 
         {/* Refined Subtitle */}
-        <p className="text-lg sm:text-2xl text-neutral-600 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-          Your private personal concierge. Dining reservations, bespoke travel, thoughtful gifting, and lifestyle logistics — executed with quiet precision.
+        <p className="text-base sm:text-xl text-[#66717C] max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
+          The intelligent operating system for your life. AI-powered discovery and planning paired with dedicated human concierge execution for dining, travel, appointments, and logistics.
         </p>
 
-        {/* Tactile Ivory Concierge Card */}
+        {/* Clean Executive Delegation Card */}
         <div className="max-w-2xl mx-auto mb-14">
           <form
             onSubmit={handleSubmit}
-            className="p-3 sm:p-4 rounded-3xl bg-white/95 border border-brand-200 shadow-xl shadow-brand-900/5 backdrop-blur-md transition-all focus-within:border-brand-400 focus-within:shadow-2xl"
+            className="p-2 sm:p-2.5 rounded-xl bg-white border border-[#E1E5E8] shadow-sm transition-all focus-within:border-[#1F2933] focus-within:shadow-md"
           >
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <div className="flex-1 flex items-center px-4 py-3 sm:py-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              <div className="flex-1 flex items-center px-3 py-2">
                 <input
                   type="text"
                   value={intent}
                   onChange={(e) => setIntent(e.target.value)}
-                  placeholder="Ask your concierge anything... 'Quiet dinner for four on Saturday at 8 PM'"
-                  className="w-full bg-transparent border-0 text-sm sm:text-base text-neutral-900 placeholder:text-neutral-400 focus:outline-none font-light"
+                  placeholder="What would you like Proventa to take care of?"
+                  className="w-full bg-transparent border-0 text-sm sm:text-base text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none"
                 />
               </div>
 
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-2xl bg-neutral-900 text-[#faf8f5] text-xs uppercase tracking-widest font-semibold hover:bg-brand-950 transition-all shadow-md shrink-0"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg bg-[#1F2933] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#111820] transition-all shadow-xs shrink-0 active:scale-[0.99]"
               >
                 <span>Delegate</span>
-                <ArrowRight className="h-4 w-4 text-brand-300" />
+                <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
               </button>
             </div>
 
-            {/* Ambient Scenario Prompts */}
-            <div className="mt-3 pt-3 border-t border-neutral-100 flex flex-wrap items-center justify-center sm:justify-start gap-2 px-2 text-[11px] text-neutral-500">
-              <span className="font-serif italic text-brand-700">Member scenarios:</span>
+            {/* Quick Scenario Chips */}
+            <div className="mt-2.5 pt-2.5 border-t border-[#F1F3F5] flex flex-wrap items-center justify-center sm:justify-start gap-2 px-2 text-xs text-[#66717C]">
+              <span className="font-medium text-[#1F2933]">Examples:</span>
               <button
                 type="button"
-                onClick={() => setIntent('Reserve prime tasting table for four this Saturday evening')}
-                className="hover:text-neutral-900 hover:underline transition-colors"
+                onClick={() => setIntent('Reserve prime tasting table for 4 at Agashiye this Saturday evening')}
+                className="hover:text-[#1F2933] hover:underline transition-colors"
               >
                 Fine Dining
               </button>
-              <span className="text-neutral-300">&bull;</span>
+              <span className="text-[#E1E5E8]">&bull;</span>
               <button
                 type="button"
-                onClick={() => setIntent('Plan a private weekend haveli retreat with driver')}
-                className="hover:text-neutral-900 hover:underline transition-colors"
+                onClick={() => setIntent('Business class flight from Ahmedabad to Delhi for 2 tomorrow morning')}
+                className="hover:text-[#1F2933] hover:underline transition-colors"
               >
-                Curated Travel
+                Executive Flights
               </button>
-              <span className="text-neutral-300">&bull;</span>
+              <span className="text-[#E1E5E8]">&bull;</span>
               <button
                 type="button"
-                onClick={() => setIntent('Source and hand-deliver rare corporate gift hampers')}
-                className="hover:text-neutral-900 hover:underline transition-colors"
+                onClick={() => setIntent('Luxury haveli weekend retreat in Udaipur with chauffeur')}
+                className="hover:text-[#1F2933] hover:underline transition-colors"
               >
-                Luxury Gifting
+                Curated Stays
               </button>
             </div>
           </form>
         </div>
 
-        {/* 3 Quiet-Luxury Pillars */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto text-left">
-          <div className="p-6 rounded-2xl bg-white/60 border border-brand-200/50 backdrop-blur-xs">
-            <span className="font-serif italic text-2xl text-brand-600 font-normal block mb-2">01</span>
-            <h3 className="text-base font-serif font-semibold text-neutral-900 mb-2">Effortless Delegation</h3>
-            <p className="text-xs text-neutral-600 leading-relaxed font-light">
-              Send a simple note. No searching through endless apps or calling busy venues. Just state what you need.
+        {/* 3 Pillars in Clean Slate / Silver */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto text-left">
+          <div className="p-5 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8]">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#66717C] block mb-2">01 · Precision</span>
+            <h3 className="text-sm font-semibold text-[#1F2933] mb-1.5">Effortless Delegation</h3>
+            <p className="text-xs text-[#66717C] leading-relaxed">
+              State what you need. AI evaluates constraints, checks live verified inventory, and curates up to 5 genuine options.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/60 border border-brand-200/50 backdrop-blur-xs">
-            <span className="font-serif italic text-2xl text-brand-600 font-normal block mb-2">02</span>
-            <h3 className="text-base font-serif font-semibold text-neutral-900 mb-2">Premier Ground Access</h3>
-            <p className="text-xs text-neutral-600 leading-relaxed font-light">
-              Our concierges maintain personal relationships with premier restaurants, boutique hotels, and vetted artisans.
+          <div className="p-5 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8]">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#66717C] block mb-2">02 · Execution</span>
+            <h3 className="text-sm font-semibold text-[#1F2933] mb-1.5">Human Concierge Desk</h3>
+            <p className="text-xs text-[#66717C] leading-relaxed">
+              Once you approve an option, our dedicated concierge team handles venue liaison, phone bookings, and real confirmations.
             </p>
           </div>
 
-          <div className="p-6 rounded-2xl bg-white/60 border border-brand-200/50 backdrop-blur-xs">
-            <span className="font-serif italic text-2xl text-brand-600 font-normal block mb-2">03</span>
-            <h3 className="text-base font-serif font-semibold text-neutral-900 mb-2">Absolute Discretion</h3>
-            <p className="text-xs text-neutral-600 leading-relaxed font-light">
-              Every detail is verified, line-item pricing approved by you, and executed with complete confidentiality.
+          <div className="p-5 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8]">
+            <span className="text-xs font-semibold uppercase tracking-widest text-[#66717C] block mb-2">03 · Integrity</span>
+            <h3 className="text-sm font-semibold text-[#1F2933] mb-1.5">Zero Fabrication</h3>
+            <p className="text-xs text-[#66717C] leading-relaxed">
+              Deterministic verification against real provider references, transparent itemized pricing, and strict member privacy.
             </p>
           </div>
         </div>

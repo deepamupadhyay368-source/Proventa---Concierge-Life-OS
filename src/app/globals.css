@@ -4,38 +4,38 @@
 
 @layer base {
   :root {
-    --background: 35 25% 98%;
-    --foreground: 24 10% 12%;
+    --background: 0 0% 100%;
+    --foreground: 210 24% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 24 10% 12%;
+    --card-foreground: 210 24% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 12%;
+    --popover-foreground: 210 24% 16%;
 
-    --primary: 28 35% 20%;
-    --primary-foreground: 35 25% 98%;
+    --primary: 210 24% 16%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 35 15% 93%;
-    --secondary-foreground: 24 10% 15%;
+    --secondary: 210 14% 96%;
+    --secondary-foreground: 210 24% 16%;
 
-    --muted: 35 15% 93%;
-    --muted-foreground: 28 8% 46%;
+    --muted: 220 14% 97%;
+    --muted-foreground: 210 10% 44%;
 
-    --accent: 38 45% 55%;
-    --accent-foreground: 24 10% 12%;
+    --accent: 210 14% 96%;
+    --accent-foreground: 210 24% 16%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 35 15% 88%;
-    --input: 35 15% 88%;
-    --ring: 28 35% 20%;
+    --border: 206 12% 90%;
+    --input: 206 12% 90%;
+    --ring: 210 24% 16%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-playfair: 'Playfair Display', Georgia, serif;
+    --font-playfair: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
 
@@ -45,68 +45,73 @@
   }
 
   body {
-    @apply bg-[#faf8f5] text-neutral-900 antialiased selection:bg-brand-200 selection:text-brand-950;
+    @apply bg-[#FFFFFF] text-[#1F2933] antialiased selection:bg-[#E5E9ED] selection:text-[#111820];
     font-feature-settings: 'cv11', 'ss01';
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight text-neutral-900;
+    @apply tracking-tight text-[#1F2933] font-semibold;
   }
 }
 
-/* Luxury Editorial Aesthetics */
+/* Proventa Slate + Silver + White Design Primitives */
+.proventa-glass,
 .luxury-glass {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(221, 212, 194, 0.6);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid #E1E5E8;
 }
 
+.proventa-card,
 .luxury-card {
-  background: #ffffff;
-  border: 1px solid rgba(221, 212, 194, 0.55);
-  border-radius: 1.25rem;
-  box-shadow: 0 4px 20px -2px rgba(41, 31, 24, 0.03), 0 2px 6px -1px rgba(41, 31, 24, 0.02);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #FFFFFF;
+  border: 1px solid #E1E5E8;
+  border-radius: 0.875rem;
+  box-shadow: 0 1px 3px 0 rgba(31, 41, 51, 0.04), 0 1px 2px -1px rgba(31, 41, 51, 0.02);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.proventa-card:hover,
 .luxury-card:hover {
-  border-color: rgba(176, 154, 120, 0.6);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 36px -6px rgba(41, 31, 24, 0.07), 0 4px 12px -2px rgba(41, 31, 24, 0.03);
+  border-color: #A7B0B8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px -2px rgba(31, 41, 51, 0.06), 0 2px 6px -1px rgba(31, 41, 51, 0.03);
 }
 
+.proventa-slate-gradient,
 .luxury-gradient-gold {
-  background: linear-gradient(135deg, #b09a78 0%, #8a7053 50%, #6d5941 100%);
+  background: linear-gradient(135deg, #111820 0%, #1F2933 60%, #303942 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+.proventa-pill,
 .luxury-pill {
-  background: #fbf9f5;
-  border: 1px solid #ede8df;
-  color: #5a4937;
+  background: #F7F8FA;
+  border: 1px solid #E1E5E8;
+  color: #1F2933;
   font-size: 0.75rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-/* Custom scrollbar */
+/* Custom crisp scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f7f5f0;
+  background: #F7F8FA;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ddd4c2;
+  background: #E1E5E8;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #b09a78;
+  background: #A7B0B8;
 }

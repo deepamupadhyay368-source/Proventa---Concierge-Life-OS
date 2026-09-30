@@ -155,21 +155,21 @@ export function ConciergeInbox() {
   return (
     <div className="space-y-6">
       {/* Header with Title & Auto-Refresh Status */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#23201c] pb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#E1E5E8] pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest bg-emerald-950/60 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-800/40">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-widest bg-[#F1F3F5] text-[#1F2933] px-2.5 py-0.5 rounded border border-[#E1E5E8]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Live Concierge Terminal
             </span>
-            <span className="text-xs text-[#736f68] font-mono">
+            <span className="text-xs text-[#66717C] font-mono">
               Auto-refreshing every 12s
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-serif font-medium text-[#f5f3ef] mt-2">
+          <h1 className="text-2xl sm:text-3xl font-serif font-medium text-[#1F2933] mt-2">
             Founder &amp; Concierge Work Queue
           </h1>
-          <p className="text-xs text-[#928f88] mt-1 max-w-2xl">
+          <p className="text-xs text-[#66717C] mt-1 max-w-2xl">
             Unified operational inbox for member requests, phone booking dispatches, client approvals, and vendor executions.
           </p>
         </div>
@@ -178,7 +178,7 @@ export function ConciergeInbox() {
           <button
             onClick={() => fetchQueue(true)}
             disabled={refreshing}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1c1916] border border-[#2a241e] hover:border-[#3e352b] text-xs font-mono text-[#c8b99d] transition-all disabled:opacity-50"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E1E5E8] hover:bg-[#F7F8FA] text-xs font-mono text-[#1F2933] transition-all disabled:opacity-50 shadow-xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             <span>{refreshing ? 'Refreshing...' : 'Refresh Queue'}</span>
@@ -187,7 +187,7 @@ export function ConciergeInbox() {
       </div>
 
       {/* Queue Tabs */}
-      <div className="flex items-center gap-1.5 border-b border-[#23201c] pb-2 overflow-x-auto">
+      <div className="flex items-center gap-1.5 border-b border-[#E1E5E8] pb-2 overflow-x-auto">
         {queueTabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -196,18 +196,18 @@ export function ConciergeInbox() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-mono transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-[#26211b] text-[#f5f3ef] border border-[#3e352b] shadow-xs'
-                  : 'text-[#736f68] hover:text-[#f5f3ef] hover:bg-[#161412]'
+                  ? 'bg-[#1F2933] text-white border border-[#1F2933] shadow-xs'
+                  : 'text-[#66717C] hover:text-[#1F2933] hover:bg-[#F1F3F5]'
               }`}
             >
               <span>{tab.label}</span>
               <span
                 className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
                   isActive
-                    ? 'bg-[#3d342a] text-[#c8b99d]'
+                    ? 'bg-[#303942] text-white'
                     : tab.count > 0
-                    ? 'bg-[#201c18] text-[#a8a49c]'
-                    : 'bg-[#181512] text-[#524e47]'
+                    ? 'bg-[#E5E9ED] text-[#1F2933]'
+                    : 'bg-[#F1F3F5] text-[#A7B0B8]'
                 }`}
               >
                 {tab.count}
@@ -218,15 +218,15 @@ export function ConciergeInbox() {
       </div>
 
       {/* Filter and Search Toolbar */}
-      <div className="p-3.5 rounded-xl bg-[#141210] border border-[#23201c] flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-mono">
+      <div className="p-3.5 rounded-xl bg-white border border-[#E1E5E8] flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-mono shadow-xs">
         <div className="relative w-full md:w-80">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#524e47]" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#A7B0B8]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search tasks, client name, phone..."
-            className="w-full bg-[#0d0c0a] border border-[#23201c] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#f5f3ef] placeholder-[#524e47] outline-none focus:border-[#c8b99d]"
+            className="w-full bg-[#F7F8FA] border border-[#E1E5E8] rounded-lg pl-8 pr-3 py-1.5 text-xs text-[#1F2933] placeholder-[#A7B0B8] outline-none focus:border-[#1F2933] focus:bg-white"
           />
         </div>
 
@@ -235,7 +235,7 @@ export function ConciergeInbox() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="bg-[#0d0c0a] border border-[#23201c] text-[#a8a49c] rounded-lg px-2.5 py-1.5 text-xs outline-none"
+            className="bg-[#F7F8FA] border border-[#E1E5E8] text-[#1F2933] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#1F2933]"
           >
             <option value="">All Categories</option>
             <option value="dining">Dining</option>
@@ -251,7 +251,7 @@ export function ConciergeInbox() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="bg-[#0d0c0a] border border-[#23201c] text-[#a8a49c] rounded-lg px-2.5 py-1.5 text-xs outline-none"
+            className="bg-[#F7F8FA] border border-[#E1E5E8] text-[#1F2933] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#1F2933]"
           >
             <option value="">All Priorities</option>
             <option value="URGENT">Urgent</option>
@@ -264,7 +264,7 @@ export function ConciergeInbox() {
           <select
             value={assignedFilter}
             onChange={(e) => setAssignedFilter(e.target.value as any)}
-            className="bg-[#0d0c0a] border border-[#23201c] text-[#a8a49c] rounded-lg px-2.5 py-1.5 text-xs outline-none"
+            className="bg-[#F7F8FA] border border-[#E1E5E8] text-[#1F2933] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#1F2933]"
           >
             <option value="all">All Ownership</option>
             <option value="unassigned">Unassigned</option>
@@ -275,7 +275,7 @@ export function ConciergeInbox() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as any)}
-            className="bg-[#0d0c0a] border border-[#23201c] text-[#a8a49c] rounded-lg px-2.5 py-1.5 text-xs outline-none"
+            className="bg-[#F7F8FA] border border-[#E1E5E8] text-[#1F2933] rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-[#1F2933]"
           >
             <option value="newest">Newest First</option>
             <option value="oldest">Oldest First</option>
@@ -286,14 +286,14 @@ export function ConciergeInbox() {
 
       {/* Task Queue List */}
       {loading ? (
-        <div className="p-12 text-center rounded-2xl bg-[#141210] border border-[#23201c] text-xs font-mono text-[#736f68]">
+        <div className="p-12 text-center rounded-2xl bg-white border border-[#E1E5E8] text-xs font-mono text-[#66717C]">
           Loading concierge work queue...
         </div>
       ) : filteredTasks.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl bg-[#141210] border border-[#23201c] space-y-2">
-          <CheckCircle2 className="w-8 h-8 text-[#524e47] mx-auto" />
-          <div className="text-sm font-medium text-[#f5f3ef]">No requests in this queue</div>
-          <p className="text-xs text-[#736f68] max-w-sm mx-auto">
+        <div className="p-12 text-center rounded-2xl bg-white border border-[#E1E5E8] space-y-2">
+          <CheckCircle2 className="w-8 h-8 text-[#A7B0B8] mx-auto" />
+          <div className="text-sm font-medium text-[#1F2933]">No requests in this queue</div>
+          <p className="text-xs text-[#66717C] max-w-sm mx-auto">
             All member mandates in this operational section are currently fulfilled or awaiting new dispatches.
           </p>
         </div>
@@ -303,17 +303,17 @@ export function ConciergeInbox() {
             <div
               key={t.id}
               onClick={() => setSelectedTask(t)}
-              className="p-5 rounded-2xl bg-[#141210] border border-[#23201c] hover:border-[#3e352b] transition-all cursor-pointer space-y-3.5 group relative"
+              className="p-5 rounded-2xl bg-white border border-[#E1E5E8] hover:border-[#1F2933] transition-all cursor-pointer space-y-3.5 group relative shadow-xs"
             >
               {/* Card Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-xs text-[#c8b99d]">#{t.publicId}</span>
-                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#1c1916] text-[#a8a49c] border border-[#26211b]">
+                  <span className="font-mono font-bold text-xs text-[#1F2933]">#{t.publicId}</span>
+                  <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
                     {t.category}
                   </span>
                   {t.priority === 'URGENT' && (
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-red-950/60 text-red-300 border border-red-800/40">
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
                       URGENT
                     </span>
                   )}
@@ -322,10 +322,10 @@ export function ConciergeInbox() {
                       title={t.executionReason || undefined}
                       className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded font-medium border ${
                         t.executionTier === 'AUTOMATED'
-                          ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800/40'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : t.executionTier === 'ASSISTED'
-                          ? 'bg-cyan-950/60 text-cyan-300 border-cyan-800/40'
-                          : 'bg-amber-950/60 text-amber-300 border-amber-800/40'
+                          ? 'bg-blue-50 text-blue-800 border-blue-200'
+                          : 'bg-[#F1F3F5] text-[#1F2933] border-[#E1E5E8]'
                       }`}
                     >
                       {t.executionTier}
@@ -335,12 +335,12 @@ export function ConciergeInbox() {
 
                 <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded font-semibold ${
                   t.status === 'CONFIRMED' || t.status === 'COMPLETED'
-                    ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-800/40'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                     : t.status === 'NEEDS_HUMAN' || t.isEscalated
-                    ? 'bg-purple-950/60 text-purple-300 border border-purple-800/40'
+                    ? 'bg-purple-50 text-purple-800 border border-purple-200'
                     : t.status === 'AWAITING_APPROVAL'
-                    ? 'bg-amber-950/60 text-amber-300 border border-amber-800/40'
-                    : 'bg-[#201c18] text-[#c8b99d] border border-[#383127]'
+                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                    : 'bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]'
                 }`}>
                   {t.status}
                 </span>
@@ -348,19 +348,19 @@ export function ConciergeInbox() {
 
               {/* Mandate Description */}
               <div className="space-y-1">
-                <h4 className="text-sm font-medium text-[#f5f3ef] group-hover:text-[#c8b99d] transition-colors line-clamp-1">
+                <h4 className="text-sm font-medium text-[#1F2933] group-hover:text-[#1F2933] transition-colors line-clamp-1">
                   {t.intent || t.originalRequest}
                 </h4>
-                <p className="text-xs text-[#736f68] line-clamp-2 leading-relaxed">{t.originalRequest}</p>
+                <p className="text-xs text-[#66717C] line-clamp-2 leading-relaxed">{t.originalRequest}</p>
               </div>
 
               {/* Member & Wait Details */}
-              <div className="p-3 rounded-xl bg-[#0e0d0c] border border-[#23201c] flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-2 text-[#a8a49c]">
-                  <User className="w-3.5 h-3.5 text-[#524e47]" />
+              <div className="p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-2 text-[#1F2933]">
+                  <User className="w-3.5 h-3.5 text-[#66717C]" />
                   <span>{t.customerName}</span>
                 </div>
-                <div className="flex items-center gap-2 text-[#736f68]">
+                <div className="flex items-center gap-2 text-[#66717C]">
                   <Clock className="w-3.5 h-3.5" />
                   <span>{t.waitingMinutes}m waiting</span>
                 </div>
@@ -368,18 +368,18 @@ export function ConciergeInbox() {
 
               {/* Latest Event Note */}
               {t.latestEvent && (
-                <div className="text-[11px] font-mono text-[#736f68] line-clamp-1 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#524e47]" />
+                <div className="text-[11px] font-mono text-[#66717C] line-clamp-1 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#A7B0B8]" />
                   <span>{t.latestEvent.message}</span>
                 </div>
               )}
 
               {/* Card Footer Actions */}
-              <div className="flex items-center justify-between pt-2 border-t border-[#23201c] text-xs font-mono">
-                <span className="text-[#524e47]">
+              <div className="flex items-center justify-between pt-2 border-t border-[#E1E5E8] text-xs font-mono">
+                <span className="text-[#66717C]">
                   {t.assignedOperator ? `Operator: ${t.assignedOperator}` : 'Unassigned'}
                 </span>
-                <span className="text-[#c8b99d] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                <span className="text-[#1F2933] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform font-medium">
                   <span>Open Workspace</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </span>

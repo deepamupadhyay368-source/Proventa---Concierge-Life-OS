@@ -35,14 +35,14 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-50 flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FA] flex flex-col font-sans text-[#1F2933]">
       {/* Customer Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-[#E1E5E8] shadow-xs">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <span className="text-xl font-semibold tracking-tight text-neutral-900">Proventa</span>
-              <span className="text-[10px] uppercase tracking-wider bg-brand-50 text-brand-800 border border-brand-200 rounded px-1.5 py-0.5 font-medium">
+              <span className="text-xl font-semibold tracking-tight text-[#1F2933]">Proventa</span>
+              <span className="text-[10px] uppercase tracking-wider bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] rounded px-1.5 py-0.5 font-mono font-medium">
                 Wave 1
               </span>
             </Link>
@@ -57,8 +57,8 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
                     href={item.href}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       active
-                        ? 'bg-neutral-900 text-white'
-                        : 'text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100'
+                        ? 'bg-[#1F2933] text-white shadow-xs'
+                        : 'text-[#66717C] hover:text-[#1F2933] hover:bg-[#F1F3F5]'
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -71,22 +71,22 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
 
           <div className="flex items-center gap-3">
             {userProfile?.name && (
-              <span className="hidden lg:inline-flex text-xs font-medium text-neutral-600 border border-neutral-200/80 bg-neutral-50 px-2.5 py-1 rounded-full">
+              <span className="hidden lg:inline-flex text-xs font-medium text-[#66717C] border border-[#E1E5E8] bg-white px-2.5 py-1 rounded-full">
                 {greeting}
               </span>
             )}
 
             <Link
               href="/dashboard#new-request"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-700 text-white text-xs font-medium rounded-lg hover:bg-brand-800 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1F2933] text-white text-xs font-medium rounded-lg hover:bg-[#111820] transition-colors shadow-xs"
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              <Sparkles className="h-3.5 w-3.5 text-[#A7B0B8]" />
               <span>New Request</span>
             </Link>
 
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="p-1.5 text-neutral-400 hover:text-neutral-700 rounded-lg hover:bg-neutral-100 transition-colors"
+              className="p-1.5 text-[#66717C] hover:text-[#1F2933] rounded-lg hover:bg-[#F1F3F5] transition-colors"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
@@ -101,15 +101,15 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
       </main>
 
       {/* Discreet Customer Portal Footer */}
-      <footer className="border-t border-neutral-200/80 bg-white/60 py-6 text-xs text-neutral-500 font-sans hidden md:block">
+      <footer className="border-t border-[#E1E5E8] bg-white py-6 text-xs text-[#66717C] font-sans hidden md:block">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p>© {new Date().getFullYear()} Proventa · Concierge Life OS</p>
           <div className="flex items-center gap-4 text-[11px]">
-            <Link href="/legal" className="hover:text-neutral-900 transition-colors">Trust Center</Link>
-            <Link href="/legal/privacy" className="hover:text-neutral-900 transition-colors">Privacy Policy</Link>
-            <Link href="/legal/terms" className="hover:text-neutral-900 transition-colors">Terms</Link>
-            <Link href="/legal/privacy-requests" className="hover:text-neutral-900 transition-colors font-medium text-brand-700">Data Rights &amp; Export</Link>
-            <Link href="/legal/grievance" className="hover:text-neutral-900 transition-colors">Grievance Desk</Link>
+            <Link href="/legal" className="hover:text-[#1F2933] transition-colors">Trust Center</Link>
+            <Link href="/legal/privacy" className="hover:text-[#1F2933] transition-colors">Privacy Policy</Link>
+            <Link href="/legal/terms" className="hover:text-[#1F2933] transition-colors">Terms</Link>
+            <Link href="/legal/privacy-requests" className="hover:text-[#1F2933] transition-colors font-medium text-[#1F2933]">Data Rights &amp; Export</Link>
+            <Link href="/legal/grievance" className="hover:text-[#1F2933] transition-colors">Grievance Desk</Link>
           </div>
         </div>
       </footer>
@@ -118,7 +118,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
       <FloatingConcierge />
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200 flex items-center justify-around py-2 px-1">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E1E5E8] flex items-center justify-around py-2 px-1">
         {navItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -127,7 +127,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg text-[10px] font-medium transition-colors ${
-                active ? 'text-neutral-900 font-semibold' : 'text-neutral-500'
+                active ? 'text-[#1F2933] font-semibold' : 'text-[#66717C]'
               }`}
             >
               <Icon className="h-4 w-4" />

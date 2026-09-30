@@ -93,23 +93,23 @@ export function TaskExecutionWidget({
   const IconComponent = CATEGORY_ICONS[category.toLowerCase()] || Sparkles;
 
   return (
-    <div className="bg-white border border-[#ded7cc] rounded-2xl p-5 shadow-xs space-y-4 my-3 font-sans">
+    <div className="bg-white border border-[#E1E5E8] rounded-2xl p-5 shadow-xs space-y-4 my-3 font-sans">
       {/* Top Header: Agent & Live Status */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#f0eae1] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E1E5E8] pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-[#faf8f5] border border-[#e8e2d8] text-[#8a7053]">
+          <div className="p-2 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] text-[#1F2933]">
             <IconComponent className="h-4 w-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-[#141312] uppercase tracking-wider">
+              <span className="text-xs font-semibold text-[#1F2933] uppercase tracking-wider">
                 {assignedAgent}
               </span>
-              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#faf8f5] border border-[#ded7cc] text-[#6d5941] font-mono">
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] font-mono">
                 #{publicId || taskId.slice(-6)}
               </span>
             </div>
-            <p className="text-[11px] text-[#6e6b65]">
+            <p className="text-[11px] text-[#66717C]">
               Coordinated via Proventa Multi-Agent Gateway
             </p>
           </div>
@@ -123,22 +123,22 @@ export function TaskExecutionWidget({
               Verified & Confirmed
             </span>
           ) : isAwaitingApproval ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-900 border border-amber-300 animate-pulse">
-              <ShieldCheck className="h-3.5 w-3.5 text-amber-700" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#F1F3F5] text-[#1F2933] border border-[#A7B0B8] animate-pulse">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#1F2933]" />
               Member Approval Required
             </span>
           ) : isExecuting ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-800 border border-blue-200">
-              <Clock className="h-3.5 w-3.5 text-blue-600 animate-spin" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#F7F8FA] text-[#1F2933] border border-[#E1E5E8]">
+              <Clock className="h-3.5 w-3.5 text-[#1F2933] animate-spin" />
               Autonomous Execution Active
             </span>
           ) : isNeedsHuman ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-50 text-purple-800 border border-purple-200">
-              <AlertCircle className="h-3.5 w-3.5 text-purple-600" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
+              <AlertCircle className="h-3.5 w-3.5 text-[#1F2933]" />
               Senior Concierge Triaged
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-800 border border-neutral-200">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
               {status}
             </span>
           )}
@@ -169,13 +169,13 @@ export function TaskExecutionWidget({
       {dagNodes && dagNodes.length > 0 && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs uppercase font-semibold tracking-wider text-[#6d5941] flex items-center gap-1.5">
+            <span className="text-xs uppercase font-semibold tracking-wider text-[#1F2933] flex items-center gap-1.5">
               <Sparkles className="h-3.5 w-3.5" />
               Execution Graph (DAG)
             </span>
             <button
               onClick={() => setShowDAG(!showDAG)}
-              className="text-[11px] text-[#8a7053] hover:underline flex items-center gap-1"
+              className="text-[11px] text-[#66717C] hover:text-[#1F2933] hover:underline flex items-center gap-1"
             >
               {showDAG ? 'Collapse graph' : 'Expand graph'}
               {showDAG ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -192,15 +192,15 @@ export function TaskExecutionWidget({
       {isAwaitingApproval && proposedOptions.length > 0 && (
         <div className="space-y-3 pt-1">
           <div className="flex items-center justify-between">
-            <div className="text-xs font-semibold text-[#141312] uppercase tracking-wider flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-amber-700" />
+            <div className="text-xs font-semibold text-[#1F2933] uppercase tracking-wider flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-[#1F2933]" />
               <span>Select & Approve an Option to Execute</span>
             </div>
             {onDeclineOption && (
               <button
                 onClick={onDeclineOption}
                 disabled={approving}
-                className="text-[11px] text-neutral-500 hover:text-red-700 flex items-center gap-1 transition-colors disabled:opacity-50"
+                className="text-[11px] text-[#66717C] hover:text-red-600 flex items-center gap-1 transition-colors disabled:opacity-50"
               >
                 <X className="h-3 w-3" />
                 <span>Decline all</span>
@@ -212,16 +212,16 @@ export function TaskExecutionWidget({
             {proposedOptions.map((opt) => (
               <div
                 key={opt.id}
-                className="p-4 rounded-xl border-2 border-amber-300/80 bg-amber-50/40 hover:bg-amber-50/70 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+                className="p-4 rounded-xl border border-[#E1E5E8] bg-[#F7F8FA] hover:bg-white hover:border-[#1F2933] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-bold text-[#141312]">{opt.title}</h4>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-white border border-amber-200 text-[#8a7053] font-mono font-semibold">
+                    <h4 className="text-xs font-bold text-[#1F2933]">{opt.title}</h4>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-white border border-[#E1E5E8] text-[#1F2933] font-mono font-semibold">
                       {opt.providerName}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#6e6b65] mt-1">{opt.description}</p>
+                  <p className="text-[11px] text-[#66717C] mt-1">{opt.description}</p>
                   {opt.availability && (
                     <p className="text-[10px] text-emerald-700 font-mono mt-1 font-medium">
                       ✓ {opt.availability}
@@ -230,16 +230,16 @@ export function TaskExecutionWidget({
                 </div>
 
                 <div className="flex items-center gap-3 self-end sm:self-auto shrink-0">
-                  <span className="font-serif text-sm font-bold text-[#141312]">
+                  <span className="font-mono text-sm font-bold text-[#1F2933]">
                     {opt.priceFormatted || `₹${opt.priceAmount.toLocaleString('en-IN')}`}
                   </span>
                   {onApproveOption && (
                     <button
                       onClick={() => onApproveOption(opt)}
                       disabled={approving}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#141312] hover:bg-[#242321] text-amber-100 text-xs font-semibold shadow-xs disabled:opacity-50 transition-all"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#1F2933] hover:bg-[#111820] text-white text-xs font-semibold shadow-xs disabled:opacity-50 transition-all"
                     >
-                      <Lock className="h-3 w-3 text-amber-300" />
+                      <Lock className="h-3 w-3 text-[#A7B0B8]" />
                       <span>{approving ? 'Authorizing...' : 'Approve & Book'}</span>
                     </button>
                   )}
@@ -252,23 +252,23 @@ export function TaskExecutionWidget({
 
       {/* Step Timeline Drawer */}
       {events && events.length > 0 && (
-        <div className="border-t border-[#f0eae1] pt-3">
+        <div className="border-t border-[#E1E5E8] pt-3">
           <button
             onClick={() => setShowEvents(!showEvents)}
-            className="w-full flex items-center justify-between text-xs text-[#8a7053] hover:text-[#141312] transition-colors"
+            className="w-full flex items-center justify-between text-xs text-[#66717C] hover:text-[#1F2933] transition-colors"
           >
             <span>Live Audit Trail ({events.length} events logged)</span>
             {showEvents ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
           </button>
 
           {showEvents && (
-            <div className="space-y-2 mt-3 pt-2 border-t border-neutral-100 max-h-48 overflow-y-auto pr-1">
+            <div className="space-y-2 mt-3 pt-2 border-t border-[#E1E5E8] max-h-48 overflow-y-auto pr-1">
               {events.map((e) => (
-                <div key={e.id} className="text-[11px] flex items-start gap-2 text-[#6e6b65]">
-                  <span className="number-mono text-[#a8a29e] shrink-0">
+                <div key={e.id} className="text-[11px] flex items-start gap-2 text-[#66717C]">
+                  <span className="font-mono text-[#A7B0B8] shrink-0">
                     {new Date(e.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
-                  <span className="font-medium text-[#141312] shrink-0">[{e.actorRole}]:</span>
+                  <span className="font-medium text-[#1F2933] shrink-0">[{e.actorRole}]:</span>
                   <span className="flex-1">{e.message}</span>
                 </div>
               ))}

@@ -135,22 +135,22 @@ function DashboardContent() {
   return (
     <div className="space-y-8 pb-12">
       {/* Premium Personalized Welcome Header */}
-      <section className="pt-2 pb-1 border-b border-neutral-200/80">
+      <section className="pt-2 pb-1 border-b border-[#E1E5E8]">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-brand-50 text-brand-900 border border-brand-200">
-                <Sparkles className="h-3 w-3 text-brand-700" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
+                <Sparkles className="h-3 w-3 text-[#1F2933]" />
                 <span>Private Member Dashboard</span>
               </span>
-              <span className="text-xs text-neutral-400 font-mono">
+              <span className="text-xs text-[#66717C] font-mono">
                 {new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
               </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-neutral-900 animate-fade-in">
+            <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-[#1F2933] animate-fade-in">
               {welcomeGreeting.title}
             </h1>
-            <p className="text-sm text-neutral-500 mt-1 font-sans">
+            <p className="text-sm text-[#66717C] mt-1 font-sans">
               {welcomeGreeting.subtitle}
             </p>
           </div>
@@ -164,9 +164,9 @@ function DashboardContent() {
                 const textarea = el?.querySelector('textarea');
                 textarea?.focus();
               }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-medium transition-colors shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3.5 w-3.5 text-[#A7B0B8]" />
               <span>New Request</span>
             </button>
           </div>
@@ -174,24 +174,23 @@ function DashboardContent() {
       </section>
 
       {isWelcome && (
-        <div className="p-4 bg-brand-50 border border-brand-200 rounded-xl text-sm text-brand-900 flex items-center justify-between">
+        <div className="p-4 bg-[#F7F8FA] border border-[#E1E5E8] rounded-xl text-sm text-[#1F2933] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Sparkles className="h-5 w-5 text-brand-700" />
+            <Sparkles className="h-5 w-5 text-[#1F2933]" />
             <span>Welcome to Proventa Wave 1. Your concierge is ready. Tell us what you need handled below.</span>
           </div>
         </div>
       )}
 
       {/* Hero Request Creation Box */}
-      <section id="new-request" className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm">
+      <section id="new-request" className="bg-white rounded-2xl border border-[#E1E5E8] p-6 sm:p-8 shadow-xs">
         <div className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Concierge Life OS</p>
-          <h2 className="text-2xl font-semibold text-neutral-900 mt-1">What can we take care of?</h2>
-          <p className="text-xs text-neutral-500 mt-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#66717C]">Concierge Life OS</p>
+          <h2 className="text-2xl font-semibold text-[#1F2933] mt-1">What can we take care of?</h2>
+          <p className="text-xs text-[#66717C] mt-1">
             Plain language. No category selection required. A concierge will review and verify every detail.
           </p>
         </div>
-
 
         {errorMessage && (
           <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2.5 animate-fade-in">
@@ -210,14 +209,14 @@ function DashboardContent() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="e.g. Find me a quiet rooftop restaurant for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
-              className="w-full p-4 border border-neutral-200 rounded-xl text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900 placeholder:text-neutral-400 resize-none"
+              className="w-full p-4 border border-[#E1E5E8] bg-[#F7F8FA] focus:bg-white focus:border-[#1F2933] rounded-xl text-sm text-[#1F2933] focus:outline-none placeholder:text-[#A7B0B8] resize-none transition-colors"
               required
             />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-neutral-500 font-medium">Urgency:</span>
+              <span className="text-xs text-[#66717C] font-medium">Urgency:</span>
               {(['NORMAL', 'URGENT', 'ASAP'] as const).map((lvl) => (
                 <button
                   key={lvl}
@@ -225,8 +224,8 @@ function DashboardContent() {
                   onClick={() => setUrgency(lvl)}
                   className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                     urgency === lvl
-                      ? 'bg-neutral-900 text-white'
-                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                      ? 'bg-[#1F2933] text-white'
+                      : 'bg-[#F1F3F5] text-[#66717C] hover:bg-[#E5E9ED]'
                   }`}
                 >
                   {lvl}
@@ -237,16 +236,16 @@ function DashboardContent() {
             <button
               type="submit"
               disabled={submitting || !input.trim()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-neutral-900 text-white rounded-xl text-sm font-medium hover:bg-neutral-800 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs"
             >
               {submitting ? 'Understanding your request...' : 'Tell Proventa'}
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />
             </button>
           </div>
 
           {/* Quick Ahmedabad Delegation Prompts */}
-          <div className="pt-2 border-t border-neutral-100 flex items-center gap-2 overflow-x-auto text-xs py-1 scrollbar-none">
-            <span className="text-neutral-400 shrink-0 font-medium">Quick suggestions:</span>
+          <div className="pt-2 border-t border-[#E1E5E8] flex items-center gap-2 overflow-x-auto text-xs py-1 scrollbar-none">
+            <span className="text-[#66717C] shrink-0 font-medium">Quick suggestions:</span>
             {[
               { label: 'Dinner at Agashiye', text: 'Reserve a quiet terrace table for 4 at Agashiye for Saturday 8:00 PM.' },
               { label: 'Airport Chauffeur', text: 'Arrange an executive sedan pickup from SVPIA Airport to Bodakdev tomorrow at 11:30 AM.' },
@@ -257,7 +256,7 @@ function DashboardContent() {
                 key={s.label}
                 type="button"
                 onClick={() => setInput(s.text)}
-                className="shrink-0 px-2.5 py-1 bg-neutral-50 hover:bg-neutral-100 border border-neutral-200 text-neutral-700 rounded-lg text-[11px] transition-colors"
+                className="shrink-0 px-2.5 py-1 bg-[#F7F8FA] hover:bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] rounded-lg text-[11px] transition-colors"
               >
                 {s.label}
               </button>
@@ -267,21 +266,21 @@ function DashboardContent() {
       </section>
 
       {/* Curated Ahmedabad Directory Showcase */}
-      <section className="bg-gradient-to-br from-[#faf8f5] to-white border border-[#e8e2d8] rounded-2xl p-6 shadow-xs">
+      <section className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
           <div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-semibold tracking-wider uppercase text-[#8a7053]">Ahmedabad Network Live</span>
+              <span className="text-[11px] font-semibold tracking-wider uppercase text-[#1F2933]">Ahmedabad Network Live</span>
             </div>
-            <h2 className="text-lg font-serif font-medium text-neutral-900 mt-1">36 Verified Establishments in Ahmedabad</h2>
-            <p className="text-xs text-neutral-500">From UNESCO heritage dining to Sindhu Bhavan luxury hubs and GIFT City protocols.</p>
+            <h2 className="text-lg font-serif font-medium text-[#1F2933] mt-1">36 Verified Establishments in Ahmedabad</h2>
+            <p className="text-xs text-[#66717C]">From UNESCO heritage dining to Sindhu Bhavan luxury hubs and GIFT City protocols.</p>
           </div>
           <Link
             href="/what-we-handle"
-            className="text-xs font-semibold text-[#8a7053] hover:text-[#5a4937] inline-flex items-center gap-1 shrink-0"
+            className="text-xs font-semibold text-[#1F2933] hover:underline inline-flex items-center gap-1 shrink-0"
           >
-            Explore all services <ArrowRight className="h-3.5 w-3.5" />
+            Explore all services <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
           </Link>
         </div>
 
@@ -302,11 +301,11 @@ function DashboardContent() {
                 const el = document.getElementById('new-request');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="text-left p-3 rounded-xl bg-white border border-[#e8e2d8] hover:border-[#b09a78] hover:shadow-xs transition-all group"
+              className="text-left p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#1F2933] hover:bg-white hover:shadow-xs transition-all group"
             >
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8a7053] block">{item.tag}</span>
-              <p className="text-xs font-medium text-neutral-900 mt-0.5 group-hover:text-brand-900 line-clamp-1">{item.name}</p>
-              <span className="text-[10px] text-neutral-400 mt-1 block">{item.count}</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#66717C] block">{item.tag}</span>
+              <p className="text-xs font-medium text-[#1F2933] mt-0.5 line-clamp-1">{item.name}</p>
+              <span className="text-[10px] text-[#A7B0B8] mt-1 block font-mono">{item.count}</span>
             </button>
           ))}
         </div>
@@ -341,20 +340,20 @@ function DashboardContent() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ListTodo className="h-5 w-5 text-neutral-700" />
-            <h2 className="text-lg font-semibold text-neutral-900">Active Delegations</h2>
+            <ListTodo className="h-5 w-5 text-[#1F2933]" />
+            <h2 className="text-lg font-semibold text-[#1F2933]">Active Delegations</h2>
           </div>
-          <Link href="/tasks" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
+          <Link href="/tasks" className="text-xs text-[#66717C] hover:text-[#1F2933] font-medium">
             View Task Execution Center ({tasks.length})
           </Link>
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-sm text-neutral-400">Loading tasks...</div>
+          <div className="p-8 text-center text-sm text-[#66717C]">Loading tasks...</div>
         ) : activeTasks.length === 0 ? (
-          <div className="p-8 bg-white border border-neutral-200 rounded-xl text-center">
-            <p className="text-sm font-medium text-neutral-700">No active tasks</p>
-            <p className="text-xs text-neutral-400 mt-1">Tell us what you need in the box above to get started.</p>
+          <div className="p-8 bg-white border border-[#E1E5E8] rounded-xl text-center">
+            <p className="text-sm font-medium text-[#1F2933]">No active tasks</p>
+            <p className="text-xs text-[#66717C] mt-1">Tell us what you need in the box above to get started.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3">
@@ -366,7 +365,7 @@ function DashboardContent() {
                 <Link
                   key={t.id}
                   href={`/tasks/${t.id}`}
-                  className="p-5 bg-white border border-neutral-200 rounded-xl hover:border-neutral-300 hover:shadow-sm transition-all flex items-center justify-between group"
+                  className="p-5 bg-white border border-[#E1E5E8] rounded-xl hover:border-[#1F2933] hover:shadow-xs transition-all flex items-center justify-between group"
                 >
                   <div className="space-y-1 max-w-2xl">
                     <div className="flex items-center gap-2">
@@ -376,7 +375,7 @@ function DashboardContent() {
                             ? 'bg-amber-100 text-amber-800'
                             : isNeedsHuman
                             ? 'bg-purple-100 text-purple-800'
-                            : 'bg-neutral-100 text-neutral-700'
+                            : 'bg-[#F1F3F5] text-[#1F2933]'
                         }`}
                       >
                         {isAwaitingApproval && <ShieldCheck className="h-3 w-3" />}
@@ -389,19 +388,19 @@ function DashboardContent() {
                           {t.priority}
                         </span>
                       )}
-                      <span className="text-[11px] font-medium text-[#8a7053] bg-[#faf8f5] px-1.5 py-0.5 rounded border border-[#e8e2d8]">
+                      <span className="text-[11px] font-medium text-[#1F2933] bg-[#F1F3F5] px-1.5 py-0.5 rounded border border-[#E1E5E8]">
                         {t.assignedAgent}
                       </span>
-                      <span className="text-xs text-neutral-400">
+                      <span className="text-xs text-[#66717C]">
                         {new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                       </span>
                     </div>
-                    <p className="text-sm font-medium text-neutral-900 group-hover:text-brand-900 transition-colors line-clamp-1">
+                    <p className="text-sm font-medium text-[#1F2933] transition-colors line-clamp-1">
                       {t.originalRequest}
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2 text-neutral-400">
+                  <div className="flex items-center gap-2 text-[#A7B0B8] group-hover:text-[#1F2933] group-hover:translate-x-0.5 transition-all">
                     <ChevronRight className="h-4 w-4" />
                   </div>
                 </Link>
@@ -414,18 +413,18 @@ function DashboardContent() {
       {/* Confirmed Executions */}
       {confirmedTasks.length > 0 && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-neutral-900">Confirmed & Verified Bookings</h2>
+          <h2 className="text-lg font-semibold text-[#1F2933]">Confirmed & Verified Bookings</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {confirmedTasks.map((t) => (
-              <Link key={t.id} href={`/tasks/${t.id}`} className="block p-5 bg-white border border-neutral-200 rounded-xl hover:border-neutral-300">
+              <Link key={t.id} href={`/tasks/${t.id}`} className="block p-5 bg-white border border-[#E1E5E8] rounded-xl hover:border-[#1F2933] shadow-xs">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
-                    <CheckCircle2 className="h-3 w-3" /> Confirmed
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Confirmed
                   </span>
-                  <span className="text-xs text-neutral-400 font-mono">Ref: {t.externalReferenceId || 'Verified'}</span>
+                  <span className="text-xs text-[#66717C] font-mono">Ref: {t.externalReferenceId || 'Verified'}</span>
                 </div>
-                <p className="text-sm font-semibold text-neutral-900">{t.vendorName || 'Verified Partner'}</p>
-                <p className="text-xs text-neutral-500 mt-1 line-clamp-1">
+                <p className="text-sm font-semibold text-[#1F2933]">{t.vendorName || 'Verified Partner'}</p>
+                <p className="text-xs text-[#66717C] mt-1 line-clamp-1">
                   {t.originalRequest}
                 </p>
               </Link>

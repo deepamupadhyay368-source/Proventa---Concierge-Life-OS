@@ -112,7 +112,7 @@ export default function TaskDetailPage() {
               handleApprove(option, true);
             }
           },
-          theme: { color: '#141312' },
+          theme: { color: '#1F2933' },
         });
         rzp.open();
       } else {
@@ -347,8 +347,8 @@ export default function TaskDetailPage() {
   if (!task) {
     return (
       <div className="text-center py-16">
-        <p className="text-sm font-medium text-neutral-800">Task not found</p>
-        <Link href="/tasks" className="text-xs text-[#8a7053] hover:underline mt-2 inline-block">
+        <p className="text-sm font-medium text-[#1F2933]">Task not found</p>
+        <Link href="/tasks" className="text-xs text-[#1F2933] hover:underline mt-2 inline-block font-medium">
           Return to task list
         </Link>
       </div>
@@ -420,21 +420,20 @@ export default function TaskDetailPage() {
 
   return (
     <div className="space-y-6 pb-20 max-w-4xl mx-auto">
-      {/* Back & Status Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white border border-[#E1E5E8] rounded-2xl p-5 shadow-xs">
         <div className="flex items-center gap-3">
-          <Link href="/tasks" className="p-2 hover:bg-neutral-100 rounded-xl text-neutral-500 transition-colors">
+          <Link href="/tasks" className="p-2 hover:bg-[#F1F3F5] rounded-xl text-[#66717C] transition-colors">
             <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-semibold text-[#8a7053] uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#1F2933] uppercase tracking-wider font-mono">
                 {task.assignedAgent || task.category}
               </span>
-              <span className="text-neutral-300">·</span>
-              <span className="text-xs text-neutral-400 number-mono">Task #{task.publicId || task.id.slice(-6)}</span>
+              <span className="text-[#A7B0B8]">·</span>
+              <span className="text-xs text-[#66717C] number-mono">Task #{task.publicId || task.id.slice(-6)}</span>
             </div>
-            <h1 className="text-lg font-semibold text-neutral-900 mt-0.5">{task.intent || task.originalRequest}</h1>
+            <h1 className="text-lg font-semibold text-[#1F2933] mt-0.5">{task.intent || task.originalRequest}</h1>
           </div>
         </div>
 
@@ -744,14 +743,14 @@ export default function TaskDetailPage() {
 
       {/* Real-time Reassuring Recommendation Notice */}
       {userNotice && (
-        <div className="bg-[#141312] text-[#faf8f5] rounded-2xl p-4 border border-[#8a7053]/40 shadow-lg flex items-center justify-between gap-3 animate-fade-in">
+        <div className="bg-[#1F2933] text-white rounded-2xl p-4 border border-[#E1E5E8]/30 shadow-lg flex items-center justify-between gap-3 animate-fade-in">
           <div className="flex items-center gap-3">
-            <RefreshCw className="h-4 w-4 text-[#8a7053] animate-spin" />
+            <RefreshCw className="h-4 w-4 text-[#A7B0B8] animate-spin" />
             <span className="text-xs font-medium tracking-wide">{userNotice}</span>
           </div>
           <button
             onClick={() => setUserNotice(null)}
-            className="text-neutral-400 hover:text-white p-1 rounded-md text-xs"
+            className="text-[#A7B0B8] hover:text-white p-1 rounded-md text-xs"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -769,14 +768,14 @@ export default function TaskDetailPage() {
         return (
           <div className="space-y-4">
             {/* Recommendation Batch Header & Multi-Action Control Bar */}
-            <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-4">
+            <div className="bg-white border border-[#E1E5E8] rounded-2xl p-5 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E1E5E8] pb-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#141312] text-[#e8dfd5] font-mono tracking-wider">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#1F2933] text-white font-mono tracking-wider">
                       {currentBatchId}
                     </span>
-                    <span className="text-xs font-semibold text-neutral-900">
+                    <span className="text-xs font-semibold text-[#1F2933]">
                       Recommendation Cycle {batchNum}
                     </span>
                     <span className="text-neutral-300">·</span>
@@ -847,8 +846,8 @@ export default function TaskDetailPage() {
                   </button>
                 </div>
               ) : (
-                <div className="text-[11px] text-neutral-500 flex items-center gap-2">
-                  <Sparkles className="h-3 w-3 text-[#8a7053]" />
+                <div className="text-[11px] text-[#66717C] flex items-center gap-2">
+                  <Sparkles className="h-3 w-3 text-[#1F2933]" />
                   <span>Tip: You can replace any single option directly, or select options to keep while replacing the rest.</span>
                 </div>
               )}
@@ -1005,36 +1004,36 @@ export default function TaskDetailPage() {
 
       {/* Payment & Concierge Reservation Authorization Modal */}
       {pendingPaymentModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-neutral-200 max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-fade-up">
-            <div className="flex items-center justify-between border-b border-neutral-100 pb-4">
+        <div className="fixed inset-0 z-50 bg-[#111820]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl border border-[#E1E5E8] max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-fade-up">
+            <div className="flex items-center justify-between border-b border-[#E1E5E8] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="h-9 w-9 rounded-xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
-                  <ShieldCheck className="h-5 w-5 text-[#8a7053]" />
+                <div className="h-9 w-9 rounded-xl bg-[#F1F3F5] text-[#1F2933] flex items-center justify-center">
+                  <ShieldCheck className="h-5 w-5 text-[#1F2933]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-neutral-900">Authorize Reservation</h3>
-                  <p className="text-xs text-neutral-500">Review &amp; confirm booking placement</p>
+                  <h3 className="text-sm font-bold text-[#1F2933]">Authorize Reservation</h3>
+                  <p className="text-xs text-[#66717C]">Review &amp; confirm booking placement</p>
                 </div>
               </div>
               <button
                 onClick={() => setPendingPaymentModal(null)}
-                className="p-1 hover:bg-neutral-100 rounded-lg text-neutral-500"
+                className="p-1 hover:bg-[#F1F3F5] rounded-lg text-[#66717C]"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Itemized Service Box */}
-            <div className="rounded-2xl bg-[#141210] text-[#faf8f5] p-5 space-y-3">
-              <div className="flex items-center justify-between border-b border-[#2e2924] pb-3 text-xs">
+            <div className="rounded-2xl bg-[#111820] text-white p-5 space-y-3 border border-[#303942]">
+              <div className="flex items-center justify-between border-b border-[#303942] pb-3 text-xs">
                 <div className="flex items-center gap-2">
-                  <Plane className="h-4 w-4 text-[#c8b99d]" />
+                  <Plane className="h-4 w-4 text-[#A7B0B8]" />
                   <span className="font-semibold text-white">
                     {pendingPaymentModal.option?.metadata?.carrier || pendingPaymentModal.option?.providerName || 'Airline Reservation'}
                   </span>
                   {pendingPaymentModal.option?.metadata?.flightNumber && (
-                    <span className="font-mono text-[#c8b99d] bg-[#221e1a] px-2 py-0.5 rounded border border-[#3e362e] text-[10px]">
+                    <span className="font-mono text-[#A7B0B8] bg-[#1F2933] px-2 py-0.5 rounded border border-[#303942] text-[10px]">
                       {pendingPaymentModal.option.metadata.flightNumber}
                     </span>
                   )}
@@ -1044,10 +1043,10 @@ export default function TaskDetailPage() {
                 </span>
               </div>
 
-              <div className="text-xs text-[#a8a49c] space-y-1">
+              <div className="text-xs text-[#A7B0B8] space-y-1">
                 <p className="font-medium text-white">{pendingPaymentModal.option?.title}</p>
                 {pendingPaymentModal.option?.metadata?.departureAirport && pendingPaymentModal.option?.metadata?.arrivalAirport && (
-                  <p className="text-[11px] font-mono text-[#c8b99d]">
+                  <p className="text-[11px] font-mono text-[#A7B0B8]">
                     {pendingPaymentModal.option.metadata.departureAirport} ➔ {pendingPaymentModal.option.metadata.arrivalAirport}
                     {pendingPaymentModal.option.metadata.departureTime ? ` · ${pendingPaymentModal.option.metadata.departureTime.slice(11, 16)}` : ''}
                   </p>
@@ -1055,7 +1054,7 @@ export default function TaskDetailPage() {
               </div>
             </div>
 
-            <p className="text-xs text-neutral-600 leading-relaxed">
+            <p className="text-xs text-[#66717C] leading-relaxed">
               To guarantee your reservation with the provider, choose your preferred authorization method below:
             </p>
 
@@ -1065,13 +1064,13 @@ export default function TaskDetailPage() {
                 type="button"
                 onClick={() => launchRazorpayCheckout(pendingPaymentModal.order, pendingPaymentModal.option)}
                 disabled={processingPayment || approving}
-                className="w-full py-3.5 px-5 bg-[#141312] hover:bg-[#2b251f] text-white rounded-xl text-xs font-semibold shadow-md flex items-center justify-between transition-all disabled:opacity-50"
+                className="w-full py-3.5 px-5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-semibold shadow-xs flex items-center justify-between transition-all disabled:opacity-50"
               >
                 <div className="flex items-center gap-2">
-                  <CreditCard className="h-4 w-4 text-amber-400" />
+                  <CreditCard className="h-4 w-4 text-[#A7B0B8]" />
                   <span>Pay via UPI / Card / NetBanking</span>
                 </div>
-                <span className="font-mono font-bold text-amber-300">
+                <span className="font-mono font-bold text-white">
                   {pendingPaymentModal.option?.priceFormatted || `₹${pendingPaymentModal.option?.priceAmount || 0}`}
                 </span>
               </button>
@@ -1081,25 +1080,25 @@ export default function TaskDetailPage() {
                 type="button"
                 onClick={() => handleApprove(pendingPaymentModal.option, true)}
                 disabled={approving || processingPayment}
-                className="w-full py-3.5 px-5 bg-neutral-50 hover:bg-amber-50/60 border border-neutral-300 hover:border-amber-300 text-neutral-800 rounded-xl text-xs font-semibold flex items-center justify-between transition-all disabled:opacity-50"
+                className="w-full py-3.5 px-5 bg-white hover:bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#1F2933] text-[#1F2933] rounded-xl text-xs font-semibold flex items-center justify-between transition-all disabled:opacity-50 shadow-xs"
               >
                 <div className="flex items-center gap-2">
-                  <UserCheck className="h-4 w-4 text-[#8a7053]" />
+                  <UserCheck className="h-4 w-4 text-[#1F2933]" />
                   <span>Authorize Concierge Direct Booking &amp; Invoice</span>
                 </div>
-                <span className="text-[11px] text-neutral-500 font-normal">Wave 1 Member Desk</span>
+                <span className="text-[11px] text-[#66717C] font-normal">Wave 1 Member Desk</span>
               </button>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-neutral-100 text-xs">
-              <span className="text-[11px] text-neutral-400 flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#8a7053]" />
+            <div className="flex items-center justify-between pt-3 border-t border-[#E1E5E8] text-xs">
+              <span className="text-[11px] text-[#66717C] flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#1F2933]" />
                 Direct settlement. Zero hidden markups.
               </span>
               <button
                 type="button"
                 onClick={() => setPendingPaymentModal(null)}
-                className="px-3 py-1.5 text-neutral-500 hover:text-neutral-900 font-medium"
+                className="px-3 py-1.5 text-[#66717C] hover:text-[#1F2933] font-medium"
               >
                 Back to Options
               </button>

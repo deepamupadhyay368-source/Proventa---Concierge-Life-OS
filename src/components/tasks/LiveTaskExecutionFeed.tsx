@@ -29,13 +29,13 @@ export const LiveTaskExecutionFeed: React.FC<LiveTaskExecutionFeedProps> = ({
   onApproveStep,
 }) => {
   return (
-    <div className="bg-[#1a1714] border border-[#2e2924] rounded-2xl p-6 text-[#fafaf9]">
-      <div className="flex items-center justify-between border-b border-[#2e2924] pb-4 mb-6">
+    <div className="bg-white border border-[#E1E5E8] rounded-2xl p-6 text-[#1F2933] shadow-xs">
+      <div className="flex items-center justify-between border-b border-[#E1E5E8] pb-4 mb-6">
         <div>
-          <span className="text-xs font-mono uppercase tracking-widest text-[#c8b99d]">Autonomous Execution Engine</span>
-          <h3 className="text-lg font-serif font-medium text-[#f5f3ef] mt-1">Multi-Agent Task Plan</h3>
+          <span className="text-xs font-mono uppercase tracking-widest text-[#66717C]">Autonomous Execution Engine</span>
+          <h3 className="text-lg font-serif font-medium text-[#1F2933] mt-1">Multi-Agent Task Plan</h3>
         </div>
-        <span className="px-3 py-1 rounded-full text-xs font-mono bg-[#2a241e] text-[#c8b99d] border border-[#3e352b]">
+        <span className="px-3 py-1 rounded-full text-xs font-mono bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
           {currentStatus}
         </span>
       </div>
@@ -51,40 +51,40 @@ export const LiveTaskExecutionFeed: React.FC<LiveTaskExecutionFeedProps> = ({
               key={step.id || step.stepNumber}
               className={`p-4 rounded-xl border transition-all ${
                 isExecuting
-                  ? 'border-[#b09a78] bg-[#221d17]'
+                  ? 'border-[#1F2933] bg-[#F7F8FA]'
                   : isWaiting
-                  ? 'border-[#eab308]/60 bg-[#262014]'
+                  ? 'border-amber-400 bg-amber-50/40'
                   : isCompleted
-                  ? 'border-[#2e2924] bg-[#161412] opacity-80'
-                  : 'border-[#2e2924]/60 bg-[#141312]/40 opacity-50'
+                  ? 'border-[#E1E5E8] bg-white opacity-90'
+                  : 'border-[#E1E5E8]/60 bg-[#F7F8FA]/60 opacity-60'
               }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-3">
                   <div className="mt-0.5">
                     {isCompleted ? (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                     ) : isExecuting ? (
-                      <Loader2 className="w-5 h-5 text-[#c8b99d] animate-spin" />
+                      <Loader2 className="w-5 h-5 text-[#1F2933] animate-spin" />
                     ) : isWaiting ? (
-                      <ShieldAlert className="w-5 h-5 text-amber-400 animate-pulse" />
+                      <ShieldAlert className="w-5 h-5 text-amber-600 animate-pulse" />
                     ) : (
-                      <Clock className="w-5 h-5 text-[#6e6b65]" />
+                      <Clock className="w-5 h-5 text-[#A7B0B8]" />
                     )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-[#928f88]">Step {step.stepNumber}</span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-[#2a241e] text-[#b09a78] font-mono">
+                      <span className="text-xs font-mono text-[#66717C]">Step {step.stepNumber}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-[#F1F3F5] text-[#1F2933] font-mono border border-[#E1E5E8]">
                         {step.assignedAgent}
                       </span>
                     </div>
-                    <h4 className="text-sm font-medium text-[#f5f3ef] mt-1">{step.title}</h4>
+                    <h4 className="text-sm font-medium text-[#1F2933] mt-1">{step.title}</h4>
                     {step.description && (
-                      <p className="text-xs text-[#928f88] mt-0.5">{step.description}</p>
+                      <p className="text-xs text-[#66717C] mt-0.5">{step.description}</p>
                     )}
                     {step.providerReference && (
-                      <div className="mt-2 text-xs font-mono text-emerald-400/90 bg-emerald-950/30 px-2.5 py-1 rounded inline-block">
+                      <div className="mt-2 text-xs font-mono text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 inline-block">
                         Ref: {step.providerReference}
                       </div>
                     )}
@@ -94,7 +94,7 @@ export const LiveTaskExecutionFeed: React.FC<LiveTaskExecutionFeedProps> = ({
                 {isWaiting && onApproveStep && (
                   <button
                     onClick={() => onApproveStep(step.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#b09a78] hover:bg-[#c8b99d] text-[#141312] text-xs font-semibold transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1F2933] hover:bg-[#111820] text-white text-xs font-semibold transition-colors shadow-xs"
                   >
                     <PlayCircle className="w-3.5 h-3.5" />
                     Authorize
@@ -108,3 +108,4 @@ export const LiveTaskExecutionFeed: React.FC<LiveTaskExecutionFeedProps> = ({
     </div>
   );
 };
+

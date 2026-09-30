@@ -3,54 +3,54 @@ import { ArrowRight, Check } from 'lucide-react';
 
 export function FinalCTASection() {
   return (
-    <section className="py-28 bg-[#1f1b16] text-[#faf8f5] relative overflow-hidden text-center">
-      {/* Subtle ambient luxury glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#9c8260]/10 rounded-full blur-[140px] pointer-events-none" />
+    <section className="py-24 bg-[#1F2933] text-white relative overflow-hidden text-center">
+      {/* Subtle Slate ambient aura */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[350px] bg-[#111820]/40 rounded-full blur-[140px] pointer-events-none" />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#2e2720] border border-[#4a4034] text-[11px] font-medium text-[#ddc8a9] mb-6">
-          <span>EARLY ACCESS · COHORT 1</span>
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#111820] border border-[#303942] text-[11px] font-semibold text-[#A7B0B8] tracking-wider uppercase mb-6 shadow-2xs">
+          <span>Early Access · Cohort 1</span>
         </div>
 
-        <h2 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-normal tracking-tight text-white mb-6 leading-tight">
+        <h2 className="text-3xl sm:text-5xl font-semibold tracking-tight text-white mb-6 leading-tight">
           Your time is finite. <br />
-          <span className="italic font-normal text-[#ddc8a9]">Let Proventa orchestrate the rest.</span>
+          <span className="text-[#A7B0B8] font-normal">Let Proventa orchestrate the rest.</span>
         </h2>
 
-        <p className="text-base sm:text-lg text-[#b8b4ad] max-w-2xl mx-auto mb-10 leading-relaxed font-sans">
-          Join the founding cohort of members delegating reservations, private travel, gifting, and lifestyle logistics to their dedicated concierge.
+        <p className="text-base sm:text-lg text-[#C5CCD3] max-w-2xl mx-auto mb-10 leading-relaxed">
+          Join founding members delegating dining reservations, executive travel, bespoke gifting, and lifestyle logistics to their dedicated concierge.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/wave1"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-[#ddc8a9] hover:bg-[#ebdcc4] text-[#141312] font-semibold text-sm rounded-xl transition-all shadow-lg hover:shadow-xl"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white hover:bg-[#F7F8FA] text-[#1F2933] font-semibold text-xs uppercase tracking-wider rounded-lg transition-all shadow-sm"
           >
             <span>Apply for Cohort 1 Access</span>
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-3.5 w-3.5 text-[#1F2933]" />
           </Link>
 
           <Link
             href="/how-it-works"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#4a4034] bg-[#29221b]/60 hover:bg-[#332a21] text-[#faf8f5] font-medium text-sm rounded-xl transition-all"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-[#485460] bg-[#111820]/60 hover:bg-[#111820] text-white font-medium text-xs uppercase tracking-wider rounded-lg transition-all"
           >
             <span>The Operating Model</span>
           </Link>
         </div>
 
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-6 text-xs text-[#b09a78] font-sans">
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-[#A7B0B8]">
           <div className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-[#ddc8a9]" />
+            <Check className="h-3.5 w-3.5 text-white" />
             <span>Complimentary Concierge Access in Cohort 1</span>
           </div>
-          <span className="text-[#4a4034]">&bull;</span>
+          <span className="text-[#485460]">&bull;</span>
           <div className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-[#ddc8a9]" />
+            <Check className="h-3.5 w-3.5 text-white" />
             <span>Pay Only for Verified Bookings</span>
           </div>
-          <span className="text-[#4a4034]">&bull;</span>
+          <span className="text-[#485460]">&bull;</span>
           <div className="flex items-center gap-2">
-            <Check className="h-3.5 w-3.5 text-[#ddc8a9]" />
+            <Check className="h-3.5 w-3.5 text-white" />
             <span>Dedicated Personal Concierges</span>
           </div>
         </div>

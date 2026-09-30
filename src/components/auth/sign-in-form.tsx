@@ -129,22 +129,22 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="p-3.5 bg-red-50/90 border border-red-200 rounded-xl text-xs text-red-700 font-sans">
+        <div className="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
           {error}
         </div>
       )}
 
       {/* Social Login Provider Buttons (Google, Apple, Microsoft) */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         {/* Google */}
         <button
           type="button"
           onClick={() => handleOAuthSignIn('google')}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#e8e2d8] rounded-xl bg-white hover:bg-[#fbf9f6] text-xs font-semibold text-[#141312] transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#E1E5E8] rounded-lg bg-white hover:bg-[#F7F8FA] text-xs font-semibold text-[#1F2933] transition-all shadow-xs disabled:opacity-50"
         >
           {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#8a7053]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#1F2933]" />
           ) : (
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -173,7 +173,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           type="button"
           onClick={() => handleOAuthSignIn('apple')}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#141312] rounded-xl bg-[#141312] hover:bg-[#24201a] text-xs font-semibold text-white transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#1F2933] rounded-lg bg-[#1F2933] hover:bg-[#111820] text-xs font-semibold text-white transition-all shadow-xs disabled:opacity-50"
         >
           {oauthLoading === 'apple' ? (
             <Loader2 className="h-4 w-4 animate-spin text-white" />
@@ -190,10 +190,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           type="button"
           onClick={() => handleOAuthSignIn('microsoft-entra-id')}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#e8e2d8] rounded-xl bg-white hover:bg-[#fbf9f6] text-xs font-semibold text-[#141312] transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#E1E5E8] rounded-lg bg-white hover:bg-[#F7F8FA] text-xs font-semibold text-[#1F2933] transition-all shadow-xs disabled:opacity-50"
         >
           {oauthLoading === 'microsoft-entra-id' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#8a7053]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#1F2933]" />
           ) : (
             <svg className="h-4 w-4" viewBox="0 0 23 23">
               <path fill="#f35325" d="M1 1h10v10H1z" />
@@ -208,21 +208,21 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
       {/* Divider */}
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#e8e2d8] w-full" />
-        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#8a8680] font-medium absolute">
+        <div className="border-t border-[#E1E5E8] w-full" />
+        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#66717C] font-medium absolute">
           Or continue with
         </span>
       </div>
 
       {/* Switcher Tab: Email or Mobile Phone */}
-      <div className="flex rounded-xl bg-[#f5f3ef] p-1 border border-[#e8e2d8]">
+      <div className="flex rounded-lg bg-[#F1F3F5] p-1 border border-[#E1E5E8]">
         <button
           type="button"
           onClick={() => { setMethod('email'); setError(null); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-md transition-all ${
             method === 'email'
-              ? 'bg-white text-[#141312] shadow-xs'
-              : 'text-[#6e6b65] hover:text-[#141312]'
+              ? 'bg-white text-[#1F2933] shadow-xs'
+              : 'text-[#66717C] hover:text-[#1F2933]'
           }`}
         >
           <Mail className="h-3.5 w-3.5" />
@@ -232,10 +232,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <button
           type="button"
           onClick={() => { setMethod('phone'); setError(null); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-lg transition-all ${
+          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-md transition-all ${
             method === 'phone'
-              ? 'bg-white text-[#141312] shadow-xs'
-              : 'text-[#6e6b65] hover:text-[#141312]'
+              ? 'bg-white text-[#1F2933] shadow-xs'
+              : 'text-[#66717C] hover:text-[#1F2933]'
           }`}
         >
           <Phone className="h-3.5 w-3.5" />
@@ -247,26 +247,26 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       {method === 'email' && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+            <label htmlFor="email" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
               Email Address
             </label>
             <input
               id="email"
               type="email"
               autoComplete="email"
-              className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
               placeholder="you@domain.com"
               {...register('email')}
             />
-            {errors.email && <p className="mt-1 text-xs text-red-600 font-sans">{errors.email.message}</p>}
+            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider font-sans">
+              <label htmlFor="password" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider">
                 Password
               </label>
-              <a href="/forgot-password" className="text-xs text-[#8a7053] hover:underline font-sans">
+              <a href="/forgot-password" className="text-xs text-[#66717C] hover:text-[#1F2933] hover:underline">
                 Forgot password?
               </a>
             </div>
@@ -274,32 +274,32 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               id="password"
               type="password"
               autoComplete="current-password"
-              className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
               {...register('password')}
             />
-            {errors.password && <p className="mt-1 text-xs text-red-600 font-sans">{errors.password.message}</p>}
+            {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
           </div>
 
-          <div className="pt-2 border-t border-[#ded7cc]/60">
+          <div className="pt-2 border-t border-[#E1E5E8]">
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="securityKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider font-sans flex items-center gap-1.5">
-                <KeyRound className="h-3.5 w-3.5 text-[#8a7053]" />
+              <label htmlFor="securityKey" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider flex items-center gap-1.5">
+                <KeyRound className="h-3.5 w-3.5 text-[#1F2933]" />
                 <span>Proventa Authentication Key</span>
               </label>
-              <a href="/forgot-auth-key" className="text-xs text-[#8a7053] hover:underline font-sans">
-                Forgot your Authentication Key?
+              <a href="/forgot-auth-key" className="text-xs text-[#66717C] hover:text-[#1F2933] hover:underline">
+                Forgot your Key?
               </a>
             </div>
             <input
               id="securityKey"
               type="password"
               autoComplete="one-time-code"
-              className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans tracking-[0.2em]"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-all tracking-[0.2em]"
               placeholder="••••••••••••"
               {...register('securityKey')}
             />
-            {errors.securityKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.securityKey.message}</p>}
-            <p className="text-[11px] text-[#8a8680] mt-1.5 font-sans italic">
+            {errors.securityKey && <p className="mt-1 text-xs text-red-600">{errors.securityKey.message}</p>}
+            <p className="text-[11px] text-[#66717C] mt-1.5">
               Your private key. Your Proventa identity.
             </p>
           </div>
@@ -307,9 +307,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3.5 px-4 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed font-sans flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin text-[#ddc8a9]" />}
+            {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
             <span>{loading ? 'Verifying Identity...' : 'Sign In with Authentication Key'}</span>
           </button>
         </form>
@@ -317,11 +317,11 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
       {/* Method 2: Mobile Phone OTP */}
       {method === 'phone' && (
-        <div className="space-y-4 font-sans">
+        <div className="space-y-4">
           {!otpSent ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
                   Mobile Number
                 </label>
                 <div className="relative">
@@ -330,10 +330,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
                     placeholder="+91 98765 43210"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all"
+                    className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
                   />
                 </div>
-                <p className="mt-1.5 text-[11px] text-[#8a8680]">
+                <p className="mt-1.5 text-[11px] text-[#66717C]">
                   We will dispatch a 6-digit OTP code to verify your mobile device.
                 </p>
               </div>
@@ -341,24 +341,24 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               <button
                 type="submit"
                 disabled={phoneLoading}
-                className="w-full py-3.5 px-4 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin text-[#ddc8a9]" />}
+                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
                 <span>{phoneLoading ? 'Sending OTP...' : 'Send Verification Code'}</span>
-                {!phoneLoading && <ArrowRight className="h-4 w-4 text-[#ddc8a9]" />}
+                {!phoneLoading && <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-[#141312] uppercase tracking-wider">
+                  <label className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider">
                     Enter 6-Digit Code
                   </label>
                   <button
                     type="button"
                     onClick={() => { setOtpSent(false); setOtpCode(''); }}
-                    className="text-xs text-[#8a7053] hover:underline"
+                    className="text-xs text-[#66717C] hover:text-[#1F2933] hover:underline"
                   >
                     Change Number
                   </button>
@@ -370,10 +370,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
                   placeholder="123456"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-base text-center tracking-[0.3em] font-semibold text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941]"
+                  className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-base text-center tracking-[0.3em] font-semibold text-[#1F2933] focus:outline-none focus:border-[#1F2933]"
                 />
                 {devOtpHint && (
-                  <p className="mt-1.5 text-xs text-[#6d5941] bg-[#f5f3ef] p-2 rounded-lg border border-[#e8e2d8]">
+                  <p className="mt-1.5 text-xs text-[#1F2933] bg-[#F1F3F5] p-2 rounded-md border border-[#E1E5E8]">
                     Dev Code Preview: <strong>{devOtpHint}</strong>
                   </p>
                 )}
@@ -382,9 +382,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               <button
                 type="submit"
                 disabled={phoneLoading}
-                className="w-full py-3.5 px-4 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin text-[#ddc8a9]" />}
+                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
                 <span>{phoneLoading ? 'Verifying...' : 'Verify & Enter'}</span>
               </button>
             </form>

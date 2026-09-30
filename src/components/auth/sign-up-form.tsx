@@ -44,7 +44,6 @@ export function SignUpForm() {
           router.push(destination);
           router.refresh();
         } else {
-          // If auto sign-in had any issue, navigate smoothly to sign-in
           router.push('/sign-in?registered=true');
         }
       } else {
@@ -70,18 +69,18 @@ export function SignUpForm() {
 
   return (
     <div className="space-y-6">
-      {error && <div className="p-3.5 bg-red-50/90 border border-red-200 rounded-xl text-xs text-red-700 font-sans">{error}</div>}
+      {error && <div className="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">{error}</div>}
 
       {/* Social options */}
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <button
           type="button"
           onClick={() => handleOAuth('google')}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#e8e2d8] rounded-xl bg-white hover:bg-[#fbf9f6] text-xs font-semibold text-[#141312] transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#E1E5E8] rounded-lg bg-white hover:bg-[#F7F8FA] text-xs font-semibold text-[#1F2933] transition-all shadow-xs disabled:opacity-50"
         >
           {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#8a7053]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#1F2933]" />
           ) : (
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -97,7 +96,7 @@ export function SignUpForm() {
           type="button"
           onClick={() => handleOAuth('apple')}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#141312] rounded-xl bg-[#141312] hover:bg-[#24201a] text-xs font-semibold text-white transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#1F2933] rounded-lg bg-[#1F2933] hover:bg-[#111820] text-xs font-semibold text-white transition-all shadow-xs disabled:opacity-50"
         >
           {oauthLoading === 'apple' ? (
             <Loader2 className="h-4 w-4 animate-spin text-white" />
@@ -113,10 +112,10 @@ export function SignUpForm() {
           type="button"
           onClick={() => handleOAuth('microsoft-entra-id')}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#e8e2d8] rounded-xl bg-white hover:bg-[#fbf9f6] text-xs font-semibold text-[#141312] transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#E1E5E8] rounded-lg bg-white hover:bg-[#F7F8FA] text-xs font-semibold text-[#1F2933] transition-all shadow-xs disabled:opacity-50"
         >
           {oauthLoading === 'microsoft-entra-id' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#8a7053]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#1F2933]" />
           ) : (
             <svg className="h-4 w-4" viewBox="0 0 23 23">
               <path fill="#f35325" d="M1 1h10v10H1z"/>
@@ -130,162 +129,162 @@ export function SignUpForm() {
       </div>
 
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#e8e2d8] w-full" />
-        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#8a8680] font-medium absolute">
+        <div className="border-t border-[#E1E5E8] w-full" />
+        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#66717C] font-medium absolute">
           Or register with email
         </span>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
-          <label htmlFor="name" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+          <label htmlFor="name" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
             Full Name
           </label>
           <input
             id="name"
             type="text"
             autoComplete="name"
-            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+            className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
             {...register('name')}
           />
-          {errors.name && <p className="mt-1 text-xs text-red-600 font-sans">{errors.name.message}</p>}
+          {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+          <label htmlFor="email" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
             Email Address
           </label>
           <input
             id="email"
             type="email"
             autoComplete="email"
-            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+            className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
             {...register('email')}
           />
-          {errors.email && <p className="mt-1 text-xs text-red-600 font-sans">{errors.email.message}</p>}
+          {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+          <label htmlFor="password" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
             Password
           </label>
           <input
             id="password"
             type="password"
             autoComplete="new-password"
-            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+            className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
             {...register('password')}
           />
-          {errors.password && <p className="mt-1 text-xs text-red-600 font-sans">{errors.password.message}</p>}
-          <p className="text-[11px] text-[#8a8680] mt-1 font-sans">Minimum 8 characters with letters &amp; numbers.</p>
+          {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+          <p className="text-[11px] text-[#66717C] mt-1">Minimum 8 characters with letters &amp; numbers.</p>
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+          <label htmlFor="confirmPassword" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
             Confirm Password
           </label>
           <input
             id="confirmPassword"
             type="password"
             autoComplete="new-password"
-            className="w-full px-3.5 py-3 bg-[#faf8f5] border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+            className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
             {...register('confirmPassword')}
           />
-          {errors.confirmPassword && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && <p className="mt-1 text-xs text-red-600">{errors.confirmPassword.message}</p>}
         </div>
 
         {/* Proventa Authentication Key Section */}
-        <div className="pt-4 border-t border-[#ded7cc] space-y-4 bg-[#fbf9f6] p-4 rounded-xl border">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <KeyRound className="h-4 w-4 text-[#8a7053]" />
-              <h3 className="text-xs font-bold tracking-wider uppercase text-[#141312] font-sans">
-                Create Your Proventa Authentication Key
+        <div className="pt-3 border-t border-[#E1E5E8] space-y-3 bg-[#F7F8FA] p-3.5 rounded-lg border">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-1.5">
+              <KeyRound className="h-4 w-4 text-[#1F2933]" />
+              <h3 className="text-xs font-semibold tracking-wider uppercase text-[#1F2933]">
+                Create Your Authentication Key
               </h3>
             </div>
-            <p className="text-xs text-[#6e6b65] font-sans leading-relaxed">
-              Your private key protects your Proventa identity and will be required every time you sign in.
+            <p className="text-xs text-[#66717C]">
+              Your private key protects your Proventa identity and is required every time you sign in.
             </p>
           </div>
 
           <div>
-            <label htmlFor="authenticationKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+            <label htmlFor="authenticationKey" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1">
               Authentication Key
             </label>
             <input
               id="authenticationKey"
               type="password"
               autoComplete="new-password"
-              className="w-full px-3.5 py-3 bg-white border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              className="w-full px-3.5 py-2 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-all"
               placeholder="Create private key (min 8 characters)"
               {...register('authenticationKey')}
             />
-            {errors.authenticationKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.authenticationKey.message}</p>}
+            {errors.authenticationKey && <p className="mt-1 text-xs text-red-600">{errors.authenticationKey.message}</p>}
           </div>
 
           <div>
-            <label htmlFor="confirmAuthenticationKey" className="block text-xs font-semibold text-[#141312] uppercase tracking-wider mb-1.5 font-sans">
+            <label htmlFor="confirmAuthenticationKey" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1">
               Confirm Authentication Key
             </label>
             <input
               id="confirmAuthenticationKey"
               type="password"
               autoComplete="new-password"
-              className="w-full px-3.5 py-3 bg-white border border-[#ded7cc] rounded-xl text-sm text-[#141312] focus:outline-none focus:border-[#6d5941] focus:ring-1 focus:ring-[#6d5941] transition-all font-sans"
+              className="w-full px-3.5 py-2 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-all"
               placeholder="Re-enter your private key"
               {...register('confirmAuthenticationKey')}
             />
-            {errors.confirmAuthenticationKey && <p className="mt-1 text-xs text-red-600 font-sans">{errors.confirmAuthenticationKey.message}</p>}
+            {errors.confirmAuthenticationKey && <p className="mt-1 text-xs text-red-600">{errors.confirmAuthenticationKey.message}</p>}
           </div>
 
-          <div className="p-2.5 bg-[#f5f3ef] rounded-lg border border-[#e8e2d8] text-[11px] text-[#6d5941] font-sans space-y-0.5">
-            <p className="font-semibold">Your key should be private and memorable.</p>
-            <p className="text-[#8a8680]">Never share your Authentication Key with anyone. Proventa personnel will never ask you to disclose it.</p>
+          <div className="p-2 bg-white rounded-md border border-[#E1E5E8] text-[11px] text-[#66717C]">
+            <p className="font-medium text-[#1F2933]">Your key should be private and memorable.</p>
+            <p className="mt-0.5">Never share your Authentication Key with anyone. Proventa personnel will never ask you to disclose it.</p>
           </div>
         </div>
 
-        {/* Mandatory Explicit Legal Agreement Checkbox */}
-        <div className="pt-2 border-t border-[#ded7cc]/60 space-y-1.5">
-          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#524e48] font-sans">
+        {/* Legal Agreement Checkbox */}
+        <div className="pt-2 border-t border-[#E1E5E8] space-y-1">
+          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#66717C]">
             <input
               type="checkbox"
               required
               {...register('termsConsent', { required: 'You must agree to the Terms of Service, Privacy Policy, and Private Beta Terms to continue.' })}
-              className="mt-0.5 rounded border-[#ded7cc] text-[#1f1b16] focus:ring-[#6d5941]"
+              className="mt-0.5 rounded border-[#E1E5E8] text-[#1F2933] focus:ring-[#1F2933]"
             />
             <span className="leading-relaxed">
               I agree to the{' '}
-              <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] underline hover:text-[#8a7053]">
+              <a href="/legal/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1F2933] underline hover:text-[#111820]">
                 Terms of Service
               </a>
               , acknowledge the{' '}
-              <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] underline hover:text-[#8a7053]">
+              <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1F2933] underline hover:text-[#111820]">
                 Privacy Policy
               </a>
               , and accept the{' '}
-              <a href="/legal/private-beta" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#141312] underline hover:text-[#8a7053]">
+              <a href="/legal/private-beta" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#1F2933] underline hover:text-[#111820]">
                 Private Beta Terms
               </a>
               .
             </span>
           </label>
           {errors.termsConsent && (
-            <p className="text-xs text-red-600 font-sans">{errors.termsConsent.message}</p>
+            <p className="text-xs text-red-600">{errors.termsConsent.message}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 px-4 bg-[#1f1b16] hover:bg-[#332d26] text-[#faf8f5] rounded-xl text-sm font-semibold transition-all shadow-sm disabled:opacity-50 font-sans flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin text-[#ddc8a9]" />}
+          {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
           <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
         </button>
 
-        <p className="text-[11px] text-[#8a8680] text-center font-sans">
+        <p className="text-[11px] text-[#66717C] text-center">
           Proventa Private Beta · Sovereign Data Protection ·{' '}
-          <a href="/legal" className="underline text-[#141312]">Legal &amp; Trust Center</a>
+          <a href="/legal" className="underline text-[#1F2933]">Legal &amp; Trust Hub</a>
         </p>
       </form>
     </div>

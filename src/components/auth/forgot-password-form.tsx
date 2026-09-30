@@ -30,22 +30,23 @@ export function ForgotPasswordForm() {
   };
 
   if (submitted) {
-    return <p className="text-sm text-neutral-600">If that email is registered, a reset link has been sent. Check your inbox.</p>;
+    return <p className="text-sm text-[#66717C]">If that email is registered, a reset link has been sent. Check your inbox.</p>;
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-neutral-700 mb-1.5">Email</label>
+        <label htmlFor="email" className="block text-sm font-medium text-[#1F2933] mb-1.5">Email</label>
         <input id="email" type="email" autoComplete="email"
-          className="w-full px-3 py-2.5 border border-neutral-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-transparent"
+          className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-xl text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-colors"
           {...register('email')} />
         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
       </div>
       <button type="submit" disabled={loading}
-        className="w-full py-2.5 px-4 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50">
+        className="w-full py-2.5 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs">
         {loading ? 'Sending...' : 'Send reset link'}
       </button>
     </form>
   );
 }
+
