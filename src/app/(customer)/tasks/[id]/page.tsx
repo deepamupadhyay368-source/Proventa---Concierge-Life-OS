@@ -367,26 +367,54 @@ export default function TaskDetailPage() {
   const approvedOption = clientPreferences?.approvedOption;
   const deliverable = clientPreferences?.deliverable;
 
+  const getCustomerFacingStatusLabel = (taskStatus: string) => {
+    switch (taskStatus) {
+      case 'NEEDS_HUMAN':
+      case 'AWAITING_CONCIERGE_CALL':
+      case 'CONCIERGE_ASSIGNED':
+        return 'Concierge in Progress';
+      case 'AWAITING_APPROVAL':
+      case 'OPTIONS_READY':
+        return 'Options Ready';
+      case 'APPROVED':
+      case 'EXECUTING':
+      case 'VERIFYING':
+        return 'Confirming Arrangements';
+      case 'CONFIRMED':
+      case 'COMPLETED':
+        return 'Confirmed';
+      case 'NEEDS_INFORMATION':
+        return 'Detail Needed';
+      case 'FAILED':
+        return 'Reviewing Alternatives';
+      default:
+        return 'Researching Options';
+    }
+  };
+
   const getStatusMessage = (taskStatus: string) => {
     switch (taskStatus) {
       case 'APPROVED':
-        return 'Your approved option has been locked and execution has begun.';
-      case 'EXECUTING':
-        return 'Executing your request with the partner provider.';
       case 'NEEDS_HUMAN':
-        return 'Your request is approved and has been handed to your Proventa Concierge for execution.';
+      case 'AWAITING_CONCIERGE_CALL':
+        return 'Your concierge is taking it from here.';
+      case 'EXECUTING':
+      case 'VERIFYING':
+        return 'Your PROVENTA Concierge is currently finalizing your arrangements.';
+      case 'NEEDS_INFORMATION':
+        return 'Your concierge needs one more detail before completing this.';
       case 'CONFIRMED':
-        return task.externalReferenceId
-          ? `Confirmed. Your booking reference is ${task.externalReferenceId}.`
-          : 'Confirmed. Your reservation has been authenticated.';
       case 'COMPLETED':
-        return deliverable
-          ? 'Completed. Your deliverable is ready.'
-          : 'Completed. Your reservation is confirmed and finalized.';
+        return task.externalReferenceId
+          ? `You're all set. Your arrangements are confirmed (Ref: ${task.externalReferenceId}).`
+          : "You're all set. Your arrangements are confirmed.";
       case 'FAILED':
         return 'Our concierge team is reviewing alternative arrangements for your request.';
+      case 'AWAITING_APPROVAL':
+      case 'OPTIONS_READY':
+        return 'Your personalized options are ready for selection.';
       default:
-        return null;
+        return 'Your PROVENTA assistant is curating verified options for you.';
     }
   };
 
@@ -412,21 +440,21 @@ export default function TaskDetailPage() {
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <span
-            className={`px-3 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 ${
               isConfirmed
                 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                 : isAwaitingApproval
                 ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                : isNeedsHuman
-                ? 'bg-purple-50 text-purple-800 border border-purple-200'
+                : isNeedsHuman || task.status === 'APPROVED' || task.status === 'EXECUTING'
+                ? 'bg-purple-50 text-purple-900 border border-purple-200'
                 : 'bg-neutral-100 text-neutral-700'
             }`}
           >
             {isConfirmed && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />}
             {isAwaitingApproval && <ShieldCheck className="h-3.5 w-3.5 text-amber-600" />}
-            {isNeedsHuman && <UserCheck className="h-3.5 w-3.5 text-purple-600" />}
-            {!isConfirmed && !isAwaitingApproval && !isNeedsHuman && <Clock className="h-3.5 w-3.5 text-neutral-500" />}
-            {task.status.replace(/_/g, ' ')}
+            {(isNeedsHuman || task.status === 'APPROVED' || task.status === 'EXECUTING') && <UserCheck className="h-3.5 w-3.5 text-purple-600" />}
+            {!isConfirmed && !isAwaitingApproval && !isNeedsHuman && task.status !== 'APPROVED' && task.status !== 'EXECUTING' && <Clock className="h-3.5 w-3.5 text-neutral-500" />}
+            {getCustomerFacingStatusLabel(task.status)}
           </span>
           <button
             onClick={loadTask}
@@ -438,12 +466,12 @@ export default function TaskDetailPage() {
         </div>
       </div>
 
-      {/* Reassuring Status Banner */}
+      {/* Reassuring Premium Status Banner */}
       {getStatusMessage(task.status) && (
         <div className={`p-4 rounded-2xl border text-xs flex items-center justify-between gap-3 shadow-xs ${
           task.status === 'COMPLETED' || task.status === 'CONFIRMED'
             ? 'bg-emerald-50/90 border-emerald-200 text-emerald-950'
-            : task.status === 'NEEDS_HUMAN'
+            : isNeedsHuman || task.status === 'APPROVED' || task.status === 'EXECUTING'
             ? 'bg-purple-50/90 border-purple-200 text-purple-950'
             : task.status === 'FAILED'
             ? 'bg-neutral-50 border-neutral-200 text-neutral-800'
@@ -452,41 +480,54 @@ export default function TaskDetailPage() {
           <div className="flex items-center gap-2.5">
             {task.status === 'COMPLETED' || task.status === 'CONFIRMED' ? (
               <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0" />
-            ) : task.status === 'NEEDS_HUMAN' ? (
+            ) : isNeedsHuman || task.status === 'APPROVED' ? (
               <UserCheck className="h-4 w-4 text-purple-700 shrink-0" />
-            ) : task.status === 'EXECUTING' || task.status === 'APPROVED' ? (
-              <RefreshCw className="h-4 w-4 text-amber-700 shrink-0 animate-spin" />
+            ) : task.status === 'EXECUTING' ? (
+              <RefreshCw className="h-4 w-4 text-purple-700 shrink-0 animate-spin" />
             ) : (
               <Clock className="h-4 w-4 text-neutral-600 shrink-0" />
             )}
-            <span className="font-medium text-xs sm:text-sm">{getStatusMessage(task.status)}</span>
+            <div>
+              <div className="font-semibold text-xs sm:text-sm">{getStatusMessage(task.status)}</div>
+              {(isNeedsHuman || task.status === 'APPROVED') && (
+                <div className="text-[11px] text-purple-800/80 mt-0.5">
+                  Your PROVENTA Concierge is currently coordinating with the venue/provider to finalize all arrangements.
+                </div>
+              )}
+            </div>
           </div>
-          <span className="text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full bg-white/80 border border-current font-bold shrink-0">
-            {task.status}
+          <span className="text-[10px] font-mono uppercase px-2.5 py-1 rounded-full bg-white/90 border border-current font-bold shrink-0">
+            {getCustomerFacingStatusLabel(task.status)}
           </span>
         </div>
       )}
 
-      {/* 4-Step Orchestration Progress Flow */}
+      {/* 5-Step Hybrid Concierge Progress Flow */}
       <div className="bg-white border border-neutral-200 rounded-2xl p-5 shadow-xs">
-        <div className="grid grid-cols-4 gap-2 text-center relative">
+        <div className="grid grid-cols-5 gap-2 text-center relative">
           {[
-            { step: 1, label: 'Ingested & Routed', active: true, done: true },
+            { step: 1, label: 'Request Received', active: true, done: true },
             {
               step: 2,
-              label: 'Agent Research',
-              active: true,
-              done: !['REQUESTED', 'UNDERSTANDING', 'NEEDS_INFORMATION'].includes(task.status),
+              label: 'Options Selected',
+              active: !['REQUESTED', 'UNDERSTANDING', 'SEARCHING'].includes(task.status),
+              done: ['AWAITING_APPROVAL', 'APPROVED', 'NEEDS_HUMAN', 'AWAITING_CONCIERGE_CALL', 'EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
             },
             {
               step: 3,
-              label: 'Proposal / Authorization',
-              active: !['REQUESTED', 'UNDERSTANDING', 'NEEDS_INFORMATION', 'SEARCHING'].includes(task.status),
-              done: ['EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
+              label: 'Concierge Assigned',
+              active: ['APPROVED', 'NEEDS_HUMAN', 'AWAITING_CONCIERGE_CALL', 'EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
+              done: ['APPROVED', 'NEEDS_HUMAN', 'AWAITING_CONCIERGE_CALL', 'EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
             },
             {
               step: 4,
-              label: 'Verified Confirmation',
+              label: 'Confirming Arrangements',
+              active: ['NEEDS_HUMAN', 'AWAITING_CONCIERGE_CALL', 'EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
+              done: isConfirmed,
+            },
+            {
+              step: 5,
+              label: 'Final Confirmation',
               active: isConfirmed,
               done: isConfirmed,
             },
@@ -501,7 +542,7 @@ export default function TaskDetailPage() {
                     : 'bg-neutral-100'
                 }`}
               />
-              <span className={`text-[11px] font-medium block ${item.active ? 'text-neutral-900' : 'text-neutral-400'}`}>
+              <span className={`text-[10px] sm:text-[11px] font-medium block leading-tight ${item.active ? 'text-neutral-900' : 'text-neutral-400'}`}>
                 {item.label}
               </span>
             </div>

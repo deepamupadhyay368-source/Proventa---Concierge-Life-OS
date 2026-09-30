@@ -16,7 +16,7 @@ export const VALID_TRANSITIONS: Record<TaskStatus, TaskStatus[]> = {
   FAILED: ['NEEDS_HUMAN', 'SEARCHING', 'CANCELLED'],
   CANCELLED: ['REQUESTED', 'SEARCHING'],
   EXPIRED: ['SEARCHING', 'CANCELLED'],
-  NEEDS_HUMAN: ['QUEUED', 'EXECUTING', 'CONFIRMED', 'COMPLETED', 'FAILED', 'CANCELLED'],
+  NEEDS_HUMAN: ['QUEUED', 'EXECUTING', 'NEEDS_INFORMATION', 'CONFIRMED', 'COMPLETED', 'FAILED', 'CANCELLED'],
 };
 
 export function canTransition(from: TaskStatus, to: TaskStatus): boolean {

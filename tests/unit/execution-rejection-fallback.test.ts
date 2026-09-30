@@ -150,7 +150,7 @@ describe('Execution Rejection Fix & Human Concierge Fallback Suite', () => {
     // Must be success: true, handedToConcierge: true
     expect(result.success).toBe(true);
     expect((result as any).handedToConcierge).toBe(true);
-    expect(result.message).toBe('Your request is approved and has been handed to your Proventa Concierge for execution.');
+    expect(result.message).toBe('Your selection has been received. Your PROVENTA Concierge is taking it from here.');
 
     // Status in DB must be NEEDS_HUMAN, executionMethod HUMAN_CONCIERGE, failedReason null
     expect(updateSpy).toHaveBeenCalledWith(
@@ -224,7 +224,7 @@ describe('Execution Rejection Fix & Human Concierge Fallback Suite', () => {
 
     expect(result.success).toBe(true);
     expect((result as any).handedToConcierge).toBe(true);
-    expect(result.message).toBe('Your request is approved and has been handed to your Proventa Concierge for execution.');
+    expect(result.message).toBe('Your selection has been received. Your PROVENTA Concierge is taking it from here.');
 
     expect(updateSpy).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -415,7 +415,7 @@ describe('Execution Rejection Fix & Human Concierge Fallback Suite', () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.success).toBe(true);
-    expect(json.message).toContain('Your request is approved and has been handed to your Proventa Concierge for execution.');
+    expect(json.message).toContain('Your PROVENTA Concierge is taking it from here.');
     expect(json.message).not.toContain('rejected');
   });
 

@@ -185,7 +185,7 @@ describe('Phase 2, Priority 1: Ahmedabad Verified Phone-Booking Workflow', () =>
       expect(result.handedToConcierge).toBe(true);
       expect(result.task.status).toBe('NEEDS_HUMAN');
       expect(result.task.status).not.toBe('CONFIRMED');
-      expect(result.message).toContain('Your request is approved and has been handed to your Proventa Concierge for execution.');
+      expect(result.message).toContain('Your PROVENTA Concierge is taking it from here.');
     });
   });
 

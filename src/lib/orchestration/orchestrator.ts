@@ -10,6 +10,7 @@ import { sendBookingConfirmationEmail } from '@/lib/email/sender';
 import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
+import { ExecutionCapabilityRegistry } from './execution/execution-capability-registry';
 
 import { CompositeOrchestrator } from './automation/composite-executor';
 import { IdempotencyEngine } from './automation/idempotency';
@@ -520,6 +521,61 @@ export class RequestOrchestrator {
   }
 
   /**
+   * Generates a concise AI Context Handoff Summary for the Human Concierge Desk.
+   */
+  static generateAIHandoffSummary(task: any, option: OptionProposal): string {
+    const customerName = task.customer?.user?.name || task.customer?.name || 'Valued Member';
+    const rawInput = task.originalRequest || task.intent || 'Bespoke concierge request';
+    const dates =
+      option.metadata?.date ||
+      option.metadata?.departureTime ||
+      option.metadata?.time ||
+      task.scheduledTime ||
+      (task.clientPreferences as any)?.preparedContext?.dates ||
+      'As requested';
+    const budget =
+      option.priceFormatted ||
+      (option.priceAmount ? `₹${option.priceAmount.toLocaleString('en-IN')}` : undefined) ||
+      (task.budgetAmount ? `₹${task.budgetAmount.toLocaleString('en-IN')}` : 'As quoted');
+    const customerNotes =
+      task.notes ||
+      (task.clientPreferences as any)?.customerNotes ||
+      (task.clientPreferences as any)?.preparedContext?.preferences?.notes ||
+      option.metadata?.specialRequests ||
+      'Standard VIP preferences';
+
+    const lines: string[] = [
+      `CUSTOMER: ${customerName}`,
+      `REQUEST: ${rawInput}`,
+      `CATEGORY: ${(task.category || 'Concierge Service').toUpperCase().replace(/_/g, ' ')}`,
+      `DATES / SCHEDULE: ${dates}`,
+      `BUDGET / PRICE: ${budget}`,
+      `SELECTED OPTION: ${option.title} (Provider: ${option.providerName || 'Direct Provider'})`,
+    ];
+
+    if (option.metadata?.flightNumber || option.metadata?.airline) {
+      lines.push(
+        `FLIGHT DETAILS: ${option.metadata.airline || ''} ${option.metadata.flightNumber || ''} (${option.metadata.origin || ''} -> ${option.metadata.destination || ''})`
+      );
+    }
+    if (option.metadata?.roomType || option.metadata?.checkIn) {
+      lines.push(
+        `HOTEL DETAILS: ${option.metadata.roomType || 'Standard Luxury Room'} · Check-in: ${option.metadata.checkIn || dates}`
+      );
+    }
+    if (option.metadata?.partySize || (task.clientPreferences as any)?.preparedContext?.partySize) {
+      lines.push(
+        `PARTY SIZE: ${option.metadata?.partySize || (task.clientPreferences as any)?.preparedContext?.partySize} guests`
+      );
+    }
+
+    lines.push(`CUSTOMER NOTES: ${customerNotes}`);
+    lines.push(`CONCIERGE ACTION: Verify availability and complete arrangements with provider.`);
+
+    return lines.join('\n');
+  }
+
+  /**
    * Executes a task after explicit customer authorization, verifies confirmation, and finishes lifecycle.
    * Consequential actions can only enter here via explicit customer approval.
    */
@@ -742,6 +798,116 @@ export class RequestOrchestrator {
       };
     }
 
+    // Hybrid Concierge Model Context & Brief Generation
+    const aiHandoffSummary = RequestOrchestrator.generateAIHandoffSummary(taskRecord, option);
+    const conciergeBrief = {
+      canonicalTaskId: taskRecord.publicId || taskId,
+      requestId: taskRecord.requestId || taskId,
+      customerId: taskRecord.customerId,
+      customer: {
+        name: taskRecord.customer?.user?.name || 'Valued Member',
+        phone: taskRecord.customer?.user?.phone,
+        email: taskRecord.customer?.user?.email,
+      },
+      serviceType: taskRecord.category,
+      selectedOption: option,
+      provider: option.providerName,
+      providerId: option.providerId,
+      price: option.priceFormatted || (option.priceAmount ? `₹${option.priceAmount.toLocaleString('en-IN')}` : undefined),
+      priceAmount: option.priceAmount,
+      currency: option.priceCurrency || 'INR',
+      targetDateTime:
+        option.metadata?.date ||
+        option.metadata?.time ||
+        (taskRecord.clientPreferences as any)?.preparedContext?.dates ||
+        (taskRecord.createdAt && typeof taskRecord.createdAt.toISOString === 'function'
+          ? taskRecord.createdAt.toISOString()
+          : new Date().toISOString()),
+      partySize: option.metadata?.partySize || (taskRecord.clientPreferences as any)?.preparedContext?.partySize,
+      customerNotes: (taskRecord.clientPreferences as any)?.customerNotes || (taskRecord.clientPreferences as any)?.preparedContext?.preferences?.notes,
+      aiHandoffSummary,
+      reasonForHandoff: 'Customer selection received; handed to Human Concierge Desk for final execution.',
+      timestamp: new Date().toISOString(),
+      priority: taskRecord.priority || 'MEDIUM',
+    };
+
+    const isAutonomousAllowed =
+      process.env.FEATURE_AUTONOMOUS_EXECUTION_ENABLED === 'true' &&
+      ExecutionCapabilityRegistry.isAutomatedExecutionAllowed(option.providerId);
+
+    // Launch Phase Invariant: AI Discovers. Customer Chooses. Concierge Executes.
+    if (!isAutonomousAllowed) {
+      validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+      const escalatedTask = await db.task.update({
+        where: { id: taskId },
+        data: {
+          status: 'NEEDS_HUMAN',
+          executionMethod: 'HUMAN_CONCIERGE',
+          isEscalated: true,
+          approvalStatus: 'APPROVED',
+          failedReason: null,
+          vendorName: option.providerName || taskRecord.vendorName,
+          budgetAmount: option.priceAmount || taskRecord.budgetAmount,
+          clientPreferences: {
+            ...existingPrefs,
+            selectedOption: option as any,
+            approvedOption: option as any,
+            approvedAt: new Date().toISOString(),
+            batchHistory: updatedHistory,
+            aiHandoffSummary,
+            conciergeBrief,
+            executionTier: 'ASSISTED',
+            handoffMessage: 'Your selection has been received. Your PROVENTA Concierge is taking it from here.',
+            customerStatusMessage: 'Your concierge is taking it from here.',
+          } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'HANDED_TO_CONCIERGE',
+        actorRole: 'AI_AGENT',
+        message: 'Your selection has been received. Your PROVENTA Concierge is taking it from here.',
+        data: {
+          provider: option.providerName,
+          optionTitle: option.title,
+          priceFormatted: option.priceFormatted,
+          aiHandoffSummary,
+        },
+      });
+
+      try {
+        if (taskRecord.customer?.user?.phone) {
+          await sendWhatsAppNotification({
+            phone: taskRecord.customer.user.phone,
+            template: 'AWAITING_CONCIERGE_CALL',
+            params: {
+              name: taskRecord.customer.user.name || 'Member',
+              details: `${option.title} (${option.providerName})`,
+              actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/tasks/${taskId}`,
+            },
+          });
+        }
+      } catch (e) {
+        console.error('[Orchestrator] Concierge dispatch notice failed:', e);
+      }
+
+      return {
+        success: true,
+        status: 'NEEDS_HUMAN',
+        handedToConcierge: true,
+        task: escalatedTask,
+        aiHandoffSummary,
+        execution: {
+          success: true,
+          status: 'AWAITING_CONCIERGE_CALL',
+          executionMethod: 'HUMAN_CONCIERGE',
+          providerName: option.providerName,
+        },
+        message: 'Your selection has been received. Your PROVENTA Concierge is taking it from here.',
+      };
+    }
+
     await db.task.update({
       where: { id: taskId },
       data: {
@@ -751,9 +917,12 @@ export class RequestOrchestrator {
         budgetAmount: option.priceAmount,
         clientPreferences: {
           ...existingPrefs,
+          selectedOption: option as any,
           approvedOption: option as any,
           approvedAt: new Date().toISOString(),
           batchHistory: updatedHistory,
+          aiHandoffSummary,
+          conciergeBrief,
         } as any,
       },
     });

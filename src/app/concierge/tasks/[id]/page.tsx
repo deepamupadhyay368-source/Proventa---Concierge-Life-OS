@@ -380,6 +380,26 @@ export default function TaskWorkspacePage() {
                 </div>
               )}
 
+              {/* AI Context Handoff Summary Card */}
+              {workspace.aiHandoffSummary && (
+                <div className="bg-[#141210] border border-[#8a7053]/50 rounded-2xl p-5 space-y-3 shadow-xl">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-amber-400" />
+                      <h3 className="text-sm font-bold text-amber-200 tracking-wide uppercase font-mono">
+                        AI Context Handoff Summary
+                      </h3>
+                    </div>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase font-semibold">
+                      Hybrid AI + Human Desk
+                    </span>
+                  </div>
+                  <pre className="p-3.5 bg-black/60 rounded-xl border border-neutral-800 text-xs font-mono text-neutral-200 whitespace-pre-wrap leading-relaxed">
+                    {workspace.aiHandoffSummary}
+                  </pre>
+                </div>
+              )}
+
               {/* Customer Mandate & Operational Constraints Matrix */}
               <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between">

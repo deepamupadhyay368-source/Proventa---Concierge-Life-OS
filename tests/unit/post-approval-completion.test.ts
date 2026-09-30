@@ -332,6 +332,10 @@ describe('Post-Approval Task Completion Engine', () => {
         verify: vi.fn().mockResolvedValue({ verified: true, isValid: true, isMock: false, environment: 'REAL' }),
       } as any);
 
+      process.env.FEATURE_AUTONOMOUS_EXECUTION_ENABLED = 'true';
+      const { ExecutionCapabilityRegistry } = await import('@/lib/orchestration/execution/execution-capability-registry');
+      vi.spyOn(ExecutionCapabilityRegistry, 'isAutomatedExecutionAllowed').mockReturnValue(true);
+
       vi.mocked(db.task.findUnique).mockResolvedValue(mockTask);
       (db.task.update as any).mockImplementation(async ({ data }: any) => ({
         ...mockTask,

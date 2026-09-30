@@ -189,7 +189,7 @@ export function ApprovalActionCard({
           className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#141312] hover:bg-[#2e2720] text-[#faf8f5] text-xs uppercase tracking-widest font-semibold transition-all shadow-md disabled:opacity-50"
         >
           <Check className="h-4 w-4 text-emerald-400" />
-          <span>{approving ? 'Authorizing & Executing...' : isFlight ? 'Approve & Reserve Flight' : 'Approve & Book'}</span>
+          <span>{approving ? 'Connecting to Concierge...' : isFlight ? 'Select & Book Flight with Concierge' : 'Select & Book with Concierge'}</span>
         </button>
 
         {onReplace && (
@@ -201,7 +201,7 @@ export function ApprovalActionCard({
             title={`Replace Option ${optionNumber || ''} with an alternative`}
           >
             <RefreshCw className="h-3.5 w-3.5 text-neutral-500" />
-            <span>Replace This Option</span>
+            <span>Replace Option</span>
           </button>
         )}
 
@@ -220,7 +220,7 @@ export function ApprovalActionCard({
 
       <div className="mt-4 flex items-center gap-2 text-[11px] text-neutral-500">
         <ShieldCheck className="h-3.5 w-3.5 text-[#8a7053]" />
-        <span>Authoritative direct settlement. Zero hidden transaction markups.</span>
+        <span>Discovered by PROVENTA AI · Executed & confirmed by your dedicated Human Concierge Desk.</span>
       </div>
     </div>
   );

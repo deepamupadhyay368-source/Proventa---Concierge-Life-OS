@@ -90,9 +90,21 @@ export async function POST(req: NextRequest) {
           assignedOperatorEmail: sessionUser.email,
           claimedAt: new Date().toISOString(),
         };
-        eventMessage = `Operator ${operatorIdentifier} took ownership of this request.`;
         if (taskRecord.status === 'REQUESTED' || taskRecord.status === 'QUEUED') {
           updatedStatus = 'UNDERSTANDING';
+        }
+        if (taskRecord.customer?.user?.phone) {
+          try {
+            await sendWhatsAppNotification({
+              phone: taskRecord.customer.user.phone,
+              template: 'AWAITING_CONCIERGE_CALL',
+              params: {
+                name: taskRecord.customer.user.name || 'Member',
+                details: `${taskRecord.intent || 'Your request'} is being handled by ${operatorIdentifier}.`,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskRecord.id}`,
+              },
+            });
+          } catch (e) {}
         }
         break;
 
@@ -100,6 +112,19 @@ export async function POST(req: NextRequest) {
         updatedStatus = 'EXECUTING';
         eventType = 'CONCIERGE_STARTED_WORK';
         eventMessage = notes || note || `Concierge operator ${operatorIdentifier} started execution on task.`;
+        if (taskRecord.customer?.user?.phone) {
+          try {
+            await sendWhatsAppNotification({
+              phone: taskRecord.customer.user.phone,
+              template: 'AWAITING_CONCIERGE_CALL',
+              params: {
+                name: taskRecord.customer.user.name || 'Member',
+                details: `Your PROVENTA Concierge is working on your request: ${taskRecord.intent || taskRecord.originalRequest}.`,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskRecord.id}`,
+              },
+            });
+          } catch (e) {}
+        }
         break;
 
       case 'REASSIGN': {
@@ -215,6 +240,19 @@ export async function POST(req: NextRequest) {
           ...updatedPreferences,
           communications: comms,
         };
+        if (taskRecord.customer?.user?.phone) {
+          try {
+            await sendWhatsAppNotification({
+              phone: taskRecord.customer.user.phone,
+              template: 'AWAITING_CONCIERGE_CALL',
+              params: {
+                name: taskRecord.customer.user.name || 'Member',
+                details: infoQuery,
+                actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskRecord.id}`,
+              },
+            });
+          } catch (e) {}
+        }
         break;
       }
 

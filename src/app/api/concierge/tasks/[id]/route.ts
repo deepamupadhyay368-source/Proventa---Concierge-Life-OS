@@ -212,6 +212,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         approvedOption,
       },
 
+      aiHandoffSummary: prefs.aiHandoffSummary || null,
+      conciergeBrief: prefs.conciergeBrief || null,
       events: formattedEvents,
       internalNotes,
       communications,
