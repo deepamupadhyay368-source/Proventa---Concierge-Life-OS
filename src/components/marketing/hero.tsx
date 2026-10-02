@@ -26,7 +26,7 @@ export function HeroSection() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
           </span>
-          <span>Concierge Life OS · Early Access Cohort 1</span>
+          <span>Your first request is on us · Experience Proventa</span>
         </div>
 
         {/* Live Flowing Modern Headline */}
@@ -36,7 +36,7 @@ export function HeroSection() {
 
         {/* Refined Subtitle */}
         <p className="text-base sm:text-xl text-[#66717C] max-w-2xl mx-auto mb-10 leading-relaxed font-normal">
-          The intelligent operating system for your life. AI-powered discovery and planning paired with dedicated human concierge execution for dining, travel, appointments, and logistics.
+          For people who value their time. Try Proventa with your first request. Tell us what you need, and we&apos;ll take it from there.
         </p>
 
         {/* Clean Executive Delegation Card with Live Focus & Hover Glow */}

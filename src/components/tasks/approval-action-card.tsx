@@ -32,6 +32,15 @@ export function ApprovalActionCard({
     proposal.category === 'flights'
   );
 
+  const isHealthcare = Boolean(
+    proposal.metadata?.isHealthcare ||
+    proposal.providerId === 'healthcare_discovery' ||
+    proposal.category === 'healthcare' ||
+    proposal.category === 'doctor' ||
+    proposal.category === 'appointments' ||
+    proposal.metadata?.doctorId
+  );
+
   const carrier = proposal.metadata?.carrier || proposal.providerName;
   const flightNumber = proposal.metadata?.flightNumber;
   const origin = proposal.metadata?.departureAirport;
@@ -42,6 +51,8 @@ export function ApprovalActionCard({
   const cabinClass = proposal.metadata?.cabinClass;
   const baggage = proposal.metadata?.baggage;
   const isSandbox = proposal.environment === 'SANDBOX' || proposal.isMock;
+
+  const docMeta = proposal.metadata || {};
 
   return (
     <div className={`rounded-2xl bg-white border p-6 sm:p-8 shadow-md relative overflow-hidden transition-all ${
@@ -59,7 +70,7 @@ export function ApprovalActionCard({
           )}
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span className="text-[11px] uppercase tracking-widest font-bold text-[#1F2933] font-sans">
-            Client Authorization Required
+            {isHealthcare ? 'Doctor Recommendation' : 'Client Authorization Required'}
           </span>
         </div>
 
@@ -99,6 +110,57 @@ export function ApprovalActionCard({
       <p className="text-xs sm:text-sm text-[#303942] leading-relaxed mb-6 font-sans">
         {proposal.description || 'Verified concierge proposal prepared for your review.'}
       </p>
+
+      {/* Healthcare / Doctor Specific Presentation */}
+      {isHealthcare && (
+        <div className="bg-[#F7F8FA] rounded-xl p-4 sm:p-5 mb-6 space-y-3 border border-[#E1E5E8]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E1E5E8] pb-3 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-[#1F2933]">{docMeta.doctorName || proposal.title}</span>
+              {docMeta.specialty && (
+                <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-[#E5E9ED] text-[#1F2933] border border-[#CBD2D9]">
+                  {docMeta.subSpecialty || docMeta.specialty}
+                </span>
+              )}
+            </div>
+            {docMeta.experienceYears && (
+              <span className="text-[11px] text-[#52606D] font-medium">
+                {docMeta.experienceYears} Years Experience
+              </span>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#303942]">
+            {docMeta.qualifications && (
+              <div>
+                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block">Qualifications</span>
+                <span className="font-medium text-[#1F2933]">{docMeta.qualifications}</span>
+              </div>
+            )}
+            {(docMeta.hospital || docMeta.clinic) && (
+              <div>
+                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block">Hospital / Clinic</span>
+                <span className="font-medium text-[#1F2933]">{[docMeta.hospital, docMeta.locality, docMeta.city].filter(Boolean).join(', ')}</span>
+              </div>
+            )}
+            {docMeta.availabilitySchedule && (
+              <div className="col-span-1 sm:col-span-2">
+                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block">Consultation Schedule</span>
+                <span className="text-[11px] text-[#303942]">{docMeta.availabilitySchedule}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 border-t border-[#E1E5E8] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#52606D]">
+            <span>Verified Source: <strong className="text-[#1F2933]">{docMeta.source || 'Verified Hospital Desk'}</strong></span>
+            <span className="text-emerald-700 font-bold">{proposal.priceFormatted || (docMeta.consultationFee ? `₹${docMeta.consultationFee.toLocaleString('en-IN')}` : 'Fee on Enquiry')}</span>
+          </div>
+
+          <div className="p-2.5 rounded-lg bg-[#E5E9ED]/60 border border-[#CBD2D9] text-[11px] text-[#303942]">
+            <strong>Appointment Notice:</strong> Direct booking API is not enabled for healthcare in this release. Appointment coordination and priority slot reservation will be handled directly through the Proventa Senior Concierge Desk upon selection.
+          </div>
+        </div>
+      )}
 
       {/* Flight-Specific Itinerary Card */}
       {isFlight && (
@@ -189,7 +251,7 @@ export function ApprovalActionCard({
           className="flex-1 inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl bg-[#1F2933] hover:bg-[#111820] text-white text-xs uppercase tracking-widest font-semibold transition-all shadow-md disabled:opacity-50"
         >
           <Check className="h-4 w-4 text-emerald-400" />
-          <span>{approving ? 'Connecting to Concierge...' : isFlight ? 'Select & Book Flight with Concierge' : 'Select & Book with Concierge'}</span>
+          <span>{approving ? 'Connecting to Concierge...' : isFlight ? 'Select & Book Flight with Concierge' : isHealthcare ? 'Select & Coordinate Appointment with Concierge' : 'Select & Book with Concierge'}</span>
         </button>
 
         {onReplace && (

@@ -15,9 +15,11 @@ import {
   ListTodo,
   ShieldCheck,
   UserCheck,
-  Plus
+  Plus,
+  Lock
 } from 'lucide-react';
 import { getWelcomeMessage } from '@/lib/auth/greeting';
+import { MembershipGate } from '@/components/membership/MembershipGate';
 
 function DashboardContent() {
   const router = useRouter();
@@ -29,6 +31,7 @@ function DashboardContent() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [showMembershipGateModal, setShowMembershipGateModal] = useState(false);
   const [userProfile, setUserProfile] = useState<{
     name?: string | null;
     email?: string;
@@ -36,6 +39,14 @@ function DashboardContent() {
       membershipPlan?: string | null;
       membershipStatus?: string | null;
       membershipRenewsAt?: string | null;
+      freeRequestUsed?: boolean;
+    } | null;
+    entitlement?: {
+      hasActiveMembership: boolean;
+      freeRequestAvailable: boolean;
+      freeRequestUsed: boolean;
+      canCreateRequest: boolean;
+      state: 'FREE_REQUEST_AVAILABLE' | 'FREE_REQUEST_USED' | 'ACTIVE_MEMBER';
     } | null;
   } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,10 +70,31 @@ function DashboardContent() {
       });
   }, []);
 
+  const entitlement = userProfile?.entitlement || {
+    hasActiveMembership: userProfile?.customerProfile?.membershipStatus === 'ACTIVE',
+    freeRequestAvailable:
+      !(userProfile?.customerProfile?.membershipStatus === 'ACTIVE') &&
+      !(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0)),
+    freeRequestUsed: Boolean(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0)),
+    canCreateRequest:
+      userProfile?.customerProfile?.membershipStatus === 'ACTIVE' ||
+      !(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0)),
+    state:
+      userProfile?.customerProfile?.membershipStatus === 'ACTIVE'
+        ? 'ACTIVE_MEMBER'
+        : Boolean(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0))
+        ? 'FREE_REQUEST_USED'
+        : 'FREE_REQUEST_AVAILABLE',
+  };
 
   const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || submitting) return;
+
+    if (!entitlement.canCreateRequest) {
+      setShowMembershipGateModal(true);
+      return;
+    }
 
     setSubmitting(true);
     setErrorMessage(null);
@@ -80,11 +112,23 @@ function DashboardContent() {
         return;
       }
 
+      if (res.status === 402) {
+        setShowMembershipGateModal(true);
+        setSubmitting(false);
+        return;
+      }
+
       let data: any = null;
       try {
         data = await res.json();
       } catch {
         // Non-JSON response, fallback
+      }
+
+      if (data?.code === 'MEMBERSHIP_REQUIRED') {
+        setShowMembershipGateModal(true);
+        setSubmitting(false);
+        return;
       }
 
       if (res.ok && data?.task?.id) {
@@ -105,11 +149,23 @@ function DashboardContent() {
         return;
       }
 
+      if (legacyRes.status === 402) {
+        setShowMembershipGateModal(true);
+        setSubmitting(false);
+        return;
+      }
+
       let legacyData: any = null;
       try {
         legacyData = await legacyRes.json();
       } catch {
         // Non-JSON response
+      }
+
+      if (legacyData?.code === 'MEMBERSHIP_REQUIRED') {
+        setShowMembershipGateModal(true);
+        setSubmitting(false);
+        return;
       }
 
       if (legacyRes.ok && legacyData?.request?.id) {
@@ -149,7 +205,9 @@ function DashboardContent() {
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
                 <Sparkles className="h-3 w-3 text-[#1F2933]" />
-                <span>Private Member Dashboard</span>
+                <span>
+                  {entitlement.hasActiveMembership ? 'Private Member Dashboard' : 'Proventa Experience'}
+                </span>
               </span>
               <span className="text-xs text-[#66717C] font-mono">
                 {new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -164,25 +222,102 @@ function DashboardContent() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0">
-            <button
-              type="button"
-              onClick={() => {
-                const el = document.getElementById('new-request');
-                el?.scrollIntoView({ behavior: 'smooth' });
-                const textarea = el?.querySelector('textarea');
-                textarea?.focus();
-              }}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs"
-            >
-              <Plus className="h-3.5 w-3.5 text-[#A7B0B8]" />
-              <span>New Request</span>
-            </button>
+            {entitlement.canCreateRequest ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById('new-request');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                  const textarea = el?.querySelector('textarea');
+                  textarea?.focus();
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs cursor-pointer"
+              >
+                <Plus className="h-3.5 w-3.5 text-[#A7B0B8]" />
+                <span>+ New Request</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowMembershipGateModal(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs cursor-pointer"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-[#A7B0B8]" />
+                <span>View Memberships</span>
+              </button>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Active Membership Status Banner */}
-      {userProfile && (
+      {/* 1. Free Request Available Banner */}
+      {entitlement.freeRequestAvailable && (
+        <section className="bg-gradient-to-r from-[#F7F8FA] to-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-xl bg-white border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] shadow-xs shrink-0">
+              <Sparkles className="h-5 w-5 text-[#1F2933]" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold tracking-wide text-[#111820]">
+                  Your first request is on us.
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-medium bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
+                  Complimentary
+                </span>
+              </div>
+              <p className="text-xs text-[#66717C] mt-0.5">
+                Experience Proventa before choosing a membership. Submit any request below to start.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('new-request');
+              el?.scrollIntoView({ behavior: 'smooth' });
+              const textarea = el?.querySelector('textarea');
+              textarea?.focus();
+            }}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs shrink-0 cursor-pointer"
+          >
+            <span>+ New Request</span>
+            <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
+          </button>
+        </section>
+      )}
+
+      {/* 2. Free Request Consumed & No Active Membership -> Gate Banner */}
+      {!entitlement.hasActiveMembership && entitlement.freeRequestUsed && (
+        <section className="bg-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] shrink-0">
+              <Lock className="h-5 w-5 text-[#1F2933]" />
+            </div>
+            <div>
+              <div className="text-xs font-semibold tracking-wide text-[#111820]">
+                Your complimentary Proventa request has been used.
+              </div>
+              <p className="text-xs text-[#66717C] mt-0.5">
+                Choose a membership to continue having Proventa handle more of your life.
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowMembershipGateModal(true)}
+            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#111820] hover:bg-[#1F2933] text-white rounded-xl text-xs font-medium transition-colors shadow-xs shrink-0 cursor-pointer"
+          >
+            <span>View Memberships</span>
+            <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
+          </button>
+        </section>
+      )}
+
+      {/* 3. Active Membership Status Banner */}
+      {entitlement.hasActiveMembership && userProfile && (
         <section className="bg-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933]">
@@ -237,7 +372,7 @@ function DashboardContent() {
         <div className="p-4 bg-[#F7F8FA] border border-[#E1E5E8] rounded-xl text-sm text-[#1F2933] flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Sparkles className="h-5 w-5 text-[#1F2933]" />
-            <span>Welcome to Proventa Wave 1. Your concierge is ready. Tell us what you need handled below.</span>
+            <span>Welcome to Proventa. Your concierge is ready. Tell us what you need handled below.</span>
           </div>
         </div>
       )}
@@ -262,67 +397,78 @@ function DashboardContent() {
           </div>
         )}
 
-        <form onSubmit={handleCreateRequest} className="space-y-4">
-          <div className="relative">
-            <textarea
-              rows={3}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. Find me a quiet rooftop restaurant for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
-              className="w-full p-4 border border-[#E1E5E8] bg-[#F7F8FA] focus:bg-white focus:border-[#1F2933] rounded-xl text-sm text-[#1F2933] focus:outline-none placeholder:text-[#A7B0B8] resize-none transition-colors"
-              required
+        {/* If membership is required to create request, show inline Membership Gate */}
+        {!entitlement.canCreateRequest ? (
+          <div className="py-2">
+            <MembershipGate
+              mode="inline"
+              title="Your first Proventa request is complete."
+              subtitle="Ready to have Proventa handle more of your life? Choose a membership to continue."
             />
           </div>
+        ) : (
+          <form onSubmit={handleCreateRequest} className="space-y-4">
+            <div className="relative">
+              <textarea
+                rows={3}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="e.g. Find me a quiet rooftop restaurant for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
+                className="w-full p-4 border border-[#E1E5E8] bg-[#F7F8FA] focus:bg-white focus:border-[#1F2933] rounded-xl text-sm text-[#1F2933] focus:outline-none placeholder:text-[#A7B0B8] resize-none transition-colors"
+                required
+              />
+            </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#66717C] font-medium">Urgency:</span>
-              {(['NORMAL', 'URGENT', 'ASAP'] as const).map((lvl) => (
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-[#66717C] font-medium">Urgency:</span>
+                {(['NORMAL', 'URGENT', 'ASAP'] as const).map((lvl) => (
+                  <button
+                    key={lvl}
+                    type="button"
+                    onClick={() => setUrgency(lvl)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                      urgency === lvl
+                        ? 'bg-[#1F2933] text-white'
+                        : 'bg-[#F1F3F5] text-[#66717C] hover:bg-[#E5E9ED]'
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting || !input.trim()}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
+              >
+                {submitting ? 'Understanding your request...' : 'Tell Proventa'}
+                <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />
+              </button>
+            </div>
+
+            {/* Quick Ahmedabad Delegation Prompts */}
+            <div className="pt-2 border-t border-[#E1E5E8] flex items-center gap-2 overflow-x-auto text-xs py-1 scrollbar-none">
+              <span className="text-[#66717C] shrink-0 font-medium">Quick suggestions:</span>
+              {[
+                { label: 'Dinner at Agashiye', text: 'Reserve a quiet terrace table for 4 at Agashiye for Saturday 8:00 PM.' },
+                { label: 'Airport Chauffeur', text: 'Arrange an executive sedan pickup from SVPIA Airport to Bodakdev tomorrow at 11:30 AM.' },
+                { label: 'ITC Narmada Spa', text: 'Book an afternoon Ayurvedic Kaya Kalp massage at ITC Narmada for two.' },
+                { label: 'GIFT City Boardroom', text: 'Reserve an executive boardroom at GIFT City with audiovisual setup for Thursday.' },
+              ].map((s) => (
                 <button
-                  key={lvl}
+                  key={s.label}
                   type="button"
-                  onClick={() => setUrgency(lvl)}
-                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
-                    urgency === lvl
-                      ? 'bg-[#1F2933] text-white'
-                      : 'bg-[#F1F3F5] text-[#66717C] hover:bg-[#E5E9ED]'
-                  }`}
+                  onClick={() => setInput(s.text)}
+                  className="shrink-0 px-2.5 py-1 bg-[#F7F8FA] hover:bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] rounded-lg text-[11px] transition-colors cursor-pointer"
                 >
-                  {lvl}
+                  {s.label}
                 </button>
               ))}
             </div>
-
-            <button
-              type="submit"
-              disabled={submitting || !input.trim()}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs"
-            >
-              {submitting ? 'Understanding your request...' : 'Tell Proventa'}
-              <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />
-            </button>
-          </div>
-
-          {/* Quick Ahmedabad Delegation Prompts */}
-          <div className="pt-2 border-t border-[#E1E5E8] flex items-center gap-2 overflow-x-auto text-xs py-1 scrollbar-none">
-            <span className="text-[#66717C] shrink-0 font-medium">Quick suggestions:</span>
-            {[
-              { label: 'Dinner at Agashiye', text: 'Reserve a quiet terrace table for 4 at Agashiye for Saturday 8:00 PM.' },
-              { label: 'Airport Chauffeur', text: 'Arrange an executive sedan pickup from SVPIA Airport to Bodakdev tomorrow at 11:30 AM.' },
-              { label: 'ITC Narmada Spa', text: 'Book an afternoon Ayurvedic Kaya Kalp massage at ITC Narmada for two.' },
-              { label: 'GIFT City Boardroom', text: 'Reserve an executive boardroom at GIFT City with audiovisual setup for Thursday.' },
-            ].map((s) => (
-              <button
-                key={s.label}
-                type="button"
-                onClick={() => setInput(s.text)}
-                className="shrink-0 px-2.5 py-1 bg-[#F7F8FA] hover:bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] rounded-lg text-[11px] transition-colors"
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
-        </form>
+          </form>
+        )}
       </section>
 
       {/* Curated Ahmedabad Directory Showcase */}
@@ -361,7 +507,7 @@ function DashboardContent() {
                 const el = document.getElementById('new-request');
                 el?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="text-left p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#1F2933] hover:bg-white hover:shadow-xs transition-all group"
+              className="text-left p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#1F2933] hover:bg-white hover:shadow-xs transition-all group cursor-pointer"
             >
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#66717C] block">{item.tag}</span>
               <p className="text-xs font-medium text-[#1F2933] mt-0.5 line-clamp-1">{item.name}</p>
@@ -413,7 +559,11 @@ function DashboardContent() {
         ) : activeTasks.length === 0 ? (
           <div className="p-8 bg-white border border-[#E1E5E8] rounded-xl text-center">
             <p className="text-sm font-medium text-[#1F2933]">No active tasks</p>
-            <p className="text-xs text-[#66717C] mt-1">Tell us what you need in the box above to get started.</p>
+            <p className="text-xs text-[#66717C] mt-1">
+              {entitlement.freeRequestAvailable
+                ? 'Your first request is on us. Tell us what you need in the box above to get started.'
+                : 'Tell us what you need in the box above to get started.'}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-3">
@@ -448,20 +598,26 @@ function DashboardContent() {
                           {t.priority}
                         </span>
                       )}
-                      <span className="text-[11px] font-medium text-[#1F2933] bg-[#F1F3F5] px-1.5 py-0.5 rounded border border-[#E1E5E8]">
-                        {t.assignedAgent}
-                      </span>
-                      <span className="text-xs text-[#66717C]">
-                        {new Date(t.createdAt).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-                      </span>
+                      <span className="text-xs font-mono text-[#66717C]">#{t.publicId}</span>
                     </div>
-                    <p className="text-sm font-medium text-[#1F2933] transition-colors line-clamp-1">
-                      {t.originalRequest}
+
+                    <p className="text-sm font-medium text-[#1F2933] group-hover:text-[#111820] transition-colors">
+                      {t.intent}
                     </p>
+
+                    <p className="text-xs text-[#66717C] line-clamp-1">{t.originalRequest}</p>
                   </div>
 
-                  <div className="flex items-center gap-2 text-[#A7B0B8] group-hover:text-[#1F2933] group-hover:translate-x-0.5 transition-all">
-                    <ChevronRight className="h-4 w-4" />
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-[#66717C] hidden sm:block font-mono">
+                      {new Date(t.createdAt).toLocaleDateString('en-IN', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                    <ChevronRight className="h-5 w-5 text-[#A7B0B8] group-hover:text-[#1F2933] group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </Link>
               );
@@ -470,27 +626,48 @@ function DashboardContent() {
         )}
       </section>
 
-      {/* Confirmed Executions */}
+      {/* Completed History Preview */}
       {confirmedTasks.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-lg font-semibold text-[#1F2933]">Confirmed & Verified Bookings</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {confirmedTasks.map((t) => (
-              <Link key={t.id} href={`/tasks/${t.id}`} className="block p-5 bg-white border border-[#E1E5E8] rounded-xl hover:border-[#1F2933] shadow-xs">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    <CheckCircle2 className="h-3 w-3 text-emerald-600" /> Confirmed
-                  </span>
-                  <span className="text-xs text-[#66717C] font-mono">Ref: {t.externalReferenceId || 'Verified'}</span>
+        <section className="space-y-3">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66717C]">
+              Fulfilled Delegations ({confirmedTasks.length})
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {confirmedTasks.slice(0, 4).map((t) => (
+              <Link
+                key={t.id}
+                href={`/tasks/${t.id}`}
+                className="p-4 bg-white border border-[#E1E5E8] rounded-xl hover:border-[#1F2933] transition-colors flex items-center justify-between group"
+              >
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono text-[#66717C]">#{t.publicId}</span>
+                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
+                      {t.status}
+                    </span>
+                  </div>
+                  <p className="text-xs font-medium text-[#1F2933] mt-1 line-clamp-1">{t.intent}</p>
                 </div>
-                <p className="text-sm font-semibold text-[#1F2933]">{t.vendorName || 'Verified Partner'}</p>
-                <p className="text-xs text-[#66717C] mt-1 line-clamp-1">
-                  {t.originalRequest}
-                </p>
+                <ChevronRight className="h-4 w-4 text-[#A7B0B8] group-hover:text-[#1F2933] transition-colors" />
               </Link>
             ))}
           </div>
         </section>
+      )}
+
+      {/* Membership Gate Modal */}
+      {showMembershipGateModal && (
+        <MembershipGate
+          mode="modal"
+          isOpen={showMembershipGateModal}
+          onClose={() => setShowMembershipGateModal(false)}
+          title="Your first Proventa request is complete."
+          subtitle="Ready to have Proventa handle more of your life? Choose a membership to continue."
+        />
       )}
     </div>
   );
@@ -498,7 +675,7 @@ function DashboardContent() {
 
 export default function CustomerDashboardPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-neutral-400">Loading dashboard...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-sm text-[#66717C]">Loading dashboard...</div>}>
       <DashboardContent />
     </Suspense>
   );

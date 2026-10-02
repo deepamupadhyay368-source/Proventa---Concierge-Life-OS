@@ -5,6 +5,7 @@ import { createRequestSchema } from '@/lib/validation/schemas';
 import { understandRequest } from '@/lib/ai/agents/understanding';
 import { evaluateSafetyAndHandoff } from '@/lib/ai/agents/safety';
 import { trackEvent } from '@/lib/analytics';
+import { checkAndConsumeEntitlement } from '@/lib/membership/entitlement';
 import { createAuditLog } from '@/lib/audit';
 import { isAppError } from '@/lib/errors';
 
@@ -58,10 +59,41 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = createRequestSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: 'Validation failed', fields: parsed.error.flatten().fieldErrors }, { status: 422 });
+      return NextResponse.json(
+        { error: 'Validation failed', fields: parsed.error.flatten().fieldErrors },
+        { status: 422 }
+      );
     }
 
     const { rawInput, urgency } = parsed.data;
+
+    // Check customer entitlement (Active membership OR First Request Free)
+    const entitlement = await checkAndConsumeEntitlement(customerProfile.id);
+    if (!entitlement.allowed) {
+      void trackEvent({
+        event: 'membership_gate_shown' as any,
+        userId: user.id,
+        properties: { reason: entitlement.reason },
+      });
+
+      return NextResponse.json(
+        {
+          error: entitlement.error,
+          code: entitlement.code || 'MEMBERSHIP_REQUIRED',
+          reason: entitlement.reason || 'FIRST_REQUEST_USED',
+          availablePlans: entitlement.availablePlans || ['select', 'private', 'reserve'],
+        },
+        { status: 402 }
+      );
+    }
+
+    if (entitlement.isFreeRequest) {
+      void trackEvent({
+        event: 'first_request_created' as any,
+        userId: user.id,
+        properties: { rawInputLength: rawInput?.length },
+      });
+    }
 
     // 1. AI Understanding & Entity Extraction
     const extracted = await understandRequest(rawInput);

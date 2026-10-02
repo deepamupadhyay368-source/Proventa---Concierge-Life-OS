@@ -519,12 +519,15 @@ export class EntityIntegrityValidator {
       }
 
       // 3. Dining validation
-      if (cat.includes('dine') || cat.includes('restaurant') || p.venueId) {
+      if (cat.includes('dine') || cat.includes('restaurant') || cat === 'food' || cat.includes('food_delivery')) {
         if (constraints.location) {
           const reqLoc = constraints.location.toUpperCase();
           if (reqLoc !== 'AHMEDABAD' && !reqLoc.includes('AHMEDABAD')) {
-            // Venue in Ahmedabad should not be shown for a Mumbai/Delhi dining request
-            if (p.providerId === 'ahmedabad_verified' || title.includes('AHMEDABAD')) {
+            const venueCity = (meta.city || meta.location || '').toUpperCase();
+            if (venueCity && venueCity !== reqLoc && !reqLoc.includes(venueCity)) {
+              return false;
+            }
+            if (title.includes('AHMEDABAD') && !title.includes(reqLoc)) {
               return false;
             }
           }
@@ -563,6 +566,27 @@ export class EntityIntegrityValidator {
           if (/^\d{4}-\d{2}-\d{2}$/.test(reqDateStr) && eventDateStr) {
             if (reqDateStr !== eventDateStr) {
               return false; // Date mismatch! Reject.
+            }
+          }
+        }
+      }
+
+      // 5. Healthcare & Doctor validation
+      if (
+        cat.includes('health') ||
+        cat.includes('doctor') ||
+        cat.includes('appointment') ||
+        p.providerId === 'healthcare_discovery' ||
+        meta.isHealthcare
+      ) {
+        if (constraints.destination || constraints.location || (constraints as any).city) {
+          const reqCity = (constraints.destination || (constraints as any).city || constraints.location || '').toUpperCase();
+          const docCity = (meta.city || '').toUpperCase();
+          if (reqCity && docCity && reqCity !== 'GLOBAL' && reqCity !== 'ALL') {
+            const resolvedReq = CityResolver.normalizeCity(reqCity).toUpperCase();
+            const resolvedDoc = CityResolver.normalizeCity(docCity).toUpperCase();
+            if (resolvedReq !== resolvedDoc && !resolvedReq.includes(resolvedDoc) && !resolvedDoc.includes(resolvedReq)) {
+              return false; // City mismatch! Reject.
             }
           }
         }
@@ -653,23 +677,33 @@ export class EntityIntegrityValidator {
       (requestedDest || task?.intent || task?.originalRequest)
     ) {
       let expectedCity: string | null = null;
-      const combinedText = `${requestedDest} ${task?.intent || ''} ${task?.originalRequest || ''}`;
-      for (const entry of CITY_AIRPORT_REGISTRY) {
-        for (const alias of entry.aliases) {
-          const regex = new RegExp(`\\b${alias}\\b`, 'i');
-          if (regex.test(combinedText)) {
-            expectedCity = entry.city;
-            break;
+      if (requestedDest) {
+        const res = this.resolveCityAirport(requestedDest);
+        if (res) expectedCity = res.city;
+      }
+      if (!expectedCity) {
+        const combinedText = `${task?.intent || ''} ${task?.originalRequest || ''}`;
+        for (const entry of CITY_AIRPORT_REGISTRY) {
+          for (const alias of entry.aliases) {
+            const regex = new RegExp(`\\b${alias}\\b`, 'i');
+            if (regex.test(combinedText)) {
+              expectedCity = entry.city;
+              break;
+            }
           }
+          if (expectedCity) break;
         }
-        if (expectedCity) break;
       }
 
       if (expectedCity) {
-        const proposalText = `${proposal.title || ''} ${proposal.description || ''} ${meta.city || ''} ${meta.location || ''} ${meta.address || ''}`.toUpperCase();
+        const itemCity = (meta.city || meta.location || '').toUpperCase();
+        if (itemCity && (itemCity === expectedCity.toUpperCase() || itemCity.includes(expectedCity.toUpperCase()))) {
+          return { isValid: true };
+        }
+        const proposalAddressText = `${meta.city || ''} ${meta.location || ''} ${meta.address || ''} ${proposal.title || ''}`.toUpperCase();
         const otherCities = ['AHMEDABAD', 'MUMBAI', 'DELHI', 'BENGALURU', 'GOA'].filter(c => c !== expectedCity!.toUpperCase());
         for (const other of otherCities) {
-          if (proposalText.includes(other) && !proposalText.includes(expectedCity.toUpperCase())) {
+          if (proposalAddressText.includes(other) && !proposalAddressText.includes(expectedCity.toUpperCase())) {
             const reason = `Pre-Execution Safety Gate Blocked: Requested dining city is ${expectedCity}, but proposal is for ${other}.`;
             return { isValid: false, reason, violationReason: reason };
           }

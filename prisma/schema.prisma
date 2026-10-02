@@ -713,9 +713,12 @@ model CustomerProfile {
 
   user           User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
   membershipPlan       String?                 @default("SELECT") // SELECT | PRIVATE | RESERVE
-  membershipStatus     String?                 @default("ACTIVE") // ACTIVE | PAUSED | CANCELLED
+  membershipStatus     String?                 @default("PENDING") // ACTIVE | PAUSED | CANCELLED | PENDING | NONE
   membershipStartedAt  DateTime?               @default(now())
   membershipRenewsAt   DateTime?
+  freeRequestUsed      Boolean                 @default(false)
+  freeRequestUsedAt    DateTime?
+  freeRequestTaskId    String?
   preferences    CustomerPreference[]
   requests       ConciergeRequest[]
   approvals      Approval[]

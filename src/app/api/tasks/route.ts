@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
+import { checkAndConsumeEntitlement, attachFreeRequestTaskId } from '@/lib/membership/entitlement';
+import { trackEvent } from '@/lib/analytics';
 import { isAppError } from '@/lib/errors';
 
 export async function GET(req: NextRequest) {
@@ -74,7 +76,7 @@ export async function POST(req: NextRequest) {
     });
     if (!customerProfile) {
       customerProfile = await db.customerProfile.create({
-        data: { userId: user.id, city: 'Ahmedabad' },
+        data: { userId: user.id, city: 'Ahmedabad', membershipStatus: 'PENDING' },
       });
     }
 
@@ -85,6 +87,39 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Request description is required' }, { status: 400 });
     }
 
+    // If creating a brand new task (not refining an existing taskId), verify and consume entitlement
+    let isFreeRequest = false;
+    if (!taskId) {
+      const entitlement = await checkAndConsumeEntitlement(customerProfile.id);
+
+      if (!entitlement.allowed) {
+        void trackEvent({
+          event: 'membership_gate_shown' as any,
+          userId: user.id,
+          properties: { reason: entitlement.reason },
+        });
+
+        return NextResponse.json(
+          {
+            error: entitlement.error,
+            code: entitlement.code || 'MEMBERSHIP_REQUIRED',
+            reason: entitlement.reason || 'FIRST_REQUEST_USED',
+            availablePlans: entitlement.availablePlans || ['select', 'private', 'reserve'],
+          },
+          { status: 402 }
+        );
+      }
+
+      isFreeRequest = entitlement.isFreeRequest;
+      if (isFreeRequest) {
+        void trackEvent({
+          event: 'first_request_created' as any,
+          userId: user.id,
+          properties: { rawInputLength: rawInput?.length },
+        });
+      }
+    }
+
     // Synchronous execution path (for tests or callers requesting instant option generation)
     if (sync === true || taskId) {
       const result = await RequestOrchestrator.processRequest({
@@ -93,6 +128,11 @@ export async function POST(req: NextRequest) {
         existingTaskId: taskId,
         urgency,
       });
+
+      if (!taskId && isFreeRequest && result?.task?.id) {
+        await attachFreeRequestTaskId(customerProfile.id, result.task.id);
+      }
+
       return NextResponse.json(result, { status: 201 });
     }
 
@@ -105,6 +145,10 @@ export async function POST(req: NextRequest) {
       customerId: customerProfile.id,
       urgency,
     });
+
+    if (isFreeRequest && initialTask?.id) {
+      await attachFreeRequestTaskId(customerProfile.id, initialTask.id);
+    }
 
     // Detached background refinement
     RequestOrchestrator.processRequest({

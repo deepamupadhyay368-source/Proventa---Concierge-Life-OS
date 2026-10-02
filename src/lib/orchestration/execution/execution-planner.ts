@@ -35,6 +35,20 @@ export class ExecutionPlanner {
     const toolName = capability?.toolName || 'GenericConciergeTool';
     const executionMethod = capability?.executionMethod || 'ASSISTED_CONCIERGE';
 
+    const isTrueAutonomous = Boolean(
+      capability?.actuallyExecutableInProduction &&
+      capability?.supportsAutomatedExecution &&
+      !approvedOption.isMock &&
+      approvedOption.environment !== 'MOCK' &&
+      approvedOption.environment !== 'SANDBOX'
+    );
+
+    const executionTier: 'LEVEL_1_TRUE_AUTONOMOUS' | 'LEVEL_2_ASSISTED' | 'LEVEL_3_HUMAN_CONCIERGE' = isTrueAutonomous
+      ? 'LEVEL_1_TRUE_AUTONOMOUS'
+      : capability?.supportsAssistedExecution || approvedOption.bookingMethod === 'PHONE'
+      ? 'LEVEL_2_ASSISTED'
+      : 'LEVEL_3_HUMAN_CONCIERGE';
+
     // 2. Check Upfront Payment Requirement
     const paymentRequired = PaymentAutomationEngine.requiresUpfrontPayment({
       category,
@@ -82,6 +96,7 @@ export class ExecutionPlanner {
       currency,
       paymentRequired,
       executionMethod,
+      executionTier,
       toolName,
       idempotencyKey,
       lockedAt: new Date().toISOString(),

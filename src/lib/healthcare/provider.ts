@@ -74,7 +74,10 @@ export class HealthcareDiscoveryProvider {
 
     // 2. Parse & Resolve Search Intent and Constraints
     const resolvedSpecialty = query.specialty || this.resolveSpecialty(rawInput);
-    const resolvedCity = query.city || this.resolveCity(rawInput) || 'Ahmedabad';
+    const resolvedLocality = query.locality || this.resolveLocality(rawInput);
+    const explicitCityInRaw = this.resolveCity(rawInput);
+    const inferredCityFromLocality = resolvedLocality ? this.inferCityFromLocality(resolvedLocality) : undefined;
+    const resolvedCity = explicitCityInRaw || query.city || inferredCityFromLocality || 'Ahmedabad';
     const resolvedHospital = query.hospital || this.resolveHospital(rawInput);
     const resolvedDoctorName = query.doctorName || this.resolveDoctorName(rawInput);
     const resolvedGender = query.gender || this.resolveGender(rawInput);
@@ -84,6 +87,7 @@ export class HealthcareDiscoveryProvider {
     const mergedConstraints: HealthcareSearchConstraints = {
       ...query,
       city: resolvedCity,
+      locality: resolvedLocality,
       specialty: resolvedSpecialty,
       hospital: resolvedHospital,
       doctorName: resolvedDoctorName,
@@ -159,6 +163,7 @@ export class HealthcareDiscoveryProvider {
       researchStartedAt: startedAt,
       rawInput,
       resolvedCity,
+      resolvedLocality,
       resolvedSpecialty,
       resolvedHospital,
       resolvedDoctorName,
@@ -241,7 +246,16 @@ export class HealthcareDiscoveryProvider {
     if (raw.includes('nutrition') || raw.includes('dietitian') || raw.includes('diet plan')) {
       return 'NUTRITION';
     }
-    if (raw.includes('general physician') || raw.includes('family doctor') || raw.includes('general doctor') || /\bfever\b/i.test(raw) || /\bcold\b/i.test(raw) || /\bcough\b/i.test(raw) || raw.includes('checkup') || raw.includes('health checkup')) {
+    if (
+      raw.includes('general physician') ||
+      raw.includes('family doctor') ||
+      raw.includes('general practitioner') ||
+      /\bfever\b/i.test(raw) ||
+      /\bcold\b/i.test(raw) ||
+      /\bcough\b/i.test(raw) ||
+      raw.includes('general checkup') ||
+      raw.includes('health checkup')
+    ) {
       return 'GENERAL_PHYSICIAN';
     }
 
@@ -252,12 +266,115 @@ export class HealthcareDiscoveryProvider {
     const raw = (text || '').toLowerCase();
     if (raw.includes('ahmedabad') || raw.includes('amdavad')) return 'Ahmedabad';
     if (raw.includes('mumbai') || raw.includes('bombay')) return 'Mumbai';
-    if (raw.includes('delhi') || raw.includes('new delhi') || raw.includes('ncr')) return 'Delhi';
+    if (raw.includes('delhi') || raw.includes('new delhi') || raw.includes('ncr') || raw.includes('gurgaon') || raw.includes('noida')) return 'Delhi';
     if (raw.includes('bangalore') || raw.includes('bengaluru')) return 'Bengaluru';
     if (raw.includes('pune')) return 'Pune';
     if (raw.includes('hyderabad')) return 'Hyderabad';
     if (raw.includes('chennai') || raw.includes('madras')) return 'Chennai';
     if (raw.includes('kolkata') || raw.includes('calcutta')) return 'Kolkata';
+    return undefined;
+  }
+
+  resolveLocality(text: string): string | undefined {
+    const raw = (text || '').toLowerCase();
+
+    // Ahmedabad Localities
+    if (raw.includes('science city road') || raw.includes('science city')) return 'Science City Road';
+    if (raw.includes('prahlad nagar') || raw.includes('prahladnagar')) return 'Prahlad Nagar';
+    if (raw.includes('sg highway') || raw.includes('s.g. highway') || raw.includes('sarkhej gandhinagar')) return 'SG Highway';
+    if (raw.includes('navrangpura')) return 'Navrangpura';
+    if (raw.includes('bodakdev')) return 'Bodakdev';
+    if (raw.includes('satellite')) return 'Satellite';
+    if (raw.includes('vastrapur')) return 'Vastrapur';
+    if (raw.includes('thaltej')) return 'Thaltej';
+    if (raw.includes('bhat')) return 'Bhat';
+    if (raw.includes('sola')) return 'Sola';
+    if (raw.includes('paldi')) return 'Paldi';
+    if (raw.includes('ellis bridge') || raw.includes('ellisbridge')) return 'Ellis Bridge';
+    if (raw.includes('maninagar')) return 'Maninagar';
+    if (raw.includes('ambawadi')) return 'Ambawadi';
+    if (raw.includes('ashram road')) return 'Ashram Road';
+    if (raw.includes('cg road') || raw.includes('c.g. road')) return 'CG Road';
+    if (raw.includes('bopal')) return 'Bopal';
+    if (raw.includes('shela')) return 'Shela';
+    if (raw.includes('gota')) return 'Gota';
+    if (raw.includes('naranpura')) return 'Naranpura';
+    if (raw.includes('memnagar')) return 'Memnagar';
+    if (raw.includes('chandkheda')) return 'Chandkheda';
+
+    // Mumbai Localities
+    if (raw.includes('bandra')) return 'Bandra';
+    if (raw.includes('south mumbai')) return 'South Mumbai';
+    if (raw.includes('parel') || raw.includes('lower parel')) return 'Parel';
+    if (raw.includes('andheri')) return 'Andheri';
+    if (raw.includes('worli')) return 'Worli';
+    if (raw.includes('juhu')) return 'Juhu';
+    if (raw.includes('haji ali')) return 'Haji Ali';
+    if (raw.includes('colaba')) return 'Colaba';
+    if (raw.includes('dadar')) return 'Dadar';
+    if (raw.includes('santacruz')) return 'Santacruz';
+    if (raw.includes('chembur')) return 'Chembur';
+    if (raw.includes('powai')) return 'Powai';
+    if (raw.includes('malabar hill')) return 'Malabar Hill';
+    if (raw.includes('breach candy')) return 'Breach Candy';
+
+    // Delhi Localities
+    if (raw.includes('okhla')) return 'Okhla';
+    if (raw.includes('saket')) return 'Saket';
+    if (raw.includes('pusa road')) return 'Pusa Road';
+    if (raw.includes('chanakyapuri')) return 'Chanakyapuri';
+    if (raw.includes('vasant kunj')) return 'Vasant Kunj';
+    if (raw.includes('dwarka')) return 'Dwarka';
+    if (raw.includes('south extension')) return 'South Extension';
+    if (raw.includes('karol bagh')) return 'Karol Bagh';
+    if (raw.includes('connaught place')) return 'Connaught Place';
+    if (raw.includes('rohini')) return 'Rohini';
+
+    // Bengaluru Localities
+    if (raw.includes('bannerghatta road') || raw.includes('bannerghatta')) return 'Bannerghatta Road';
+    if (raw.includes('whitefield')) return 'Whitefield';
+    if (raw.includes('indiranagar')) return 'Indiranagar';
+    if (raw.includes('koramangala')) return 'Koramangala';
+    if (raw.includes('jayanagar')) return 'Jayanagar';
+    if (raw.includes('hebbal')) return 'Hebbal';
+    if (raw.includes('marathahalli')) return 'Marathahalli';
+    if (raw.includes('electronic city')) return 'Electronic City';
+    if (raw.includes('malleshwaram')) return 'Malleshwaram';
+    if (raw.includes('richmond town')) return 'Richmond Town';
+    if (raw.includes('sadashivanagar')) return 'Sadashivanagar';
+
+    return undefined;
+  }
+
+  inferCityFromLocality(locality: string): string | undefined {
+    const loc = locality.toLowerCase();
+    const ahmedabadLocalities = [
+      'science city road', 'science city', 'prahlad nagar', 'sg highway', 's.g. highway',
+      'navrangpura', 'bodakdev', 'satellite', 'vastrapur', 'thaltej', 'bhat', 'sola',
+      'paldi', 'ellis bridge', 'maninagar', 'ambawadi', 'ashram road', 'cg road',
+      'bopal', 'shela', 'gota', 'naranpura', 'memnagar', 'chandkheda',
+    ];
+    if (ahmedabadLocalities.some((l) => loc.includes(l))) return 'Ahmedabad';
+
+    const mumbaiLocalities = [
+      'bandra', 'south mumbai', 'parel', 'lower parel', 'andheri', 'worli', 'juhu',
+      'haji ali', 'colaba', 'dadar', 'santacruz', 'chembur', 'powai', 'malabar hill', 'breach candy',
+    ];
+    if (mumbaiLocalities.some((l) => loc.includes(l))) return 'Mumbai';
+
+    const delhiLocalities = [
+      'okhla', 'saket', 'pusa road', 'chanakyapuri', 'vasant kunj', 'dwarka',
+      'south extension', 'karol bagh', 'connaught place', 'rohini',
+    ];
+    if (delhiLocalities.some((l) => loc.includes(l))) return 'Delhi';
+
+    const bengaluruLocalities = [
+      'bannerghatta road', 'bannerghatta', 'whitefield', 'indiranagar', 'koramangala',
+      'jayanagar', 'hebbal', 'marathahalli', 'electronic city', 'malleshwaram',
+      'richmond town', 'sadashivanagar',
+    ];
+    if (bengaluruLocalities.some((l) => loc.includes(l))) return 'Bengaluru';
+
     return undefined;
   }
 

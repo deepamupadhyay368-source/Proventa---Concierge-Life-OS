@@ -39,13 +39,44 @@ export class RequestOrchestrator {
 
     const lower = rawInput.toLowerCase();
     let category = 'bespoke_requests';
-    if (lower.includes('flight') || lower.includes('fly') || lower.includes('airline') || lower.includes('airport')) category = 'travel';
-    else if (lower.includes('dine') || lower.includes('dinner') || lower.includes('lunch') || lower.includes('restaurant') || lower.includes('table')) category = 'dining';
-    else if (lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('villa') || lower.includes('suite')) category = 'hotels_accommodation';
-    else if (lower.includes('cab') || lower.includes('chauffeur') || lower.includes('car') || lower.includes('transfer')) category = 'mobility_transport';
-    else if (lower.includes('gift') || lower.includes('flower') || lower.includes('present')) category = 'gifts_shopping';
-    else if (lower.includes('event') || lower.includes('concert') || lower.includes('ticket') || lower.includes('show')) category = 'events_experiences';
-    else if (lower.includes('spa') || lower.includes('salon') || lower.includes('massage') || lower.includes('wellness') || lower.includes('doctor')) category = 'health_wellness';
+    if (
+      lower.includes('doctor') ||
+      lower.includes('cardiolog') ||
+      lower.includes('cardiac') ||
+      lower.includes('dermatolog') ||
+      lower.includes('dentist') ||
+      lower.includes('dental') ||
+      lower.includes('pediatric') ||
+      lower.includes('paediatric') ||
+      lower.includes('orthopedic') ||
+      lower.includes('orthopaedic') ||
+      lower.includes('gynecolog') ||
+      lower.includes('gynaecolog') ||
+      lower.includes('neurolog') ||
+      lower.includes('psychiatr') ||
+      lower.includes('clinic') ||
+      lower.includes('hospital') ||
+      lower.includes('appointment') ||
+      lower.includes('physician') ||
+      lower.includes('health') ||
+      lower.includes('wellness') ||
+      lower.includes('spa') ||
+      lower.includes('salon')
+    ) {
+      category = 'health_wellness';
+    } else if (lower.includes('flight') || lower.includes('fly') || lower.includes('airline') || lower.includes('airport')) {
+      category = 'travel';
+    } else if (lower.includes('dine') || lower.includes('dinner') || lower.includes('lunch') || lower.includes('restaurant') || lower.includes('table')) {
+      category = 'dining';
+    } else if (lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('villa') || lower.includes('suite')) {
+      category = 'hotels_accommodation';
+    } else if (/\b(?:cabs?|sedan|chauffeur|pickup|airport transfer|taxi|driver|cars?|rental car)\b/i.test(rawInput)) {
+      category = 'mobility_transport';
+    } else if (lower.includes('gift') || lower.includes('flower') || lower.includes('present')) {
+      category = 'gifts_shopping';
+    } else if (lower.includes('event') || lower.includes('concert') || lower.includes('ticket') || lower.includes('show')) {
+      category = 'events_experiences';
+    }
 
     const executionResolution = ExecutionRouter.resolveExecutionMode({
       rawInput,
@@ -1544,17 +1575,22 @@ export class RequestOrchestrator {
 
     const activeBatch = batchHistory.find((b) => b.status === 'ACTIVE') || batchHistory[batchHistory.length - 1];
 
-    // Build context entities
+    // Build context entities with comprehensive fallbacks
+    const taskAny = task as any;
+    const extractedFromRaw = (!preparedContext.destination && !taskAny.destination && !currentPrefs.destination)
+      ? EntityIntegrityValidator.extractTravelEntities(params.newRawInput || task.originalRequest)
+      : null;
+
     const entities: ExtractedEntities = {
       intent: task.intent,
       category,
       rawInput: params.newRawInput || task.originalRequest,
-      origin: params.newConstraints?.origin || preparedContext.origin,
-      originAirport: params.newConstraints?.originAirport || preparedContext.originAirport,
-      destination: params.newConstraints?.destination || preparedContext.destination,
-      destinationAirport: params.newConstraints?.destinationAirport || preparedContext.destinationAirport,
-      location: params.newConstraints?.location || preparedContext.location || preparedContext.destination,
-      partySize: params.newConstraints?.partySize || preparedContext.partySize,
+      origin: params.newConstraints?.origin || preparedContext.origin || currentPrefs.origin || taskAny.origin || (extractedFromRaw?.originCity),
+      originAirport: params.newConstraints?.originAirport || preparedContext.originAirport || currentPrefs.originAirport || taskAny.originAirport || (extractedFromRaw?.originAirportCode),
+      destination: params.newConstraints?.destination || preparedContext.destination || currentPrefs.destination || taskAny.destination || (extractedFromRaw?.destinationCity),
+      destinationAirport: params.newConstraints?.destinationAirport || preparedContext.destinationAirport || currentPrefs.destinationAirport || taskAny.destinationAirport || (extractedFromRaw?.destinationAirportCode),
+      location: params.newConstraints?.location || preparedContext.location || currentPrefs.location || taskAny.location || preparedContext.destination || currentPrefs.destination || taskAny.destination || (extractedFromRaw?.destinationCity),
+      partySize: params.newConstraints?.partySize || preparedContext.partySize || currentPrefs.partySize || taskAny.partySize,
       budgetAmount: params.newConstraints?.budgetAmount || task.budgetAmount || undefined,
       budgetRange: params.newConstraints?.budgetRange || undefined,
       urgency: task.priority,

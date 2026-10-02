@@ -13,7 +13,6 @@ export function TaskOperatorActions({
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<string | null>(null);
 
   const handleUpdate = async (newStatus: string) => {
     setLoading(true);
@@ -24,7 +23,6 @@ export function TaskOperatorActions({
         body: JSON.stringify({ taskId, status: newStatus }),
       });
       if (res.ok) {
-        setSelectedAction(null);
         router.refresh();
       } else {
         alert('Failed to update task status.');
@@ -42,9 +40,9 @@ export function TaskOperatorActions({
         <button
           onClick={() => handleUpdate('COMPLETED')}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-950/60 border border-emerald-800/60 hover:bg-emerald-900/50 text-xs font-mono text-emerald-300 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-xs font-mono text-emerald-700 font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
         >
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
           <span>Mark Completed</span>
         </button>
       )}
@@ -53,9 +51,9 @@ export function TaskOperatorActions({
         <button
           onClick={() => handleUpdate('NEEDS_HUMAN')}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-950/60 border border-purple-800/60 hover:bg-purple-900/50 text-xs font-mono text-purple-300 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 hover:bg-purple-100 text-xs font-mono text-purple-700 font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
         >
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <AlertTriangle className="w-3.5 h-3.5 text-purple-600" />}
           <span>Escalate</span>
         </button>
       )}
@@ -64,9 +62,9 @@ export function TaskOperatorActions({
         <button
           onClick={() => handleUpdate('CANCELLED')}
           disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-950/40 border border-red-900/50 hover:bg-red-900/50 text-xs font-mono text-red-400 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 hover:bg-red-100 text-xs font-mono text-red-700 font-medium transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
         >
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5 text-red-600" />}
           <span>Cancel</span>
         </button>
       )}

@@ -23,35 +23,35 @@ export function FinalCTASection() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/wave1"
+            href="/dashboard"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white hover:bg-[#F7F8FA] text-[#1F2933] font-semibold text-xs uppercase tracking-wider rounded-lg transition-all shadow-sm"
           >
-            <span>Apply for Cohort 1 Access</span>
+            <span>Try Your First Request</span>
             <ArrowRight className="h-3.5 w-3.5 text-[#1F2933]" />
           </Link>
 
           <Link
-            href="/how-it-works"
+            href="/membership"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-[#485460] bg-[#111820]/60 hover:bg-[#111820] text-white font-medium text-xs uppercase tracking-wider rounded-lg transition-all"
           >
-            <span>The Operating Model</span>
+            <span>Explore Memberships</span>
           </Link>
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-[#A7B0B8]">
           <div className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-white" />
-            <span>Complimentary Concierge Access in Cohort 1</span>
+            <span>Your First Request Is on Us</span>
           </div>
           <span className="text-[#485460]">&bull;</span>
           <div className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-white" />
-            <span>Pay Only for Verified Bookings</span>
+            <span>Experience Proventa Before Subscribing</span>
           </div>
           <span className="text-[#485460]">&bull;</span>
           <div className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-white" />
-            <span>Dedicated Personal Concierges</span>
+            <span>Dedicated Human Concierge Team</span>
           </div>
         </div>
       </div>

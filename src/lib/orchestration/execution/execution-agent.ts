@@ -106,6 +106,14 @@ export class AIExecutionAgent {
 
     await appendTaskEvent({
       taskId,
+      eventType: 'AUTONOMOUS_EXECUTION_STARTED',
+      actorRole: 'AI_AGENT',
+      message: `Autonomous execution initiated for "${option.title}". Planned provider: ${executionPlan.providerName} (Tier: ${executionPlan.executionTier}).`,
+      data: { plan: executionPlan, tier: executionPlan.executionTier },
+    });
+
+    await appendTaskEvent({
+      taskId,
       eventType: 'EXECUTION_PLANNED',
       actorRole: 'AI_AGENT',
       message: `Execution planned for "${option.title}" with provider ${executionPlan.providerName}.`,
@@ -116,17 +124,18 @@ export class AIExecutionAgent {
     const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
     if (
       existingPrefs.executionIdempotencyKey === executionPlan.idempotencyKey &&
-      taskRecord.status === 'COMPLETED' &&
+      (taskRecord.status === 'COMPLETED' || taskRecord.status === 'CONFIRMED') &&
       taskRecord.externalReferenceId
     ) {
       logger.info({ taskId, idempotencyKey: executionPlan.idempotencyKey }, '[AIExecutionAgent] Returning existing idempotent execution result');
       return {
         success: true,
-        status: 'COMPLETED',
+        status: (taskRecord.status as TaskStatus),
         executionPlan,
+        executionTier: executionPlan.executionTier,
         confirmationReference: taskRecord.externalReferenceId,
         handedToConcierge: false,
-        message: 'Execution already confirmed.',
+        message: `Done. Your reservation with ${option.providerName} is confirmed. Reference: ${taskRecord.externalReferenceId}`,
         task: taskRecord,
       };
     }
@@ -139,12 +148,31 @@ export class AIExecutionAgent {
     });
 
     if (!constraintResult.passed) {
+      const failureReason = constraintResult.reason || 'Pre-execution constraint validation mismatch.';
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AUTONOMOUS_EXECUTION_GUARD_FAILED',
+        actorRole: 'SYSTEM',
+        message: failureReason,
+        data: { reason: failureReason, gate: constraintResult.gateName },
+      });
+
       await appendTaskEvent({
         taskId,
         eventType: 'INTENT_CONSTRAINT_MISMATCH',
         actorRole: 'SYSTEM',
-        message: constraintResult.reason || 'Pre-execution constraint validation mismatch.',
-        data: { reason: constraintResult.reason },
+        message: failureReason,
+        data: { reason: failureReason },
+      });
+
+      const handoffSummary = AIExecutionAgent.generateHandoffSummary({
+        taskRecord,
+        option,
+        executionPlan,
+        failureCategory: 'AUTONOMOUS_EXECUTION_GUARD_FAILED',
+        failureReason,
+        executionTier: 'LEVEL_3_HUMAN_CONCIERGE',
+        attemptCount: 0,
       });
 
       validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
@@ -154,23 +182,45 @@ export class AIExecutionAgent {
           status: 'NEEDS_HUMAN',
           isEscalated: true,
           executionMethod: 'HUMAN_CONCIERGE',
-          failedReason: constraintResult.reason,
+          failedReason: failureReason,
+          clientPreferences: {
+            ...existingPrefs,
+            handoffSummary,
+          } as any,
         },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AUTONOMOUS_ESCALATED_TO_CONCIERGE',
+        actorRole: 'SYSTEM',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        data: { reason: failureReason, tier: 'LEVEL_3_HUMAN_CONCIERGE' },
       });
 
       return {
         success: false,
         status: 'NEEDS_HUMAN',
         executionPlan,
+        executionTier: 'LEVEL_3_HUMAN_CONCIERGE',
+        handoffSummary,
         handedToConcierge: true,
-        failureCategory: 'CONSTRAINT_MISMATCH',
-        message: constraintResult.reason || 'Constraint check failed. Handed to Proventa Concierge.',
+        failureCategory: 'AUTONOMOUS_EXECUTION_GUARD_FAILED',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
         task: escalatedTask,
       };
     }
 
     // 6. Tool Selection & Capability Resolution
     const tool = ExecutionToolRegistry.resolveTool(executionPlan.providerId, executionPlan.toolName);
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'AUTONOMOUS_TOOL_SELECTED',
+      actorRole: 'AI_AGENT',
+      message: `Selected autonomous tool: ${tool.toolName} (Provider: ${tool.providerId}, Capability: ${tool.capabilityStatus}, Environment: ${tool.environment}).`,
+      data: { toolName: tool.toolName, providerId: tool.providerId, capabilityStatus: tool.capabilityStatus, environment: tool.environment },
+    });
 
     await appendTaskEvent({
       taskId,
@@ -181,7 +231,19 @@ export class AIExecutionAgent {
     });
 
     // If provider is MOCK or automated execution is disallowed, escalate immediately to Human Concierge
-    if (!ExecutionCapabilityRegistry.isAutomatedExecutionAllowed(tool.providerId) || option.isMock || option.environment === 'MOCK') {
+    if (!ExecutionCapabilityRegistry.isAutomatedExecutionAllowed(tool.providerId) || option.isMock || option.environment === 'MOCK' || tool.environment === 'MOCK' || tool.capabilityStatus === 'CONFIGURED_BUT_UNVERIFIED' || tool.capabilityStatus === 'NOT_CONFIGURED') {
+      const reason = `Provider ${tool.providerId} has capability status ${tool.capabilityStatus} (${tool.environment}); autonomous live execution prohibited. Escaped to Senior Concierge Desk.`;
+      
+      const handoffSummary = AIExecutionAgent.generateHandoffSummary({
+        taskRecord,
+        option,
+        executionPlan,
+        failureCategory: 'PROVIDER_UNAVAILABLE',
+        failureReason: reason,
+        executionTier: 'LEVEL_3_HUMAN_CONCIERGE',
+        attemptCount: 0,
+      });
+
       validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
       const escalatedTask = await db.task.update({
         where: { id: taskId },
@@ -190,8 +252,20 @@ export class AIExecutionAgent {
           executionMethod: 'HUMAN_CONCIERGE',
           isEscalated: true,
           approvalStatus: 'APPROVED',
-          failedReason: `Provider ${tool.providerId} has capability status ${tool.capabilityStatus}; automated execution prohibited. Escaped to Human Concierge Desk.`,
+          failedReason: reason,
+          clientPreferences: {
+            ...existingPrefs,
+            handoffSummary,
+          } as any,
         },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AUTONOMOUS_ESCALATED_TO_CONCIERGE',
+        actorRole: 'SYSTEM',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        data: { providerId: tool.providerId, capabilityStatus: tool.capabilityStatus, reason },
       });
 
       await appendTaskEvent({
@@ -206,7 +280,9 @@ export class AIExecutionAgent {
         success: true,
         status: 'NEEDS_HUMAN',
         executionPlan,
+        executionTier: 'LEVEL_3_HUMAN_CONCIERGE',
         toolSelected: tool.toolName,
+        handoffSummary,
         handedToConcierge: true,
         failureCategory: 'PROVIDER_UNAVAILABLE',
         message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
@@ -231,6 +307,7 @@ export class AIExecutionAgent {
           success: true,
           status: (updatedTask?.status as TaskStatus) || 'APPROVED',
           executionPlan,
+          executionTier: executionPlan.executionTier,
           paymentRequired: true,
           paymentOrder: paymentResult.paymentOrder,
           handedToConcierge: false,
@@ -243,6 +320,14 @@ export class AIExecutionAgent {
       // Payment declined or failed
       await appendTaskEvent({
         taskId,
+        eventType: 'AUTONOMOUS_EXECUTION_FAILED',
+        actorRole: 'SYSTEM',
+        message: paymentResult.reason || 'Payment authorization declined.',
+        data: { reason: paymentResult.reason, code: paymentResult.errorCode },
+      });
+
+      await appendTaskEvent({
+        taskId,
         eventType: 'PAYMENT_FAILED',
         actorRole: 'SYSTEM',
         message: paymentResult.reason || 'Payment authorization declined.',
@@ -252,6 +337,7 @@ export class AIExecutionAgent {
         success: false,
         status: (taskRecord.status as TaskStatus) || 'APPROVED',
         executionPlan,
+        executionTier: executionPlan.executionTier,
         paymentRequired: true,
         handedToConcierge: false,
         failureCategory: 'PAYMENT_FAILURE',
@@ -310,7 +396,7 @@ export class AIExecutionAgent {
       message: `Executing reservation with ${option.providerName}...`,
     });
 
-    // 9. Tool Execution with Bounded Transient Retries
+    // 9. Tool Execution with Bounded Transient Retries & Verification on Uncertainty
     let toolResult: ExecutionToolResult | undefined;
     let attempt = 0;
     let lastError: any = null;
@@ -318,6 +404,14 @@ export class AIExecutionAgent {
     while (attempt < this.MAX_TRANSIENT_RETRIES) {
       attempt++;
       try {
+        await appendTaskEvent({
+          taskId,
+          eventType: 'AUTONOMOUS_PROVIDER_CALLED',
+          actorRole: 'AI_AGENT',
+          message: `Autonomous call dispatched to provider ${tool.providerId} (attempt ${attempt}/${this.MAX_TRANSIENT_RETRIES}).`,
+          data: { attempt, providerId: tool.providerId, idempotencyKey: executionPlan.idempotencyKey },
+        });
+
         await appendTaskEvent({
           taskId,
           eventType: 'PROVIDER_REQUEST_SENT',
@@ -335,6 +429,14 @@ export class AIExecutionAgent {
 
         await appendTaskEvent({
           taskId,
+          eventType: 'AUTONOMOUS_PROVIDER_RESPONSE',
+          actorRole: 'AI_AGENT',
+          message: `Received provider response from ${tool.providerId}. Status: ${toolResult.status}.`,
+          data: { status: toolResult.status, reference: toolResult.providerReference, environment: toolResult.environment },
+        });
+
+        await appendTaskEvent({
+          taskId,
           eventType: 'PROVIDER_RESPONSE_RECEIVED',
           actorRole: 'AI_AGENT',
           message: `Received provider response from ${tool.providerId}. Status: ${toolResult.status}`,
@@ -344,6 +446,23 @@ export class AIExecutionAgent {
         // If not a transient failure, break out of retry loop
         if (toolResult.success || toolResult.status === 'AWAITING_CONCIERGE_CALL') {
           break;
+        }
+
+        // Check if status was uncertain or timed out, but a reference or order might exist: verify before retrying!
+        if (toolResult.providerReference && typeof tool.verify === 'function') {
+          try {
+            const verificationCheck = await tool.verify(toolResult.providerReference);
+            if (verificationCheck.verified) {
+              toolResult = {
+                ...toolResult,
+                success: true,
+                status: 'CONFIRMED',
+              };
+              break;
+            }
+          } catch (vErr) {
+            logger.warn({ taskId, err: vErr }, '[AIExecutionAgent] Pre-retry verification check threw');
+          }
         }
 
         // Permanent failures (e.g. sold out, policy blocked) should not retry
@@ -377,6 +496,16 @@ export class AIExecutionAgent {
       toolResult.confirmedDetails?.status === 'AWAITING_CONCIERGE_CALL' ||
       option.bookingMethod === 'PHONE'
     ) {
+      const handoffSummary = AIExecutionAgent.generateHandoffSummary({
+        taskRecord,
+        option,
+        executionPlan,
+        failureCategory: undefined,
+        failureReason: undefined,
+        executionTier: 'LEVEL_2_ASSISTED',
+        attemptCount: attempt,
+      });
+
       validateTransition('EXECUTING', 'NEEDS_HUMAN');
       const escalatedTask = await db.task.update({
         where: { id: taskId },
@@ -391,10 +520,23 @@ export class AIExecutionAgent {
             ...existingPrefs,
             approvedOption: option as any,
             approvedAt: new Date().toISOString(),
-            executionTier: 'ASSISTED',
+            executionTier: 'LEVEL_2_ASSISTED',
+            handoffSummary,
             handoffMessage: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
             dispatchPayload: toolResult.confirmedDetails?.dispatchPayload || toolResult.confirmedDetails,
           } as any,
+        },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AUTONOMOUS_ESCALATED_TO_CONCIERGE',
+        actorRole: 'AI_AGENT',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        data: {
+          tier: 'LEVEL_2_ASSISTED',
+          providerId: toolResult.provider || option.providerId,
+          dispatchPayload: toolResult.confirmedDetails?.dispatchPayload || toolResult.confirmedDetails,
         },
       });
 
@@ -430,8 +572,10 @@ export class AIExecutionAgent {
         success: true,
         status: 'NEEDS_HUMAN',
         executionPlan,
+        executionTier: 'LEVEL_2_ASSISTED',
         toolSelected: tool.toolName,
         toolResult,
+        handoffSummary,
         handedToConcierge: true,
         message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
         task: escalatedTask,
@@ -439,6 +583,14 @@ export class AIExecutionAgent {
     }
 
     // 11. Deterministic Verification Gate
+    await appendTaskEvent({
+      taskId,
+      eventType: 'AUTONOMOUS_VERIFICATION_STARTED',
+      actorRole: 'SYSTEM',
+      message: `Starting deterministic verification for provider ${toolResult.provider} reference ${toolResult.providerReference || 'N/A'}.`,
+      data: { provider: toolResult.provider, reference: toolResult.providerReference },
+    });
+
     const verificationResult = DeterministicVerificationGate.evaluate({
       taskRecord,
       approvedOption: option,
@@ -452,6 +604,24 @@ export class AIExecutionAgent {
         '[AIExecutionAgent] Verification failed; escalating to Human Concierge'
       );
 
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AUTONOMOUS_EXECUTION_FAILED',
+        actorRole: 'SYSTEM',
+        message: `Autonomous execution failed during verification: ${verificationResult.reason}`,
+        data: { reason: verificationResult.reason, errorCode: verificationResult.errorCode },
+      });
+
+      const handoffSummary = AIExecutionAgent.generateHandoffSummary({
+        taskRecord,
+        option,
+        executionPlan,
+        failureCategory: verificationResult.errorCode as ExecutionFailureCategory,
+        failureReason: verificationResult.reason,
+        executionTier: 'LEVEL_3_HUMAN_CONCIERGE',
+        attemptCount: attempt,
+      });
+
       validateTransition('EXECUTING', 'NEEDS_HUMAN');
       const escalatedTask = await db.task.update({
         where: { id: taskId },
@@ -461,7 +631,19 @@ export class AIExecutionAgent {
           isEscalated: true,
           approvalStatus: 'APPROVED',
           failedReason: verificationResult.reason,
+          clientPreferences: {
+            ...existingPrefs,
+            handoffSummary,
+          } as any,
         },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'AUTONOMOUS_ESCALATED_TO_CONCIERGE',
+        actorRole: 'SYSTEM',
+        message: 'Your request is approved and has been handed to your Proventa Concierge for execution.',
+        data: { reason: verificationResult.reason, errorCode: verificationResult.errorCode, tier: 'LEVEL_3_HUMAN_CONCIERGE' },
       });
 
       await appendTaskEvent({
@@ -476,8 +658,10 @@ export class AIExecutionAgent {
         success: true,
         status: 'NEEDS_HUMAN',
         executionPlan,
+        executionTier: 'LEVEL_3_HUMAN_CONCIERGE',
         toolSelected: tool.toolName,
         toolResult,
+        handoffSummary,
         verificationPassed: false,
         handedToConcierge: true,
         failureCategory: verificationResult.errorCode as ExecutionFailureCategory,
@@ -513,6 +697,22 @@ export class AIExecutionAgent {
           },
         } as any,
       },
+    });
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'AUTONOMOUS_VERIFICATION_PASSED',
+      actorRole: 'SYSTEM',
+      message: `Deterministic verification passed for provider ${toolResult.provider}. Reference ${finalRef} is authentic.`,
+      data: { reference: finalRef, provider: toolResult.provider },
+    });
+
+    await appendTaskEvent({
+      taskId,
+      eventType: 'AUTONOMOUS_EXECUTION_CONFIRMED',
+      actorRole: 'AI_AGENT',
+      message: `Autonomous execution confirmed with provider ${option.providerName}. Reference: ${finalRef}`,
+      data: { provider: option.providerName, reference: finalRef },
     });
 
     await appendTaskEvent({
@@ -600,6 +800,7 @@ export class AIExecutionAgent {
       success: true,
       status: 'CONFIRMED',
       executionPlan,
+      executionTier: 'LEVEL_1_TRUE_AUTONOMOUS',
       toolSelected: tool.toolName,
       toolResult,
       verificationPassed: true,
@@ -609,4 +810,72 @@ export class AIExecutionAgent {
       task: confirmedTask,
     };
   }
+
+  /**
+   * Generates a structured AI handoff summary for human concierge execution.
+   */
+  public static generateHandoffSummary(params: {
+    taskRecord: any;
+    option: OptionProposal;
+    executionPlan: ExecutionPlan;
+    failureCategory?: ExecutionFailureCategory;
+    failureReason?: string;
+    executionTier: 'LEVEL_1_TRUE_AUTONOMOUS' | 'LEVEL_2_ASSISTED' | 'LEVEL_3_HUMAN_CONCIERGE';
+    attemptCount?: number;
+  }) {
+    const { taskRecord, option, executionPlan, failureCategory, failureReason, executionTier, attemptCount = 0 } = params;
+    const user = taskRecord?.customer?.user || {};
+    const extractedData = (taskRecord?.extractedData as Record<string, any>) || {};
+
+    return {
+      customer: {
+        id: taskRecord?.customerId || '',
+        name: user?.name || 'Proventa Member',
+        email: user?.email,
+        phone: user?.phone,
+        membershipTier: (taskRecord?.customer as any)?.membershipTier || 'SELECT',
+      },
+      request: {
+        taskId: taskRecord?.id || '',
+        publicId: taskRecord?.publicId || taskRecord?.id || '',
+        category: taskRecord?.category || 'TRAVEL',
+        originalRequest: taskRecord?.rawInput || '',
+        intent: taskRecord?.aiSummary || taskRecord?.rawInput || '',
+      },
+      approvedOption: {
+        id: option?.id || '',
+        title: option?.title || '',
+        providerName: option?.providerName || '',
+        priceAmount: option?.priceAmount || 0,
+        priceCurrency: option?.priceCurrency || 'INR',
+        priceFormatted: option?.priceFormatted || '₹0',
+        bookingMethod: option?.bookingMethod || 'API',
+      },
+      constraints: {
+        origin: extractedData.origin || extractedData.from || executionPlan?.origin,
+        destination: extractedData.destination || extractedData.to || executionPlan?.destination,
+        dates: extractedData.date || extractedData.departureDate || executionPlan?.date,
+        partySize: extractedData.passengers || extractedData.partySize || executionPlan?.partySize,
+        budget: extractedData.budget || taskRecord?.budgetAmount,
+        preferences: taskRecord?.clientPreferences,
+      },
+      executionDetails: {
+        provider: executionPlan?.providerName || option?.providerName || 'Unknown Provider',
+        executionAttemptCount: attemptCount,
+        executionTier,
+        failureCategory,
+        failureReason,
+        requiredNextAction:
+          executionTier === 'LEVEL_2_ASSISTED'
+            ? 'Complete assisted telephone or concierge reservation coordination with provider.'
+            : failureReason
+            ? `Review failure reason and complete booking manually: ${failureReason}`
+            : 'Complete bespoke offline concierge fulfillment.',
+        handedAt: new Date().toISOString(),
+      },
+    };
+  }
 }
+
+export { AIExecutionAgent as AutonomousExecutionAgent };
+

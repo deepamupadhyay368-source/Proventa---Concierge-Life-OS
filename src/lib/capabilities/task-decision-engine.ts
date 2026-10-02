@@ -161,7 +161,50 @@ export class TaskDecisionEngine {
     if (raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table for') || raw.includes('dining') || raw.includes('lunch') || raw.includes('agashiye')) {
       return 'DINING';
     }
-    if (raw.includes('cab') || raw.includes('sedan') || raw.includes('chauffeur') || raw.includes('pickup') || raw.includes('airport transfer') || raw.includes('car')) {
+    // Salon & Wellness Check
+    if (raw.includes('salon') || raw.includes('spa') || raw.includes('massage') || raw.includes('haircut') || raw.includes('wellness')) {
+      return 'SALON_WELLNESS';
+    }
+
+    // Healthcare & Medical Appointments Check (Before generic vehicle keywords)
+    if (
+      raw.includes('appointment') ||
+      raw.includes('doctor') ||
+      raw.includes('dentist') ||
+      raw.includes('dental') ||
+      raw.includes('consultation') ||
+      raw.includes('dermatolog') ||
+      raw.includes('cardiolog') ||
+      raw.includes('cardiac') ||
+      raw.includes('pediatric') ||
+      raw.includes('paediatric') ||
+      raw.includes('orthopedic') ||
+      raw.includes('orthopaedic') ||
+      raw.includes('gynecolog') ||
+      raw.includes('gynaecolog') ||
+      raw.includes('obstetric') ||
+      raw.includes('neurolog') ||
+      raw.includes('psychiatr') ||
+      raw.includes('endocrinolog') ||
+      raw.includes('gastroenterolog') ||
+      raw.includes('urolog') ||
+      raw.includes('nephrolog') ||
+      raw.includes('pulmonolog') ||
+      raw.includes('oncolog') ||
+      raw.includes('ophthalmolog') ||
+      /\bent\b/i.test(raw) ||
+      raw.includes('physician') ||
+      raw.includes('clinic') ||
+      raw.includes('hospital') ||
+      raw.includes('teleconsultation') ||
+      raw.includes('specialist')
+    ) {
+      return 'APPOINTMENTS';
+    }
+    if (
+      /\b(?:cabs?|sedan|chauffeur|pickup|airport transfer|taxi|driver)\b/i.test(raw) ||
+      /\b(?:cars?|rental car|hire a car)\b/i.test(raw)
+    ) {
       return 'TRANSPORT';
     }
     if (raw.includes('food delivery') || raw.includes('swiggy') || raw.includes('order dinner to') || raw.includes('delivery')) {
@@ -175,28 +218,6 @@ export class TaskDecisionEngine {
     }
     if (raw.includes('shop') || raw.includes('stole') || raw.includes('bandhej') || raw.includes('watch') || raw.includes('luxury buy') || raw.includes('procure')) {
       return 'SHOPPING';
-    }
-    if (raw.includes('salon') || raw.includes('spa') || raw.includes('massage') || raw.includes('haircut') || raw.includes('wellness')) {
-      return 'SALON_WELLNESS';
-    }
-    if (
-      raw.includes('appointment') ||
-      raw.includes('doctor') ||
-      raw.includes('dentist') ||
-      raw.includes('consultation') ||
-      raw.includes('dermatolog') ||
-      raw.includes('cardiolog') ||
-      raw.includes('pediatric') ||
-      raw.includes('paediatric') ||
-      raw.includes('orthopedic') ||
-      raw.includes('gynecolog') ||
-      raw.includes('physician') ||
-      raw.includes('clinic') ||
-      raw.includes('hospital') ||
-      raw.includes('teleconsultation') ||
-      raw.includes('specialist')
-    ) {
-      return 'APPOINTMENTS';
     }
     if (
       raw.includes('concert') ||

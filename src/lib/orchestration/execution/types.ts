@@ -20,12 +20,18 @@ export type ExecutionMethod =
   | 'DELIVERABLE_COMPLETION'
   | 'COMPOSITE_ORCHESTRATION';
 
+export type ExecutionTier =
+  | 'LEVEL_1_TRUE_AUTONOMOUS'
+  | 'LEVEL_2_ASSISTED'
+  | 'LEVEL_3_HUMAN_CONCIERGE';
+
 export type ExecutionFailureCategory =
   | 'TRANSIENT_FAILURE'
   | 'CUSTOMER_ACTION_REQUIRED'
   | 'PAYMENT_FAILURE'
   | 'PROVIDER_UNAVAILABLE'
   | 'CONSTRAINT_MISMATCH'
+  | 'AUTONOMOUS_EXECUTION_GUARD_FAILED'
   | 'UNSUPPORTED_EXECUTION'
   | 'VERIFICATION_FAILURE'
   | 'SYNTHETIC_EVIDENCE_REJECTED';
@@ -72,6 +78,7 @@ export interface ExecutionPlan {
   currency: string;
   paymentRequired: boolean;
   executionMethod: ExecutionMethod;
+  executionTier?: ExecutionTier;
   toolName: string;
   idempotencyKey: string;
   lockedAt: string;
@@ -104,12 +111,32 @@ export interface ExecutionToolResult {
 }
 
 export interface ExecutionToolInterface {
+  readonly toolId?: string;
   readonly toolName: string;
+  readonly category?: string;
   readonly providerId: string;
+  readonly provider?: string;
+  readonly capabilities?: {
+    search?: boolean;
+    availability?: boolean;
+    quote?: boolean;
+    execute?: boolean;
+    modify?: boolean;
+    cancel?: boolean;
+    verify?: boolean;
+  };
+  readonly requiredInputs?: string[];
+  readonly executionMethod?: ExecutionMethod;
+  readonly createsExternalSideEffect?: boolean;
+  readonly supportsProductionExecution?: boolean;
+  readonly verificationMethod?: string;
+  readonly cancellationPolicy?: string;
   readonly capabilityStatus: CapabilityExecutionStatus;
   readonly environment: 'REAL' | 'SANDBOX' | 'MOCK';
+  readonly authenticationStatus?: 'AUTHENTICATED' | 'UNAUTHENTICATED' | 'NOT_REQUIRED';
   execute(input: ExecutionToolInput): Promise<ExecutionToolResult>;
   verify?(reference: string): Promise<{ verified: boolean; status: string; auditTrail?: string }>;
+  cancel?(reference: string, reason?: string): Promise<{ success: boolean; cancellationRef?: string; message?: string }>;
 }
 
 export interface ExecutionGateResult {
@@ -120,15 +147,60 @@ export interface ExecutionGateResult {
   details?: Record<string, any>;
 }
 
+export interface AIHandoffSummary {
+  customer: {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+    membershipTier?: string;
+  };
+  request: {
+    taskId: string;
+    publicId: string;
+    category: string;
+    originalRequest: string;
+    intent: string;
+  };
+  approvedOption: {
+    id: string;
+    title: string;
+    providerName: string;
+    priceAmount: number;
+    priceCurrency: string;
+    priceFormatted: string;
+    bookingMethod?: string;
+  };
+  constraints: {
+    origin?: string;
+    destination?: string;
+    dates?: string;
+    partySize?: number;
+    budget?: string | number;
+    preferences?: Record<string, any>;
+  };
+  executionDetails: {
+    provider: string;
+    executionAttemptCount: number;
+    executionTier: ExecutionTier;
+    failureCategory?: ExecutionFailureCategory;
+    failureReason?: string;
+    requiredNextAction: string;
+    handedAt: string;
+  };
+}
+
 export interface ExecutionAgentOutput {
   success: boolean;
   status: TaskStatus;
   executionPlan?: ExecutionPlan;
+  executionTier?: ExecutionTier;
   toolSelected?: string;
   toolResult?: ExecutionToolResult;
   verificationPassed?: boolean;
   confirmationReference?: string;
   handedToConcierge: boolean;
+  handoffSummary?: AIHandoffSummary;
   paymentRequired?: boolean;
   paymentOrder?: any;
   failureCategory?: ExecutionFailureCategory;

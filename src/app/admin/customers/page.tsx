@@ -27,7 +27,6 @@ export default async function AdminCustomersPage({
 }) {
   await requireAdmin();
 
-
   const query = searchParams?.q?.toLowerCase()?.trim();
   const statusFilter = searchParams?.status;
   const cityFilter = searchParams?.city;
@@ -86,54 +85,54 @@ export default async function AdminCustomersPage({
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#23201c] pb-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#E1E5E8] pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest bg-[#26211b] text-[#c8b99d] px-2.5 py-0.5 rounded border border-[#3e352b]">
+            <span className="text-[10px] font-mono uppercase tracking-widest bg-[#F1F3F5] text-[#1F2933] px-2.5 py-0.5 rounded border border-[#E1E5E8] font-medium">
               Sovereign Customer Vault
             </span>
-            <span className="text-xs text-[#736f68] font-mono">
+            <span className="text-xs text-[#66717C] font-mono">
               DPDP Act 2023 Compliant · Direct Founder Telemetry
             </span>
           </div>
-          <h1 className="text-3xl font-serif font-medium text-[#f5f3ef] mt-2">
+          <h1 className="text-3xl font-serif font-medium text-[#111820] mt-2">
             Customer Directory &amp; Intelligence
           </h1>
-          <p className="text-xs text-[#928f88] mt-1 max-w-2xl">
+          <p className="text-xs text-[#66717C] mt-1 max-w-2xl">
             Audit customer accounts, explicit taste preferences, request volumes, and active bookings.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="px-3.5 py-2 rounded-xl bg-[#141210] border border-[#23201c] text-xs font-mono text-[#c8b99d]">
-            Total Records: <span className="font-bold text-[#f5f3ef]">{totalCount}</span>
+          <div className="px-3.5 py-2 rounded-xl bg-white border border-[#E1E5E8] text-xs font-mono text-[#1F2933] shadow-xs">
+            Total Records: <span className="font-bold text-[#111820]">{totalCount}</span>
           </div>
         </div>
       </div>
 
       {/* Filters Bar */}
-      <div className="p-4 rounded-2xl bg-[#141210] border border-[#23201c] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 rounded-2xl bg-white border border-[#E1E5E8] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
         <form method="GET" action="/admin/customers" className="flex-1 flex items-center gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#736f68] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-[#66717C] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               name="q"
               defaultValue={searchParams?.q || ''}
               placeholder="Search by customer name, email, or telephone..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#0e0d0c] border border-[#23201c] text-xs text-[#f5f3ef] placeholder-[#524e47] focus:outline-none focus:border-[#9c8260] transition-colors"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] text-xs text-[#111820] placeholder-[#66717C] focus:bg-white focus:outline-hidden focus:border-[#1F2933] transition-colors"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 rounded-xl bg-[#26211b] border border-[#3e352b] hover:bg-[#322c24] text-xs font-medium text-[#f5f3ef] transition-colors"
+            className="px-4 py-2 rounded-xl bg-[#1F2933] hover:bg-[#111820] text-xs font-medium text-white transition-colors cursor-pointer shadow-xs"
           >
             Filter
           </button>
           {(query || statusFilter || cityFilter) && (
             <Link
               href="/admin/customers"
-              className="px-3 py-2 text-xs text-[#736f68] hover:text-[#c8b99d] transition-colors font-mono"
+              className="px-3 py-2 text-xs text-[#66717C] hover:text-[#111820] transition-colors font-mono"
             >
               Reset
             </Link>
@@ -155,8 +154,8 @@ export default async function AdminCustomersPage({
                 href={`/admin/customers?${queryParams.toString()}`}
                 className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-colors ${
                   isCurrent
-                    ? 'bg-[#2a241e] text-[#c8b99d] border border-[#3d342a]'
-                    : 'text-[#736f68] hover:text-[#f5f3ef] hover:bg-[#1a1714]'
+                    ? 'bg-[#1F2933] text-white font-medium shadow-xs'
+                    : 'text-[#66717C] hover:text-[#111820] hover:bg-[#F7F8FA]'
                 }`}
               >
                 {st}
@@ -167,14 +166,14 @@ export default async function AdminCustomersPage({
       </div>
 
       {/* Customer Directory Ledger */}
-      <div className="bg-[#141210] border border-[#23201c] rounded-2xl overflow-hidden shadow-md">
+      <div className="bg-white border border-[#E1E5E8] rounded-2xl overflow-hidden shadow-xs">
         {customers.length === 0 ? (
           <div className="p-12 text-center space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#1a1714] border border-[#282420] text-[#736f68] flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-2xl bg-[#F7F8FA] border border-[#E1E5E8] text-[#66717C] flex items-center justify-center mx-auto">
               <Users className="w-6 h-6" />
             </div>
-            <div className="text-sm font-medium text-[#f5f3ef]">No customer records located</div>
-            <p className="text-xs text-[#736f68] max-w-sm mx-auto">
+            <div className="text-sm font-medium text-[#111820]">No customer records located</div>
+            <p className="text-xs text-[#66717C] max-w-sm mx-auto">
               No customer profile matched your search query. Try clearing filters or inspecting the Wave 1 waitlist.
             </p>
           </div>
@@ -182,40 +181,42 @@ export default async function AdminCustomersPage({
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-[#23201c] bg-[#100f0d] text-[#736f68] font-mono uppercase text-[10px]">
-                  <th className="py-3 px-4 font-normal">Customer</th>
-                  <th className="py-3 px-4 font-normal">Plan</th>
-                  <th className="py-3 px-4 font-normal">Contact</th>
-                  <th className="py-3 px-4 font-normal">Location</th>
-                  <th className="py-3 px-4 font-normal text-center">Requests</th>
-                  <th className="py-3 px-4 font-normal text-center">Bookings</th>
-                  <th className="py-3 px-4 font-normal">Status</th>
-                  <th className="py-3 px-4 font-normal">Registered</th>
-                  <th className="py-3 px-4 font-normal text-right">Actions</th>
+                <tr className="border-b border-[#E1E5E8] bg-[#F7F8FA] text-[#66717C] font-mono uppercase text-[10px]">
+                  <th className="py-3 px-4 font-medium">Customer</th>
+                  <th className="py-3 px-4 font-medium">Plan</th>
+                  <th className="py-3 px-4 font-medium">Entitlement</th>
+                  <th className="py-3 px-4 font-medium">Contact</th>
+                  <th className="py-3 px-4 font-medium">Location</th>
+                  <th className="py-3 px-4 font-medium text-center">Requests</th>
+                  <th className="py-3 px-4 font-medium text-center">Bookings</th>
+                  <th className="py-3 px-4 font-medium">Status</th>
+                  <th className="py-3 px-4 font-medium">Registered</th>
+                  <th className="py-3 px-4 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#1c1916]">
+              <tbody className="divide-y divide-[#E1E5E8]">
                 {customers.map((c) => {
                   const user = c.user;
                   const isVip = user.userRoles?.some((r) => r.role === 'SUPER_ADMIN' || r.role === 'ADMIN');
                   const plan = c.membershipPlan || 'SELECT';
+                  const hasActiveMembership = c.membershipStatus === 'ACTIVE';
                   return (
-                    <tr key={c.id} className="hover:bg-[#181614] transition-colors group">
+                    <tr key={c.id} className="hover:bg-[#F7F8FA]/60 transition-colors group">
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-[#1f1b17] border border-[#352f27] flex items-center justify-center font-serif font-bold text-[#c8b99d]">
+                          <div className="w-8 h-8 rounded-lg bg-[#F1F3F5] border border-[#E1E5E8] flex items-center justify-center font-serif font-bold text-[#1F2933]">
                             {user.name ? user.name.charAt(0) : 'C'}
                           </div>
                           <div>
-                            <div className="font-medium text-[#f5f3ef] flex items-center gap-1.5">
+                            <div className="font-medium text-[#111820] flex items-center gap-1.5">
                               <span>{user.name || 'Private Member'}</span>
                               {isVip && (
-                                <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#2a241e] text-[#c8b99d] border border-[#3d342a]">
+                                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
                                   STAFF
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-[#736f68] font-mono">{user.id.slice(0, 10)}...</div>
+                            <div className="text-[11px] text-[#66717C] font-mono">{user.id.slice(0, 10)}...</div>
                           </div>
                         </div>
                       </td>
@@ -224,30 +225,46 @@ export default async function AdminCustomersPage({
                         <span
                           className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold uppercase ${
                             plan === 'RESERVE'
-                              ? 'bg-amber-950/60 text-amber-300 border border-amber-800/50'
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
                               : plan === 'PRIVATE'
-                              ? 'bg-neutral-800 text-neutral-100 border border-neutral-700'
-                              : 'bg-[#1f1b17] text-[#c8b99d] border border-[#352f27]'
+                              ? 'bg-[#1F2933] text-white border border-[#111820]'
+                              : 'bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]'
                           }`}
                         >
                           {plan}
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono text-[#a8a49c]">
-                        <div>{user.email}</div>
-                        <div className="text-[#736f68] text-[11px]">{user.phone || 'No phone'}</div>
+                      <td className="py-3.5 px-4">
+                        {hasActiveMembership ? (
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            ACTIVE MEMBER
+                          </span>
+                        ) : c.freeRequestUsed ? (
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-medium bg-[#F1F3F5] text-[#66717C] border border-[#E1E5E8]">
+                            FREE USED
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded-full font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            FREE AVAILABLE
+                          </span>
+                        )}
                       </td>
 
-                      <td className="py-3.5 px-4 font-mono text-[#a8a49c]">
+                      <td className="py-3.5 px-4 font-mono text-[#111820]">
+                        <div>{user.email}</div>
+                        <div className="text-[#66717C] text-[11px]">{user.phone || 'No phone'}</div>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-[#111820]">
                         {c.city || 'Ahmedabad'}
                       </td>
 
-                      <td className="py-3.5 px-4 text-center font-mono font-medium text-[#f5f3ef]">
+                      <td className="py-3.5 px-4 text-center font-mono font-medium text-[#111820]">
                         {c._count.tasks}
                       </td>
 
-                      <td className="py-3.5 px-4 text-center font-mono font-medium text-[#f5f3ef]">
+                      <td className="py-3.5 px-4 text-center font-mono font-medium text-[#111820]">
                         {c._count.bookings}
                       </td>
 
@@ -255,17 +272,17 @@ export default async function AdminCustomersPage({
                         <span
                           className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-medium ${
                             user.status === 'ACTIVE'
-                              ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                               : user.status === 'PENDING_VERIFICATION'
-                              ? 'bg-amber-950/60 text-amber-400 border border-amber-800/40'
-                              : 'bg-red-950/60 text-red-400 border border-red-800/40'
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                              : 'bg-red-50 text-red-700 border border-red-200'
                           }`}
                         >
                           {user.status}
                         </span>
                       </td>
 
-                      <td className="py-3.5 px-4 text-[#736f68] font-mono text-[11px]">
+                      <td className="py-3.5 px-4 text-[#66717C] font-mono text-[11px]">
                         {new Date(user.createdAt).toLocaleDateString('en-IN', {
                           year: 'numeric',
                           month: 'short',
@@ -276,10 +293,10 @@ export default async function AdminCustomersPage({
                       <td className="py-3.5 px-4 text-right">
                         <Link
                           href={`/admin/customers/${c.id}`}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#1c1916] border border-[#2a241e] hover:border-[#3d342a] text-xs text-[#c8b99d] transition-colors"
+                          className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-[#E1E5E8] hover:bg-[#F7F8FA] hover:border-[#A7B0B8] text-xs text-[#1F2933] font-medium transition-colors shadow-xs"
                         >
                           <span>Inspect</span>
-                          <ArrowUpRight className="w-3.5 h-3.5" />
+                          <ArrowUpRight className="w-3.5 h-3.5 text-[#66717C]" />
                         </Link>
                       </td>
                     </tr>
@@ -292,40 +309,40 @@ export default async function AdminCustomersPage({
 
         {/* Pagination Footer */}
         {totalPages > 1 && (
-          <div className="p-4 border-t border-[#23201c] bg-[#100f0d] flex items-center justify-between">
-            <div className="text-xs text-[#736f68] font-mono">
+          <div className="p-4 border-t border-[#E1E5E8] bg-[#F7F8FA] flex items-center justify-between">
+            <div className="text-xs text-[#66717C] font-mono">
               Showing {skip + 1} - {Math.min(skip + pageSize, totalCount)} of {totalCount} members
             </div>
             <div className="flex items-center gap-2">
               {currentPage > 1 ? (
                 <Link
                   href={`/admin/customers?page=${currentPage - 1}${query ? `&q=${query}` : ''}${statusFilter ? `&status=${statusFilter}` : ''}`}
-                  className="px-3 py-1.5 rounded-lg bg-[#1a1714] border border-[#282420] text-xs text-[#f5f3ef] hover:border-[#3e352b] flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#E1E5E8] text-xs text-[#1F2933] hover:bg-[#F7F8FA] flex items-center gap-1 transition-colors shadow-xs"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                   <span>Previous</span>
                 </Link>
               ) : (
-                <span className="px-3 py-1.5 rounded-lg bg-[#12110f] border border-[#1c1916] text-xs text-[#423e38] flex items-center gap-1 cursor-not-allowed">
+                <span className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] border border-[#E1E5E8] text-xs text-[#8C96A0] flex items-center gap-1 cursor-not-allowed">
                   <ChevronLeft className="w-3.5 h-3.5" />
                   <span>Previous</span>
                 </span>
               )}
 
-              <span className="text-xs font-mono text-[#c8b99d] px-2">
+              <span className="text-xs font-mono text-[#111820] px-2 font-medium">
                 Page {currentPage} of {totalPages}
               </span>
 
               {currentPage < totalPages ? (
                 <Link
                   href={`/admin/customers?page=${currentPage + 1}${query ? `&q=${query}` : ''}${statusFilter ? `&status=${statusFilter}` : ''}`}
-                  className="px-3 py-1.5 rounded-lg bg-[#1a1714] border border-[#282420] text-xs text-[#f5f3ef] hover:border-[#3e352b] flex items-center gap-1 transition-colors"
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#E1E5E8] text-xs text-[#1F2933] hover:bg-[#F7F8FA] flex items-center gap-1 transition-colors shadow-xs"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               ) : (
-                <span className="px-3 py-1.5 rounded-lg bg-[#12110f] border border-[#1c1916] text-xs text-[#423e38] flex items-center gap-1 cursor-not-allowed">
+                <span className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] border border-[#E1E5E8] text-xs text-[#8C96A0] flex items-center gap-1 cursor-not-allowed">
                   <span>Next</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </span>

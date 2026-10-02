@@ -75,6 +75,13 @@ export class AhmedabadVerifiedAdapter implements ProviderAdapterInterface {
     if (categoryLower === 'gift') targetSlug = 'shopping';
 
     // Search curated Ahmedabad verified places
+    const targetCity = (query.constraints?.city || query.constraints?.location || query.constraints?.destination || '').toLowerCase();
+    const otherMajorCities = ['delhi', 'mumbai', 'bengaluru', 'bangalore', 'goa', 'kolkata', 'chennai', 'hyderabad', 'pune', 'jaipur', 'udaipur'];
+    const isTargetingOtherCity = otherMajorCities.some(c => targetCity.includes(c) || (rawLower.includes(c) && !rawLower.includes('ahmedabad')));
+    if (isTargetingOtherCity && !targetCity.includes('ahmedabad')) {
+      return [];
+    }
+
     const matchedPlaces = AHMEDABAD_PLACES.filter((place) => {
       const catMatch = place.categorySlug.toLowerCase() === targetSlug;
       const keywordMatch =

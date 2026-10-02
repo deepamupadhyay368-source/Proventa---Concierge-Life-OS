@@ -47,6 +47,9 @@ interface TaskCard {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
+  customerPlan?: string;
+  customerMembershipStatus?: string;
+  isFreeRequest?: boolean;
   queue: string;
   waitingMinutes: number;
   latestEvent: {
@@ -307,11 +310,20 @@ export function ConciergeInbox() {
             >
               {/* Card Header */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono font-bold text-xs text-[#1F2933]">#{t.publicId}</span>
                   <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
                     {t.category}
                   </span>
+                  {t.isFreeRequest ? (
+                    <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded font-bold bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
+                      FREE REQUEST
+                    </span>
+                  ) : t.customerMembershipStatus === 'ACTIVE' ? (
+                    <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      {t.customerPlan || 'MEMBER'}
+                    </span>
+                  ) : null}
                   {t.priority === 'URGENT' && (
                     <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200">
                       URGENT

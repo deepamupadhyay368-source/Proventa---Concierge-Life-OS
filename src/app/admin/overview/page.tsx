@@ -44,8 +44,8 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Operations Command Center</h1>
-        <p className="text-xs text-neutral-500 mt-1">Live metrics across customers, concierges, requests, and providers.</p>
+        <h1 className="text-2xl font-bold text-[#111820]">Operations Command Center</h1>
+        <p className="text-xs text-[#66717C] mt-1">Live metrics across customers, concierges, requests, and providers.</p>
       </div>
 
       {/* KPI Cards Grid */}
@@ -56,42 +56,42 @@ export default async function AdminOverviewPage() {
             <Link
               key={s.label}
               href={s.href}
-              className="bg-white border border-neutral-200 rounded-xl p-4 shadow-sm hover:border-neutral-300 transition-all block"
+              className="bg-white border border-[#E1E5E8] rounded-xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all block"
             >
-              <div className="flex items-center justify-between text-neutral-400 mb-2">
-                <Icon className="h-4 w-4" />
-                <ArrowUpRight className="h-3 w-3" />
+              <div className="flex items-center justify-between text-[#66717C] mb-2">
+                <Icon className="h-4 w-4 text-[#1F2933]" />
+                <ArrowUpRight className="h-3 w-3 text-[#A7B0B8]" />
               </div>
-              <p className="text-2xl font-bold text-neutral-900">{s.value}</p>
-              <p className="text-[11px] font-semibold text-neutral-700 mt-1">{s.label}</p>
-              <p className="text-[10px] text-neutral-400 mt-0.5">{s.sub}</p>
+              <p className="text-2xl font-bold text-[#111820] font-mono">{s.value}</p>
+              <p className="text-[11px] font-semibold text-[#1F2933] mt-1">{s.label}</p>
+              <p className="text-[10px] text-[#66717C] mt-0.5">{s.sub}</p>
             </Link>
           );
         })}
       </div>
 
       {/* Recent Security & Audit Ledger */}
-      <div className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white border border-[#E1E5E8] rounded-xl p-6 shadow-xs">
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#E1E5E8]">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-neutral-700" />
-            <h2 className="text-sm font-bold text-neutral-900 uppercase tracking-wider">Recent System Audit Log</h2>
+            <Shield className="h-4 w-4 text-[#1F2933]" />
+            <h2 className="text-sm font-bold text-[#111820] uppercase tracking-wider">Recent System Audit Log</h2>
           </div>
-          <Link href="/admin/audit" className="text-xs text-neutral-500 hover:text-neutral-900 font-medium">
+          <Link href="/admin/audit" className="text-xs text-[#66717C] hover:text-[#111820] font-medium font-mono">
             View full audit trail →
           </Link>
         </div>
 
-        <div className="divide-y divide-neutral-100 text-xs">
+        <div className="divide-y divide-[#E1E5E8] text-xs">
           {recentAudit.map((log) => (
             <div key={log.id} className="py-2.5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <span className="font-mono text-[10px] bg-neutral-100 px-2 py-0.5 rounded font-semibold text-neutral-700">
+                <span className="font-mono text-[10px] bg-[#F1F3F5] px-2 py-0.5 rounded font-semibold text-[#1F2933] border border-[#E1E5E8]">
                   {log.action}
                 </span>
-                <span className="text-neutral-600">{log.resourceType || 'System'}</span>
+                <span className="text-[#111820]">{log.resourceType || 'System'}</span>
               </div>
-              <span className="text-neutral-400 text-[11px]">
+              <span className="text-[#66717C] text-[11px] font-mono">
                 {new Date(log.createdAt).toLocaleString()}
               </span>
             </div>

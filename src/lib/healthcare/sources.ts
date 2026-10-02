@@ -156,7 +156,21 @@ export class ProventaVerifiedHealthcareSource implements HealthcareDiscoverySour
 
   async search(constraints: HealthcareSearchConstraints): Promise<NormalizedDoctor[]> {
     const all = [...VERIFIED_DOCTOR_DATABASE, ...this.customDoctors];
-    return all.filter((doc) => filterDoctorByConstraints(doc, constraints));
+    const directMatches = all.filter((doc) => filterDoctorByConstraints(doc, constraints));
+    if (directMatches.length > 0) {
+      return directMatches;
+    }
+
+    // If locality was specified but returned 0 matches, search city-wide for the specialty
+    if (constraints.locality) {
+      const cityWideConstraints = { ...constraints, locality: undefined };
+      const cityMatches = all.filter((doc) => filterDoctorByConstraints(doc, cityWideConstraints));
+      if (cityMatches.length > 0) {
+        return cityMatches;
+      }
+    }
+
+    return [];
   }
 }
 
@@ -175,7 +189,20 @@ export class OfficialHospitalDirectorySource implements HealthcareDiscoverySourc
       (doc) => doc.hospital && doc.hospital.trim() !== ''
     );
 
-    return hospitalDoctors.filter((doc) => filterDoctorByConstraints(doc, constraints));
+    const directMatches = hospitalDoctors.filter((doc) => filterDoctorByConstraints(doc, constraints));
+    if (directMatches.length > 0) {
+      return directMatches;
+    }
+
+    if (constraints.locality) {
+      const cityWideConstraints = { ...constraints, locality: undefined };
+      const cityMatches = hospitalDoctors.filter((doc) => filterDoctorByConstraints(doc, cityWideConstraints));
+      if (cityMatches.length > 0) {
+        return cityMatches;
+      }
+    }
+
+    return [];
   }
 }
 

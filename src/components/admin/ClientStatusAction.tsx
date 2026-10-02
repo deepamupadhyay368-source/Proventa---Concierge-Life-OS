@@ -43,21 +43,21 @@ export function ClientStatusAction({
     <>
       <button
         onClick={() => setConfirmOpen(true)}
-        className={`px-2.5 py-1 rounded-lg border text-[11px] font-mono transition-colors flex items-center gap-1 cursor-pointer ${
+        className={`px-2.5 py-1 rounded-lg border text-[11px] font-mono transition-colors flex items-center gap-1 cursor-pointer font-medium ${
           isSuspended
-            ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/50'
-            : 'bg-red-950/40 text-red-300 border-red-950 hover:bg-red-900/50'
+            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+            : 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100'
         }`}
         title={isSuspended ? 'Reactivate Client Account' : 'Suspend Client Account'}
       >
         {isSuspended ? (
           <>
-            <UserCheck className="w-3 h-3 text-emerald-400" />
+            <UserCheck className="w-3 h-3 text-emerald-600" />
             <span>Reactivate</span>
           </>
         ) : (
           <>
-            <UserX className="w-3 h-3 text-red-400" />
+            <UserX className="w-3 h-3 text-red-600" />
             <span>Suspend</span>
           </>
         )}
@@ -65,14 +65,14 @@ export function ClientStatusAction({
 
       {/* Confirmation Modal */}
       {confirmOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#141210] border border-[#2e2924] rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl text-left">
-            <h3 className="text-sm font-semibold text-[#f5f3ef]">
+        <div className="fixed inset-0 bg-[#111820]/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E1E5E8] rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-xl text-left">
+            <h3 className="text-sm font-semibold text-[#111820]">
               Confirm Account {isSuspended ? 'Reactivation' : 'Suspension'}
             </h3>
-            <p className="text-xs text-[#858077] leading-relaxed">
+            <p className="text-xs text-[#66717C] leading-relaxed">
               Are you sure you want to mark this client account as{' '}
-              <span className="text-[#f5f3ef] font-semibold">{newStatus}</span>? This event will be
+              <span className="text-[#111820] font-semibold">{newStatus}</span>? This event will be
               permanently logged in the sovereign audit ledger.
             </p>
 
@@ -80,7 +80,7 @@ export function ClientStatusAction({
               <button
                 disabled={loading}
                 onClick={() => setConfirmOpen(false)}
-                className="px-3 py-1.5 rounded-xl bg-[#1e1a16] border border-[#2e2924] text-xs text-[#a8a49c] hover:text-[#f5f3ef] transition-colors"
+                className="px-3 py-1.5 rounded-xl bg-white border border-[#E1E5E8] text-xs text-[#1F2933] hover:bg-[#F7F8FA] transition-colors"
               >
                 Cancel
               </button>
@@ -89,8 +89,8 @@ export function ClientStatusAction({
                 onClick={handleToggle}
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
                   isSuspended
-                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                    : 'bg-red-600 hover:bg-red-500 text-white'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                    : 'bg-red-600 hover:bg-red-700 text-white'
                 }`}
               >
                 {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}

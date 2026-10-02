@@ -50,6 +50,10 @@ export async function GET(req: NextRequest) {
         customer: {
           select: {
             id: true,
+            membershipPlan: true,
+            membershipStatus: true,
+            freeRequestUsed: true,
+            freeRequestTaskId: true,
             user: {
               select: {
                 id: true,
@@ -160,6 +164,10 @@ export async function GET(req: NextRequest) {
         customerName: t.customer?.user?.name || 'VIP Member',
         customerEmail: t.customer?.user?.email || '',
         customerPhone: t.customer?.user?.phone || '',
+        customerPlan: t.customer?.membershipPlan || 'SELECT',
+        customerMembershipStatus: t.customer?.membershipStatus || 'NONE',
+        customerFreeRequestUsed: t.customer?.freeRequestUsed ?? false,
+        isFreeRequest: t.id === t.customer?.freeRequestTaskId || (!t.customer?.membershipStatus && t.customer?.freeRequestUsed),
         queue,
         waitingMinutes,
         latestEvent: t.events[0] || null,

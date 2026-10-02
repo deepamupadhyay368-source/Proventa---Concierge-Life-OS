@@ -127,6 +127,7 @@ export interface HealthcareDiagnostics {
   researchStartedAt: string;
   rawInput: string;
   resolvedCity: string;
+  resolvedLocality?: string;
   resolvedSpecialty: DoctorSpecialty;
   resolvedHospital?: string;
   resolvedDoctorName?: string;

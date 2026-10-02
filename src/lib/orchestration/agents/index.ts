@@ -59,6 +59,12 @@ class BaseDomainAgent implements TaskAgentInterface {
       destination: entities.destination,
       destinationAirport: entities.destinationAirport,
       location: entities.location || entities.destination,
+      city: entities.location || entities.destination,
+      locality: (entities as any).locality || (preferences as any)?.locality,
+      hospital: (entities as any).hospital || (preferences as any)?.hospital,
+      doctorName: (entities as any).doctorName || (preferences as any)?.doctorName,
+      specialty: (entities as any).specialty || (preferences as any)?.specialty,
+      gender: (entities as any).gender || (preferences as any)?.gender,
       dateTime: entities.dateTime,
       partySize: entities.partySize,
       budget: entities.budgetRange || entities.budgetAmount,
@@ -85,7 +91,8 @@ class BaseDomainAgent implements TaskAgentInterface {
         origin: entities.origin,
         originAirport: entities.originAirport,
         location: entities.location,
-      }
+        city: entities.location || entities.destination,
+      } as any
     );
 
     return this.rankOptions(validProposals, preferences);

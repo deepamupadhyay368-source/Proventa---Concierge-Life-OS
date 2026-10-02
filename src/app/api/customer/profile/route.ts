@@ -36,8 +36,14 @@ export async function GET() {
             membershipStatus: true,
             membershipStartedAt: true,
             membershipRenewsAt: true,
+            freeRequestUsed: true,
+            freeRequestUsedAt: true,
+            freeRequestTaskId: true,
             createdAt: true,
             preferences: true,
+            _count: {
+              select: { tasks: true },
+            },
           },
         },
         userRoles: {
@@ -52,6 +58,28 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    const cp = dbUser.customerProfile;
+    const hasActiveMembership = cp?.membershipStatus === 'ACTIVE';
+    const tasksCount = cp?._count?.tasks ?? 0;
+    const freeRequestUsed = Boolean(cp?.freeRequestUsed || tasksCount > 0);
+    const freeRequestAvailable = !hasActiveMembership && !freeRequestUsed;
+
+    const entitlement = {
+      hasActiveMembership,
+      membershipPlan: cp?.membershipPlan || null,
+      membershipStatus: cp?.membershipStatus || null,
+      freeRequestAvailable,
+      freeRequestUsed,
+      freeRequestUsedAt: cp?.freeRequestUsedAt || null,
+      freeRequestTaskId: cp?.freeRequestTaskId || null,
+      canCreateRequest: hasActiveMembership || freeRequestAvailable,
+      state: hasActiveMembership
+        ? 'ACTIVE_MEMBER'
+        : freeRequestUsed
+        ? 'FREE_REQUEST_USED'
+        : 'FREE_REQUEST_AVAILABLE',
+    };
+
     return NextResponse.json({
       success: true,
       profile: {
@@ -61,7 +89,8 @@ export async function GET() {
         phone: dbUser.phone,
         status: dbUser.status,
         roles: dbUser.userRoles.map((r) => r.role),
-        customerProfile: dbUser.customerProfile,
+        customerProfile: cp,
+        entitlement,
         createdAt: dbUser.createdAt,
       },
     });

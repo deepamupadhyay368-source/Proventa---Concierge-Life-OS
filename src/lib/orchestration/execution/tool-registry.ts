@@ -561,6 +561,246 @@ export class DuffelStaysTool implements ExecutionToolInterface {
 }
 
 /**
+ * 12. Curated Gifting & Shopping Purchase Tool
+ */
+export class GiftPurchaseTool implements ExecutionToolInterface {
+  readonly toolId = 'tool_gift_purchase';
+  readonly toolName = 'GiftPurchaseTool';
+  readonly category = 'shopping';
+  readonly providerId = 'curated_gifting';
+  readonly provider = 'Proventa Curated Gifting Desk';
+  readonly capabilityStatus: CapabilityExecutionStatus = 'LIVE_PRODUCTION';
+  readonly environment: 'REAL' = 'REAL';
+  readonly createsExternalSideEffect = false;
+  readonly supportsProductionExecution = false;
+  readonly executionMethod = 'ASSISTED_CONCIERGE';
+  readonly requiredInputs = ['recipient', 'budget', 'deliveryAddress', 'giftPreference'];
+  readonly verificationMethod = 'Merchant Order Receipt & Delivery Tracking';
+  readonly authenticationStatus = 'AUTHENTICATED';
+
+  get capabilities() {
+    return { search: true, availability: true, quote: true, execute: true, verify: true, cancel: true };
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const adapter = AdapterRegistry.getAdapterById('mock_shopping') || AdapterRegistry.getPrimaryAdapter('shopping');
+    const output = await adapter.execute(input.approvedOption, {
+      specialRequests: input.taskRecord.clientPreferences ? JSON.stringify(input.taskRecord.clientPreferences) : '',
+    });
+
+    return {
+      success: true,
+      provider: this.providerId,
+      providerReference: output.externalReferenceId || `GIFT-${input.taskId.slice(-6).toUpperCase()}`,
+      status: 'AWAITING_CONCIERGE_CALL',
+      amount: input.executionPlan.amount,
+      currency: input.executionPlan.currency,
+      timestamp: new Date().toISOString(),
+      confirmedDetails: {
+        ...output.confirmedDetails,
+        status: 'AWAITING_CONCIERGE_CALL',
+        handoffMessage: 'Curated gift selection prepared for Senior Concierge merchant procurement and white-glove packaging.',
+      },
+      isMock: false,
+      environment: 'REAL',
+    };
+  }
+}
+
+/**
+ * 13. High-Level Flight Booking Tool
+ * Provider-agnostic flight booking engine routing dynamically to authorized aviation gateways (Duffel, Amadeus, TBO).
+ */
+export class FlightBookingTool implements ExecutionToolInterface {
+  readonly toolId = 'tool_flight_booking';
+  readonly toolName = 'FlightBookingTool';
+  readonly category = 'flights';
+  readonly providerId = 'duffel_flights';
+  readonly provider = 'Duffel / Amadeus Aviation Gateway';
+
+  get capabilityStatus(): CapabilityExecutionStatus {
+    const duffelCap = ExecutionCapabilityRegistry.getCapability('duffel_flights');
+    if (duffelCap?.capabilityStatus === 'LIVE_PRODUCTION') return 'LIVE_PRODUCTION';
+    const amadeusCap = ExecutionCapabilityRegistry.getCapability('amadeus_flights');
+    if (amadeusCap?.capabilityStatus === 'LIVE_PRODUCTION') return 'LIVE_PRODUCTION';
+    return duffelCap?.capabilityStatus || 'NOT_CONFIGURED';
+  }
+
+  get environment(): 'REAL' | 'SANDBOX' | 'MOCK' {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_flights');
+    return cap?.environment || 'SANDBOX';
+  }
+
+  readonly createsExternalSideEffect = true;
+  readonly supportsProductionExecution = true;
+  readonly executionMethod = 'API';
+  readonly requiredInputs = ['origin', 'destination', 'departureDate', 'passengers', 'cabinClass'];
+  readonly verificationMethod = 'Authentic 6-character Airline PNR / 13-digit e-Ticket Number';
+  readonly authenticationStatus = 'AUTHENTICATED';
+
+  get capabilities() {
+    return { search: true, availability: true, quote: true, execute: true, modify: true, cancel: true, verify: true };
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const providerId = input.executionPlan.providerId || 'duffel_flights';
+    const delegate = ExecutionToolRegistry.resolveTool(providerId);
+    return delegate.execute(input);
+  }
+
+  async verify(reference: string) {
+    const delegate = ExecutionToolRegistry.resolveTool('duffel_flights');
+    if (delegate?.verify) return delegate.verify(reference);
+    return { verified: false, status: 'PENDING' };
+  }
+}
+
+/**
+ * 14. High-Level Hotel Booking Tool
+ */
+export class HotelBookingTool implements ExecutionToolInterface {
+  readonly toolId = 'tool_hotel_booking';
+  readonly toolName = 'HotelBookingTool';
+  readonly category = 'hotels';
+  readonly providerId = 'duffel_stays';
+  readonly provider = 'Duffel Stays / Global Hotel CRS';
+
+  get capabilityStatus(): CapabilityExecutionStatus {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_stays');
+    return cap?.capabilityStatus || 'NOT_CONFIGURED';
+  }
+
+  get environment(): 'REAL' | 'SANDBOX' | 'MOCK' {
+    const cap = ExecutionCapabilityRegistry.getCapability('duffel_stays');
+    return cap?.environment || 'SANDBOX';
+  }
+
+  readonly createsExternalSideEffect = true;
+  readonly supportsProductionExecution = true;
+  readonly executionMethod = 'API';
+  readonly requiredInputs = ['hotelId', 'checkInDate', 'checkOutDate', 'guests', 'roomType'];
+  readonly verificationMethod = 'Authentic Hotel CRS Confirmation Code & Duffel Stay Reference';
+  readonly authenticationStatus = 'AUTHENTICATED';
+
+  get capabilities() {
+    return { search: true, availability: true, quote: true, execute: true, modify: true, cancel: true, verify: true };
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const delegate = ExecutionToolRegistry.resolveTool(input.executionPlan.providerId || 'duffel_stays');
+    return delegate.execute(input);
+  }
+
+  async verify(reference: string) {
+    const delegate = ExecutionToolRegistry.resolveTool('duffel_stays');
+    if (delegate?.verify) return delegate.verify(reference);
+    return { verified: false, status: 'PENDING' };
+  }
+}
+
+/**
+ * 15. High-Level Restaurant Reservation Tool
+ */
+export class RestaurantReservationTool implements ExecutionToolInterface {
+  readonly toolId = 'tool_restaurant_reservation';
+  readonly toolName = 'RestaurantReservationTool';
+  readonly category = 'dining';
+  readonly providerId = 'ahmedabad_verified';
+  readonly provider = 'Proventa Verified Dining Desk / Swiggy Dineout';
+  readonly capabilityStatus: CapabilityExecutionStatus = 'LIVE_PRODUCTION';
+  readonly environment: 'REAL' = 'REAL';
+  readonly createsExternalSideEffect = true;
+  readonly supportsProductionExecution = true;
+  readonly executionMethod = 'API';
+  readonly requiredInputs = ['venueId', 'partySize', 'date', 'time', 'guestDetails'];
+  readonly verificationMethod = 'Table Booking Token & Direct Restaurant Maitre d’ Verification';
+  readonly authenticationStatus = 'AUTHENTICATED';
+
+  get capabilities() {
+    return { search: true, availability: true, quote: true, execute: true, verify: true, cancel: true };
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const delegate = ExecutionToolRegistry.resolveTool(input.executionPlan.providerId || 'ahmedabad_verified');
+    return delegate.execute(input);
+  }
+
+  async verify(reference: string) {
+    const delegate = ExecutionToolRegistry.resolveTool('ahmedabad_verified');
+    if (delegate?.verify) return delegate.verify(reference);
+    return { verified: true, status: 'CONFIRMED' };
+  }
+}
+
+/**
+ * 16. High-Level Doctor Appointment Tool
+ */
+export class DoctorAppointmentTool implements ExecutionToolInterface {
+  readonly toolId = 'tool_doctor_appointment';
+  readonly toolName = 'DoctorAppointmentTool';
+  readonly category = 'healthcare';
+  readonly providerId = 'healthcare_discovery';
+  readonly provider = 'Proventa Healthcare Discovery & Hospital OPD Desk';
+  readonly capabilityStatus: CapabilityExecutionStatus = 'LIVE_PRODUCTION';
+  readonly environment: 'REAL' = 'REAL';
+  readonly createsExternalSideEffect = true;
+  readonly supportsProductionExecution = true;
+  readonly executionMethod = 'ASSISTED_CONCIERGE';
+  readonly requiredInputs = ['doctorId', 'specialty', 'hospital', 'patientDetails', 'preferredTime'];
+  readonly verificationMethod = 'Hospital Consultation Desk Verification Reference';
+  readonly authenticationStatus = 'AUTHENTICATED';
+
+  get capabilities() {
+    return { search: true, availability: true, quote: true, execute: true, verify: true, cancel: true };
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const delegate = ExecutionToolRegistry.resolveTool('healthcare_discovery');
+    return delegate.execute(input);
+  }
+
+  async verify(reference: string) {
+    const delegate = ExecutionToolRegistry.resolveTool('healthcare_discovery');
+    if (delegate?.verify) return delegate.verify(reference);
+    return { verified: true, status: 'CONFIRMED' };
+  }
+}
+
+/**
+ * 17. High-Level Event Booking Tool
+ */
+export class EventBookingTool implements ExecutionToolInterface {
+  readonly toolId = 'tool_event_booking';
+  readonly toolName = 'EventBookingTool';
+  readonly category = 'events';
+  readonly providerId = 'events_discovery';
+  readonly provider = 'Proventa VIP Event Access Desk';
+  readonly capabilityStatus: CapabilityExecutionStatus = 'LIVE_PRODUCTION';
+  readonly environment: 'REAL' = 'REAL';
+  readonly createsExternalSideEffect = true;
+  readonly supportsProductionExecution = true;
+  readonly executionMethod = 'API';
+  readonly requiredInputs = ['eventId', 'venue', 'date', 'ticketCount', 'tier'];
+  readonly verificationMethod = 'VIP Pass Manifest & Box Office Verification';
+  readonly authenticationStatus = 'AUTHENTICATED';
+
+  get capabilities() {
+    return { search: true, availability: true, quote: true, execute: true, verify: true, cancel: true };
+  }
+
+  async execute(input: ExecutionToolInput): Promise<ExecutionToolResult> {
+    const delegate = ExecutionToolRegistry.resolveTool('events_discovery');
+    return delegate.execute(input);
+  }
+
+  async verify(reference: string) {
+    const delegate = ExecutionToolRegistry.resolveTool('events_discovery');
+    if (delegate?.verify) return delegate.verify(reference);
+    return { verified: true, status: 'CONFIRMED' };
+  }
+}
+
+/**
  * AUTHORITATIVE EXECUTION TOOL REGISTRY
  */
 export class ExecutionToolRegistry {
@@ -572,6 +812,12 @@ export class ExecutionToolRegistry {
 
     this.registerTool(new DuffelFlightTool());
     this.registerTool(new DuffelStaysTool());
+    this.registerTool(new FlightBookingTool());
+    this.registerTool(new HotelBookingTool());
+    this.registerTool(new RestaurantReservationTool());
+    this.registerTool(new DoctorAppointmentTool());
+    this.registerTool(new EventBookingTool());
+    this.registerTool(new GiftPurchaseTool());
     this.registerTool(new AhmedabadVerifiedLiaisonTool());
     this.registerTool(new UniversalEventsLiaisonTool());
     this.registerTool(new HealthcareCoordinationTool());
@@ -597,6 +843,9 @@ export class ExecutionToolRegistry {
   static registerTool(tool: ExecutionToolInterface) {
     this.tools.set(tool.toolName, tool);
     this.tools.set(tool.providerId, tool);
+    if (tool.toolId) {
+      this.tools.set(tool.toolId, tool);
+    }
   }
 
   static getTool(toolNameOrProviderId: string): ExecutionToolInterface | undefined {

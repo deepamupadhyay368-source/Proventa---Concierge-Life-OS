@@ -76,8 +76,34 @@ export default function MembershipPricingPage() {
         </div>
       </section>
 
+      {/* First Request Free Discovery Banner */}
+      <section className="pt-8 pb-4 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E1E5E8] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5 text-center sm:text-left">
+            <div className="w-10 h-10 rounded-xl bg-[#F1F3F5] flex items-center justify-center text-[#1F2933] shrink-0 border border-[#E1E5E8]">
+              <Sparkles className="w-5 h-5 text-[#1F2933]" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#1F2933]">
+                Your first request is on us.
+              </p>
+              <p className="text-xs text-[#66717C] mt-0.5">
+                Not sure yet? Experience Proventa first before choosing a membership.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/dashboard"
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1F2933] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#111820] transition-all shadow-xs"
+          >
+            <span>Try Your First Request</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </section>
+
       {/* Pricing Cards Grid */}
-      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {MEMBERSHIP_PLANS_LIST.map((plan) => {
             const isRecommended = plan.recommended;
