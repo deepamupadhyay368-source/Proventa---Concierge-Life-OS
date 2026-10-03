@@ -1,22 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/session';
 import { db } from '@/lib/db';
+import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth();
-
-    let customerProfile = await db.customerProfile.findFirst({
-      where: { userId: user.id },
-    });
-
-    if (!customerProfile) {
-      customerProfile = await db.customerProfile.create({
-        data: {
-          userId: user.id,
-        },
-      });
-    }
+    const customerProfile = await getOrCreateCustomerProfile(user);
 
     // Retrieve payment profile & mandate info
     const paymentProfile = await db.customerPaymentProfile.findUnique({

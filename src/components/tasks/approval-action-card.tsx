@@ -113,51 +113,83 @@ export function ApprovalActionCard({
 
       {/* Healthcare / Doctor Specific Presentation */}
       {isHealthcare && (
-        <div className="bg-[#F7F8FA] rounded-xl p-4 sm:p-5 mb-6 space-y-3 border border-[#E1E5E8]">
+        <div className="bg-[#F7F8FA] rounded-xl p-4 sm:p-5 mb-6 space-y-3.5 border border-[#E1E5E8]">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E1E5E8] pb-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-[#1F2933]">{docMeta.doctorName || proposal.title}</span>
+              <span className="font-semibold text-[#1F2933] text-sm">{docMeta.doctorName || proposal.title}</span>
               {docMeta.specialty && (
-                <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-[#E5E9ED] text-[#1F2933] border border-[#CBD2D9]">
+                <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-[#E5E9ED] text-[#1F2933] border border-[#CBD2D9] font-medium">
                   {docMeta.subSpecialty || docMeta.specialty}
                 </span>
               )}
             </div>
-            {docMeta.experienceYears && (
-              <span className="text-[11px] text-[#52606D] font-medium">
-                {docMeta.experienceYears} Years Experience
-              </span>
-            )}
+            <div className="flex items-center gap-2">
+              {docMeta.experienceYears && (
+                <span className="text-[11px] text-[#52606D] font-medium">
+                  {docMeta.experienceYears} Years Exp.
+                </span>
+              )}
+              {docMeta.verificationStatus === 'VERIFIED' && (
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Verified Specialist
+                </span>
+              )}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#303942]">
+          {/* Rating & Distance Bar (when available) */}
+          {(docMeta.rating || docMeta.distanceDisplay || docMeta.distanceKm) && (
+            <div className="flex flex-wrap items-center gap-3 text-xs text-[#303942] py-1">
+              {docMeta.rating && (
+                <span className="inline-flex items-center gap-1 font-medium bg-white px-2 py-1 rounded-md border border-[#E1E5E8] shadow-2xs">
+                  <span className="text-amber-500 font-bold">★</span>
+                  <span className="font-semibold text-[#1F2933]">{docMeta.rating}/5</span>
+                  {docMeta.reviewCount && (
+                    <span className="text-[#66717C] text-[11px]">({docMeta.reviewCount.toLocaleString('en-IN')} reviews)</span>
+                  )}
+                </span>
+              )}
+              {(docMeta.distanceDisplay || docMeta.distanceKm) && (
+                <span className="inline-flex items-center gap-1 text-[#52606D] bg-white px-2 py-1 rounded-md border border-[#E1E5E8] shadow-2xs">
+                  <span>📍</span>
+                  <span>{docMeta.distanceDisplay || `${docMeta.distanceKm} km away`}</span>
+                </span>
+              )}
+              {docMeta.consultationFee && (
+                <span className="inline-flex items-center gap-1 font-semibold text-emerald-800 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 shadow-2xs">
+                  <span>₹{docMeta.consultationFee.toLocaleString('en-IN')} consultation</span>
+                </span>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-[#303942]">
             {docMeta.qualifications && (
               <div>
-                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block">Qualifications</span>
+                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block font-medium">Qualifications</span>
                 <span className="font-medium text-[#1F2933]">{docMeta.qualifications}</span>
               </div>
             )}
             {(docMeta.hospital || docMeta.clinic) && (
               <div>
-                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block">Hospital / Clinic</span>
-                <span className="font-medium text-[#1F2933]">{[docMeta.hospital, docMeta.locality, docMeta.city].filter(Boolean).join(', ')}</span>
+                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block font-medium">Clinic / Hospital</span>
+                <span className="font-medium text-[#1F2933]">{docMeta.hospital || docMeta.clinic}</span>
+                {docMeta.address && (
+                  <span className="text-[11px] text-[#66717C] block mt-0.5">{docMeta.address}</span>
+                )}
               </div>
             )}
             {docMeta.availabilitySchedule && (
               <div className="col-span-1 sm:col-span-2">
-                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block">Consultation Schedule</span>
-                <span className="text-[11px] text-[#303942]">{docMeta.availabilitySchedule}</span>
+                <span className="text-[10px] text-[#66717C] uppercase tracking-wider block font-medium">Consultation Availability</span>
+                <span className="text-[11px] text-[#303942] font-medium">{docMeta.availabilitySchedule}</span>
               </div>
             )}
           </div>
 
           <div className="pt-2 border-t border-[#E1E5E8] flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#52606D]">
-            <span>Verified Source: <strong className="text-[#1F2933]">{docMeta.source || 'Verified Hospital Desk'}</strong></span>
+            <span>Verified Source: <strong className="text-[#1F2933]">{docMeta.source || 'Verified Healthcare Directory'}</strong></span>
             <span className="text-emerald-700 font-bold">{proposal.priceFormatted || (docMeta.consultationFee ? `₹${docMeta.consultationFee.toLocaleString('en-IN')}` : 'Fee on Enquiry')}</span>
-          </div>
-
-          <div className="p-2.5 rounded-lg bg-[#E5E9ED]/60 border border-[#CBD2D9] text-[11px] text-[#303942]">
-            <strong>Appointment Notice:</strong> Direct booking API is not enabled for healthcare in this release. Appointment coordination and priority slot reservation will be handled directly through the Proventa Senior Concierge Desk upon selection.
           </div>
         </div>
       )}

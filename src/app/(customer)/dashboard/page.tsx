@@ -388,11 +388,11 @@ function DashboardContent() {
         </div>
 
         {errorMessage && (
-          <div className="mb-4 p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2.5 animate-fade-in">
+          <div className="mb-4 p-3 sm:p-3.5 bg-red-50/95 border border-red-200/90 rounded-xl text-xs text-red-700 flex items-start gap-2.5 animate-fade-in shadow-xs">
             <AlertCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
-            <div className="flex-1">
-              <span className="font-semibold block">Request Not Dispatched</span>
-              <span className="text-red-600">{errorMessage}</span>
+            <div className="flex-1 min-w-0">
+              <span className="font-semibold block text-red-900">Request Not Dispatched</span>
+              <span className="text-red-700 break-words">{errorMessage}</span>
             </div>
           </div>
         )}
@@ -414,20 +414,20 @@ function DashboardContent() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="e.g. Find me a quiet rooftop restaurant for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
-                className="w-full p-4 border border-[#E1E5E8] bg-[#F7F8FA] focus:bg-white focus:border-[#1F2933] rounded-xl text-sm text-[#1F2933] focus:outline-none placeholder:text-[#A7B0B8] resize-none transition-colors"
+                className="w-full p-3.5 sm:p-4 border border-[#E1E5E8] bg-[#F7F8FA] focus:bg-white focus:border-[#1F2933] rounded-xl text-sm text-[#1F2933] focus:outline-none placeholder:text-[#A7B0B8] resize-none transition-colors"
                 required
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-[#66717C] font-medium">Urgency:</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-xs text-[#66717C] font-medium shrink-0">Urgency:</span>
                 {(['NORMAL', 'URGENT', 'ASAP'] as const).map((lvl) => (
                   <button
                     key={lvl}
                     type="button"
                     onClick={() => setUrgency(lvl)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                       urgency === lvl
                         ? 'bg-[#1F2933] text-white'
                         : 'bg-[#F1F3F5] text-[#66717C] hover:bg-[#E5E9ED]'
@@ -441,7 +441,7 @@ function DashboardContent() {
               <button
                 type="submit"
                 disabled={submitting || !input.trim()}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
               >
                 {submitting ? 'Understanding your request...' : 'Tell Proventa'}
                 <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />
@@ -449,8 +449,8 @@ function DashboardContent() {
             </div>
 
             {/* Quick Ahmedabad Delegation Prompts */}
-            <div className="pt-2 border-t border-[#E1E5E8] flex items-center gap-2 overflow-x-auto text-xs py-1 scrollbar-none">
-              <span className="text-[#66717C] shrink-0 font-medium">Quick suggestions:</span>
+            <div className="pt-2.5 border-t border-[#E1E5E8] flex items-center gap-2 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap -mx-1 px-1 sm:mx-0 sm:px-0 text-xs py-1">
+              <span className="text-[#66717C] shrink-0 font-medium text-[11px] sm:text-xs">Quick suggestions:</span>
               {[
                 { label: 'Dinner at Agashiye', text: 'Reserve a quiet terrace table for 4 at Agashiye for Saturday 8:00 PM.' },
                 { label: 'Airport Chauffeur', text: 'Arrange an executive sedan pickup from SVPIA Airport to Bodakdev tomorrow at 11:30 AM.' },
@@ -461,7 +461,7 @@ function DashboardContent() {
                   key={s.label}
                   type="button"
                   onClick={() => setInput(s.text)}
-                  className="shrink-0 px-2.5 py-1 bg-[#F7F8FA] hover:bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] rounded-lg text-[11px] transition-colors cursor-pointer"
+                  className="shrink-0 px-2.5 py-1 bg-[#F7F8FA] hover:bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] rounded-lg text-[11px] transition-colors cursor-pointer whitespace-nowrap"
                 >
                   {s.label}
                 </button>

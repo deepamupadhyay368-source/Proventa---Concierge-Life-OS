@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth/session';
 import { createUpiMandateSetup } from '@/lib/payments/razorpay';
 import { db } from '@/lib/db';
+import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 import { z } from 'zod';
 
 const schema = z.object({
@@ -22,17 +23,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let customerProfile = await db.customerProfile.findFirst({
-      where: { userId: user.id },
-    });
-
-    if (!customerProfile) {
-      customerProfile = await db.customerProfile.create({
-        data: {
-          userId: user.id,
-        },
-      });
-    }
+    const customerProfile = await getOrCreateCustomerProfile(user);
 
     const result = await createUpiMandateSetup({
       customerId: customerProfile.id,

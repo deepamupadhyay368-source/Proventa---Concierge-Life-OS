@@ -138,7 +138,12 @@ export class HealthcareDiscoveryAdapter implements ProviderAdapterInterface {
           languages: doc.languages,
           experienceYears: doc.experienceYears,
           tags: doc.tags,
+          rating: doc.rating,
+          reviewCount: doc.reviewCount,
+          distanceKm: doc.distanceKm,
+          distanceDisplay: doc.distanceDisplay,
           isHealthcare: true,
+          verificationStatus: doc.verifiedAt ? 'VERIFIED' : 'UNVERIFIED',
         },
       };
     });

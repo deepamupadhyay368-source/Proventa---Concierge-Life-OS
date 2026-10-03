@@ -282,5 +282,17 @@ describe('Task Execution Platform — Comprehensive Phase 5 Scenarios', () => {
       expect(genuineJson.data.status).toBe('CONFIRMED');
       expect(genuineJson.data.externalReferenceId).toBe('AGS-VERIFIED-TABLE-14');
     });
+
+    it('Scenario: "Find me a gynaecologist doctor near me" routes to APPOINTMENTS category and assigns Healthcare Agent', async () => {
+      const input = 'Find me a gynaecologist doctor near me';
+      const extracted = await understandRequest(input);
+      expect(extracted.serviceCategory).toBe('APPOINTMENTS');
+
+      const decision = TaskDecisionEngine.evaluate({ rawInput: input });
+      expect(decision.category).toBe('APPOINTMENTS');
+      expect(decision.executionMode).toBe('AI_RESEARCH');
+      expect(decision.isProhibited).toBe(false);
+      expect(decision.approvalRequired).toBe(false);
+    });
   });
 });

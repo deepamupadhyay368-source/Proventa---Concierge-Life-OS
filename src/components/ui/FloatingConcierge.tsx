@@ -7,10 +7,10 @@ export function FloatingConcierge() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] right-3 sm:bottom-6 sm:right-6 z-40 font-sans">
       {/* Popover Panel */}
       {isOpen && (
-        <div className="mb-3 w-80 sm:w-96 rounded-2xl bg-white border border-[#E1E5E8] shadow-2xl p-5 backdrop-blur-xl animate-fade-up text-[#1F2933]">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] max-w-sm right-0 sm:right-auto sm:w-96 rounded-2xl bg-white border border-[#E1E5E8] shadow-2xl p-4 sm:p-5 backdrop-blur-xl animate-fade-up text-[#1F2933]">
           <div className="flex items-start justify-between pb-3 border-b border-[#E1E5E8]">
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-full bg-[#1F2933] text-white flex items-center justify-center font-serif font-bold text-xs shadow-xs">
@@ -70,7 +70,7 @@ export function FloatingConcierge() {
       {/* Floating Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-[#1F2933] text-white shadow-xl hover:bg-[#111820] transition-all border border-[#E1E5E8]/30 group"
+        className="flex items-center gap-2 sm:gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-[#1F2933] text-white shadow-xl hover:bg-[#111820] transition-all border border-[#E1E5E8]/30 group"
       >
         <span className="relative flex h-2 w-2">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { db } from '@/lib/db';
 import crypto from 'crypto';
 import {
@@ -66,7 +66,23 @@ describe('PROVENTA — PAYMENT CENTER & CUSTOMER PAYMENT AUTOMATION SUITE', { ti
         userId: otherUser.id,
       },
     });
-  }, 30000);
+  }, 60000);
+
+  afterAll(async () => {
+    try {
+      if (customerProfile?.id || otherProfile?.id) {
+        await db.payment.deleteMany({ where: { customerId: { in: [customerProfile?.id, otherProfile?.id].filter(Boolean) } } });
+        await db.customerPaymentProfile.deleteMany({ where: { customerId: { in: [customerProfile?.id, otherProfile?.id].filter(Boolean) } } });
+        await db.task.deleteMany({ where: { customerId: { in: [customerProfile?.id, otherProfile?.id].filter(Boolean) } } });
+      }
+      if (customerUser?.id || otherUser?.id || adminUser?.id) {
+        const userIds = [customerUser?.id, otherUser?.id, adminUser?.id].filter(Boolean);
+        await db.userRoleAssignment.deleteMany({ where: { userId: { in: userIds } } });
+        await db.customerProfile.deleteMany({ where: { userId: { in: userIds } } });
+        await db.user.deleteMany({ where: { id: { in: userIds } } });
+      }
+    } catch {}
+  }, 60000);
 
   // Scenario 1: UPI Autopay mandate setup initiation
   it('1. should initiate UPI Autopay mandate setup in PENDING status', async () => {

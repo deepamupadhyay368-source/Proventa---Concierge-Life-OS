@@ -83,6 +83,9 @@ export class RequestOrchestrator {
       category,
     });
 
+    const specialistAgent = findAgentForTask(category, rawInput);
+    const assignedAgent = specialistAgent.name;
+
     const task = await db.task.create({
       data: {
         publicId,
@@ -90,7 +93,7 @@ export class RequestOrchestrator {
         category,
         intent: rawInput.length > 80 ? `${rawInput.slice(0, 77)}...` : rawInput,
         originalRequest: rawInput,
-        assignedAgent: 'Senior Concierge Desk',
+        assignedAgent,
         priority: (urgency || 'NORMAL') as TaskPriority,
         status: 'UNDERSTANDING',
         executionMethod: executionResolution.executionMethod,
@@ -111,6 +114,14 @@ export class RequestOrchestrator {
       actorRole: 'CUSTOMER',
       message: 'Request received. Your concierge is reviewing it.',
       data: { originalRequest: rawInput },
+    });
+
+    await appendTaskEvent({
+      taskId: task.id,
+      eventType: 'AGENT_ASSIGNED',
+      actorRole: 'SYSTEM',
+      message: `${assignedAgent} assigned to handle request.`,
+      data: { agent: assignedAgent, category },
     });
 
     await appendTaskEvent({

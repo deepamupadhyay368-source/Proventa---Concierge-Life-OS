@@ -69,6 +69,14 @@ export class ExecutionRouter {
         return 'AVAILABLE';
       }
 
+      case 'healthcare_discovery':
+      case 'healthcare':
+      case 'doctors':
+      case 'doctor':
+      case 'verified_wellness': {
+        return 'AVAILABLE';
+      }
+
       default:
         return 'NOT_CONFIGURED';
     }

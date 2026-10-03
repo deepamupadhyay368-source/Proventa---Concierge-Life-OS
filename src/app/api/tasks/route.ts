@@ -2,16 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
-import { checkAndConsumeEntitlement, attachFreeRequestTaskId } from '@/lib/membership/entitlement';
+import { checkAndConsumeEntitlement, attachFreeRequestTaskId, getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 import { trackEvent } from '@/lib/analytics';
 import { isAppError } from '@/lib/errors';
 
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth();
-    const customerProfile = await db.customerProfile.findUnique({
-      where: { userId: user.id },
-    });
+    const customerProfile = await getOrCreateCustomerProfile(user);
     if (!customerProfile) return NextResponse.json({ tasks: [] });
 
     // Lean select projection for high-speed dashboard loading
@@ -71,14 +69,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
-    let customerProfile = await db.customerProfile.findUnique({
-      where: { userId: user.id },
-    });
-    if (!customerProfile) {
-      customerProfile = await db.customerProfile.create({
-        data: { userId: user.id, city: 'Ahmedabad', membershipStatus: 'PENDING' },
-      });
-    }
+    const customerProfile = await getOrCreateCustomerProfile(user);
 
     const body = await req.json();
     const { rawInput, urgency, taskId, sync } = body;
@@ -172,10 +163,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ task: initialTask, options: [] }, { status: 201 });
   } catch (error: any) {
-    console.error('[POST /api/tasks]', error);
+    console.error('[POST /api/tasks error]:', error);
     if (isAppError(error)) {
       return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
     }
-    return NextResponse.json({ error: error.message || 'Failed to process task' }, { status: 500 });
+    return NextResponse.json(
+      { error: "We couldn't dispatch your request right now. Please try again.", code: 'DISPATCH_ERROR' },
+      { status: 500 }
+    );
   }
 }

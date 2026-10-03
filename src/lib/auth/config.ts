@@ -174,19 +174,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             });
           }
         } catch (userErr) {
-          console.warn('[auth/phone-otp] DB user fetch fallback:', userErr);
+          logger.error({ error: userErr, phone: cleanPhone }, '[auth/phone-otp] Error finding/creating user');
         }
 
-        const userId = user?.id || `phone_user_${cleanPhone.slice(-4)}`;
-        void createSecurityEvent('LOGIN_SUCCESS', { userId });
-        logger.info({ userId, phone: cleanPhone }, 'User logged in via phone OTP');
+        if (!user) {
+          logger.error({ phone: cleanPhone }, '[auth/phone-otp] Failed to find or create database user');
+          return null;
+        }
+
+        void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
+        logger.info({ userId: user.id, phone: cleanPhone }, 'User logged in via phone OTP');
 
         return {
-          id: userId,
-          email: user?.email || `phone_${cleanPhone.replace(/[^0-9]/g, '')}@proventa.in`,
-          name: user?.name || `Member (${cleanPhone.slice(-4)})`,
-          roles: user?.userRoles?.map((r: any) => r.role) || ['CUSTOMER'],
-          phoneVerified: new Date(),
+          id: user.id,
+          email: user.email,
+          name: user.name || `Member (${cleanPhone.slice(-4)})`,
+          roles: user.userRoles?.map((r: any) => r.role) || ['CUSTOMER'],
+          phoneVerified: user.phoneVerified,
         };
       },
     }),
@@ -302,14 +306,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           (user as any).roles = existingUser.userRoles.map((r) => r.role);
           return true;
         } catch (e) {
-          console.warn('[auth/oauth/signIn] Fallback during OAuth sync:', e);
-          if (!user.id) {
-            user.id = `oauth_${account.provider}_${account.providerAccountId}`;
-          }
-          if (!(user as any).roles) {
-            (user as any).roles = ['CUSTOMER'];
-          }
-          return true;
+          logger.error({ error: e, provider: account.provider }, '[auth/oauth/signIn] Failed during OAuth sync');
+          return false;
         }
       }
       return true;

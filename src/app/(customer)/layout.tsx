@@ -103,8 +103,8 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      {/* Main Content with Safe Area Bottom Padding for Mobile Nav */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-32 sm:pb-12 relative z-10">
         {children}
       </main>
 
@@ -125,8 +125,8 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
       {/* Floating Concierge Desk Widget */}
       <FloatingConcierge />
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E1E5E8] flex items-center justify-around py-2 px-1">
+      {/* Mobile Bottom Navigation - Optimized for 375px/390px/430px & Safe Area Inset */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-[#E1E5E8] flex items-center justify-around px-2 pt-2 pb-[calc(0.65rem+env(safe-area-inset-bottom,0px))] shadow-[0_-4px_20px_rgba(0,0,0,0.04)] transition-all">
         {navItems.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -134,12 +134,12 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg text-[10px] font-medium transition-colors ${
-                active ? 'text-[#1F2933] font-semibold' : 'text-[#66717C]'
+              className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-[10px] font-medium transition-all duration-150 active:scale-95 ${
+                active ? 'text-[#1F2933] font-semibold bg-[#F1F3F5]/80' : 'text-[#66717C] hover:text-[#1F2933]'
               }`}
             >
-              <Icon className="h-4 w-4" />
-              {item.label}
+              <Icon className={`h-4 w-4 ${active ? 'text-[#1F2933]' : 'text-[#66717C]'}`} />
+              <span className="leading-tight">{item.label}</span>
             </Link>
           );
         })}

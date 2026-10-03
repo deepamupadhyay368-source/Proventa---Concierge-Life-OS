@@ -83,6 +83,10 @@ export interface NormalizedDoctor {
   languages?: string[];
   experienceYears?: number;
   tags?: string[];
+  rating?: number;
+  reviewCount?: number;
+  distanceKm?: number;
+  distanceDisplay?: string;
 }
 
 // ============================================================

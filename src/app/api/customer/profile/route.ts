@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { createAuditLog } from '@/lib/audit';
 import { isAppError } from '@/lib/errors';
+import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 import { z } from 'zod';
 
 const updateProfileSchema = z.object({
@@ -58,7 +59,10 @@ export async function GET() {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const cp = dbUser.customerProfile;
+    let cp: any = dbUser.customerProfile;
+    if (!cp) {
+      cp = await getOrCreateCustomerProfile(dbUser);
+    }
     const hasActiveMembership = cp?.membershipStatus === 'ACTIVE';
     const tasksCount = cp?._count?.tasks ?? 0;
     const freeRequestUsed = Boolean(cp?.freeRequestUsed || tasksCount > 0);

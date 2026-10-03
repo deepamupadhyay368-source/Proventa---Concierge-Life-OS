@@ -1,15 +1,14 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { updatePreferenceSchema } from '@/lib/validation/schemas';
 import { trackEvent } from '@/lib/analytics';
+import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 
 export async function GET() {
   try {
     const user = await requireAuth();
-    const profile = await db.customerProfile.findUnique({
-      where: { userId: user.id },
-    });
+    const profile = await getOrCreateCustomerProfile(user);
 
     if (!profile) {
       return NextResponse.json({ preferences: [] });
@@ -29,13 +28,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
-    let profile = await db.customerProfile.findUnique({
-      where: { userId: user.id },
-    });
-
-    if (!profile) {
-      profile = await db.customerProfile.create({ data: { userId: user.id } });
-    }
+    const profile = await getOrCreateCustomerProfile(user);
 
     const body = await req.json();
     const parsed = updatePreferenceSchema.safeParse(body);

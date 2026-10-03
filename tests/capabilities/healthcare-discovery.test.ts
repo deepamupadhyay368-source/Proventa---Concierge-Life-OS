@@ -318,5 +318,44 @@ describe('PROVENTA — Healthcare & Doctor Discovery Engine', () => {
       expect(decision.isProhibited).toBe(false);
       expect(decision.approvalRequired).toBe(true);
     });
+
+    it('26. Autonomous Healthcare Discovery for "Find me a gynaecologist doctor near me"', async () => {
+      const { doctors, diagnostics } = await healthcareDiscoveryProvider.searchDoctors({
+        rawInput: 'Find me a gynaecologist doctor near me',
+      });
+
+      expect(doctors.length).toBeGreaterThanOrEqual(1);
+      expect(diagnostics.resolvedSpecialty).toBe('GYNECOLOGY');
+      expect(diagnostics.resolvedCity).toBe('Ahmedabad');
+
+      for (const doc of doctors) {
+        expect(doc.specialty).toBe('GYNECOLOGY');
+        expect(doc.doctorName).toMatch(/^Dr\./);
+        expect(doc.consultationFee).toBeGreaterThan(0);
+        expect(doc.hospital || doc.clinic).toBeDefined();
+        expect(doc.availabilityStatus).toBe('AVAILABLE');
+        expect(doc.rating).toBeGreaterThanOrEqual(4.0);
+        expect(doc.reviewCount).toBeGreaterThan(0);
+      }
+    });
+
+    it('27. Healthcare Discovery Adapter returns complete structured proposal for "Find me a gynaecologist doctor near me"', async () => {
+      const adapter = new HealthcareDiscoveryAdapter();
+      const proposals = await adapter.search({
+        category: 'healthcare',
+        rawInput: 'Find me a gynaecologist doctor near me',
+      });
+
+      expect(proposals.length).toBeGreaterThanOrEqual(1);
+      const topOption = proposals[0];
+
+      expect(topOption.title).toContain('Dr.');
+      expect(topOption.providerId).toBe('healthcare_discovery');
+      expect(topOption.metadata?.specialty).toBe('GYNECOLOGY');
+      expect(topOption.metadata?.rating).toBeDefined();
+      expect(topOption.metadata?.reviewCount).toBeDefined();
+      expect(topOption.metadata?.hospital || topOption.metadata?.clinic).toBeDefined();
+      expect(topOption.metadata?.verificationStatus).toBe('VERIFIED');
+    });
   });
 });

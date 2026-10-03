@@ -5,16 +5,14 @@ import { createRequestSchema } from '@/lib/validation/schemas';
 import { understandRequest } from '@/lib/ai/agents/understanding';
 import { evaluateSafetyAndHandoff } from '@/lib/ai/agents/safety';
 import { trackEvent } from '@/lib/analytics';
-import { checkAndConsumeEntitlement } from '@/lib/membership/entitlement';
+import { checkAndConsumeEntitlement, getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 import { createAuditLog } from '@/lib/audit';
 import { isAppError } from '@/lib/errors';
 
 export async function GET() {
   try {
     const user = await requireAuth();
-    const customerProfile = await db.customerProfile.findUnique({
-      where: { userId: user.id },
-    });
+    const customerProfile = await getOrCreateCustomerProfile(user);
 
     if (!customerProfile) {
       return NextResponse.json({ requests: [] });
@@ -46,15 +44,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth();
-    let customerProfile = await db.customerProfile.findUnique({
-      where: { userId: user.id },
-    });
-
-    if (!customerProfile) {
-      customerProfile = await db.customerProfile.create({
-        data: { userId: user.id, city: 'Global' },
-      });
-    }
+    const customerProfile = await getOrCreateCustomerProfile(user);
 
     const body = await req.json();
     const parsed = createRequestSchema.safeParse(body);
@@ -204,10 +194,13 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, request }, { status: 201 });
   } catch (error: any) {
-    console.error('[create request]', error);
+    console.error('[create request error]:', error);
     if (isAppError(error)) {
       return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
     }
-    return NextResponse.json({ error: error.message || 'Failed to create request' }, { status: 500 });
+    return NextResponse.json(
+      { error: "We couldn't dispatch your request right now. Please try again.", code: 'DISPATCH_ERROR' },
+      { status: 500 }
+    );
   }
 }

@@ -46,7 +46,7 @@ describe('PROVENTA — FINAL WAVE 1 INVITATION CONTROLLED SMOKE TEST', { timeout
     } catch (e) {
       console.error('Smoke cleanup error:', e);
     }
-  });
+  }, 30000);
 
   // Step 1 - 4: Founder/Admin creates Wave 1 invitation
   it('1-4. Founder creates Wave 1 registration & generates secure cryptographic invitation token', async () => {

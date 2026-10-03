@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth/session';
 import { db } from '@/lib/db';
 import { createRazorpayOrder } from '@/lib/payments/razorpay';
 import { getPlanById, isValidPlanId } from '@/lib/membership/plans';
+import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 import { z } from 'zod';
 
 const createOrderSchema = z.object({
@@ -35,21 +36,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 2. Fetch or create Customer Profile
-    let customerProfile = await db.customerProfile.findUnique({
-      where: { userId: sessionUser.id },
-    });
-
-    if (!customerProfile) {
-      customerProfile = await db.customerProfile.create({
-        data: {
-          userId: sessionUser.id,
-          city: 'Ahmedabad',
-          preferredComm: 'IN_APP',
-          membershipPlan: 'SELECT',
-          membershipStatus: 'PENDING',
-        },
-      });
-    }
+    const customerProfile = await getOrCreateCustomerProfile(sessionUser);
 
     // 3. Prevent duplicate active purchase of identical plan
     if (

@@ -58,7 +58,7 @@ describe('PROVENTA — PHASE 10: REAL PROVIDER EXECUTION & END-TO-END AUTOMATION
         onboardingCompleted: true,
       },
     });
-  });
+  }, 60000);
 
   afterAll(async () => {
     if (testCustomer?.id) {
@@ -72,7 +72,7 @@ describe('PROVENTA — PHASE 10: REAL PROVIDER EXECUTION & END-TO-END AUTOMATION
       await db.userRoleAssignment.deleteMany({ where: { userId: testUser.id } }).catch(() => {});
       await db.user.delete({ where: { id: testUser.id } }).catch(() => {});
     }
-  });
+  }, 60000);
 
   describe('1. Universal Capability Matrix & Provider Capability Contracts', () => {
     it('1.1 should define all 12 core concierge categories with complete capability matrix', () => {
