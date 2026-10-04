@@ -519,15 +519,14 @@ export class EntityIntegrityValidator {
       }
 
       // 3. Dining validation
-      if (cat.includes('dine') || cat.includes('restaurant') || cat === 'food' || cat.includes('food_delivery')) {
-        if (constraints.location) {
-          const reqLoc = constraints.location.toUpperCase();
-          if (reqLoc !== 'AHMEDABAD' && !reqLoc.includes('AHMEDABAD')) {
-            const venueCity = (meta.city || meta.location || '').toUpperCase();
-            if (venueCity && venueCity !== reqLoc && !reqLoc.includes(venueCity)) {
-              return false;
-            }
-            if (title.includes('AHMEDABAD') && !title.includes(reqLoc)) {
+      if (cat.includes('din') || cat.includes('restaurant') || cat === 'food' || cat.includes('food_delivery')) {
+        const reqCity = (constraints.destination || constraints.location || (constraints as any).city || '').toUpperCase();
+        if (reqCity) {
+          const resolvedReq = CityResolver.normalizeCity(reqCity).toUpperCase();
+          const venueCityRaw = (meta.city || meta.location || '').toUpperCase();
+          if (venueCityRaw) {
+            const resolvedVenue = CityResolver.normalizeCity(venueCityRaw).toUpperCase();
+            if (resolvedReq !== resolvedVenue && !resolvedReq.includes(resolvedVenue) && !resolvedVenue.includes(resolvedReq)) {
               return false;
             }
           }

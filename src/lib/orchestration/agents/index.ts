@@ -1,6 +1,7 @@
 import type { TaskAgentInterface, ExtractedEntities, OptionProposal, ExecutionOutput, VerificationResult } from '../types';
 import { AdapterRegistry } from '../adapters';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
+import { AutonomousDiscoveryEngine } from '../discovery/engine';
 
 class BaseDomainAgent implements TaskAgentInterface {
   name: string;
@@ -50,52 +51,22 @@ class BaseDomainAgent implements TaskAgentInterface {
       }
     }
 
-    const adapters = AdapterRegistry.getAdaptersForCategory(searchCategory);
-    const proposals: OptionProposal[] = [];
-
-    const constraints = {
+    const discoveryResult = await AutonomousDiscoveryEngine.discover({
+      customerId: (entities as any).customerId || '',
+      category: searchCategory || entities.category || 'bespoke_requests',
+      originalRequest: entities.rawInput || entities.intent || '',
       origin: entities.origin,
-      originAirport: entities.originAirport,
       destination: entities.destination,
-      destinationAirport: entities.destinationAirport,
       location: entities.location || entities.destination,
-      city: entities.location || entities.destination,
-      locality: (entities as any).locality || (preferences as any)?.locality,
-      hospital: (entities as any).hospital || (preferences as any)?.hospital,
-      doctorName: (entities as any).doctorName || (preferences as any)?.doctorName,
-      specialty: (entities as any).specialty || (preferences as any)?.specialty,
-      gender: (entities as any).gender || (preferences as any)?.gender,
-      dateTime: entities.dateTime,
+      dates: entities.dateTime ? { exact: entities.dateTime } : undefined,
       partySize: entities.partySize,
-      budget: entities.budgetRange || entities.budgetAmount,
+      budget: entities.budgetRange || (entities.budgetAmount ? String(entities.budgetAmount) : undefined),
       preferences,
-    };
+      customerNotes: (preferences as any)?.customerNotes,
+      returnAll: true,
+    } as any);
 
-    for (const adapter of adapters) {
-      const results = await adapter.search({
-        category: searchCategory,
-        intent: entities.intent,
-        rawInput: entities.rawInput,
-        constraints,
-      });
-      proposals.push(...results);
-    }
-
-    // Deterministic validation: Filter out any proposals violating critical constraints
-    const validProposals = EntityIntegrityValidator.filterProposalsByConstraints(
-      proposals,
-      {
-        category: searchCategory,
-        destination: entities.destination,
-        destinationAirport: entities.destinationAirport,
-        origin: entities.origin,
-        originAirport: entities.originAirport,
-        location: entities.location,
-        city: entities.location || entities.destination,
-      } as any
-    );
-
-    return this.rankOptions(validProposals, preferences);
+    return discoveryResult.options;
   }
 
   rankOptions(options: OptionProposal[], preferences?: Record<string, any>): OptionProposal[] {

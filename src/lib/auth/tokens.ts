@@ -19,3 +19,9 @@ export function generateInvitationToken(): string {
 export function generateAuthKeyRecoveryToken(): string {
   return randomBytes(32).toString('base64url');
 }
+
+export function generateProventaAuthKey(): string {
+  const p1 = randomBytes(4).toString('hex').toUpperCase();
+  const p2 = randomBytes(4).toString('hex').toUpperCase();
+  return `PV-${p1}-${p2}`;
+}

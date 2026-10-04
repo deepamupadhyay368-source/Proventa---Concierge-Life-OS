@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { hashPassword } from '@/lib/auth/password';
-import { generateVerificationToken, hashToken } from '@/lib/auth/tokens';
+import { generateVerificationToken, hashToken, generateProventaAuthKey } from '@/lib/auth/tokens';
 import { registerSchema } from '@/lib/validation/schemas';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
 import { trackEvent } from '@/lib/analytics';
@@ -26,12 +26,13 @@ export async function POST(req: NextRequest) {
 
     const { name, email, password, authenticationKey, securityKey, phone, city, preferredComm, dob, address } = parsed.data;
     const rawAuthKey = authenticationKey || securityKey;
+    const effectiveAuthKey = rawAuthKey || generateProventaAuthKey();
 
     const normalizedEmail = email.trim().toLowerCase();
     const cleanPhone = phone ? phone.trim() : null;
     const passwordHash = await hashPassword(password);
-    const securityKeyHash = rawAuthKey ? await hashPassword(rawAuthKey) : null;
-    const authKeyUpdatedAt = securityKeyHash ? new Date() : null;
+    const securityKeyHash = await hashPassword(effectiveAuthKey);
+    const authKeyUpdatedAt = new Date();
 
     // Check for existing user
     const existing = await db.user.findUnique({
@@ -174,6 +175,7 @@ export async function POST(req: NextRequest) {
           name: user.name,
           phone: user.phone,
         },
+        authenticationKey: effectiveAuthKey,
         isAdmin: false,
       },
       { status: 201 },

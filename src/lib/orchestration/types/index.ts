@@ -41,6 +41,44 @@ export interface ExtractedEntities {
   rawInput: string;
 }
 
+export interface AutonomousDiscoveryRequest {
+  taskId?: string;
+  customerId: string;
+  category: string;
+  subcategory?: string;
+  originalRequest: string;
+  location?: string;
+  origin?: string;
+  destination?: string;
+  dates?: string | {
+    exact?: string;
+    start?: string;
+    end?: string;
+  };
+  partySize?: number;
+  budget?: string | number;
+  preferences?: Record<string, any>;
+  constraints?: string[] | Record<string, any>;
+  customerNotes?: string;
+}
+
+export interface AutonomousDiscoveryResult {
+  status: 'SUCCESS' | 'NO_OPTIONS' | 'UNAVAILABLE' | 'REQUIRES_INFORMATION' | 'ERROR';
+  options: OptionProposal[];
+  sourcesQueried?: Array<{
+    sourceId: string;
+    name: string;
+    status: 'SUCCESS' | 'FAILED' | 'TIMEOUT' | 'NOT_CONFIGURED';
+    candidatesFound: number;
+    latencyMs: number;
+  }>;
+  discoveryMetadata?: Record<string, any>;
+  constraintsPreserved?: Record<string, any>;
+  executionCapability: 'AUTOMATED' | 'ASSISTED' | 'HUMAN_CONCIERGE';
+  verificationState?: 'VERIFIED' | 'CURATED' | 'REAL' | 'PENDING';
+  fallbackReason?: string;
+}
+
 export type ExecutionEnvironment = 'REAL' | 'SANDBOX' | 'MOCK' | 'CURATED' | 'PHONE' | 'HUMAN_FALLBACK';
 
 export interface OptionProposal {
