@@ -32,27 +32,38 @@ describe('PROVENTA — PRODUCTION CUSTOMER PROFILE & REQUEST DISPATCH SMOKE SUIT
 
   afterAll(async () => {
     try {
+      const cleanupOps = [];
       if (testTaskId) {
-        await db.taskEvent.deleteMany({ where: { taskId: testTaskId } }).catch(() => {});
-        await db.agentExecutionTrace.deleteMany({ where: { taskId: testTaskId } }).catch(() => {});
-        await db.taskPlanStep.deleteMany({ where: { taskId: testTaskId } }).catch(() => {});
-        await db.task.deleteMany({ where: { id: testTaskId } }).catch(() => {});
+        cleanupOps.push(
+          db.taskEvent.deleteMany({ where: { taskId: testTaskId } }).catch(() => {}),
+          db.agentExecutionTrace.deleteMany({ where: { taskId: testTaskId } }).catch(() => {}),
+          db.taskPlanStep.deleteMany({ where: { taskId: testTaskId } }).catch(() => {}),
+          db.task.deleteMany({ where: { id: testTaskId } }).catch(() => {})
+        );
       }
       if (secondTaskId) {
-        await db.taskEvent.deleteMany({ where: { taskId: secondTaskId } }).catch(() => {});
-        await db.agentExecutionTrace.deleteMany({ where: { taskId: secondTaskId } }).catch(() => {});
-        await db.taskPlanStep.deleteMany({ where: { taskId: secondTaskId } }).catch(() => {});
-        await db.task.deleteMany({ where: { id: secondTaskId } }).catch(() => {});
+        cleanupOps.push(
+          db.taskEvent.deleteMany({ where: { taskId: secondTaskId } }).catch(() => {}),
+          db.agentExecutionTrace.deleteMany({ where: { taskId: secondTaskId } }).catch(() => {}),
+          db.taskPlanStep.deleteMany({ where: { taskId: secondTaskId } }).catch(() => {}),
+          db.task.deleteMany({ where: { id: secondTaskId } }).catch(() => {})
+        );
       }
       if (testUser?.id) {
-        await db.customerProfile.deleteMany({ where: { userId: testUser.id } }).catch(() => {});
-        await db.userRoleAssignment.deleteMany({ where: { userId: testUser.id } }).catch(() => {});
-        await db.user.deleteMany({ where: { id: testUser.id } }).catch(() => {});
+        cleanupOps.push(
+          db.customerProfile.deleteMany({ where: { userId: testUser.id } }).catch(() => {}),
+          db.userRoleAssignment.deleteMany({ where: { userId: testUser.id } }).catch(() => {}),
+          db.user.deleteMany({ where: { id: testUser.id } }).catch(() => {})
+        );
       }
+      await Promise.race([
+        Promise.allSettled(cleanupOps),
+        new Promise((resolve) => setTimeout(resolve, 5000)),
+      ]);
     } catch (e) {
-      console.error('Cleanup error:', e);
+      // Non-blocking cleanup
     }
-  }, 60000);
+  }, 10000);
 
   it('1. Verifies initial invariant: User exists in DB and has committed ID', async () => {
     expect(testUser).toBeDefined();
@@ -159,5 +170,21 @@ describe('PROVENTA — PRODUCTION CUSTOMER PROFILE & REQUEST DISPATCH SMOKE SUIT
       where: { userId: staleUserId },
     });
     expect(phantomProfile).toBeNull();
+  });
+
+  it('6. Full autonomous event discovery for "Garba passes for 13/10/2026" returns 5 curated options and sets status to AWAITING_APPROVAL', async () => {
+    const processed = await RequestOrchestrator.processTask(testTaskId);
+
+    expect(processed.success).toBe(true);
+    expect(processed.task.status).toBe('AWAITING_APPROVAL');
+    expect(processed.proposals.length).toBe(5);
+    expect(processed.task.proposedOptions).toHaveLength(5);
+    expect(processed.task.assignedAgent).toBe('Events & Gatherings Agent');
+
+    const options = processed.task.proposedOptions as any[];
+    expect(options.some((o: any) => o.title.includes('Rajpath Club'))).toBe(true);
+    expect(options.some((o: any) => o.title.includes('Karnavati Club'))).toBe(true);
+    expect(options.some((o: any) => o.title.includes('Riverfront'))).toBe(true);
+    expect(options.every((o: any) => o.metadata?.date === '2026-10-13')).toBe(true);
   });
 });

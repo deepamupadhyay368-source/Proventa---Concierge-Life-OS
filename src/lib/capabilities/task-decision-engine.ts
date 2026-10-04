@@ -220,6 +220,11 @@ export class TaskDecisionEngine {
       return 'SHOPPING';
     }
     if (
+      raw.includes('garba') ||
+      raw.includes('navratri') ||
+      raw.includes('dandiya') ||
+      raw.includes('pass') ||
+      raw.includes('passes') ||
       raw.includes('concert') ||
       raw.includes('live music') ||
       raw.includes('comedy') ||

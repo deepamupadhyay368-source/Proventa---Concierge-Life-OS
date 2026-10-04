@@ -508,9 +508,9 @@ export default function TaskDetailPage() {
             { step: 1, label: 'Request Received', active: true, done: true },
             {
               step: 2,
-              label: 'Options Selected',
-              active: !['REQUESTED', 'UNDERSTANDING', 'SEARCHING'].includes(task.status),
-              done: ['AWAITING_APPROVAL', 'APPROVED', 'NEEDS_HUMAN', 'AWAITING_CONCIERGE_CALL', 'EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
+              label: approvedOption ? 'Option Approved' : (proposedOptions.length > 0 ? 'Review Options' : 'Options Discovery'),
+              active: !['REQUESTED', 'UNDERSTANDING'].includes(task.status),
+              done: Boolean(approvedOption) || ['APPROVED', 'EXECUTING', 'VERIFYING', 'CONFIRMED', 'COMPLETED'].includes(task.status),
             },
             {
               step: 3,
@@ -695,9 +695,11 @@ export default function TaskDetailPage() {
               <UserCheck className="h-6 w-6" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-purple-950">Proventa Concierge Execution</h2>
+              <h2 className="text-sm font-semibold text-purple-950">Proventa Concierge Coordination</h2>
               <p className="text-xs text-purple-800 mt-1 leading-relaxed">
-                Your request is approved and has been handed to your Proventa Concierge for execution.
+                {proposedOptions.length === 0
+                  ? 'Your request has been routed to your Senior Concierge Desk to source verified availability directly with partners and venue liaisons.'
+                  : 'Your request is approved and has been handed to your Proventa Concierge for execution.'}
               </p>
               {task.failedReason && (
                 <p className="text-xs text-purple-700 mt-1 font-mono bg-purple-100/50 p-2 rounded">

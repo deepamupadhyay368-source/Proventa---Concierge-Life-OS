@@ -74,7 +74,18 @@ export class RequestOrchestrator {
       category = 'mobility_transport';
     } else if (lower.includes('gift') || lower.includes('flower') || lower.includes('present')) {
       category = 'gifts_shopping';
-    } else if (lower.includes('event') || lower.includes('concert') || lower.includes('ticket') || lower.includes('show')) {
+    } else if (
+      lower.includes('event') ||
+      lower.includes('concert') ||
+      lower.includes('ticket') ||
+      lower.includes('show') ||
+      lower.includes('garba') ||
+      lower.includes('navratri') ||
+      lower.includes('dandiya') ||
+      lower.includes('pass') ||
+      lower.includes('passes') ||
+      lower.includes('festival')
+    ) {
       category = 'events_experiences';
     }
 

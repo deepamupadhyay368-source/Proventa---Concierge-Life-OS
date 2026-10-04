@@ -370,7 +370,14 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   cardiologist: new HealthcareAgent(),
   pediatrician: new HealthcareAgent(),
   events: new EventsAgent(),
+  events_experiences: new EventsAgent(),
   event: new EventsAgent(),
+  navratri: new EventsAgent(),
+  garba: new EventsAgent(),
+  festivals: new EventsAgent(),
+  festival: new EventsAgent(),
+  passes: new EventsAgent(),
+  pass: new EventsAgent(),
   concert: new EventsAgent(),
   concerts: new EventsAgent(),
   comedy: new EventsAgent(),
@@ -405,7 +412,18 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
     if (raw.includes('flight') || raw.includes('fly') || raw.includes('airline') || raw.includes('airport')) {
       return AGENT_REGISTRY['flights'];
     }
-    if (raw.includes('event') || raw.includes('concert') || raw.includes('comedy') || raw.includes('theatre') || raw.includes('show') || raw.includes('happening')) {
+    if (
+      raw.includes('event') ||
+      raw.includes('concert') ||
+      raw.includes('comedy') ||
+      raw.includes('theatre') ||
+      raw.includes('show') ||
+      raw.includes('happening') ||
+      raw.includes('garba') ||
+      raw.includes('navratri') ||
+      raw.includes('dandiya') ||
+      raw.includes('pass')
+    ) {
       return AGENT_REGISTRY['events'];
     }
     if (raw.includes('doctor') || raw.includes('clinic') || raw.includes('hospital') || raw.includes('appointment') || raw.includes('specialist') || raw.includes('dermatolog') || raw.includes('cardiolog')) {

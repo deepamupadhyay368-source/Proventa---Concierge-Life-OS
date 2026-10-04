@@ -77,6 +77,15 @@ export class ExecutionRouter {
         return 'AVAILABLE';
       }
 
+      case 'events_discovery':
+      case 'events':
+      case 'vip_access':
+      case 'experiences':
+      case 'navratri':
+      case 'garba': {
+        return 'AVAILABLE';
+      }
+
       default:
         return 'NOT_CONFIGURED';
     }

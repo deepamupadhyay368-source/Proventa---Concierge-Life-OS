@@ -661,5 +661,42 @@ describe('PROVENTA — UNIVERSAL AI EVENT DISCOVERY ENGINE TEST SUITE (54 CRITIC
       expect(ver.status).toBe('CONFIRMED');
       expect(ver.environment).toBe('REAL');
     });
+
+    it('55. discovers genuine Garba passes in Ahmedabad for "Garba passes for 13th October 2026"', async () => {
+      const decision = TaskDecisionEngine.evaluate({
+        rawInput: 'Garba passes for 13th October 2026',
+      });
+      expect(decision.category).toBe('EVENTS');
+
+      const dateRange = DateResolver.resolveDate('Garba passes for 13th October 2026');
+      expect(dateRange.startDate).toBe('2026-10-13');
+      expect(dateRange.endDate).toBe('2026-10-13');
+      expect(dateRange.isSpecificDate).toBe(true);
+
+      const proposals = await adapter.search({
+        category: 'events',
+        rawInput: 'Garba passes for 13th October 2026',
+      });
+      expect(proposals.length).toBe(5);
+      expect(proposals.every((p) => p.metadata?.date === '2026-10-13')).toBe(true);
+      expect(proposals.every((p) => p.metadata?.city === 'Ahmedabad')).toBe(true);
+      expect(proposals.some((p) => p.title.includes('Rajpath Club'))).toBe(true);
+      expect(proposals.some((p) => p.title.includes('Karnavati Club'))).toBe(true);
+      expect(proposals.some((p) => p.title.includes('Riverfront'))).toBe(true);
+      expect(proposals.some((p) => p.title.includes('YMCA'))).toBe(true);
+      expect(proposals.some((p) => p.title.includes('Vibrant Gujarat'))).toBe(true);
+    });
+
+    it('56. discovers genuine Garba passes in Ahmedabad for "Garba passes for 13/10/2026"', async () => {
+      const dateRange = DateResolver.resolveDate('Garba passes for 13/10/2026');
+      expect(dateRange.startDate).toBe('2026-10-13');
+
+      const proposals = await adapter.search({
+        category: 'events',
+        rawInput: 'Garba passes for 13/10/2026',
+      });
+      expect(proposals.length).toBe(5);
+      expect(proposals.every((p) => p.metadata?.date === '2026-10-13')).toBe(true);
+    });
   });
 });

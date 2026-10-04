@@ -47,7 +47,15 @@ export class AdapterRegistry {
     this.register('movies_entertainment', new CinemaAdapter());
     this.register('experiences', new EventsDiscoveryAdapter());
     this.register('events', new EventsDiscoveryAdapter());
+    this.register('events_experiences', new EventsDiscoveryAdapter());
     this.register('event', new EventsDiscoveryAdapter());
+    this.register('navratri', new EventsDiscoveryAdapter());
+    this.register('garba', new EventsDiscoveryAdapter());
+    this.register('festivals', new EventsDiscoveryAdapter());
+    this.register('festival', new EventsDiscoveryAdapter());
+    this.register('passes', new EventsDiscoveryAdapter());
+    this.register('pass', new EventsDiscoveryAdapter());
+    this.register('vip_access', new EventsDiscoveryAdapter());
     this.register('culture', new EventsDiscoveryAdapter());
     this.register('music', new EventsDiscoveryAdapter());
     this.register('comedy', new EventsDiscoveryAdapter());
