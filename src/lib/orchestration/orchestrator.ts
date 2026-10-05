@@ -66,7 +66,7 @@ export class RequestOrchestrator {
       category = 'health_wellness';
     } else if (lower.includes('flight') || lower.includes('fly') || lower.includes('airline') || lower.includes('airport')) {
       category = 'travel';
-    } else if (lower.includes('dine') || lower.includes('dinner') || lower.includes('lunch') || lower.includes('restaurant') || lower.includes('table')) {
+    } else if (lower.includes('dine') || lower.includes('dinner') || lower.includes('lunch') || lower.includes('restaurant') || lower.includes('table') || lower.includes('food') || lower.includes('gourmet') || lower.includes('cuisine') || lower.includes('pizza') || lower.includes('biryani') || lower.includes('meal')) {
       category = 'dining';
     } else if (lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('villa') || lower.includes('suite')) {
       category = 'hotels_accommodation';

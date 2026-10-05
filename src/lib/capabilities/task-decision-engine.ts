@@ -158,7 +158,7 @@ export class TaskDecisionEngine {
     if (raw.includes('flight') || raw.includes('airline') || raw.includes('airfare') || raw.includes('fly') || raw.includes('pnr') || raw.includes('aviation') || raw.includes('vistara') || raw.includes('indigo') || raw.includes('air india') || raw.includes('spicejet') || raw.includes('akasa') || raw.includes('air ticket')) {
       return 'TRAVEL';
     }
-    if (raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table for') || raw.includes('dining') || raw.includes('lunch') || raw.includes('agashiye')) {
+    if (raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table for') || raw.includes('dining') || raw.includes('lunch') || raw.includes('agashiye') || raw.includes('food') || raw.includes('pizza') || raw.includes('biryani') || raw.includes('meal')) {
       return 'DINING';
     }
     // Salon & Wellness Check
@@ -207,7 +207,7 @@ export class TaskDecisionEngine {
     ) {
       return 'TRANSPORT';
     }
-    if (raw.includes('food delivery') || raw.includes('swiggy') || raw.includes('order dinner to') || raw.includes('delivery')) {
+    if (raw.includes('food delivery') || raw.includes('swiggy') || raw.includes('order dinner to') || raw.includes('delivery') || raw.includes('order food') || raw.includes('order pizza')) {
       return 'FOOD_DELIVERY';
     }
     if (raw.includes('movie') || raw.includes('cinema') || raw.includes('imax') || raw.includes('pvr') || raw.includes('inox') || raw.includes('showtime')) {
