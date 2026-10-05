@@ -51,8 +51,8 @@ export default async function SignInPage({
         </div>
 
         <p className="text-center text-xs text-[#8a7053] mt-8 font-sans">
-          Don't have an active account?{' '}
-          <Link href="/wave1" className="text-[#141312] hover:underline font-semibold">Apply for Cohort 1 Access</Link>
+          New to Proventa?{' '}
+          <Link href="/sign-up" className="text-[#141312] hover:underline font-semibold">Create your account</Link>
         </p>
       </div>
     </div>

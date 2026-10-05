@@ -41,7 +41,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         redirect: false,
       });
       if (result?.error) {
-        setError('Invalid email, password, or security key.');
+        setError('Invalid email, password, or authentication key.');
       } else {
         router.push(callbackUrl ?? '/dashboard');
         router.refresh();
@@ -294,13 +294,13 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               id="securityKey"
               type="password"
               autoComplete="one-time-code"
-              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-all tracking-[0.2em]"
-              placeholder="••••••••••••"
+              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-all font-mono tracking-wider"
+              placeholder="PV-XXXXXXXX-XXXXXXXX"
               {...register('securityKey')}
             />
             {errors.securityKey && <p className="mt-1 text-xs text-red-600">{errors.securityKey.message}</p>}
             <p className="text-[11px] text-[#66717C] mt-1.5">
-              Your private key. Your Proventa identity.
+              Enter your Proventa Authentication Key generated during signup.
             </p>
           </div>
 
@@ -310,7 +310,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
             className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
-            <span>{loading ? 'Verifying Identity...' : 'Sign In with Authentication Key'}</span>
+            <span>{loading ? 'Signing In...' : 'Sign In'}</span>
           </button>
         </form>
       )}

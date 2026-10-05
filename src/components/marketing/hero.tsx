@@ -9,7 +9,7 @@ export function HeroSection() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const query = intent.trim() || 'Reserve a quiet table for 4 this Saturday evening';
-    window.location.href = `/wave1?intent=${encodeURIComponent(query)}`;
+    window.location.href = `/sign-up?intent=${encodeURIComponent(query)}`;
   };
 
   return (
@@ -93,6 +93,23 @@ export function HeroSection() {
               </button>
             </div>
           </form>
+
+          {/* Primary / Secondary Onboarding CTAs */}
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a
+              href="/sign-up"
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl bg-[#1F2933] text-white text-xs uppercase tracking-wider font-semibold hover:bg-[#111820] hover:shadow-md transition-all shadow-xs w-full sm:w-auto"
+            >
+              <span>Join Proventa</span>
+              <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
+            </a>
+            <a
+              href="/sign-in"
+              className="text-xs uppercase tracking-wider font-semibold text-[#66717C] hover:text-[#1F2933] transition-colors py-2 px-3"
+            >
+              Already a member? <span className="underline text-[#1F2933]">Sign in</span>
+            </a>
+          </div>
         </div>
 
         {/* 3 Pillars in Live Glass Cards */}

@@ -63,7 +63,7 @@ async function runLaunchGateVerification() {
   });
 
   console.log(`Created User ID: ${newUser.id}`);
-  console.log(`securityKeyHash stored in DB: ${newUser.securityKeyHash.substring(0, 15)}... (Plaintext NOT stored)`);
+  console.log(`securityKeyHash stored in DB: ${newUser.securityKeyHash?.substring(0, 15)}... (Plaintext NOT stored)`);
   const isPlaintextAbsent = !('authenticationKey' in newUser) && !('securityKey' in newUser);
   console.log(`Plaintext key absent from DB user record: ${isPlaintextAbsent}`);
 

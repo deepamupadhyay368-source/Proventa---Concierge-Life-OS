@@ -60,6 +60,7 @@ export interface AutonomousDiscoveryRequest {
   preferences?: Record<string, any>;
   constraints?: string[] | Record<string, any>;
   customerNotes?: string;
+  returnAll?: boolean;
 }
 
 export interface AutonomousDiscoveryResult {

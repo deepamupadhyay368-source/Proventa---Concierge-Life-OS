@@ -47,14 +47,14 @@ export function PublicNav() {
           {/* Right Side CTAs */}
           <div className="hidden md:flex items-center gap-5">
             <Link href="/sign-in" className="text-xs uppercase tracking-widest font-semibold text-[#1F2933] hover:text-[#111820] transition-colors">
-              Member Sign In
+              Sign In
             </Link>
 
             <Link
-              href="/wave1"
+              href="/sign-up"
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1F2933] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#111820] transition-all shadow-xs"
             >
-              <span>Early Access</span>
+              <span>Join Proventa</span>
               <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
             </Link>
           </div>
@@ -110,18 +110,18 @@ export function PublicNav() {
           </Link>
           <div className="pt-4 border-t border-[#E1E5E8] flex flex-col gap-3">
             <Link
+              href="/sign-up"
+              onClick={() => setOpen(false)}
+              className="text-center py-3.5 text-xs uppercase tracking-widest font-bold bg-[#1F2933] text-white rounded-lg shadow-xs hover:bg-[#111820]"
+            >
+              Join Proventa
+            </Link>
+            <Link
               href="/sign-in"
               onClick={() => setOpen(false)}
               className="text-center py-3 text-xs uppercase tracking-widest font-bold text-[#1F2933] border border-[#E1E5E8] rounded-lg"
             >
-              Member Sign In
-            </Link>
-            <Link
-              href="/wave1"
-              onClick={() => setOpen(false)}
-              className="text-center py-3.5 text-xs uppercase tracking-widest font-bold bg-[#1F2933] text-white rounded-lg shadow-xs hover:bg-[#111820]"
-            >
-              Request Cohort 1 Access
+              Already a member? Sign In
             </Link>
           </div>
         </div>

@@ -23,18 +23,18 @@ export function FinalCTASection() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
-            href="/dashboard"
+            href="/sign-up"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white hover:bg-[#F7F8FA] text-[#1F2933] font-semibold text-xs uppercase tracking-wider rounded-lg transition-all shadow-sm"
           >
-            <span>Try Your First Request</span>
+            <span>Join Proventa</span>
             <ArrowRight className="h-3.5 w-3.5 text-[#1F2933]" />
           </Link>
 
           <Link
-            href="/membership"
+            href="/sign-in"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 border border-[#485460] bg-[#111820]/60 hover:bg-[#111820] text-white font-medium text-xs uppercase tracking-wider rounded-lg transition-all"
           >
-            <span>Explore Memberships</span>
+            <span>Already a member? Sign in</span>
           </Link>
         </div>
 
