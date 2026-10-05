@@ -126,10 +126,11 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
 
       const env = createSimulatedTaskEnvironment(initialTask);
 
-      // Step 1: Initial Processing -> Batch 1 (5 options)
+      // Step 1: Initial Processing -> Batch 1 (up to 25 genuine options)
       const batch1Res = await RequestOrchestrator.processTask('task-sim-flight');
       expect(batch1Res.success).toBe(true);
-      expect(batch1Res.proposals.length).toBe(5);
+      expect(batch1Res.proposals.length).toBeGreaterThanOrEqual(5);
+      expect(batch1Res.proposals.length).toBeLessThanOrEqual(25);
       const batch1Ids = batch1Res.proposals.map((p: any) => p.id);
 
       // Verify each option respects AMD -> DEL corridor and business class
@@ -138,39 +139,19 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
         expect(p.title).toBeDefined();
       });
 
-      // Step 2: Customer Rejection (Reject All) -> Batch 2 (5 new options)
+      // Step 2: Customer Rejection (Reject All) -> Since all 23 genuine flight options were shown,
+      // zero-fabrication guarantees no fake flights are manufactured; gracefully escalates to Senior Concierge Desk
       const batch2Res = await RequestOrchestrator.cycleOptionBatch({
         taskId: 'task-sim-flight',
         action: 'REJECT_ALL',
         feedback: 'Prefer earlier flight timing or Vistara/Air India',
       });
       expect(batch2Res.success).toBe(true);
-      expect(batch2Res.batch?.options.length).toBe(5);
-      const batch2Ids = (batch2Res.batch?.options || []).map((p: any) => p.id);
+      expect(batch2Res.escalatedToConcierge).toBe(true);
+      expect(env.getTask().status).toBe('NEEDS_HUMAN');
 
-      // Verify no duplicates between Batch 1 and Batch 2
-      batch2Ids.forEach((id: string) => {
-        expect(batch1Ids).not.toContain(id);
-      });
-
-      // Step 3: Customer Feedback -> Batch 3 (5 new options)
-      const batch3Res = await RequestOrchestrator.cycleOptionBatch({
-        taskId: 'task-sim-flight',
-        action: 'REJECT_ALL',
-        feedback: 'Need prime morning departure between 6am and 9am',
-      });
-      expect(batch3Res.success).toBe(true);
-      expect(batch3Res.batch?.options.length).toBe(5);
-      const batch3Ids = (batch3Res.batch?.options || []).map((p: any) => p.id);
-
-      // Verify exclusion memory across all prior batches
-      batch3Ids.forEach((id: string) => {
-        expect(batch1Ids).not.toContain(id);
-        expect(batch2Ids).not.toContain(id);
-      });
-
-      // Step 4: Customer Approves Option from Batch 3
-      const approvedOption = batch3Res.batch!.options[0];
+      // Step 3: Customer Approves prime flight option from initial verified pool
+      const approvedOption = batch1Res.proposals[0];
       const approvalRes = await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-flight',
         option: approvedOption,
@@ -243,10 +224,11 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
 
       const env = createSimulatedTaskEnvironment(initialTask);
 
-      // 1. Initial 5 Luxury Delhi Hotel Options
+      // 1. Initial Luxury Delhi Hotel Options (up to 25 genuine options)
       const batch1 = await RequestOrchestrator.processTask('task-sim-hotel');
       expect(batch1.success).toBe(true);
-      expect(batch1.proposals.length).toBe(5);
+      expect(batch1.proposals.length).toBeGreaterThanOrEqual(5);
+      expect(batch1.proposals.length).toBeLessThanOrEqual(25);
 
       // Verify all options are in Delhi (Entity Integrity)
       batch1.proposals.forEach((p: any) => {
@@ -264,7 +246,7 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
       });
 
       expect(batch2.success).toBe(true);
-      expect(batch2.batch?.options.length).toBe(5);
+      expect(batch2.batch?.options.length).toBeGreaterThanOrEqual(2);
       expect((batch2.batch?.options || []).filter((o: any) => keptIds.includes(o.id)).length).toBe(2);
 
       // 3. Customer Approves The Leela Palace New Delhi
@@ -335,22 +317,23 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
 
       const env = createSimulatedTaskEnvironment(initialTask);
 
-      // 1. Initial 5 Fine Dining Delhi Options
+      // 1. Initial Fine Dining Delhi Options (up to 25 genuine options)
       const batch1 = await RequestOrchestrator.processTask('task-sim-dine');
       expect(batch1.success).toBe(true);
-      expect(batch1.proposals.length).toBe(5);
+      expect(batch1.proposals.length).toBeGreaterThanOrEqual(5);
+      expect(batch1.proposals.length).toBeLessThanOrEqual(25);
 
-      // 2. Reject All with feedback "Prefer North Indian or heritage venue"
+      // 2. Reject All with feedback -> All 17 fine-dining venues in dataset were shown; zero-fabrication escalates
       const batch2 = await RequestOrchestrator.cycleOptionBatch({
         taskId: 'task-sim-dine',
         action: 'REJECT_ALL',
         feedback: 'Prefer North Indian or iconic institutions like Bukhara or Indian Accent',
       });
       expect(batch2.success).toBe(true);
-      expect(batch2.batch?.options.length).toBe(5);
+      expect(batch2.escalatedToConcierge).toBe(true);
 
-      // 3. Customer Approves Table
-      const approvedTable = (batch2.batch?.options || []).find((o: any) => o.title.includes('Bukhara')) || batch2.batch!.options[0];
+      // 3. Customer Approves Bukhara Table from verified pool
+      const approvedTable = batch1.proposals.find((o: any) => o.title.includes('Bukhara')) || batch1.proposals[0];
       await RequestOrchestrator.executeApprovedTask({
         taskId: 'task-sim-dine',
         option: approvedTable,
@@ -413,10 +396,11 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
 
       const env = createSimulatedTaskEnvironment(initialTask);
 
-      // 1. Initial 5 Options
+      // 1. Initial Options (up to 25 genuine options)
       const batch1 = await RequestOrchestrator.processTask('task-sim-weekend');
       expect(batch1.success).toBe(true);
-      expect(batch1.proposals.length).toBe(5);
+      expect(batch1.proposals.length).toBeGreaterThanOrEqual(5);
+      expect(batch1.proposals.length).toBeLessThanOrEqual(25);
 
       // 2. Approve chosen retreat
       const retreatOption = batch1.proposals[0];
@@ -470,10 +454,11 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
 
       const env = createSimulatedTaskEnvironment(initialTask);
 
-      // 1. Initial 5 Gift Options
+      // 1. Initial Gift Options (up to 25 genuine options)
       const batch1 = await RequestOrchestrator.processTask('task-sim-gift');
       expect(batch1.success).toBe(true);
-      expect(batch1.proposals.length).toBe(5);
+      expect(batch1.proposals.length).toBeGreaterThanOrEqual(5);
+      expect(batch1.proposals.length).toBeLessThanOrEqual(25);
 
       // Verify all proposals obey budget ceiling
       batch1.proposals.forEach((p: any) => {
@@ -526,10 +511,11 @@ describe('Phase 10: Full Customer Journey Production Simulation', () => {
 
       const env = createSimulatedTaskEnvironment(initialTask);
 
-      // 1. Process Task
+      // 1. Process Task (up to 25 genuine options)
       const batch1 = await RequestOrchestrator.processTask('task-sim-itinerary');
       expect(batch1.success).toBe(true);
-      expect(batch1.proposals.length).toBe(5);
+      expect(batch1.proposals.length).toBeGreaterThanOrEqual(5);
+      expect(batch1.proposals.length).toBeLessThanOrEqual(25);
 
       // 2. Select preferred dossier
       const selectedDossier = batch1.proposals[0];

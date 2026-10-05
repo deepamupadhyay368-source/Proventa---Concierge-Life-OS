@@ -160,7 +160,7 @@ export class DuffelStaysAdapter implements ProviderAdapterInterface {
 
       const accommodations = staysResult.results || [];
 
-      return accommodations.slice(0, 10).map((acc: any) => {
+      return accommodations.slice(0, 25).map((acc: any) => {
         const accommodation = acc.accommodation || acc;
         const cheapestRate = acc.cheapest_rate || accommodation.cheapest_rate || {};
         const hotelName = accommodation.name || 'Premier Luxury Hotel';

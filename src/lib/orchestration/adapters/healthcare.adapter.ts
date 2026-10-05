@@ -78,7 +78,7 @@ export class HealthcareDiscoveryAdapter implements ProviderAdapterInterface {
       appointmentType: constraints.appointmentType,
       maxFee: constraints.maxFee || constraints.budget,
       rawInput: raw,
-      limit: 5,
+      limit: 25,
     });
 
     logger.info(
@@ -91,7 +91,7 @@ export class HealthcareDiscoveryAdapter implements ProviderAdapterInterface {
       return [];
     }
 
-    return doctors.slice(0, 5).map((doc: NormalizedDoctor) => {
+    return doctors.slice(0, 25).map((doc: NormalizedDoctor) => {
       const locationInfo = [doc.hospital, doc.locality, doc.city].filter(Boolean).join(', ');
       const formattedPrice = doc.feeDisplay || (doc.consultationFee ? `₹${doc.consultationFee.toLocaleString('en-IN')}` : 'Fee on Enquiry');
 

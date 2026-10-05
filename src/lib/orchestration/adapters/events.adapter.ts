@@ -149,8 +149,8 @@ export class EventsDiscoveryAdapter implements ProviderAdapterInterface {
       '[EventsDiscoveryAdapter] Multi-source search completed'
     );
 
-    // 5. Convert to OptionProposal Objects with transparent availability (up to 5 for standard recommendation batch)
-    return rawEvents.slice(0, 5).map((evt: NormalizedEvent) => {
+    // 5. Convert to OptionProposal Objects with transparent availability (up to 25 for recommendation batch)
+    return rawEvents.slice(0, 25).map((evt: NormalizedEvent) => {
       const availabilityText =
         evt.availabilityStatus === 'AVAILABLE'
           ? 'Available · Direct Desk Access'

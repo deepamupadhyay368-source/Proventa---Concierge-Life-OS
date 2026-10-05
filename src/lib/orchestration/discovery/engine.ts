@@ -200,8 +200,8 @@ export class AutonomousDiscoveryEngine {
       return (b.reliabilityScore || 90) - (a.reliabilityScore || 90);
     });
 
-    // 8. Max options (default up to 5 unless returnAll is true or custom limit specified)
-    const limit = (request as any).limit !== undefined ? (request as any).limit : (request as any).returnAll ? undefined : 5;
+    // 8. Max options (default up to 25 unless returnAll is true or custom limit specified)
+    const limit = (request as any).limit !== undefined ? (request as any).limit : (request as any).returnAll ? undefined : 25;
     const finalOptions = limit ? ranked.slice(0, limit) : ranked;
 
     // 9. Determine Execution Capability

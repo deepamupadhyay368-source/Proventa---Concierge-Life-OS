@@ -422,8 +422,8 @@ export class RequestOrchestrator {
         const currentPrefs = (task.clientPreferences as Record<string, any>) || {};
         const currentContext = currentPrefs.preparedContext || {};
 
-        // Format exactly up to 5 options for Batch 1
-        const batch1Options = proposals.slice(0, 5);
+        // Format up to 25 genuine options for Batch 1
+        const batch1Options = proposals.slice(0, 25);
         const batchId = 'BATCH-001';
         const initialBatch: ProposalBatch = {
           batchId,
@@ -567,7 +567,7 @@ export class RequestOrchestrator {
       task: res.task,
       proposals: (Array.isArray(res.task?.proposedOptions) && (res.task.proposedOptions as any[]).length > 0)
         ? (res.task.proposedOptions as any[])
-        : res.proposals.slice(0, 5),
+        : res.proposals.slice(0, 25),
       missingInfo: res.missingInfo,
       decision: res.decision,
     };
@@ -1786,7 +1786,8 @@ export class RequestOrchestrator {
         if (!rejectedOptionKeys.includes(key)) rejectedOptionKeys.push(key);
       }
 
-      const neededCount = Math.max(0, 5 - keptOptions.length);
+      const currentBatchTarget = (currentOptions.length > 0 ? currentOptions.length : 5);
+      const neededCount = Math.max(0, currentBatchTarget - keptOptions.length);
       const assignedAgent = findAgentForTask(category, entities.intent);
       const rawCandidates = await assignedAgent.search(entities, currentPrefs);
 
@@ -1933,7 +1934,8 @@ export class RequestOrchestrator {
         preferences: currentPrefs,
       });
 
-      const selectedOptions = validCandidates.slice(0, 5);
+      const targetBatchSize = (currentOptions.length > 0 ? currentOptions.length : 5);
+      const selectedOptions = validCandidates.slice(0, targetBatchSize);
       const nextBatchNumber = batchHistory.length + 1;
       const nextBatchId = `BATCH-${nextBatchNumber.toString().padStart(3, '0')}`;
 
@@ -2066,7 +2068,8 @@ export class RequestOrchestrator {
       };
     }
 
-    const nextOptions = validCandidates.slice(0, 5);
+    const targetBatchSize = (currentOptions.length > 0 ? currentOptions.length : 5);
+    const nextOptions = validCandidates.slice(0, targetBatchSize);
     const nextBatchNumber = batchHistory.length + 1;
     const nextBatchId = `BATCH-${nextBatchNumber.toString().padStart(3, '0')}`;
 

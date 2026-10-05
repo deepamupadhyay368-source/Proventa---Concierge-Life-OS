@@ -42,6 +42,7 @@ export default function TaskDetailPage() {
 
   // Recommendation cycle & selection state
   const [selectedKeptIds, setSelectedKeptIds] = useState<string[]>([]);
+  const [showAllOptions, setShowAllOptions] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [feedbackReason, setFeedbackReason] = useState('');
   const [showModifyModal, setShowModifyModal] = useState(false);
@@ -855,26 +856,50 @@ export default function TaskDetailPage() {
               )}
             </div>
 
-            {/* Render Candidates */}
-            <div className="space-y-4">
-              {proposedOptions.map((opt, idx) => (
-                <ApprovalActionCard
-                  key={opt.id || idx}
-                  proposal={opt}
-                  optionNumber={idx + 1}
-                  isSelected={selectedKeptIds.includes(opt.id)}
-                  onToggleSelect={(id) =>
-                    setSelectedKeptIds((prev) =>
-                      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-                    )
-                  }
-                  onReplace={(id) => handleReplaceOption(id)}
-                  onApprove={handleApprove}
-                  onDecline={() => setShowRejectModal(true)}
-                  approving={approving || cycling}
-                />
-              ))}
-            </div>
+            {/* Render Candidates (Up to 25 Genuine Options with Progressive Reveal) */}
+            {(() => {
+              const displayedOptions = showAllOptions ? proposedOptions : proposedOptions.slice(0, 10);
+              const remainingCount = proposedOptions.length - 10;
+
+              return (
+                <div className="space-y-4">
+                  {displayedOptions.map((opt, idx) => (
+                    <ApprovalActionCard
+                      key={opt.id || idx}
+                      proposal={opt}
+                      optionNumber={idx + 1}
+                      isSelected={selectedKeptIds.includes(opt.id)}
+                      onToggleSelect={(id) =>
+                        setSelectedKeptIds((prev) =>
+                          prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+                        )
+                      }
+                      onReplace={(id) => handleReplaceOption(id)}
+                      onApprove={handleApprove}
+                      onDecline={() => setShowRejectModal(true)}
+                      approving={approving || cycling}
+                    />
+                  ))}
+
+                  {proposedOptions.length > 10 && (
+                    <div className="text-center pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAllOptions(!showAllOptions)}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-white border border-neutral-300 hover:border-neutral-400 text-neutral-800 rounded-xl text-xs font-semibold shadow-xs transition-colors"
+                      >
+                        <Sparkles className="h-4 w-4 text-amber-500" />
+                        <span>
+                          {showAllOptions
+                            ? 'Show Top 10 Options'
+                            : `Show All ${proposedOptions.length} Genuine Options (+${remainingCount} more)`}
+                        </span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         );
       })()}

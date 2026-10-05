@@ -155,8 +155,8 @@ export class HealthcareDiscoveryProvider {
     // 5. Neutral Ranking (Experience, Verified status, Locality match, Fee transparency)
     const ranked = this.rankDoctors(deduplicated, mergedConstraints);
 
-    // 6. Select Top Options (Max 5 for concise concierge recommendation cycles)
-    const limit = query.limit || 5;
+    // 6. Select Top Options (Up to 25 genuine options)
+    const limit = query.limit || 25;
     const finalOptions = ranked.slice(0, limit);
 
     const diagnostics: HealthcareDiagnostics = {

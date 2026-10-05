@@ -234,8 +234,8 @@ export class UniversalEventDiscoveryProvider implements EventProviderInterface {
       rawInput,
     });
 
-    // Up to 5 genuine options
-    const finalOptions = ranked.slice(0, constraints.limit || 5);
+    // Up to 25 genuine options
+    const finalOptions = ranked.slice(0, constraints.limit || 25);
 
     // 8. Record Diagnostics
     const conciergeFallback = finalOptions.length === 0;

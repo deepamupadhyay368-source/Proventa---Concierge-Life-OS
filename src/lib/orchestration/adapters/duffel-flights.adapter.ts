@@ -144,7 +144,7 @@ export class DuffelFlightsAdapter implements ProviderAdapterInterface {
 
       const offers = offerRequest.offers || [];
 
-      return offers.slice(0, 10).map((offer: any) => {
+      return offers.slice(0, 25).map((offer: any) => {
         const slice = offer.slices?.[0];
         const segment = slice?.segments?.[0];
         const operatingCarrier = segment?.operating_carrier || segment?.marketing_carrier || {};

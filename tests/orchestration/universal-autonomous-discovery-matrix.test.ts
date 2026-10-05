@@ -112,7 +112,7 @@ describe('Universal Autonomous Discovery Engine Matrix', () => {
       });
 
       expect(['SUCCESS', 'NO_OPTIONS']).toContain(result.status);
-      expect(result.options.length).toBeLessThanOrEqual(5);
+      expect(result.options.length).toBeLessThanOrEqual(25);
 
       if (result.status === 'SUCCESS') {
         expect(result.options.length).toBeGreaterThan(0);
@@ -151,14 +151,14 @@ describe('Universal Autonomous Discovery Engine Matrix', () => {
     }
   });
 
-  it('should strictly limit discovery batch to maximum 5 options', async () => {
+  it('should strictly limit discovery batch to maximum 25 options', async () => {
     const result = await AutonomousDiscoveryEngine.discover({
       customerId: 'cust-limit-test',
       category: 'dining',
       originalRequest: 'Fine dining restaurants in Ahmedabad',
     });
 
-    expect(result.options.length).toBeLessThanOrEqual(5);
+    expect(result.options.length).toBeLessThanOrEqual(25);
   });
 
   it('should preserve constraints and validate origin/destination integrity', () => {
