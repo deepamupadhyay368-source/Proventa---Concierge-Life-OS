@@ -50,14 +50,39 @@ export type TaskObjective =
   | 'INQUIRE'
   | 'ARRANGE';
 
+export type DiscoveryStatus = 'AVAILABLE' | 'UNAVAILABLE';
+export type ExecutionCategoryType = 'AUTONOMOUS' | 'ASSISTED' | 'HUMAN';
+export type PaymentSupportType = 'supported' | 'unsupported';
+export type ConfirmationType = 'required' | 'optional';
+
+export interface AuthoritativeCapabilityRow {
+  category: ServiceCategory;
+  name: string;
+  discovery: DiscoveryStatus;
+  execution: ExecutionCategoryType;
+  provider: string;
+  booking: boolean;
+  payment: PaymentSupportType;
+  confirmation: ConfirmationType;
+  specialistAgent: string;
+  verificationMethod: string;
+  notes?: string;
+}
+
 export interface TaskCapability {
   capabilityId: string;
   category: ServiceCategory;
   name: string;
   description: string;
   specialistAgent: string;
+  discoveryStatus: DiscoveryStatus;
   researchSupported: boolean;
+  executionCategory: ExecutionCategoryType;
   executionMode: ExecutionMode;
+  providerName: string;
+  bookingSupported: boolean;
+  paymentSupport: PaymentSupportType;
+  confirmationRequirement: ConfirmationType;
   liveProviderAvailable: boolean;
   humanConciergeAvailable: boolean;
   customerApprovalRequired: boolean;
@@ -85,6 +110,12 @@ export interface CapabilityMatrixRow {
   category: ServiceCategory;
   name: string;
   specialistAgent: string;
+  discovery: DiscoveryStatus;
+  execution: ExecutionCategoryType;
+  provider: string;
+  booking: boolean;
+  payment: PaymentSupportType;
+  confirmation: ConfirmationType;
   researchSupported: boolean;
   automaticExecution: boolean;
   humanConcierge: boolean;

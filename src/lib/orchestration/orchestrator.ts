@@ -636,11 +636,17 @@ export class RequestOrchestrator {
     taskId: string;
     option?: OptionProposal;
     optionId?: string;
+    approvedOptionId?: string;
+    customerId?: string;
+    category?: string;
+    constraints?: any;
+    executionMethod?: string;
     userId?: string;
     skipPaymentGate?: boolean;
     paymentMethod?: string;
   }) {
-    let { taskId, option, optionId, skipPaymentGate, paymentMethod } = params;
+    let { taskId, option, optionId, approvedOptionId, skipPaymentGate, paymentMethod } = params;
+    const targetOptionId = approvedOptionId || optionId;
 
     const taskRecord = await db.task.findUnique({
       where: { id: taskId },
@@ -649,8 +655,8 @@ export class RequestOrchestrator {
     if (!taskRecord) throw new Error(`Task ${taskId} not found`);
 
     // Defensive recovery: if optionId provided or option is missing, look up in taskRecord.proposedOptions
-    if (!option && optionId && Array.isArray(taskRecord.proposedOptions)) {
-      option = (taskRecord.proposedOptions as any[]).find((o: any) => o.id === optionId);
+    if (!option && targetOptionId && Array.isArray(taskRecord.proposedOptions)) {
+      option = (taskRecord.proposedOptions as any[]).find((o: any) => o.id === targetOptionId);
     }
     if (!option && Array.isArray(taskRecord.proposedOptions) && taskRecord.proposedOptions.length > 0) {
       option = (taskRecord.proposedOptions as any[])[0];

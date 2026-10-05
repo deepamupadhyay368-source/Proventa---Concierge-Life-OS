@@ -24,6 +24,13 @@ export class IdempotencyEngine {
   }
 
   /**
+   * Standard booking execution idempotency key: PROVENTA:${taskId}:${approvedOptionId}:${attempt}
+   */
+  static generateBookingIdempotencyKey(taskId: string, approvedOptionId: string, executionAttempt = 1): string {
+    return `PROVENTA:${taskId}:${approvedOptionId}:${executionAttempt}`;
+  }
+
+  /**
    * Safe execution wrapper with bounded backoff and strict idempotency protection.
    * Prevents duplicate financial/booking operations on network timeouts.
    */
