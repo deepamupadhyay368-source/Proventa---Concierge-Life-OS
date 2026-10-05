@@ -111,57 +111,21 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Synchronous execution path (for tests or callers requesting instant option generation)
-    if (sync === true || taskId) {
-      const result = await RequestOrchestrator.processRequest({
-        rawInput: rawInput || '',
-        customerId: customerProfile.id,
-        existingTaskId: taskId,
-        urgency,
-      });
-
-      if (!taskId && isFreeRequest && result?.task?.id) {
-        await attachFreeRequestTaskId(customerProfile.id, result.task.id);
-      }
-
-      return NextResponse.json(result, { status: 201 });
-    }
-
-    // Fast Human-First Concierge Execution Path:
-    // 1. Create and persist the task immediately in Postgres (<150ms).
-    // 2. Return 201 with the persisted task record so the client UI updates without blocking.
-    // 3. Continue AI understanding and agent proposal search in background.
-    const initialTask = await RequestOrchestrator.createInitialTask({
+    // Universal Autonomous Discovery & Execution Pipeline:
+    // Execute AI understanding, agent routing, and multi-source discovery.
+    // Generates up to 5 genuine options, persists them with the task, and returns to client.
+    const result = await RequestOrchestrator.processRequest({
       rawInput: rawInput || '',
       customerId: customerProfile.id,
+      existingTaskId: taskId,
       urgency,
     });
 
-    if (isFreeRequest && initialTask?.id) {
-      await attachFreeRequestTaskId(customerProfile.id, initialTask.id);
+    if (!taskId && isFreeRequest && result?.task?.id) {
+      await attachFreeRequestTaskId(customerProfile.id, result.task.id);
     }
 
-    // Detached background refinement
-    RequestOrchestrator.processRequest({
-      rawInput: rawInput || '',
-      customerId: customerProfile.id,
-      existingTaskId: initialTask.id,
-      urgency,
-    }).catch((bgError) => {
-      console.warn('[POST /api/tasks background error, routed to human concierge]:', bgError?.message || bgError);
-      // Ensure task remains visible to concierge operators
-      db.task.update({
-        where: { id: initialTask.id },
-        data: {
-          status: 'NEEDS_HUMAN',
-          isEscalated: true,
-          executionMethod: 'HUMAN_CONCIERGE',
-          failedReason: 'Routed to Senior Concierge Desk for direct human coordination.',
-        },
-      }).catch(() => {});
-    });
-
-    return NextResponse.json({ task: initialTask, options: [] }, { status: 201 });
+    return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     console.error('[POST /api/tasks error]:', error);
     if (isAppError(error)) {

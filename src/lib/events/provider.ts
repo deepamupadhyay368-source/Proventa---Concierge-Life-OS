@@ -148,7 +148,7 @@ export class UniversalEventDiscoveryProvider implements EventProviderInterface {
           ...constraints,
           city: targetCities[0],
           cities: targetCities,
-          date: dateRange.startDate,
+          date: dateRange.isSpecificDate ? dateRange.startDate : undefined,
           startDate: dateRange.startDate,
           endDate: dateRange.endDate,
           category: targetCategory,

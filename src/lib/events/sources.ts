@@ -49,7 +49,17 @@ export class ProventaVerifiedInventorySource implements EventResearchSource {
       : [targetCity];
 
     // Date resolution
-    const dateRange = DateResolver.resolveDate(constraints.date || constraints.startDate || rawInput);
+    const dateRange = constraints.startDate && constraints.endDate && !constraints.date
+      ? {
+          startDate: constraints.startDate,
+          endDate: constraints.endDate,
+          isSpecificDate: constraints.startDate === constraints.endDate,
+          isDateRange: constraints.startDate !== constraints.endDate,
+          isUpcomingWindow: true,
+          displayText: `${constraints.startDate} to ${constraints.endDate}`,
+          resolvedFrom: 'CONSTRAINTS_WINDOW',
+        }
+      : DateResolver.resolveDate(constraints.date || rawInput);
 
     return all.filter((e) => {
       // City check
@@ -82,7 +92,17 @@ export class OfficialVenuesCalendarSource implements EventResearchSource {
       ? constraints.cities.map(c => CityResolver.normalizeCity(c))
       : [targetCity];
 
-    const dateRange = DateResolver.resolveDate(constraints.date || constraints.startDate || rawInput);
+    const dateRange = constraints.startDate && constraints.endDate && !constraints.date
+      ? {
+          startDate: constraints.startDate,
+          endDate: constraints.endDate,
+          isSpecificDate: constraints.startDate === constraints.endDate,
+          isDateRange: constraints.startDate !== constraints.endDate,
+          isUpcomingWindow: true,
+          displayText: `${constraints.startDate} to ${constraints.endDate}`,
+          resolvedFrom: 'CONSTRAINTS_WINDOW',
+        }
+      : DateResolver.resolveDate(constraints.date || rawInput);
 
     // Official venue items from verified database tagged with venue desks
     const venueDeskEvents = VERIFIED_EVENT_DATABASE.filter(e => 
@@ -117,7 +137,17 @@ export class PublicEventAgendasSource implements EventResearchSource {
       ? constraints.cities.map(c => CityResolver.normalizeCity(c))
       : [targetCity];
 
-    const dateRange = DateResolver.resolveDate(constraints.date || constraints.startDate || rawInput);
+    const dateRange = constraints.startDate && constraints.endDate && !constraints.date
+      ? {
+          startDate: constraints.startDate,
+          endDate: constraints.endDate,
+          isSpecificDate: constraints.startDate === constraints.endDate,
+          isDateRange: constraints.startDate !== constraints.endDate,
+          isUpcomingWindow: true,
+          displayText: `${constraints.startDate} to ${constraints.endDate}`,
+          resolvedFrom: 'CONSTRAINTS_WINDOW',
+        }
+      : DateResolver.resolveDate(constraints.date || rawInput);
 
     const publicAgendas = VERIFIED_EVENT_DATABASE.filter(e =>
       e.category === 'FESTIVALS' ||
