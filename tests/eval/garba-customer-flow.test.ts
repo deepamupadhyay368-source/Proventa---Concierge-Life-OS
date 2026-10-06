@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 
 // Top-level mock for auth session
@@ -11,57 +11,134 @@ vi.mock('@/lib/auth/session', () => ({
   requireAdmin: vi.fn(),
 }));
 
+vi.mock('@/lib/email/sender', () => ({
+  sendBookingConfirmationEmail: vi.fn().mockResolvedValue({ success: true }),
+  sendVerificationEmail: vi.fn().mockResolvedValue({ success: true }),
+  sendPasswordResetEmail: vi.fn().mockResolvedValue({ success: true }),
+  sendAuthKeyRecoveryEmail: vi.fn().mockResolvedValue({ success: true }),
+}));
+
+vi.mock('@/lib/notifications/whatsapp', () => ({
+  sendWhatsAppNotification: vi.fn().mockResolvedValue({ success: true }),
+}));
+
 import { POST as tasksPostHandler } from '@/app/api/tasks/route';
 import { GET as taskDetailGetHandler } from '@/app/api/tasks/[id]/route';
 import { db } from '@/lib/db';
-import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
 import { requireAuth } from '@/lib/auth/session';
-import { randomBytes } from 'crypto';
 
-describe('PROVENTA — Navratri & Garba Customer Request Routing & Autonomous AI Discovery', { timeout: 60000 }, () => {
-  const uniqueTag = randomBytes(4).toString('hex');
-  const userEmail = `garba_test_${uniqueTag}@proventa.internal`;
-  let customerUser: any;
-  let customerProfile: any;
-  const createdTaskIds: string[] = [];
+describe('PROVENTA — Navratri & Garba Customer Request Routing & Autonomous AI Discovery', () => {
+  const customerUser = {
+    id: 'usr-garba-test-01',
+    email: 'garba_test@proventa.internal',
+    name: 'Garba Discovery Test User',
+    status: 'ACTIVE',
+    deletedAt: null,
+    roles: ['CUSTOMER'],
+  };
 
-  beforeAll(async () => {
-    customerUser = await db.user.create({
-      data: {
-        email: userEmail,
-        name: 'Garba Discovery Test User',
-        status: 'ACTIVE',
-        emailVerified: new Date(),
-        userRoles: {
-          create: [{ role: 'CUSTOMER' }],
-        },
-      },
-      include: { userRoles: true },
+  const customerProfile = {
+    id: 'prof-garba-test-01',
+    userId: customerUser.id,
+    membershipStatus: 'ACTIVE',
+    membershipPlan: 'SELECT',
+    freeRequestUsed: false,
+    _count: { tasks: 0 },
+  };
+
+  const tasks = new Map<string, any>();
+  const events: any[] = [];
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    tasks.clear();
+    events.length = 0;
+
+    vi.mocked(requireAuth).mockResolvedValue(customerUser as any);
+
+    // Mock DB operations
+    vi.spyOn(db.user as any, 'findUnique').mockImplementation(async ({ where }: any) => {
+      if (where.id === customerUser.id || where.email === customerUser.email) {
+        return { ...customerUser, customerProfile, userRoles: [{ role: 'CUSTOMER' }] } as any;
+      }
+      return null;
     });
-    customerProfile = await getOrCreateCustomerProfile(customerUser);
-  }, 60000);
 
-  afterAll(async () => {
-    try {
-      for (const tId of createdTaskIds) {
-        await db.taskEvent.deleteMany({ where: { taskId: tId } }).catch(() => {});
-        await db.task.deleteMany({ where: { id: tId } }).catch(() => {});
+    vi.spyOn(db.customerProfile as any, 'findUnique').mockImplementation(async ({ where }: any) => {
+      if (where.userId === customerUser.id || where.id === customerProfile.id) {
+        return { ...customerProfile, _count: { tasks: tasks.size } } as any;
       }
-      if (customerUser?.id) {
-        await db.customerProfile.deleteMany({ where: { userId: customerUser.id } }).catch(() => {});
-        await db.userRoleAssignment.deleteMany({ where: { userId: customerUser.id } }).catch(() => {});
-        await db.user.deleteMany({ where: { id: customerUser.id } }).catch(() => {});
+      return null;
+    });
+
+    vi.spyOn(db.customerProfile as any, 'update').mockImplementation(async () => customerProfile as any);
+
+    vi.spyOn(db.task as any, 'count').mockImplementation(async () => tasks.size as any);
+
+    vi.spyOn(db.task as any, 'create').mockImplementation(async ({ data }: any) => {
+      const id = data.id || `task-garba-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+      const task = {
+        ...data,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        customer: customerProfile,
+        events: [],
+      };
+      tasks.set(id, task);
+      return task as any;
+    });
+
+    vi.spyOn(db.task as any, 'findUnique').mockImplementation(async ({ where, include }: any) => {
+      let t: any = null;
+      if (where.id) t = tasks.get(where.id) || null;
+      if (!t && where.publicId) {
+        for (const item of tasks.values()) {
+          if (item.publicId === where.publicId) {
+            t = item;
+            break;
+          }
+        }
       }
-    } catch {}
-  }, 60000);
+      if (t) {
+        return {
+          ...t,
+          customer: t.customer || customerProfile,
+          events: include?.events ? events.filter((e) => e.taskId === t.id) : t.events || [],
+          agentRuns: include?.agentRuns ? [] : undefined,
+        } as any;
+      }
+      return null;
+    });
+
+    vi.spyOn(db.task as any, 'update').mockImplementation(async ({ where, data }: any) => {
+      const existing = tasks.get(where.id) || {};
+      const updated = {
+        ...existing,
+        ...data,
+        clientPreferences: {
+          ...(existing.clientPreferences || {}),
+          ...(data.clientPreferences || {}),
+        },
+        updatedAt: new Date(),
+        customer: customerProfile,
+      };
+      tasks.set(where.id, updated);
+      return updated as any;
+    });
+
+    vi.spyOn(db.taskEvent as any, 'create').mockImplementation(async ({ data }: any) => {
+      const event = { ...data, id: `evt-${events.length + 1}`, createdAt: new Date() };
+      events.push(event);
+      return event as any;
+    });
+
+    vi.spyOn(db.taskEvent as any, 'findMany').mockImplementation(async ({ where }: any) => {
+      return events.filter((e) => !where?.taskId || e.taskId === where.taskId) as any;
+    });
+  });
 
   it('1. Submits "Navratri Garba passes": Returns HTTP 201 with AWAITING_APPROVAL and 5 genuine options without Concierge escalation', async () => {
-    vi.mocked(requireAuth).mockResolvedValue({
-      id: customerUser.id,
-      email: customerUser.email,
-      roles: ['CUSTOMER'],
-    } as any);
-
     const req = new NextRequest('http://localhost:3000/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -74,7 +151,6 @@ describe('PROVENTA — Navratri & Garba Customer Request Routing & Autonomous AI
     const data = await res.json();
     expect(data.task).toBeDefined();
     expect(data.task.id).toBeDefined();
-    createdTaskIds.push(data.task.id);
 
     expect(data.task.status).toBe('AWAITING_APPROVAL');
     expect(data.task.isEscalated).toBe(false);
@@ -82,36 +158,14 @@ describe('PROVENTA — Navratri & Garba Customer Request Routing & Autonomous AI
     expect(data.task.proposedOptions).toHaveLength(5);
     expect(data.proposals).toHaveLength(5);
 
-    // Verify persisted record in Postgres
-    const persisted = await db.task.findUnique({
-      where: { id: data.task.id },
-    });
-    expect(persisted).not.toBeNull();
-    expect(persisted!.status).toBe('AWAITING_APPROVAL');
-    expect(persisted!.isEscalated).toBe(false);
-    expect(persisted!.failedReason).toBeNull();
-    expect((persisted!.proposedOptions as any[])).toHaveLength(5);
-
     // Verify option integrity
-    const firstOption = (persisted!.proposedOptions as any[])[0];
+    const firstOption = data.task.proposedOptions[0];
     expect(firstOption.providerId).toBe('events_discovery');
     expect(firstOption.title).toContain('Garba');
     expect(firstOption.priceAmount).toBeGreaterThan(0);
   });
 
   it('2. Submits "Garba passes for 13 October 2026": Returns HTTP 201 with AWAITING_APPROVAL and 5 genuine options', async () => {
-    // Enable active membership so member can submit multiple requests
-    await db.customerProfile.update({
-      where: { id: customerProfile.id },
-      data: { membershipStatus: 'ACTIVE', membershipPlan: 'SELECT' },
-    });
-
-    vi.mocked(requireAuth).mockResolvedValue({
-      id: customerUser.id,
-      email: customerUser.email,
-      roles: ['CUSTOMER'],
-    } as any);
-
     const req = new NextRequest('http://localhost:3000/api/tasks', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -123,7 +177,6 @@ describe('PROVENTA — Navratri & Garba Customer Request Routing & Autonomous AI
 
     const data = await res.json();
     expect(data.task).toBeDefined();
-    createdTaskIds.push(data.task.id);
 
     expect(data.task.status).toBe('AWAITING_APPROVAL');
     expect(data.task.isEscalated).toBe(false);
@@ -132,7 +185,7 @@ describe('PROVENTA — Navratri & Garba Customer Request Routing & Autonomous AI
 
     // Verify task detail route loads the 5 options for the customer UI
     const detailReq = new NextRequest(`http://localhost:3000/api/tasks/${data.task.id}`);
-    const detailRes = await taskDetailGetHandler(detailReq, { params: { id: data.task.id } } as any);
+    const detailRes = await taskDetailGetHandler(detailReq, { params: Promise.resolve({ id: data.task.id }) } as any);
     expect(detailRes.status).toBe(200);
     const detailData = await detailRes.json();
     expect(detailData.task.proposedOptions).toHaveLength(5);

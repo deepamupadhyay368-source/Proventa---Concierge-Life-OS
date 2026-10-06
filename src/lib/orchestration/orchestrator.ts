@@ -111,6 +111,8 @@ export class RequestOrchestrator {
         executionMethod: executionResolution.executionMethod,
         clientPreferences: {
           executionTier: executionResolution.tier,
+          executionModeType: executionResolution.executionModeType,
+          requiresExternalTransaction: executionResolution.requiresExternalTransaction,
           executionReason: executionResolution.reason,
           providerStatus: executionResolution.providerStatus,
           providerConsidered: executionResolution.providerConsidered,
@@ -413,11 +415,24 @@ export class RequestOrchestrator {
 
         // Evaluate approval requirements:
         // Any consequential action (booking, reservation, order, purchase) STRICTLY requires explicit approval.
-        // Pure research/comparisons do not require booking approval.
-        const isConsequential =
+        // Pure research/comparisons/internal deliverables do not require booking approval and auto-complete.
+        const requiresExternal = executionResolution.requiresExternalTransaction ?? (
           decision.objective === 'BOOK' ||
           decision.objective === 'ARRANGE' ||
-          entities.executionRequired === true;
+          entities.executionRequired === true
+        );
+
+        const isPureDeliverable =
+          executionResolution.executionModeType === 'AUTOMATED_INTERNAL_EXECUTION' &&
+          !requiresExternal &&
+          (
+            (task.clientPreferences as any)?.isDeliverable === true ||
+            (entities as any).isDeliverable === true ||
+            decision.objective === 'RESEARCH' ||
+            decision.objective === 'COMPARE' ||
+            category === 'research_planning' ||
+            category === 'personal'
+          );
 
         const approvalCheck = await evaluateApproval({
           userId: customerId,
@@ -425,7 +440,7 @@ export class RequestOrchestrator {
           proposal: bestOption,
         });
 
-        const requiresApproval = isConsequential || approvalCheck.requiresApproval || decision.approvalRequired;
+        const requiresApproval = !isPureDeliverable && (requiresExternal || approvalCheck.requiresApproval || decision.approvalRequired || Boolean(bestOption.priceAmount && bestOption.priceAmount > 0));
         const nextStatus: TaskStatus = requiresApproval ? 'AWAITING_APPROVAL' : 'OPTIONS_READY';
 
         const currentPrefs = (task.clientPreferences as Record<string, any>) || {};

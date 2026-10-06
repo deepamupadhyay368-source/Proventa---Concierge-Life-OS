@@ -431,6 +431,34 @@ export class CapabilityRegistry {
     return this.capabilities.get(targetCategory) || this.capabilities.get('OTHER_CONCIERGE')!;
   }
 
+  static hasCapability(category: string): boolean {
+    this.init();
+    if (!category) return false;
+    const raw = category.toUpperCase().replace(/[\s-]/g, '_');
+    const core14Categories = [
+      'DINING',
+      'TRAVEL',
+      'HOTELS',
+      'TRANSPORT',
+      'FOOD_DELIVERY',
+      'MOVIES_ENTERTAINMENT',
+      'GIFTS',
+      'SHOPPING',
+      'SALON_WELLNESS',
+      'APPOINTMENTS',
+      'EVENTS',
+      'WEEKEND_ESCAPES',
+      'RESEARCH_PLANNING',
+      'OTHER_CONCIERGE',
+      'BESPOKE_REQUESTS',
+      'BESPOKE',
+      'PERSONAL',
+      'RESEARCH',
+      'PLANNING',
+    ];
+    return core14Categories.includes(raw) || this.capabilities.has(raw as ServiceCategory);
+  }
+
   static getAllCapabilities(): TaskCapability[] {
     this.init();
     const core14Categories: ServiceCategory[] = [

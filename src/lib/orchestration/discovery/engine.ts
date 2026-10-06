@@ -81,6 +81,15 @@ export class AutonomousDiscoveryEngine {
         rawLower.includes('restaurant')
       ) {
         resolvedCategory = 'dining';
+      } else if (
+        rawLower.includes('plan') ||
+        rawLower.includes('itinerary') ||
+        rawLower.includes('weekend') ||
+        rawLower.includes('escape') ||
+        rawLower.includes('research') ||
+        rawLower.includes('guide')
+      ) {
+        resolvedCategory = 'personal';
       }
     }
 

@@ -31,6 +31,8 @@ export interface PreparedContext {
 export interface ExecutionResolution {
   tier: ClientExecutionTier;
   executionMethod: 'API' | 'HUMAN_CONCIERGE';
+  executionModeType: 'AUTOMATED_INTERNAL_EXECUTION' | 'TRUE_AUTONOMOUS_EXTERNAL_EXECUTION' | 'CUSTOMER_AUTHORIZED_CHECKOUT' | 'ASSISTED_EXECUTION' | 'HUMAN_CONCIERGE_EXECUTION';
+  requiresExternalTransaction: boolean;
   providerStatus: ProviderHealthStatus;
   providerConsidered?: string;
   reason: string;
@@ -144,18 +146,68 @@ export class ExecutionRouter {
     const candidateProvider = capability.supportedProviders[0] || 'concierge_desk';
     const providerStatus = this.checkProviderHealth(candidateProvider);
 
-    // 3. Determine if manual/call override is requested
+    const isWeekendEscapeBooking =
+      normCategory === 'WEEKEND_ESCAPES' ||
+      raw.includes('weekend getaway') ||
+      raw.includes('weekend escape');
+
+    // 3. Pure Internal Deliverables: Research, Comparisons, Itineraries, Discovery Lists, Reminders, Planning
+    const isPureInternalDeliverable =
+      !isWeekendEscapeBooking &&
+      (
+        params.objective === 'RESEARCH' ||
+        params.objective === 'COMPARE' ||
+        raw.startsWith('compare ') ||
+        raw.includes('compare ') ||
+        raw.includes('itinerary') ||
+        raw.includes('plan me') ||
+        raw.includes('plan a ') ||
+        raw.includes('remind me') ||
+        raw.startsWith('find me 20') ||
+        raw.includes('find me 20') ||
+        raw.startsWith('research ') ||
+        raw.includes('research ')
+      );
+
+    // 4. Actionable External Transactions: Explicit booking, reservation, ordering, tickets, passes, appointments
+    const isExplicitBooking =
+      !isPureInternalDeliverable &&
+      (
+        raw.startsWith('book ') ||
+        raw.includes('book me') ||
+        raw.includes('book a ') ||
+        raw.includes('book 2') ||
+        raw.includes('book 3') ||
+        raw.includes('book two') ||
+        raw.includes('book tickets') ||
+        raw.includes('reservation') ||
+        raw.includes('reserve ') ||
+        raw.includes('reserve a') ||
+        raw.includes('table for') ||
+        raw.includes('order ') ||
+        raw.includes('buy ') ||
+        raw.includes('purchase ') ||
+        /\b(?:garba\s+passes?|event\s+passes?|entry\s+passes?|tickets?)\b/i.test(raw) ||
+        raw.includes('doctor') ||
+        raw.includes('appointment') ||
+        raw.includes('cardiolog') ||
+        normCategory === 'WEEKEND_ESCAPES' ||
+        params.objective === 'BOOK' ||
+        params.objective === 'ARRANGE' ||
+        params.extractedData?.executionRequired === true
+      );
+
     const isExplicitManual =
       raw.includes('call ') ||
       raw.includes('call the') ||
       raw.includes('specific table') ||
       raw.includes('offline') ||
       raw.includes('handwritten') ||
-      raw.includes('bespoke') ||
-      raw.includes('notary') ||
       raw.includes('courier');
 
-    // 4. Determine if automated execution is possible
+    const requiresExternalTransaction = !isPureInternalDeliverable && (isExplicitBooking || isExplicitManual);
+
+    // 5. Determine execution mode type & tier
     const canAutomateSafely =
       !isExplicitManual &&
       capability.executionMode === 'PROVIDER_API' &&
@@ -165,11 +217,23 @@ export class ExecutionRouter {
 
     let tier: ClientExecutionTier;
     let executionMethod: 'API' | 'HUMAN_CONCIERGE';
+    let executionModeType: 'AUTOMATED_INTERNAL_EXECUTION' | 'TRUE_AUTONOMOUS_EXTERNAL_EXECUTION' | 'CUSTOMER_AUTHORIZED_CHECKOUT' | 'ASSISTED_EXECUTION' | 'HUMAN_CONCIERGE_EXECUTION';
     let reason: string;
 
-    if (canAutomateSafely) {
+    if (isExplicitManual) {
+      tier = 'HUMAN';
+      executionMethod = 'HUMAN_CONCIERGE';
+      executionModeType = 'HUMAN_CONCIERGE_EXECUTION';
+      reason = 'Member requested bespoke human concierge assistance, offline coordination, or specialized mandate.';
+    } else if (!requiresExternalTransaction) {
       tier = 'AUTOMATED';
       executionMethod = 'API';
+      executionModeType = 'AUTOMATED_INTERNAL_EXECUTION';
+      reason = 'Internal task: Automated internal completion without external provider transaction.';
+    } else if (canAutomateSafely) {
+      tier = 'AUTOMATED';
+      executionMethod = 'API';
+      executionModeType = 'TRUE_AUTONOMOUS_EXTERNAL_EXECUTION';
       reason = `Verified automated provider (${candidateProvider}) active with live credentials.`;
     } else {
       // Missing provider or desk requirement: Never fail! Fall back to ASSISTED or HUMAN.
@@ -196,14 +260,17 @@ export class ExecutionRouter {
 
       if (isExplicitManual) {
         tier = 'HUMAN';
+        executionModeType = 'HUMAN_CONCIERGE_EXECUTION';
         reason = 'Member requested bespoke human concierge coordination.';
       } else if (hasStructuredEntities && !raw.includes('purely manual')) {
         tier = 'ASSISTED';
+        executionModeType = 'ASSISTED_EXECUTION';
         reason = providerStatus !== 'AVAILABLE'
           ? `Provider automation (${candidateProvider}) is unconfigured in current wave. AI structured request context for Senior Concierge Desk.`
           : `Capability requires concierge placement or venue verification. AI prepared structured context for Senior Concierge Desk.`;
       } else {
         tier = 'HUMAN';
+        executionModeType = 'HUMAN_CONCIERGE_EXECUTION';
         reason = 'Manual concierge execution: Direct Senior Concierge coordination without AI dependency.';
       }
     }
@@ -230,6 +297,8 @@ export class ExecutionRouter {
     return {
       tier,
       executionMethod,
+      executionModeType,
+      requiresExternalTransaction,
       providerStatus,
       providerConsidered: candidateProvider,
       reason,

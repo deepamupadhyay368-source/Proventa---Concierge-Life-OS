@@ -149,7 +149,22 @@ export class TaskDecisionEngine {
     if (raw.includes('weekend getaway') || raw.includes('plan my entire weekend') || raw.includes('weekend escape')) {
       return 'WEEKEND_ESCAPES';
     }
-    if (raw.includes('compare three hotels') || raw.includes('compare hotels') || raw.includes('market survey') || raw.includes('research') || raw.includes('itinerary') || raw.includes('plan a ') || raw.includes('planning')) {
+    if (
+      raw.includes('weekend') ||
+      raw.includes('compare three hotels') ||
+      raw.includes('compare hotels') ||
+      raw.includes('compare') ||
+      raw.includes('market survey') ||
+      raw.includes('research') ||
+      raw.includes('itinerary') ||
+      raw.includes('plan a ') ||
+      raw.includes('plan me') ||
+      raw.includes('plan ') ||
+      raw.includes('planning') ||
+      raw.includes('curate') ||
+      raw.includes('dossier') ||
+      raw.includes('guide')
+    ) {
       return 'RESEARCH_PLANNING';
     }
     if (raw.includes('hotel') || raw.includes('suite') || raw.includes('villa') || raw.includes('resort') || raw.includes('stay')) {
@@ -264,7 +279,7 @@ export class TaskDecisionEngine {
     if (raw.includes('arrange') || raw.includes('call the') || raw.includes('schedule')) return 'ARRANGE';
     if (raw.includes('find me') || raw.includes('search') || raw.includes('where can')) return 'SEARCH';
     if (raw.includes('recommend') || raw.includes('best ') || raw.includes('nice ')) return 'RECOMMEND';
-    if (raw.includes('research') || raw.includes('tell me about')) return 'RESEARCH';
+    if (raw.includes('plan') || raw.includes('itinerary') || raw.includes('curate') || raw.includes('research') || raw.includes('tell me about')) return 'RESEARCH';
 
     return 'INQUIRE';
   }
