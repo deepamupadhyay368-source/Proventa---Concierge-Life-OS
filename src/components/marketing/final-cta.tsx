@@ -41,7 +41,7 @@ export function FinalCTASection() {
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-xs text-[#A7B0B8]">
           <div className="flex items-center gap-2">
             <Check className="h-3.5 w-3.5 text-white" />
-            <span>Your First Request Is on Us</span>
+            <span>Your First 3 Requests Are on Us</span>
           </div>
           <span className="text-[#485460]">&bull;</span>
           <div className="flex items-center gap-2">

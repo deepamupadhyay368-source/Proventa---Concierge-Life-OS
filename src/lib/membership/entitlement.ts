@@ -3,14 +3,20 @@ import { trackEvent } from '@/lib/analytics';
 import { AuthenticationError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 
+export const COMPLIMENTARY_REQUESTS_LIMIT = 3;
+
 export type FreeRequestState = 'FREE_REQUEST_AVAILABLE' | 'FREE_REQUEST_USED' | 'ACTIVE_MEMBER';
 
 export interface CustomerEntitlement {
   hasActiveMembership: boolean;
   membershipPlan: string | null;
   membershipStatus: string | null;
+  complimentaryRequestsLimit: number;
+  complimentaryRequestsUsed: number;
+  complimentaryRequestsRemaining: number;
   freeRequestAvailable: boolean;
   freeRequestUsed: boolean;
+  freeRequestsUsed: number;
   freeRequestUsedAt: Date | null;
   freeRequestTaskId: string | null;
   canCreateRequest: boolean;
@@ -19,10 +25,12 @@ export interface CustomerEntitlement {
 
 /**
  * Pure evaluation of customer entitlement.
+ * Computes exact remaining complimentary requests out of 3.
  */
 export function evaluateCustomerEntitlement(profile: {
   membershipPlan?: string | null;
   membershipStatus?: string | null;
+  freeRequestsUsed?: number | null;
   freeRequestUsed?: boolean | null;
   freeRequestUsedAt?: Date | null;
   freeRequestTaskId?: string | null;
@@ -30,12 +38,22 @@ export function evaluateCustomerEntitlement(profile: {
 }): CustomerEntitlement {
   const hasActiveMembership = profile.membershipStatus === 'ACTIVE';
 
-  // Free request is used if explicitly marked or if existing tasks count > 0
-  const freeRequestUsed = Boolean(
-    profile.freeRequestUsed || (typeof profile.tasksCount === 'number' && profile.tasksCount > 0)
-  );
+  // Determine actual used count from database fields or tasks count
+  let usedCount = typeof profile.freeRequestsUsed === 'number' ? profile.freeRequestsUsed : 0;
+  if (typeof profile.tasksCount === 'number' && profile.tasksCount > usedCount) {
+    usedCount = profile.tasksCount;
+  } else if (usedCount === 0 && profile.freeRequestUsed) {
+    usedCount = 1;
+  }
 
-  const freeRequestAvailable = !hasActiveMembership && !freeRequestUsed;
+  const complimentaryRequestsLimit = COMPLIMENTARY_REQUESTS_LIMIT;
+  const complimentaryRequestsUsed = Math.min(usedCount, complimentaryRequestsLimit);
+  const complimentaryRequestsRemaining = hasActiveMembership
+    ? complimentaryRequestsLimit
+    : Math.max(0, complimentaryRequestsLimit - complimentaryRequestsUsed);
+
+  const freeRequestAvailable = !hasActiveMembership && complimentaryRequestsRemaining > 0;
+  const freeRequestUsed = !hasActiveMembership && complimentaryRequestsRemaining === 0;
   const canCreateRequest = hasActiveMembership || freeRequestAvailable;
 
   let state: FreeRequestState = 'FREE_REQUEST_AVAILABLE';
@@ -49,8 +67,12 @@ export function evaluateCustomerEntitlement(profile: {
     hasActiveMembership,
     membershipPlan: profile.membershipPlan || null,
     membershipStatus: profile.membershipStatus || null,
+    complimentaryRequestsLimit,
+    complimentaryRequestsUsed,
+    complimentaryRequestsRemaining,
     freeRequestAvailable,
     freeRequestUsed,
+    freeRequestsUsed: complimentaryRequestsUsed,
     freeRequestUsedAt: profile.freeRequestUsedAt || null,
     freeRequestTaskId: profile.freeRequestTaskId || null,
     canCreateRequest,
@@ -59,15 +81,17 @@ export function evaluateCustomerEntitlement(profile: {
 }
 
 /**
- * Atomically checks and consumes the free request entitlement for a customer.
- * Returns { allowed: true, isFreeRequest: boolean } or { allowed: false, reason: string }.
+ * Atomically checks and consumes 1 complimentary request entitlement for a customer (up to 3 total).
+ * Returns { allowed: true, isFreeRequest: boolean, requestsRemaining: number } or { allowed: false, reason: string }.
  *
- * Race-condition safe: Uses atomic SQL update so two simultaneous requests cannot consume two free requests.
+ * Race-condition safe: Uses atomic SQL update so concurrent requests cannot exceed the 3 complimentary limit.
  */
 export async function checkAndConsumeEntitlement(customerId: string): Promise<{
   allowed: boolean;
   isFreeRequest: boolean;
   isPaidMember: boolean;
+  requestsRemaining?: number;
+  requestsUsed?: number;
   error?: string;
   code?: string;
   reason?: string;
@@ -92,22 +116,36 @@ export async function checkAndConsumeEntitlement(customerId: string): Promise<{
     };
   }
 
-  // 1. Active paid member -> always permitted
+  // 1. Active paid member -> always permitted with unlimited requests
   if (customerProfile.membershipStatus === 'ACTIVE') {
     return {
       allowed: true,
       isFreeRequest: false,
       isPaidMember: true,
+      requestsRemaining: COMPLIMENTARY_REQUESTS_LIMIT,
+      requestsUsed: 0,
     };
   }
 
-  // 2. Non-active member: check if free request already consumed
-  if (customerProfile.freeRequestUsed || customerProfile._count.tasks > 0) {
-    // If not marked in DB but task count > 0, backfill flag
-    if (!customerProfile.freeRequestUsed && customerProfile._count.tasks > 0) {
+  // 2. Non-active member: verify current complimentary usage count
+  const tasksCount = customerProfile._count?.tasks ?? 0;
+  let currentUsed = (customerProfile as any).freeRequestsUsed ?? 0;
+  if (tasksCount > currentUsed) {
+    currentUsed = tasksCount;
+  } else if (currentUsed === 0 && customerProfile.freeRequestUsed) {
+    currentUsed = 1;
+  }
+
+  if (currentUsed >= COMPLIMENTARY_REQUESTS_LIMIT) {
+    // Backfill state in DB if not already recorded
+    if (!customerProfile.freeRequestUsed || (customerProfile as any).freeRequestsUsed < COMPLIMENTARY_REQUESTS_LIMIT) {
       await db.customerProfile.update({
         where: { id: customerId },
-        data: { freeRequestUsed: true, freeRequestUsedAt: new Date() },
+        data: {
+          freeRequestsUsed: COMPLIMENTARY_REQUESTS_LIMIT,
+          freeRequestUsed: true,
+          freeRequestUsedAt: customerProfile.freeRequestUsedAt || new Date(),
+        } as any,
       }).catch(() => {});
     }
 
@@ -115,47 +153,71 @@ export async function checkAndConsumeEntitlement(customerId: string): Promise<{
       allowed: false,
       isFreeRequest: false,
       isPaidMember: false,
-      error: 'Membership required to submit further requests. Your first request is on us has already been used.',
+      requestsRemaining: 0,
+      requestsUsed: COMPLIMENTARY_REQUESTS_LIMIT,
+      error: 'Membership required to submit further requests. Your 3 complimentary requests have already been used.',
       code: 'MEMBERSHIP_REQUIRED',
-      reason: 'FIRST_REQUEST_USED',
+      reason: 'COMPLIMENTARY_LIMIT_REACHED',
       availablePlans: ['select', 'private', 'reserve'],
     };
   }
 
-  // 3. Atomically consume free request entitlement
+  // 3. Atomically consume 1 complimentary request
   const now = new Date();
+  const nextUsed = currentUsed + 1;
+  const isNowExhausted = nextUsed >= COMPLIMENTARY_REQUESTS_LIMIT;
+
   const updateResult = await db.customerProfile.updateMany({
     where: {
       id: customerId,
-      freeRequestUsed: false,
+      freeRequestsUsed: { lt: COMPLIMENTARY_REQUESTS_LIMIT },
       OR: [
         { membershipStatus: null },
         { membershipStatus: { not: 'ACTIVE' } },
       ],
     },
     data: {
-      freeRequestUsed: true,
+      freeRequestsUsed: { increment: 1 },
+      freeRequestUsed: isNowExhausted,
       freeRequestUsedAt: now,
-    },
+    } as any,
   });
 
   if (updateResult.count === 0) {
-    // Another concurrent request consumed the free request simultaneously
+    // Another concurrent request consumed the final complimentary allowance simultaneously
     return {
       allowed: false,
       isFreeRequest: false,
       isPaidMember: false,
-      error: 'Membership required to submit further requests. Your first request is on us has already been used.',
+      requestsRemaining: 0,
+      requestsUsed: COMPLIMENTARY_REQUESTS_LIMIT,
+      error: 'Membership required to submit further requests. Your 3 complimentary requests have already been used.',
       code: 'MEMBERSHIP_REQUIRED',
-      reason: 'FIRST_REQUEST_USED',
+      reason: 'COMPLIMENTARY_LIMIT_REACHED',
       availablePlans: ['select', 'private', 'reserve'],
     };
+  }
+
+  const requestsRemaining = Math.max(0, COMPLIMENTARY_REQUESTS_LIMIT - nextUsed);
+
+  // Sync exhausted boolean flag if limit reached
+  const updatedProfile = await db.customerProfile.findUnique({
+    where: { id: customerId },
+    select: { freeRequestsUsed: true },
+  });
+  if ((updatedProfile?.freeRequestsUsed ?? nextUsed) >= COMPLIMENTARY_REQUESTS_LIMIT) {
+    await db.customerProfile.updateMany({
+      where: { id: customerId, freeRequestUsed: false },
+      data: { freeRequestUsed: true },
+    }).catch(() => {});
   }
 
   return {
     allowed: true,
     isFreeRequest: true,
     isPaidMember: false,
+    requestsRemaining,
+    requestsUsed: nextUsed,
   };
 }
 
@@ -297,41 +359,40 @@ export async function ensureCustomerProfileForAuthenticatedUser(sessionUser: {
         city: 'Ahmedabad',
         membershipPlan: 'SELECT',
         membershipStatus: 'PENDING',
+        freeRequestsUsed: 0,
         freeRequestUsed: false,
-      },
+      } as any,
     });
 
-    logger.info(
-      {
-        userId: canonicalUser.id,
-        profileId: newProfile.id,
-        event: 'CUSTOMER_PROFILE_CREATED',
-      },
-      'New CustomerProfile created successfully'
-    );
+    void trackEvent({
+      event: 'onboarding_completed',
+      userId: canonicalUser.id,
+      properties: { autoProvisioned: true },
+    });
 
     return newProfile;
-  } catch (err: any) {
-    // Concurrent request race condition recovery: if another thread created it, fetch and return
-    const raceProfile = await db.customerProfile.findUnique({
-      where: { userId: canonicalUser.id },
-    });
-    if (raceProfile) {
-      logger.info(
-        {
-          userId: canonicalUser.id,
-          profileId: raceProfile.id,
-          event: 'CUSTOMER_PROFILE_REUSED',
-        },
-        'Customer profile recovered and reused after concurrent creation'
-      );
-      return raceProfile;
+  } catch (createError: any) {
+    // Handle concurrent creation race condition gracefully
+    if (createError.code === 'P2002') {
+      const raceWinner = await db.customerProfile.findUnique({
+        where: { userId: canonicalUser.id },
+      });
+      if (raceWinner) return raceWinner;
     }
-    throw err;
+
+    logger.error(
+      {
+        userId: canonicalUser.id,
+        error: createError.message,
+        event: 'PROFILE_CREATION_FAILED',
+      },
+      'Failed to create customer profile for verified user'
+    );
+    throw createError;
   }
 }
 
 /**
- * Centralized alias ensuring identical behavior across all endpoints
+ * Alias for backward compatibility across endpoints and tests.
  */
 export const getOrCreateCustomerProfile = ensureCustomerProfileForAuthenticatedUser;

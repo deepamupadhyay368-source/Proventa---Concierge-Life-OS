@@ -716,6 +716,7 @@ model CustomerProfile {
   membershipStatus     String?                 @default("PENDING") // ACTIVE | PAUSED | CANCELLED | PENDING | NONE
   membershipStartedAt  DateTime?               @default(now())
   membershipRenewsAt   DateTime?
+  freeRequestsUsed     Int                     @default(0)
   freeRequestUsed      Boolean                 @default(false)
   freeRequestUsedAt    DateTime?
   freeRequestTaskId    String?

@@ -22,8 +22,8 @@ export function MembershipGate({
   mode = 'inline',
   isOpen = true,
   onClose,
-  title = 'Your first Proventa request is complete.',
-  subtitle = 'Ready to have Proventa handle more of your life?',
+  title = 'You have enjoyed your 3 complimentary Proventa requests.',
+  subtitle = 'Choose a membership to continue having Proventa handle more of your life.',
 }: MembershipGateProps) {
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState<MembershipTierSlug>('private');

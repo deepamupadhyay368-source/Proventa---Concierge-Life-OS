@@ -107,6 +107,7 @@ describe('PROVENTA — Customer Profile & Request Dispatch Integrity Suite', () 
           city: 'Ahmedabad',
           membershipPlan: 'SELECT',
           membershipStatus: 'PENDING',
+          freeRequestsUsed: 0,
           freeRequestUsed: false,
         },
       });
@@ -185,9 +186,9 @@ describe('PROVENTA — Customer Profile & Request Dispatch Integrity Suite', () 
           userId: 'user_race',
         }); // race recovery check
 
-      (db.customerProfile.create as any).mockRejectedValueOnce(
-        new Error('Unique constraint failed on the fields: (`userId`)')
-      );
+      const err: any = new Error('Unique constraint failed on the fields: (`userId`)');
+      err.code = 'P2002';
+      (db.customerProfile.create as any).mockRejectedValueOnce(err);
 
       const result = await ensureCustomerProfileForAuthenticatedUser({
         id: 'user_race',
@@ -362,6 +363,7 @@ describe('PROVENTA — Customer Profile & Request Dispatch Integrity Suite', () 
     it('evaluates user with consumed free request as gated', () => {
       const entitlement = evaluateCustomerEntitlement({
         membershipStatus: 'PENDING',
+        freeRequestsUsed: 3,
         freeRequestUsed: true,
       });
 
@@ -376,6 +378,7 @@ describe('PROVENTA — Customer Profile & Request Dispatch Integrity Suite', () 
       (db.customerProfile.findUnique as any).mockResolvedValueOnce({
         id: 'cust_profile_1',
         membershipStatus: 'PENDING',
+        freeRequestsUsed: 0,
         freeRequestUsed: false,
         _count: { tasks: 0 },
       });
@@ -387,30 +390,33 @@ describe('PROVENTA — Customer Profile & Request Dispatch Integrity Suite', () 
       expect(check.allowed).toBe(true);
       expect(check.isFreeRequest).toBe(true);
       expect(check.isPaidMember).toBe(false);
+      expect(check.requestsRemaining).toBe(2);
       expect(db.customerProfile.updateMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
             id: 'cust_profile_1',
-            freeRequestUsed: false,
+            freeRequestsUsed: { lt: 3 },
             OR: [{ membershipStatus: null }, { membershipStatus: { not: 'ACTIVE' } }],
           },
         })
       );
     });
 
-    it('rejects dispatch when free request has already been used', async () => {
+    it('rejects dispatch when all 3 complimentary requests have already been used', async () => {
       (db.customerProfile.findUnique as any).mockResolvedValueOnce({
         id: 'cust_profile_2',
         membershipStatus: 'PENDING',
+        freeRequestsUsed: 3,
         freeRequestUsed: true,
-        _count: { tasks: 1 },
+        _count: { tasks: 3 },
       });
 
       const check = await checkAndConsumeEntitlement('cust_profile_2');
 
       expect(check.allowed).toBe(false);
       expect(check.code).toBe('MEMBERSHIP_REQUIRED');
-      expect(check.reason).toBe('FIRST_REQUEST_USED');
+      expect(check.reason).toBe('COMPLIMENTARY_LIMIT_REACHED');
+      expect(check.error).toContain('3 complimentary requests have already been used');
     });
   });
 });

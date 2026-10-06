@@ -40,10 +40,14 @@ function DashboardContent() {
       membershipPlan?: string | null;
       membershipStatus?: string | null;
       membershipRenewsAt?: string | null;
+      freeRequestsUsed?: number;
       freeRequestUsed?: boolean;
     } | null;
     entitlement?: {
       hasActiveMembership: boolean;
+      complimentaryRequestsLimit?: number;
+      complimentaryRequestsUsed?: number;
+      complimentaryRequestsRemaining?: number;
       freeRequestAvailable: boolean;
       freeRequestUsed: boolean;
       canCreateRequest: boolean;
@@ -71,19 +75,26 @@ function DashboardContent() {
       });
   }, []);
 
+  const tasksCount = tasks?.length ?? 0;
+  const usedCount = typeof userProfile?.customerProfile?.freeRequestsUsed === 'number'
+    ? userProfile.customerProfile.freeRequestsUsed
+    : tasksCount;
+  const remainingCount = Math.max(0, 3 - usedCount);
+
   const entitlement = userProfile?.entitlement || {
     hasActiveMembership: userProfile?.customerProfile?.membershipStatus === 'ACTIVE',
+    complimentaryRequestsLimit: 3,
+    complimentaryRequestsUsed: Math.min(usedCount, 3),
+    complimentaryRequestsRemaining: userProfile?.customerProfile?.membershipStatus === 'ACTIVE' ? 3 : remainingCount,
     freeRequestAvailable:
-      !(userProfile?.customerProfile?.membershipStatus === 'ACTIVE') &&
-      !(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0)),
-    freeRequestUsed: Boolean(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0)),
+      userProfile?.customerProfile?.membershipStatus === 'ACTIVE' || remainingCount > 0,
+    freeRequestUsed: !(userProfile?.customerProfile?.membershipStatus === 'ACTIVE') && remainingCount === 0,
     canCreateRequest:
-      userProfile?.customerProfile?.membershipStatus === 'ACTIVE' ||
-      !(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0)),
+      userProfile?.customerProfile?.membershipStatus === 'ACTIVE' || remainingCount > 0,
     state:
       userProfile?.customerProfile?.membershipStatus === 'ACTIVE'
         ? 'ACTIVE_MEMBER'
-        : Boolean(userProfile?.customerProfile?.freeRequestUsed || (tasks && tasks.length > 0))
+        : remainingCount === 0
         ? 'FREE_REQUEST_USED'
         : 'FREE_REQUEST_AVAILABLE',
   };
@@ -252,7 +263,7 @@ function DashboardContent() {
       </section>
 
       {/* 1. Free Request Available Banner */}
-      {entitlement.freeRequestAvailable && (
+      {!entitlement.hasActiveMembership && entitlement.freeRequestAvailable && (
         <section className="bg-gradient-to-r from-[#F7F8FA] to-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-11 h-11 rounded-xl bg-white border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] shadow-xs shrink-0">
@@ -261,14 +272,14 @@ function DashboardContent() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold tracking-wide text-[#111820]">
-                  Your first request is on us.
+                  Your first 3 requests are on us.
                 </span>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-medium bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
-                  Complimentary
+                  {entitlement.complimentaryRequestsRemaining ?? (3 - tasksCount)} Remaining
                 </span>
               </div>
               <p className="text-xs text-[#66717C] mt-0.5">
-                Experience Proventa before choosing a membership. Submit any request below to start.
+                Enjoy 3 complimentary Proventa requests before choosing a membership. Submit any request below.
               </p>
             </div>
           </div>
@@ -298,7 +309,7 @@ function DashboardContent() {
             </div>
             <div>
               <div className="text-xs font-semibold tracking-wide text-[#111820]">
-                Your complimentary Proventa request has been used.
+                You have used your 3 complimentary Proventa requests.
               </div>
               <p className="text-xs text-[#66717C] mt-0.5">
                 Choose a membership to continue having Proventa handle more of your life.

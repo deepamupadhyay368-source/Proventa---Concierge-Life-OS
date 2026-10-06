@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { createAuditLog } from '@/lib/audit';
 import { isAppError } from '@/lib/errors';
-import { getOrCreateCustomerProfile } from '@/lib/membership/entitlement';
+import { getOrCreateCustomerProfile, evaluateCustomerEntitlement } from '@/lib/membership/entitlement';
 import { z } from 'zod';
 
 const updateProfileSchema = z.object({
@@ -37,6 +37,7 @@ export async function GET() {
             membershipStatus: true,
             membershipStartedAt: true,
             membershipRenewsAt: true,
+            freeRequestsUsed: true,
             freeRequestUsed: true,
             freeRequestUsedAt: true,
             freeRequestTaskId: true,
@@ -63,26 +64,16 @@ export async function GET() {
     if (!cp) {
       cp = await getOrCreateCustomerProfile(dbUser);
     }
-    const hasActiveMembership = cp?.membershipStatus === 'ACTIVE';
-    const tasksCount = cp?._count?.tasks ?? 0;
-    const freeRequestUsed = Boolean(cp?.freeRequestUsed || tasksCount > 0);
-    const freeRequestAvailable = !hasActiveMembership && !freeRequestUsed;
 
-    const entitlement = {
-      hasActiveMembership,
-      membershipPlan: cp?.membershipPlan || null,
-      membershipStatus: cp?.membershipStatus || null,
-      freeRequestAvailable,
-      freeRequestUsed,
-      freeRequestUsedAt: cp?.freeRequestUsedAt || null,
-      freeRequestTaskId: cp?.freeRequestTaskId || null,
-      canCreateRequest: hasActiveMembership || freeRequestAvailable,
-      state: hasActiveMembership
-        ? 'ACTIVE_MEMBER'
-        : freeRequestUsed
-        ? 'FREE_REQUEST_USED'
-        : 'FREE_REQUEST_AVAILABLE',
-    };
+    const entitlement = evaluateCustomerEntitlement({
+      membershipPlan: cp?.membershipPlan,
+      membershipStatus: cp?.membershipStatus,
+      freeRequestsUsed: cp?.freeRequestsUsed,
+      freeRequestUsed: cp?.freeRequestUsed,
+      freeRequestUsedAt: cp?.freeRequestUsedAt,
+      freeRequestTaskId: cp?.freeRequestTaskId,
+      tasksCount: cp?._count?.tasks,
+    });
 
     return NextResponse.json({
       success: true,
