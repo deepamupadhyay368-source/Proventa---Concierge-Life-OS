@@ -191,6 +191,10 @@ export class ExecutionRouter {
         raw.includes('doctor') ||
         raw.includes('appointment') ||
         raw.includes('cardiolog') ||
+        raw.includes('restaurant') ||
+        raw.includes('restaurants') ||
+        raw.includes('fine-dining') ||
+        (normCategory === 'DINING' && Boolean(params.extractedData?.partySize || params.extractedData?.intent)) ||
         normCategory === 'WEEKEND_ESCAPES' ||
         params.objective === 'BOOK' ||
         params.objective === 'ARRANGE' ||

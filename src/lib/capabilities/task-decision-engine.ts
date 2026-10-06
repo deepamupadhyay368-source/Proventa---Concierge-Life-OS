@@ -150,7 +150,6 @@ export class TaskDecisionEngine {
       return 'WEEKEND_ESCAPES';
     }
     if (
-      raw.includes('weekend') ||
       raw.includes('compare three hotels') ||
       raw.includes('compare hotels') ||
       raw.includes('compare') ||
