@@ -51,7 +51,7 @@ export default function AIDisclosurePage() {
                   <ul className="list-disc list-inside text-xs text-[#6e6b65] space-y-1 pl-1">
                     <li><strong>Intent Parsing:</strong> Extracts destination, dates, preferences, party size, and dietary restrictions from conversational voice or text prompts.</li>
                     <li><strong>Category Routing:</strong> Automatically classifies requests into dining, travel, wellness, shopping, or home logistics.</li>
-                    <li><strong>Option Synthesis:</strong> Generates initial 5-option recommendation batches matching stored lifestyle preferences.</li>
+                    <li><strong>Option Synthesis:</strong> Generates recommendation batches of up to 25 genuine options matching stored lifestyle preferences.</li>
                   </ul>
                 </div>
               </section>

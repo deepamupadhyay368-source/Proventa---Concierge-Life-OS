@@ -118,15 +118,15 @@ export function HeroSection() {
             <span className="text-xs font-semibold uppercase tracking-widest text-[#66717C] block mb-2">01 · Precision</span>
             <h3 className="text-sm font-semibold text-[#1F2933] mb-1.5">Effortless Delegation</h3>
             <p className="text-xs text-[#66717C] leading-relaxed">
-              State what you need. AI evaluates constraints, checks live verified inventory, and curates up to 5 genuine options.
+              State what you need. AI evaluates constraints, checks legitimate sources, and curates up to 25 genuine options.
             </p>
           </div>
 
           <div className="p-5 rounded-2xl bg-white/80 backdrop-blur-md border border-[#E1E5E8] shadow-xs hover:border-[#A7B0B8] hover:shadow-md hover:-translate-y-1 transition-all duration-300">
             <span className="text-xs font-semibold uppercase tracking-widest text-[#66717C] block mb-2">02 · Execution</span>
-            <h3 className="text-sm font-semibold text-[#1F2933] mb-1.5">Human Concierge Desk</h3>
+            <h3 className="text-sm font-semibold text-[#1F2933] mb-1.5">Proventa Execution</h3>
             <p className="text-xs text-[#66717C] leading-relaxed">
-              Once you approve an option, our dedicated concierge team handles venue liaison, phone bookings, and real confirmations.
+              Once you approve an option, Proventa completes the request autonomously where available, or through your dedicated Concierge Desk.
             </p>
           </div>
 

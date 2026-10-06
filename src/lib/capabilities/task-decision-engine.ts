@@ -213,7 +213,7 @@ export class TaskDecisionEngine {
     if (raw.includes('movie') || raw.includes('cinema') || raw.includes('imax') || raw.includes('pvr') || raw.includes('inox') || raw.includes('showtime')) {
       return 'MOVIES_ENTERTAINMENT';
     }
-    if (raw.includes('birthday gift') || raw.includes('gift under') || raw.includes('flowers') || raw.includes('hampers')) {
+    if (raw.includes('gift') || raw.includes('gifts') || raw.includes('present') || raw.includes('flowers') || raw.includes('hampers') || raw.includes('florist') || raw.includes('gifting')) {
       return 'GIFTS';
     }
     if (raw.includes('shop') || raw.includes('stole') || raw.includes('bandhej') || raw.includes('watch') || raw.includes('luxury buy') || raw.includes('procure')) {

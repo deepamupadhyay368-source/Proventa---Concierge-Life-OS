@@ -13,7 +13,10 @@ export async function GET() {
   let dbError: string | null = null;
   try {
     const dbStart = Date.now();
-    await db.$queryRaw`SELECT 1`;
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Database probe timeout (3000ms)')), 3000)
+    );
+    await Promise.race([db.$queryRaw`SELECT 1`, timeoutPromise]);
     dbLatencyMs = Date.now() - dbStart;
     dbHealthy = true;
   } catch (e: any) {

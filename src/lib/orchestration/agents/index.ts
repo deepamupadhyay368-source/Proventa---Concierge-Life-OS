@@ -245,6 +245,12 @@ export class EntertainmentAgent extends BaseDomainAgent {
   }
 }
 
+export class CinemaAgent extends BaseDomainAgent {
+  constructor() {
+    super('Cinema & Entertainment Specialist Agent', 'movies');
+  }
+}
+
 export class HomeServicesAgent extends BaseDomainAgent {
   constructor() {
     super('Home & Estate Services Agent', 'home');
@@ -316,11 +322,11 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   food_delivery: new DiningAgent(),
   food: new DiningAgent(),
   delivery: new DiningAgent(),
-  movies_entertainment: new EntertainmentAgent(),
+  movies_entertainment: new CinemaAgent(),
   experiences: new EventsAgent(),
-  movies: new EntertainmentAgent(),
-  movie: new EntertainmentAgent(),
-  cinema: new EntertainmentAgent(),
+  movies: new CinemaAgent(),
+  movie: new CinemaAgent(),
+  cinema: new CinemaAgent(),
   entertainment: new EventsAgent(),
   gifts: new GiftAgent(),
   gift: new GiftAgent(),
@@ -376,12 +382,21 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
   const raw = (intent || '').toLowerCase();
 
   // Explicit disambiguation when category is generic or ambiguously classified
-  if (cat === 'travel' || cat === 'other' || !AGENT_REGISTRY[cat]) {
+  if (cat === 'travel' || cat === 'other' || cat === 'bespoke_requests' || !AGENT_REGISTRY[cat]) {
     if (raw.includes('hotel') || raw.includes('stay') || raw.includes('resort') || raw.includes('villa') || raw.includes('suite')) {
       return AGENT_REGISTRY['hotels'];
     }
     if (raw.includes('flight') || raw.includes('fly') || raw.includes('airline') || raw.includes('airport')) {
       return AGENT_REGISTRY['flights'];
+    }
+    if (raw.includes('movie') || raw.includes('cinema') || raw.includes('imax') || raw.includes('showtime')) {
+      return AGENT_REGISTRY['movies'];
+    }
+    if (raw.includes('gift') || raw.includes('flower') || raw.includes('hampers')) {
+      return AGENT_REGISTRY['gifts'];
+    }
+    if (raw.includes('weekend') || raw.includes('escape') || raw.includes('getaway')) {
+      return AGENT_REGISTRY['weekend_escapes'];
     }
     if (
       raw.includes('event') ||
@@ -399,6 +414,9 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
     }
     if (raw.includes('doctor') || raw.includes('clinic') || raw.includes('hospital') || raw.includes('appointment') || raw.includes('specialist') || raw.includes('dermatolog') || raw.includes('cardiolog')) {
       return AGENT_REGISTRY['healthcare'];
+    }
+    if (raw.includes('dine') || raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table') || raw.includes('food') || raw.includes('pizza') || raw.includes('meal')) {
+      return AGENT_REGISTRY['dining'];
     }
   }
 

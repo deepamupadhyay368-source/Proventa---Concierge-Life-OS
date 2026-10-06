@@ -7,7 +7,7 @@ import { POLICY_VERSIONS, POLICY_EFFECTIVE_DATES } from '@/lib/legal/versions';
 export const metadata: Metadata = {
   title: 'Concierge Service Terms | Proventa Legal & Trust Center',
   description:
-    'Operational framework for task delegation, 5-option recommendation cycles, approval gates, and zero-fabrication concierge execution.',
+    'Operational framework for task delegation, genuine recommendation cycles, approval gates, and zero-fabrication concierge execution.',
 };
 
 export default function ConciergeServiceTermsPage() {
@@ -47,10 +47,10 @@ export default function ConciergeServiceTermsPage() {
 
               <section className="space-y-3">
                 <h2 className="text-lg font-serif font-semibold text-[#141312] tracking-tight">
-                  2. The 5-Option Iterative Curation Cycle
+                  2. Genuine Multi-Option Curation &amp; Iteration
                 </h2>
                 <p>
-                  For complex lifestyle, dining, travel, and experience requests, Proventa curates an initial batch of <strong>5 distinct, verified options</strong> (Batch-001) for member evaluation.
+                  For lifestyle, dining, travel, and experience requests, Proventa curates a batch of <strong>up to 25 genuine, verified options</strong> for member evaluation.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-1">
                   <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
@@ -59,11 +59,11 @@ export default function ConciergeServiceTermsPage() {
                   </div>
                   <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
                     <strong className="text-neutral-900 block mb-1">Keep &amp; Replace Others</strong>
-                    Member locks 1 to 4 favorite options and requests fresh alternatives for unselected items.
+                    Member locks favorite options and requests fresh alternatives for unselected items.
                   </div>
                   <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
                     <strong className="text-neutral-900 block mb-1">Reject All &amp; Re-Curate</strong>
-                    Member provides quick refinement feedback to generate a completely new batch of 5 tailored options.
+                    Member provides quick refinement feedback to generate a completely new batch of genuine tailored options.
                   </div>
                 </div>
               </section>

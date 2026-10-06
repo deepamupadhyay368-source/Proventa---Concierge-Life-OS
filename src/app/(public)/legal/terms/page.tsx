@@ -85,7 +85,7 @@ export default function TermsOfServicePage() {
                   </div>
                   <div className="text-[11px] text-[#6e6b65] font-sans space-y-1 pt-1 border-t border-[#e8e2d8]">
                     <p><strong>• Requested:</strong> Member submits intent via natural language.</p>
-                    <p><strong>• Recommended:</strong> System curates a 5-option recommendation batch for member review.</p>
+                    <p><strong>• Recommended:</strong> System curates a recommendation batch of up to 25 genuine options for member review.</p>
                     <p><strong>• Customer Approved:</strong> Member explicitly locks a preferred proposal.</p>
                     <p><strong>• Executing:</strong> Automated integration or Senior Concierge Desk initiates reservation.</p>
                     <p><strong>• Provider Confirmed:</strong> Genuine partner reference or PNR authenticated.</p>

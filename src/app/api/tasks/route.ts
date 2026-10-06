@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
 
     // Universal Autonomous Discovery & Execution Pipeline:
     // Execute AI understanding, agent routing, and multi-source discovery.
-    // Generates up to 5 genuine options, persists them with the task, and returns to client.
+    // Generates up to 25 genuine options, persists them with the task, and returns to client.
     const result = await RequestOrchestrator.processRequest({
       rawInput: rawInput || '',
       customerId: customerProfile.id,

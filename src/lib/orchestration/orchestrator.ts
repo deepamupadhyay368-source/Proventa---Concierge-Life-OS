@@ -33,8 +33,9 @@ export class RequestOrchestrator {
     const count = await db.task.count();
     const baseCandidate = `TSK-${(count + 1).toString().padStart(4, '0')}`;
     const existing = await db.task.findUnique({ where: { publicId: baseCandidate } });
+    const nonce = Math.random().toString(36).substring(2, 6).toUpperCase();
     const publicId = existing
-      ? `TSK-${(count + 1).toString().padStart(4, '0')}-${Date.now().toString(36).slice(-4).toUpperCase()}`
+      ? `TSK-${(count + 1).toString().padStart(4, '0')}-${nonce}`
       : baseCandidate;
 
     const lower = rawInput.toLowerCase();
@@ -199,9 +200,17 @@ export class RequestOrchestrator {
     };
 
     // 3. Check client persistent preferences
-    const preferencesRecords = (await db.customerPreference?.findMany?.({
-      where: { customerId },
-    })) || [];
+    let preferencesRecords: any[] = [];
+    try {
+      if (customerId && db.customerPreference?.findMany) {
+        preferencesRecords = (await db.customerPreference.findMany({
+          where: { customerId },
+        })) || [];
+      }
+    } catch (e) {
+      // Non-blocking fallback for preferences
+      preferencesRecords = [];
+    }
     const preferences: Record<string, any> = {};
     preferencesRecords.forEach((p: any) => {
       preferences[p.key] = p.value;
@@ -215,22 +224,21 @@ export class RequestOrchestrator {
     let isEscalated = false;
     let failedReason: string | null = null;
 
-    if (decision.isProhibited || decision.executionMode === 'UNSUPPORTED') {
-      // Graceful rejection for unsupported or unlawful mandates
+    if (decision.isProhibited) {
+      // Graceful rejection for unlawful or prohibited mandates
       initialStatus = 'CANCELLED';
       failedReason = decision.explanation;
     } else if (
-      safety.requiresImmediateHumanHandoff ||
-      rawInput.toLowerCase().includes('last-minute private venue for 20 people tonight') ||
-      rawInput.toLowerCase().includes('impossible') ||
-      (decision.executionMode === 'HUMAN_CONCIERGE' && (rawInput.toLowerCase().includes('call ') || rawInput.toLowerCase().includes('specific table')))
+      !safety.safeForAIResearch &&
+      safety.requiresImmediateHumanHandoff
     ) {
-      // Immediate human concierge escalation
+      // Immediate human concierge escalation only for explicit human requests, disputes, or complaints
       initialStatus = 'NEEDS_HUMAN';
       isEscalated = true;
     } else if (missingInfo.length > 0 && !task) {
       initialStatus = 'NEEDS_INFORMATION';
     } else {
+      // Universal Discovery-First: All actionable requests initiate autonomous discovery
       initialStatus = 'SEARCHING';
     }
 
@@ -247,8 +255,9 @@ export class RequestOrchestrator {
       const count = await db.task.count();
       const baseCandidate = `TSK-${(count + 1).toString().padStart(4, '0')}`;
       const existing = await db.task.findUnique({ where: { publicId: baseCandidate } });
+      const nonce = Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Date.now().toString(36).slice(-3).toUpperCase();
       const publicId = existing
-        ? `TSK-${(count + 1).toString().padStart(4, '0')}-${Date.now().toString(36).slice(-4).toUpperCase()}`
+        ? `TSK-${(count + 1).toString().padStart(4, '0')}-${nonce}`
         : baseCandidate;
 
       task = await db.task.create({
@@ -502,16 +511,38 @@ export class RequestOrchestrator {
 
           return { task, proposals, missingInfo, decision };
         } else {
-          // Research-only completed advisory
+          // Internal Research / Dossier Deliverable Completion: Autonomous internal completion
+          const deliverable = {
+            title: proposals[0]?.title || task.intent,
+            category: task.category,
+            providerName: proposals[0]?.providerName || 'Proventa Concierge',
+            content: proposals[0]?.description || 'Curated Deliverable.',
+            metadata: proposals[0]?.metadata || {},
+            deliveredAt: new Date().toISOString(),
+            status: 'FULFILLED',
+          };
+
+          task = await db.task.update({
+            where: { id: task.id },
+            data: {
+              status: 'COMPLETED',
+              completedAt: new Date(),
+              clientPreferences: {
+                ...currentPrefs,
+                deliverable,
+              } as any,
+            },
+          });
+
           await appendTaskEvent({
             taskId: task.id,
             eventType: 'RESEARCH_COMPLETED',
             actorRole: 'AI_AGENT',
-            message: 'Research and curation complete. Ready for member review.',
-            data: { optionsCount: proposals.length },
+            message: 'Research and curation complete. Deliverable ready for member review.',
+            data: { optionsCount: proposals.length, deliverableTitle: deliverable.title },
           });
 
-          return { task, proposals, missingInfo, decision };
+          return { task, proposals, missingInfo, decision, deliverable };
         }
       } else {
         // No direct inventory found -> escalate to Human Concierge
@@ -653,6 +684,43 @@ export class RequestOrchestrator {
       include: { customer: { include: { user: true } } },
     });
     if (!taskRecord) throw new Error(`Task ${taskId} not found`);
+
+    if (taskRecord.status === 'COMPLETED') {
+      const prefs = (taskRecord.clientPreferences as Record<string, any>) || {};
+      const deliverable = prefs.deliverable || {
+        title: (taskRecord.proposedOptions as any[])?.[0]?.title || taskRecord.intent,
+        category: taskRecord.category,
+        providerName: (taskRecord.proposedOptions as any[])?.[0]?.providerName || 'Proventa Concierge',
+        content: (taskRecord.proposedOptions as any[])?.[0]?.description || 'Curated Deliverable.',
+        metadata: (taskRecord.proposedOptions as any[])?.[0]?.metadata || {},
+        deliveredAt: taskRecord.completedAt?.toISOString() || new Date().toISOString(),
+        status: 'FULFILLED',
+      };
+
+      try {
+        if (taskRecord.customer?.user?.email) {
+          await sendBookingConfirmationEmail({
+            email: taskRecord.customer.user.email,
+            name: taskRecord.customer.user.name || 'Valued Member',
+            title: option?.title || deliverable.title,
+            reference: `DLV-${taskRecord.publicId || taskId.slice(-6).toUpperCase()}`,
+            vendor: option?.providerName || deliverable.providerName || 'Proventa Concierge',
+            notes: deliverable.content,
+            actionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'}/tasks/${taskId}`,
+          });
+        }
+      } catch (e) {
+        console.error('[Orchestrator] Deliverable notification error:', e);
+      }
+
+      return {
+        success: true,
+        task: taskRecord,
+        status: 'COMPLETED',
+        deliverable,
+        message: 'Task deliverable was already completed.',
+      };
+    }
 
     // Defensive recovery: if optionId provided or option is missing, look up in taskRecord.proposedOptions
     if (!option && targetOptionId && Array.isArray(taskRecord.proposedOptions)) {

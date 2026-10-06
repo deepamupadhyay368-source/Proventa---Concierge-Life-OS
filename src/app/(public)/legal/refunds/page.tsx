@@ -43,7 +43,7 @@ export default function RefundsPolicyPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
                   <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
                     <strong className="text-neutral-900 block mb-1">A. Proventa Concierge Fees</strong>
-                    Covers research, option curation, 5-option cycles, and human concierge desk coordination.
+                    Covers research, option curation, recommendation cycles, and concierge execution coordination.
                   </div>
                   <div className="p-4 rounded-xl bg-neutral-50 border border-neutral-200">
                     <strong className="text-neutral-900 block mb-1">B. Third-Party Provider Charges</strong>

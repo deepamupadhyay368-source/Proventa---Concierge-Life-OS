@@ -76,7 +76,7 @@ export const LEGAL_DOCUMENTS: LegalDocumentMeta[] = [
     shortTitle: 'Concierge Terms',
     version: POLICY_VERSIONS.conciergeTerms,
     effectiveDate: POLICY_EFFECTIVE_DATES.conciergeTerms,
-    description: 'Operational lifecycle from research and 5-option cycles to customer approval, provider execution, and zero-fabrication standards.',
+    description: 'Operational lifecycle from research and genuine option discovery to customer approval, provider execution, and zero-fabrication standards.',
     category: 'SERVICES',
   },
   {

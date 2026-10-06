@@ -5,19 +5,19 @@ const STEPS = [
   {
     step: '01',
     title: 'State Your Request',
-    description: 'Articulate your request in natural language. Dining, executive flights, boutique stays, gifting, or lifestyle coordination.',
+    description: 'Articulate what you need in natural language. Dining, executive flights, boutique stays, cultural passes, gifting, or lifestyle coordination.',
     icon: MessageSquare,
   },
   {
     step: '02',
-    title: 'Curated Options & Approval',
-    description: 'AI agents evaluate live verified availability and present up to 5 genuine options with transparent pricing. You choose what works best.',
+    title: 'AI Discovers Genuine Options',
+    description: 'AI evaluates requirements, checks legitimate sources, and curates up to 25 genuine options with transparent pricing. You review and select your preferred option.',
     icon: Search,
   },
   {
     step: '03',
-    title: 'Concierge Execution',
-    description: 'Your assigned Proventa concierge desk executes the booking directly with the venue, returning authentic confirmation passes to your dashboard.',
+    title: 'Approval & Execution',
+    description: 'Once you approve, Proventa executes the request autonomously where a verified interface exists, or through your dedicated Concierge Desk with real provider confirmation.',
     icon: CheckSquare,
   },
 ];

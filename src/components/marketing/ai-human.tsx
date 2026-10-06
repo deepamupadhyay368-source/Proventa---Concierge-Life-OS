@@ -76,7 +76,7 @@ export function AIHumanSection() {
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-[#66717C] leading-relaxed">
-                Evaluates complex requirements, cross-checks dates and live inventory, aligns dietary preferences, and structures up to 5 verified options within seconds.
+                Evaluates complex requirements, cross-checks dates and legitimate sources, aligns preferences, and structures up to 25 verified options within seconds.
               </p>
             </div>
 
@@ -86,12 +86,12 @@ export function AIHumanSection() {
                   <PhoneCall className="h-5 w-5 text-[#A7B0B8]" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Dedicated Concierge Desk</h3>
+                  <h3 className="text-sm font-semibold text-white">Dedicated Concierge &amp; Execution Desk</h3>
                   <p className="text-xs text-[#A7B0B8]">Operational Liaison &amp; Real Execution</p>
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-[#E5E9ED] leading-relaxed">
-                A professional concierge handles telephone placement, confirms table arrangements, secures special requests, and returns authentic provider reference codes.
+                Once you approve an option, Proventa executes the request autonomously where available, or a professional concierge handles telephone placement and returns authentic provider confirmations.
               </p>
             </div>
           </div>

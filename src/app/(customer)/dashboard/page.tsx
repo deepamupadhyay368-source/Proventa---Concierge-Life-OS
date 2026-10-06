@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { getWelcomeMessage } from '@/lib/auth/greeting';
 import { MembershipGate } from '@/components/membership/MembershipGate';
+import { VoiceInput } from '@/components/voice/VoiceInput';
 
 function DashboardContent() {
   const router = useRouter();
@@ -420,7 +421,14 @@ function DashboardContent() {
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <VoiceInput
+                  onTranscript={(transcript) => {
+                    setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+                  }}
+                  disabled={submitting}
+                />
+                <span className="text-[#E1E5E8] hidden sm:inline">&bull;</span>
                 <span className="text-xs text-[#66717C] font-medium shrink-0">Urgency:</span>
                 {(['NORMAL', 'URGENT', 'ASAP'] as const).map((lvl) => (
                   <button

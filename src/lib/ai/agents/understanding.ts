@@ -246,7 +246,10 @@ Customer Request:
 
 Respond strictly with valid JSON. No markdown ticks, no preamble.`;
 
-    const result = await model.generateContent(prompt);
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('AI understanding call timeout (2500ms)')), 2500)
+    );
+    const result = (await Promise.race([model.generateContent(prompt), timeoutPromise])) as any;
     const text = result.response.text().trim().replace(/^```json\s*|\s*```$/g, '');
     const parsed = JSON.parse(text);
 

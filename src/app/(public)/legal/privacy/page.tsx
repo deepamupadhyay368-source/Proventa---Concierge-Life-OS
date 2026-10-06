@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
                 </p>
                 <ul className="list-disc list-inside space-y-1.5 text-xs text-[#524e48] pl-2">
                   <li><strong>Request Understanding &amp; Research:</strong> Analyzing task constraints to identify matching verified venues, airlines, and hospitality options.</li>
-                  <li><strong>Option Curation:</strong> Preparing structured 5-option recommendation batches for member review.</li>
+                  <li><strong>Option Curation:</strong> Preparing structured recommendation batches of up to 25 genuine options for member review.</li>
                   <li><strong>Approved Task Execution:</strong> Transmitting necessary reservation details to authorized providers upon explicit member approval.</li>
                   <li><strong>Member Communication:</strong> Sending transactional updates, proposal ready notifications, booking confirmation cards, and security alerts.</li>
                   <li><strong>Fraud Prevention &amp; Security:</strong> Enforcing rate limiting, role-based customer isolation, session integrity, and immutable audit trails.</li>
