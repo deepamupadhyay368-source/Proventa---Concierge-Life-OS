@@ -224,6 +224,21 @@ export class DuffelFlightsAdapter implements ProviderAdapterInterface {
         return { isValid: false, reason: 'Duffel flight offer has expired. Fresh search required.' };
       }
 
+      // Check inventory availability
+      if (!offer.slices || offer.slices.length === 0) {
+        return { isValid: false, reason: 'Flight offer is no longer available from the airline (sold out).' };
+      }
+
+      // Check price changes (prevent surprise price hikes)
+      const currentPrice = Math.round(parseFloat(offer.total_amount || '0'));
+      const approvedPrice = approvedOption.priceAmount;
+      if (approvedPrice && currentPrice > approvedPrice) {
+        return {
+          isValid: false,
+          reason: `Flight fare increased from ₹${approvedPrice.toLocaleString('en-IN')} to ₹${currentPrice.toLocaleString('en-IN')}. Re-approval required before purchase.`,
+        };
+      }
+
       // Check origin & destination
       const slice = offer.slices?.[0];
       const origin = (slice?.origin?.iata_code || '').toUpperCase();

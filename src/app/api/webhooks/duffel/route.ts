@@ -54,16 +54,20 @@ export async function POST(req: NextRequest) {
                 { externalReferenceId: orderId },
               ],
             },
+            include: { events: true },
           });
 
           if (task) {
-            await appendTaskEvent({
-              taskId: task.id,
-              eventType: 'PROVIDER_CONFIRMED',
-              actorRole: 'SYSTEM',
-              message: `Duffel verified flight order confirmed. Airline PNR: ${bookingRef || orderId}.`,
-              data: { orderId, bookingRef, eventId },
-            });
+            const alreadyHandled = task.events.some((e: any) => (e.data as any)?.eventId === eventId);
+            if (!alreadyHandled) {
+              await appendTaskEvent({
+                taskId: task.id,
+                eventType: 'PROVIDER_CONFIRMED',
+                actorRole: 'SYSTEM',
+                message: `Duffel verified flight order confirmed. Airline PNR: ${bookingRef || orderId}.`,
+                data: { orderId, bookingRef, eventId },
+              });
+            }
           }
         }
         break;
@@ -113,16 +117,20 @@ export async function POST(req: NextRequest) {
               { externalReferenceId: orderId },
             ],
           },
+          include: { events: true },
         });
 
         if (task) {
-          await appendTaskEvent({
-            taskId: task.id,
-            eventType: 'FLIGHT_SCHEDULE_UPDATED',
-            actorRole: 'SYSTEM',
-            message: 'Airline announced flight schedule modification. Details updated.',
-            data: { eventData, eventId },
-          });
+          const alreadyHandled = task.events.some((e: any) => (e.data as any)?.eventId === eventId);
+          if (!alreadyHandled) {
+            await appendTaskEvent({
+              taskId: task.id,
+              eventType: 'FLIGHT_SCHEDULE_UPDATED',
+              actorRole: 'SYSTEM',
+              message: 'Airline announced flight schedule modification. Details updated.',
+              data: { eventData, eventId },
+            });
+          }
         }
         break;
       }
@@ -141,16 +149,20 @@ export async function POST(req: NextRequest) {
               { externalReferenceId: bookingId },
             ],
           },
+          include: { events: true },
         });
 
         if (task) {
-          await appendTaskEvent({
-            taskId: task.id,
-            eventType: 'PROVIDER_CONFIRMED',
-            actorRole: 'SYSTEM',
-            message: `Duffel Stay confirmed at hotel. CRS Reference: ${crsRef || bookingId}.`,
-            data: { bookingId, crsRef, eventId },
-          });
+          const alreadyHandled = task.events.some((e: any) => (e.data as any)?.eventId === eventId);
+          if (!alreadyHandled) {
+            await appendTaskEvent({
+              taskId: task.id,
+              eventType: 'PROVIDER_CONFIRMED',
+              actorRole: 'SYSTEM',
+              message: `Duffel Stay confirmed at hotel. CRS Reference: ${crsRef || bookingId}.`,
+              data: { bookingId, crsRef, eventId },
+            });
+          }
         }
         break;
       }

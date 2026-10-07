@@ -46,6 +46,15 @@ export class ExecutionRouter {
    */
   static checkProviderHealth(providerId: string): ProviderHealthStatus {
     switch (providerId.toLowerCase()) {
+      case 'duffel_flights':
+      case 'duffel':
+      case 'duffel_aviation':
+      case 'duffel_stays': {
+        const hasKeys = Boolean(process.env.DUFFEL_API_KEY && process.env.DUFFEL_API_KEY.trim().length > 0);
+        const isLive = process.env.DUFFEL_ENV === 'live' && Boolean(process.env.DUFFEL_API_KEY?.startsWith('duffel_live_'));
+        return isLive ? 'AVAILABLE' : hasKeys ? 'DEGRADED' : 'NOT_CONFIGURED';
+      }
+
       case 'amadeus_flights':
       case 'amadeus':
       case 'scheduled_flights': {
