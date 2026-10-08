@@ -46,7 +46,10 @@ export async function understandRequest(rawInput: string): Promise<ExtractedRequ
 
   // 2. Extract Party Size / Number of Guests
   let partySize: number | undefined = undefined;
-  const partyMatch = lower.match(/(?:for|party of)\s*(\d+)/i);
+  const partyMatch =
+    lower.match(/(?:for|party of)\s*(\d+)/i) ||
+    lower.match(/\b(\d+)\s*(?:people|guests|persons|passes|tickets|seats|passengers|adults|rooms|pax)\b/i) ||
+    lower.match(/(?:book|reserve|need|get)\s*(\d+)\b/i);
   if (partyMatch) {
     partySize = parseInt(partyMatch[1], 10);
   } else if (lower.includes('for two') || lower.includes('dinner for two') || lower.includes('couple')) {

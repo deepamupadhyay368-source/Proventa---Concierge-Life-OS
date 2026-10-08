@@ -178,8 +178,9 @@ export class EntityIntegrityValidator {
     }
 
     // 2. Passengers / Party size extraction
-    const paxMatch = raw.match(/(\d+)\s*(?:passengers?|pax|people|guests?|persons?|seats?|tickets?)/i) ||
-                     raw.match(/for\s+(\d+)(?:\s+(?:people|guests?|persons?|passengers?|seats?))?/i);
+    const paxMatch = raw.match(/(\d+)\s*(?:passengers?|pax|people|guests?|persons?|seats?|tickets?|passes?)/i) ||
+                     raw.match(/for\s+(\d+)(?:\s+(?:people|guests?|persons?|passengers?|seats?|passes?))?/i) ||
+                     raw.match(/(?:book|reserve|need|get)\s*(\d+)\b/i);
     if (paxMatch) {
       const num = parseInt(paxMatch[1], 10);
       if (num > 0) {

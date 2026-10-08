@@ -16,21 +16,17 @@ import {
   ShieldCheck,
   UserCheck,
   Plus,
-  Lock
+  Lock,
 } from 'lucide-react';
 import { getWelcomeMessage } from '@/lib/auth/greeting';
 import { MembershipGate } from '@/components/membership/MembershipGate';
-import { VoiceInput } from '@/components/voice/VoiceInput';
+import { HybridRequestComposer } from '@/components/request-composer/HybridRequestComposer';
 
 function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isWelcome = searchParams.get('welcome') === 'true';
 
-  const [input, setInput] = useState('');
-  const [urgency, setUrgency] = useState<'NORMAL' | 'URGENT' | 'ASAP'>('NORMAL');
-  const [submitting, setSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
   const [showMembershipGateModal, setShowMembershipGateModal] = useState(false);
   const [userProfile, setUserProfile] = useState<{
@@ -97,106 +93,6 @@ function DashboardContent() {
         : remainingCount === 0
         ? 'FREE_REQUEST_USED'
         : 'FREE_REQUEST_AVAILABLE',
-  };
-
-  const handleCreateRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || submitting) return;
-
-    if (!entitlement.canCreateRequest) {
-      setShowMembershipGateModal(true);
-      return;
-    }
-
-    setSubmitting(true);
-    setErrorMessage(null);
-
-    try {
-      // Direct integration into Proventa Task Execution Orchestration Engine
-      const res = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rawInput: input, urgency }),
-      });
-
-      if (res.status === 401) {
-        router.push(`/sign-in?callbackUrl=${encodeURIComponent('/dashboard#new-request')}`);
-        return;
-      }
-
-      if (res.status === 402) {
-        setShowMembershipGateModal(true);
-        setSubmitting(false);
-        return;
-      }
-
-      let data: any = null;
-      try {
-        data = await res.json();
-      } catch {
-        // Non-JSON response, fallback
-      }
-
-      if (data?.code === 'MEMBERSHIP_REQUIRED') {
-        setShowMembershipGateModal(true);
-        setSubmitting(false);
-        return;
-      }
-
-      if (res.ok && data?.task?.id) {
-        setInput('');
-        router.push(`/tasks/${data.task.id}`);
-        return;
-      }
-
-      // Fallback to requests endpoint if needed
-      const legacyRes = await fetch('/api/requests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ rawInput: input, urgency }),
-      });
-
-      if (legacyRes.status === 401) {
-        router.push(`/sign-in?callbackUrl=${encodeURIComponent('/dashboard#new-request')}`);
-        return;
-      }
-
-      if (legacyRes.status === 402) {
-        setShowMembershipGateModal(true);
-        setSubmitting(false);
-        return;
-      }
-
-      let legacyData: any = null;
-      try {
-        legacyData = await legacyRes.json();
-      } catch {
-        // Non-JSON response
-      }
-
-      if (legacyData?.code === 'MEMBERSHIP_REQUIRED') {
-        setShowMembershipGateModal(true);
-        setSubmitting(false);
-        return;
-      }
-
-      if (legacyRes.ok && legacyData?.request?.id) {
-        setInput('');
-        router.push(`/requests/${legacyData.request.id}`);
-        return;
-      }
-
-      const msg =
-        data?.error ||
-        legacyData?.error ||
-        'Unable to submit your concierge request right now. Please try again shortly or contact support.';
-      setErrorMessage(msg);
-    } catch (err: any) {
-      console.error('[Tell Proventa]', err);
-      setErrorMessage(err.message || 'A network error occurred while communicating with the concierge desk.');
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const activeTasks = tasks.filter((t) => !['COMPLETED', 'CANCELLED'].includes(t.status));
@@ -389,106 +285,31 @@ function DashboardContent() {
         </div>
       )}
 
-      {/* Hero Request Creation Box */}
-      <section id="new-request" className="bg-white rounded-2xl border border-[#E1E5E8] p-6 sm:p-8 shadow-xs">
-        <div className="mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#66717C]">Concierge Life OS</p>
-          <h2 className="text-2xl font-semibold text-[#1F2933] mt-1">What can we take care of?</h2>
-          <p className="text-xs text-[#66717C] mt-1">
-            Plain language. No category selection required. A concierge will review and verify every detail.
-          </p>
-        </div>
-
-        {errorMessage && (
-          <div className="mb-4 p-3 sm:p-3.5 bg-red-50/95 border border-red-200/90 rounded-xl text-xs text-red-700 flex items-start gap-2.5 animate-fade-in shadow-xs">
-            <AlertCircle className="h-4 w-4 shrink-0 text-red-500 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <span className="font-semibold block text-red-900">Request Not Dispatched</span>
-              <span className="text-red-700 break-words">{errorMessage}</span>
-            </div>
+      {/* Hybrid Structured + AI Conversational Request Experience */}
+      {!entitlement.canCreateRequest ? (
+        <section id="new-request" className="bg-white rounded-2xl border border-[#E1E5E8] p-6 sm:p-8 shadow-xs">
+          <div className="mb-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#66717C]">Concierge Life OS</p>
+            <h2 className="text-2xl font-semibold text-[#1F2933] mt-1">What can we take care of?</h2>
+            <p className="text-xs text-[#66717C] mt-1">
+              Choose what you need, tell us the essentials, and we&apos;ll take it from there.
+            </p>
           </div>
-        )}
-
-        {/* If membership is required to create request, show inline Membership Gate */}
-        {!entitlement.canCreateRequest ? (
           <div className="py-2">
             <MembershipGate
               mode="inline"
-              title="Your first Proventa request is complete."
+              title="You have used your 3 complimentary requests."
               subtitle="Ready to have Proventa handle more of your life? Choose a membership to continue."
             />
           </div>
-        ) : (
-          <form onSubmit={handleCreateRequest} className="space-y-4">
-            <div className="relative">
-              <textarea
-                rows={3}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="e.g. Find me a quiet rooftop restaurant for Saturday for four people, around ₹2,000 per person, and arrange the reservation."
-                className="w-full p-3.5 sm:p-4 border border-[#E1E5E8] bg-[#F7F8FA] focus:bg-white focus:border-[#1F2933] rounded-xl text-sm text-[#1F2933] focus:outline-none placeholder:text-[#A7B0B8] resize-none transition-colors"
-                required
-              />
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <VoiceInput
-                  onTranscript={(transcript) => {
-                    setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-                  }}
-                  disabled={submitting}
-                />
-                <span className="text-[#E1E5E8] hidden sm:inline">&bull;</span>
-                <span className="text-xs text-[#66717C] font-medium shrink-0">Urgency:</span>
-                {(['NORMAL', 'URGENT', 'ASAP'] as const).map((lvl) => (
-                  <button
-                    key={lvl}
-                    type="button"
-                    onClick={() => setUrgency(lvl)}
-                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
-                      urgency === lvl
-                        ? 'bg-[#1F2933] text-white'
-                        : 'bg-[#F1F3F5] text-[#66717C] hover:bg-[#E5E9ED]'
-                    }`}
-                  >
-                    {lvl}
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="submit"
-                disabled={submitting || !input.trim()}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50 shadow-xs cursor-pointer"
-              >
-                {submitting ? 'Understanding your request...' : 'Tell Proventa'}
-                <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />
-              </button>
-            </div>
-
-            {/* Quick Ahmedabad Delegation Prompts */}
-            <div className="pt-2.5 border-t border-[#E1E5E8] flex items-center gap-2 overflow-x-auto no-scrollbar touch-pan-x flex-nowrap -mx-1 px-1 sm:mx-0 sm:px-0 text-xs py-1">
-              <span className="text-[#66717C] shrink-0 font-medium text-[11px] sm:text-xs">Quick suggestions:</span>
-              {[
-                { label: 'Dinner at Agashiye', text: 'Reserve a quiet terrace table for 4 at Agashiye for Saturday 8:00 PM.' },
-                { label: 'Airport Chauffeur', text: 'Arrange an executive sedan pickup from SVPIA Airport to Bodakdev tomorrow at 11:30 AM.' },
-                { label: 'ITC Narmada Spa', text: 'Book an afternoon Ayurvedic Kaya Kalp massage at ITC Narmada for two.' },
-                { label: 'GIFT City Boardroom', text: 'Reserve an executive boardroom at GIFT City with audiovisual setup for Thursday.' },
-              ].map((s) => (
-                <button
-                  key={s.label}
-                  type="button"
-                  onClick={() => setInput(s.text)}
-                  className="shrink-0 px-2.5 py-1 bg-[#F7F8FA] hover:bg-[#F1F3F5] border border-[#E1E5E8] text-[#1F2933] rounded-lg text-[11px] transition-colors cursor-pointer whitespace-nowrap"
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-          </form>
-        )}
-      </section>
+        </section>
+      ) : (
+        <HybridRequestComposer
+          entitlement={entitlement}
+          onShowMembershipGate={() => setShowMembershipGateModal(true)}
+          onSuccess={(taskId) => router.push(`/tasks/${taskId}`)}
+        />
+      )}
 
       {/* Curated Ahmedabad Directory Showcase */}
       <section className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs">
@@ -522,9 +343,14 @@ function DashboardContent() {
               key={item.tag}
               type="button"
               onClick={() => {
-                setInput(item.sample);
                 const el = document.getElementById('new-request');
                 el?.scrollIntoView({ behavior: 'smooth' });
+                const textarea = el?.querySelector('textarea');
+                if (textarea) {
+                  textarea.value = item.sample;
+                  textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                  textarea.focus();
+                }
               }}
               className="text-left p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#1F2933] hover:bg-white hover:shadow-xs transition-all group cursor-pointer"
             >
