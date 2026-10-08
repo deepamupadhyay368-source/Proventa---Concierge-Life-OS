@@ -14,7 +14,7 @@ import { logger } from '@/lib/logger';
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
-    const signatureHeader = req.headers.get('duffel-signature');
+    const signatureHeader = req.headers.get('duffel-signature') || req.headers.get('Duffel-Signature');
 
     // 1. Signature Verification
     const isValid = duffelClient.verifyWebhookSignature(rawBody, signatureHeader);
@@ -62,9 +62,25 @@ export async function POST(req: NextRequest) {
             if (!alreadyHandled) {
               await appendTaskEvent({
                 taskId: task.id,
-                eventType: 'PROVIDER_CONFIRMED',
+                eventType: 'FLIGHT_WEBHOOK_VERIFIED',
+                actorRole: 'SYSTEM',
+                message: `Duffel webhook event ${eventId} cryptographically verified.`,
+                data: { eventId, eventType },
+              });
+
+              await appendTaskEvent({
+                taskId: task.id,
+                eventType: 'FLIGHT_PROVIDER_CONFIRMATION_RECEIVED',
                 actorRole: 'SYSTEM',
                 message: `Duffel verified flight order confirmed. Airline PNR: ${bookingRef || orderId}.`,
+                data: { orderId, bookingRef, eventId },
+              });
+
+              await appendTaskEvent({
+                taskId: task.id,
+                eventType: 'FLIGHT_BOOKED',
+                actorRole: 'SYSTEM',
+                message: 'Your flight is confirmed.',
                 data: { orderId, bookingRef, eventId },
               });
             }
@@ -97,6 +113,14 @@ export async function POST(req: NextRequest) {
 
           await appendTaskEvent({
             taskId: task.id,
+            eventType: 'FLIGHT_WEBHOOK_VERIFIED',
+            actorRole: 'SYSTEM',
+            message: `Duffel cancellation webhook verified for order ${bookingRef || orderId}.`,
+            data: { eventId, eventType },
+          });
+
+          await appendTaskEvent({
+            taskId: task.id,
             eventType: 'TASK_CANCELLED',
             actorRole: 'SYSTEM',
             message: `Flight order ${bookingRef || orderId} cancelled with airline via Duffel.`,
@@ -123,6 +147,14 @@ export async function POST(req: NextRequest) {
         if (task) {
           const alreadyHandled = task.events.some((e: any) => (e.data as any)?.eventId === eventId);
           if (!alreadyHandled) {
+            await appendTaskEvent({
+              taskId: task.id,
+              eventType: 'FLIGHT_WEBHOOK_VERIFIED',
+              actorRole: 'SYSTEM',
+              message: 'Airline schedule update webhook verified.',
+              data: { eventData, eventId },
+            });
+
             await appendTaskEvent({
               taskId: task.id,
               eventType: 'FLIGHT_SCHEDULE_UPDATED',

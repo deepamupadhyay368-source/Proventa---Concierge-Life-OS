@@ -11,6 +11,7 @@ import { TaskDecisionEngine, CapabilityRegistry } from '@/lib/capabilities';
 import { ExecutionRouter } from '@/lib/capabilities/execution-router';
 import { EntityIntegrityValidator } from '@/lib/validation/entity-integrity';
 import { ExecutionCapabilityRegistry } from './execution/execution-capability-registry';
+import { FlightProviderRegistry } from '@/lib/providers/flights/flight-provider-registry';
 
 import { CompositeOrchestrator } from './automation/composite-executor';
 import { IdempotencyEngine } from './automation/idempotency';
@@ -493,6 +494,16 @@ export class RequestOrchestrator {
           },
         });
 
+        if (task.category === 'travel' || task.category === 'flights' || bestOption.providerId === 'duffel_flights' || bestOption.providerId === 'amadeus_flights') {
+          await appendTaskEvent({
+            taskId: task.id,
+            eventType: 'FLIGHT_DISCOVERED',
+            actorRole: 'AI_AGENT',
+            message: `Discovered ${proposals.length} verified scheduled flight options.`,
+            data: { optionsCount: proposals.length },
+          });
+        }
+
         if (requiresApproval) {
           await appendTaskEvent({
             taskId: task.id,
@@ -832,7 +843,80 @@ export class RequestOrchestrator {
       },
     });
 
+    const isFlightTask =
+      taskRecord.category === 'travel' ||
+      taskRecord.category === 'flights' ||
+      option.providerId === 'duffel_flights' ||
+      option.providerId === 'amadeus_flights' ||
+      Boolean(option.metadata?.flightNumber);
+
     const existingPrefs = (taskRecord.clientPreferences as Record<string, any>) || {};
+
+    if (isFlightTask) {
+      const lockedFlight = FlightProviderRegistry.lockApprovedOption(option);
+      existingPrefs.approvedFlightMetadata = lockedFlight;
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'FLIGHT_SELECTED',
+        actorRole: 'CUSTOMER',
+        message: `Client selected flight: ${option.title} (${option.providerName})`,
+        data: { optionId: option.id, title: option.title, flightMetadata: lockedFlight },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'FLIGHT_APPROVED',
+        actorRole: 'CUSTOMER',
+        message: `Client approved flight booking for ${option.title}`,
+        data: { optionId: option.id, title: option.title, priceFormatted: option.priceFormatted },
+      });
+
+      await appendTaskEvent({
+        taskId,
+        eventType: 'FLIGHT_REVALIDATION_STARTED',
+        actorRole: 'AI_AGENT',
+        message: 'Checking the selected flight... Revalidating availability...',
+        data: { offerId: lockedFlight.providerOfferId },
+      });
+
+      const revalidation = await FlightProviderRegistry.revalidateOffer(lockedFlight);
+      if (!revalidation.isValid) {
+        await appendTaskEvent({
+          taskId,
+          eventType: 'FLIGHT_REVALIDATION_FAILED',
+          actorRole: 'SYSTEM',
+          message: revalidation.reason || 'Flight offer failed pre-execution revalidation.',
+          data: { reason: revalidation.reason },
+        });
+
+        validateTransition(taskRecord.status as TaskStatus, 'NEEDS_HUMAN');
+        const escalatedTask = await db.task.update({
+          where: { id: taskId },
+          data: {
+            status: 'NEEDS_HUMAN',
+            executionMethod: 'HUMAN_CONCIERGE',
+            isEscalated: true,
+            approvalStatus: 'APPROVED',
+            failedReason: revalidation.reason,
+            clientPreferences: {
+              ...existingPrefs,
+              revalidationFailed: true,
+              revalidationReason: revalidation.reason,
+            } as any,
+          },
+        });
+
+        return {
+          success: false,
+          status: 'NEEDS_HUMAN',
+          handedToConcierge: true,
+          task: escalatedTask,
+          message: revalidation.reason || 'Selected flight is no longer available at approved fare. Routed to Concierge.',
+        };
+      }
+    }
+
     const batchHistory: ProposalBatch[] = Array.isArray(existingPrefs.batchHistory) ? [...existingPrefs.batchHistory] : [];
     const updatedHistory = batchHistory.map((b) => {
       if (b.status === 'ACTIVE' || b.options.some((o) => o.id === option.id)) {
@@ -1018,6 +1102,21 @@ export class RequestOrchestrator {
         },
       });
 
+      if (isFlightTask) {
+        await appendTaskEvent({
+          taskId,
+          eventType: 'FLIGHT_ESCALATED_TO_CONCIERGE',
+          actorRole: 'AI_AGENT',
+          message: 'Your selected flight has been sent to our Concierge Aviation Desk for booking.',
+          data: {
+            provider: option.providerName,
+            optionTitle: option.title,
+            priceFormatted: option.priceFormatted,
+            aiHandoffSummary,
+          },
+        });
+      }
+
       try {
         if (taskRecord.customer?.user?.phone) {
           await sendWhatsAppNotification({
@@ -1075,6 +1174,15 @@ export class RequestOrchestrator {
       actorRole: 'AI_AGENT',
       message: `Executing reservation with ${option.providerName}...`,
     });
+
+    if (isFlightTask) {
+      await appendTaskEvent({
+        taskId,
+        eventType: 'FLIGHT_EXECUTION_STARTED',
+        actorRole: 'AI_AGENT',
+        message: `Initiating flight booking with ${option.providerName}...`,
+      });
+    }
 
     // 1. Composite Multi-Component Orchestration (Weekend Escapes & Travel Packages)
     if (taskRecord.category === 'weekend_escapes' && Boolean(option.metadata?.isCompositePackage)) {
@@ -1425,6 +1533,30 @@ export class RequestOrchestrator {
             details: execution.confirmedDetails,
           },
         });
+
+        if (isFlightTask) {
+          await appendTaskEvent({
+            taskId,
+            eventType: 'FLIGHT_PROVIDER_ORDER_CREATED',
+            actorRole: 'SYSTEM',
+            message: `Flight order created with ${option.providerName}.`,
+            data: { externalReferenceId: execution.externalReferenceId },
+          });
+          await appendTaskEvent({
+            taskId,
+            eventType: 'FLIGHT_PROVIDER_CONFIRMATION_RECEIVED',
+            actorRole: 'SYSTEM',
+            message: `Genuine flight confirmation received. Reference: ${execution.externalReferenceId}.`,
+            data: { externalReferenceId: execution.externalReferenceId },
+          });
+          await appendTaskEvent({
+            taskId,
+            eventType: 'FLIGHT_BOOKED',
+            actorRole: 'SYSTEM',
+            message: 'Your flight is confirmed.',
+            data: { externalReferenceId: execution.externalReferenceId },
+          });
+        }
 
         // Record authoritative Booking record
         if (confirmedTask.customerId) {

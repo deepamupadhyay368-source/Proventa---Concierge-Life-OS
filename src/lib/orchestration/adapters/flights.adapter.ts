@@ -730,3 +730,5 @@ export class FlightsAdapter implements ProviderAdapterInterface {
     };
   }
 }
+
+export const flightsAdapter = new FlightsAdapter();
