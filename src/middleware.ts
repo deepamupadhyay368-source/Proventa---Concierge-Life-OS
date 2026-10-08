@@ -48,6 +48,7 @@ export default auth(async (req) => {
     pathname === '/concierge/sign-in' ||
     pathname.startsWith('/api/concierge/auth') ||
     pathname.startsWith('/api/auth') ||
+    pathname.startsWith('/api/requests/parse-intent') ||
     pathname.startsWith('/api/health') ||
     pathname.startsWith('/api/webhooks') ||
     pathname.startsWith('/api/wave1') ||
@@ -147,7 +148,7 @@ export default auth(async (req) => {
   response.headers.set('X-XSS-Protection', '1; mode=block');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(self), geolocation=(self)');
   return response;
 });
 
