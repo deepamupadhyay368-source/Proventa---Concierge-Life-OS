@@ -367,11 +367,18 @@ export const AGENT_REGISTRY: Record<string, TaskAgentInterface> = {
   business: new EventsAgent(),
   weekend_escapes: new HotelAgent(),
   weekend_escape: new HotelAgent(),
+  trips: new HotelAgent(),
+  trip: new HotelAgent(),
+  gifting: new GiftAgent(),
+  gifts_shopping: new GiftAgent(),
+  health_wellness: new HealthcareAgent(),
+  mobility_transport: new MobilityAgent(),
   research_planning: new ResearchAgent(),
   research: new ResearchAgent(),
   planning: new ResearchAgent(),
   personal: new ResearchAgent(),
   home: new HomeServicesAgent(),
+  bespoke_requests: new ResearchAgent(),
   other_concierge: new HumanConciergeAgent(),
   other: new HumanConciergeAgent(),
   concierge: new HumanConciergeAgent(),
@@ -382,20 +389,35 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
   const raw = (intent || '').toLowerCase();
 
   // Explicit disambiguation when category is generic or ambiguously classified
-  if (cat === 'travel' || cat === 'other' || cat === 'bespoke_requests' || !AGENT_REGISTRY[cat]) {
-    if (raw.includes('hotel') || raw.includes('stay') || raw.includes('resort') || raw.includes('villa') || raw.includes('suite')) {
-      return AGENT_REGISTRY['hotels'];
-    }
-    if (raw.includes('flight') || raw.includes('fly') || raw.includes('airline') || raw.includes('airport')) {
-      return AGENT_REGISTRY['flights'];
-    }
-    if (raw.includes('movie') || raw.includes('cinema') || raw.includes('imax') || raw.includes('showtime')) {
+  if (cat === 'travel' || cat === 'other' || cat === 'other_concierge' || cat === 'bespoke_requests' || !AGENT_REGISTRY[cat]) {
+    if (raw.includes('movie') || raw.includes('cinema') || raw.includes('imax') || raw.includes('pvr') || raw.includes('inox') || raw.includes('showtime') || raw.includes('film') || raw.includes('movie ticket')) {
       return AGENT_REGISTRY['movies'];
     }
-    if (raw.includes('gift') || raw.includes('flower') || raw.includes('hampers')) {
+    if (raw.includes('hotel') || raw.includes('stay') || raw.includes('resort') || raw.includes('villa') || raw.includes('suite') || raw.includes('accommodation')) {
+      return AGENT_REGISTRY['hotels'];
+    }
+    if (
+      raw.includes('flight') ||
+      raw.includes('flights') ||
+      raw.includes('fly') ||
+      raw.includes('airline') ||
+      raw.includes('airport') ||
+      raw.includes('airfare') ||
+      raw.includes('air ticket') ||
+      raw.includes('economy class') ||
+      raw.includes('business class') ||
+      raw.includes('first class') ||
+      /(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)\s+to\s+(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)/i.test(raw)
+    ) {
+      return AGENT_REGISTRY['flights'];
+    }
+    if (raw.includes('gift') || raw.includes('flower') || raw.includes('hampers') || raw.includes('present')) {
       return AGENT_REGISTRY['gifts'];
     }
-    if (raw.includes('weekend') || raw.includes('escape') || raw.includes('getaway')) {
+    if (raw.includes('cab') || raw.includes('sedan') || raw.includes('chauffeur') || raw.includes('pickup') || raw.includes('transfer') || raw.includes('taxi')) {
+      return AGENT_REGISTRY['transport'];
+    }
+    if (raw.includes('weekend') || raw.includes('escape') || raw.includes('getaway') || raw.includes('trip')) {
       return AGENT_REGISTRY['weekend_escapes'];
     }
     if (
@@ -403,16 +425,19 @@ export function findAgentForTask(category: string, intent?: string): TaskAgentIn
       raw.includes('concert') ||
       raw.includes('comedy') ||
       raw.includes('theatre') ||
+      raw.includes('theater') ||
       raw.includes('show') ||
       raw.includes('happening') ||
       raw.includes('garba') ||
       raw.includes('navratri') ||
       raw.includes('dandiya') ||
-      raw.includes('pass')
+      raw.includes('pass') ||
+      raw.includes('passes') ||
+      raw.includes('festival')
     ) {
       return AGENT_REGISTRY['events'];
     }
-    if (raw.includes('doctor') || raw.includes('clinic') || raw.includes('hospital') || raw.includes('appointment') || raw.includes('specialist') || raw.includes('dermatolog') || raw.includes('cardiolog')) {
+    if (raw.includes('doctor') || raw.includes('doctors') || raw.includes('clinic') || raw.includes('hospital') || raw.includes('appointment') || raw.includes('specialist') || raw.includes('dermatolog') || raw.includes('cardiolog')) {
       return AGENT_REGISTRY['healthcare'];
     }
     if (raw.includes('dine') || raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table') || raw.includes('food') || raw.includes('pizza') || raw.includes('meal')) {

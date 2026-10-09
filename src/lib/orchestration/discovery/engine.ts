@@ -33,13 +33,47 @@ export class AutonomousDiscoveryEngine {
     // 1. Resolve normalized category
     let resolvedCategory = (request.category || 'bespoke_requests').toLowerCase().replace(/[\s-]/g, '_');
 
-    // Disambiguation for travel / events / dining / healthcare
+    // Normalization mapping for standard service categories
+    if (resolvedCategory === 'travel' || resolvedCategory === 'flight' || resolvedCategory === 'airline' || resolvedCategory === 'aviation') {
+      resolvedCategory = 'flights';
+    } else if (resolvedCategory === 'hotel' || resolvedCategory === 'hotels_accommodation' || resolvedCategory === 'accommodation' || resolvedCategory === 'stay' || resolvedCategory === 'resort') {
+      resolvedCategory = 'hotels';
+    } else if (resolvedCategory === 'movies_entertainment' || resolvedCategory === 'cinema' || resolvedCategory === 'movie' || resolvedCategory === 'film') {
+      resolvedCategory = 'movies';
+    } else if (resolvedCategory === 'events_experiences' || resolvedCategory === 'experiences' || resolvedCategory === 'event' || resolvedCategory === 'garba' || resolvedCategory === 'navratri') {
+      resolvedCategory = 'events';
+    } else if (resolvedCategory === 'health_wellness' || resolvedCategory === 'appointments' || resolvedCategory === 'appointment' || resolvedCategory === 'doctor' || resolvedCategory === 'medical') {
+      resolvedCategory = 'healthcare';
+    } else if (resolvedCategory === 'mobility_transport' || resolvedCategory === 'mobility' || resolvedCategory === 'transport' || resolvedCategory === 'transit' || resolvedCategory === 'cabs') {
+      resolvedCategory = 'mobility';
+    } else if (resolvedCategory === 'gifts_shopping' || resolvedCategory === 'gifts' || resolvedCategory === 'gift' || resolvedCategory === 'shopping') {
+      resolvedCategory = 'gifts';
+    } else if (resolvedCategory === 'weekend_escapes' || resolvedCategory === 'weekend_escape' || resolvedCategory === 'trips' || resolvedCategory === 'trip') {
+      resolvedCategory = 'weekend_escapes';
+    } else if (resolvedCategory === 'research_planning' || resolvedCategory === 'research' || resolvedCategory === 'planning' || resolvedCategory === 'personal') {
+      resolvedCategory = 'research_planning';
+    }
+
+    // Disambiguation for travel / events / dining / healthcare / movies / etc.
     if (
-      resolvedCategory === 'travel' ||
       resolvedCategory === 'other' ||
-      resolvedCategory === 'bespoke_requests'
+      resolvedCategory === 'other_concierge' ||
+      resolvedCategory === 'bespoke_requests' ||
+      resolvedCategory === 'flights' ||
+      resolvedCategory === 'hotels'
     ) {
       if (
+        rawLower.includes('movie') ||
+        rawLower.includes('cinema') ||
+        rawLower.includes('imax') ||
+        rawLower.includes('pvr') ||
+        rawLower.includes('inox') ||
+        rawLower.includes('showtime') ||
+        rawLower.includes('film') ||
+        rawLower.includes('movie ticket')
+      ) {
+        resolvedCategory = 'movies';
+      } else if (
         rawLower.includes('hotel') ||
         rawLower.includes('stay') ||
         rawLower.includes('resort') ||
@@ -51,7 +85,11 @@ export class AutonomousDiscoveryEngine {
         rawLower.includes('flight') ||
         rawLower.includes('fly') ||
         rawLower.includes('airline') ||
-        rawLower.includes('airport')
+        rawLower.includes('airport') ||
+        rawLower.includes('economy class') ||
+        rawLower.includes('business class') ||
+        rawLower.includes('airfare') ||
+        /(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)\s+to\s+(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)/i.test(rawLower)
       ) {
         resolvedCategory = 'flights';
       } else if (
@@ -74,6 +112,20 @@ export class AutonomousDiscoveryEngine {
       ) {
         resolvedCategory = 'healthcare';
       } else if (
+        rawLower.includes('cab') ||
+        rawLower.includes('sedan') ||
+        rawLower.includes('chauffeur') ||
+        rawLower.includes('pickup') ||
+        rawLower.includes('transfer')
+      ) {
+        resolvedCategory = 'mobility';
+      } else if (
+        rawLower.includes('gift') ||
+        rawLower.includes('flower') ||
+        rawLower.includes('hamper')
+      ) {
+        resolvedCategory = 'gifts';
+      } else if (
         rawLower.includes('dine') ||
         rawLower.includes('dinner') ||
         rawLower.includes('lunch') ||
@@ -82,14 +134,19 @@ export class AutonomousDiscoveryEngine {
       ) {
         resolvedCategory = 'dining';
       } else if (
-        rawLower.includes('plan') ||
-        rawLower.includes('itinerary') ||
         rawLower.includes('weekend') ||
         rawLower.includes('escape') ||
+        rawLower.includes('getaway') ||
+        rawLower.includes('retreat')
+      ) {
+        resolvedCategory = 'weekend_escapes';
+      } else if (
+        rawLower.includes('plan') ||
+        rawLower.includes('itinerary') ||
         rawLower.includes('research') ||
         rawLower.includes('guide')
       ) {
-        resolvedCategory = 'personal';
+        resolvedCategory = 'research_planning';
       }
     }
 

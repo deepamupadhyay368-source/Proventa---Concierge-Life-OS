@@ -393,10 +393,11 @@ export class HealthcareDiscoveryProvider {
   }
 
   resolveDoctorName(text: string): string | undefined {
-    const match = text.match(/dr\.?\s+([A-Za-z]+(?:\s+[A-Za-z]+){1,3})/i);
+    const match = text.match(/dr\.?\s+([A-Za-z]+(?:\s+[A-Za-z]+){0,3})/i);
     if (match) {
-      const cleaned = match[1].replace(/\s+(?:in|at|near|for|from|with|on)\s+.*$/i, '').trim();
-      return cleaned;
+      let cleaned = match[1].replace(/\s+(?:in|at|near|for|from|with|on)\s+.*$/i, '').trim();
+      cleaned = cleaned.replace(/\b(?:cardiologist|dermatologist|pediatrician|physician|dentist|orthopedic|orthopaedic|gynecologist|gynaecologist|neurologist|psychiatrist|oncologist|ophthalmologist|surgeon|specialist|doctor|consultant)\b/gi, '').trim();
+      return cleaned.length > 0 ? cleaned : undefined;
     }
     return undefined;
   }

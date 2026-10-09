@@ -43,7 +43,7 @@ export interface ExtractedEntities {
 
 export interface AutonomousDiscoveryRequest {
   taskId?: string;
-  customerId: string;
+  customerId?: string;
   category: string;
   subcategory?: string;
   originalRequest: string;

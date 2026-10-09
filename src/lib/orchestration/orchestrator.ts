@@ -42,6 +42,18 @@ export class RequestOrchestrator {
     const lower = rawInput.toLowerCase();
     let category = 'bespoke_requests';
     if (
+      lower.includes('movie') ||
+      lower.includes('movies') ||
+      lower.includes('cinema') ||
+      lower.includes('imax') ||
+      lower.includes('pvr') ||
+      lower.includes('inox') ||
+      lower.includes('showtime') ||
+      lower.includes('film') ||
+      lower.includes('movie ticket')
+    ) {
+      category = 'movies_entertainment';
+    } else if (
       lower.includes('doctor') ||
       lower.includes('cardiolog') ||
       lower.includes('cardiac') ||
@@ -66,15 +78,28 @@ export class RequestOrchestrator {
       lower.includes('salon')
     ) {
       category = 'health_wellness';
-    } else if (lower.includes('flight') || lower.includes('fly') || lower.includes('airline') || lower.includes('airport')) {
+    } else if (
+      lower.includes('flight') ||
+      lower.includes('flights') ||
+      lower.includes('fly') ||
+      lower.includes('flying') ||
+      lower.includes('airline') ||
+      lower.includes('airport') ||
+      lower.includes('airfare') ||
+      lower.includes('air ticket') ||
+      lower.includes('economy class') ||
+      lower.includes('business class') ||
+      lower.includes('first class') ||
+      /(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)\s+to\s+(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)/i.test(lower)
+    ) {
       category = 'travel';
     } else if (lower.includes('dine') || lower.includes('dinner') || lower.includes('lunch') || lower.includes('restaurant') || lower.includes('table') || lower.includes('food') || lower.includes('gourmet') || lower.includes('cuisine') || lower.includes('pizza') || lower.includes('biryani') || lower.includes('meal')) {
       category = 'dining';
-    } else if (lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('villa') || lower.includes('suite')) {
+    } else if (lower.includes('hotel') || lower.includes('stay') || lower.includes('resort') || lower.includes('villa') || lower.includes('suite') || lower.includes('accommodation')) {
       category = 'hotels_accommodation';
     } else if (/\b(?:cabs?|sedan|chauffeur|pickup|airport transfer|taxi|driver|cars?|rental car)\b/i.test(rawInput)) {
       category = 'mobility_transport';
-    } else if (lower.includes('gift') || lower.includes('flower') || lower.includes('present')) {
+    } else if (lower.includes('gift') || lower.includes('flower') || lower.includes('present') || lower.includes('hamper')) {
       category = 'gifts_shopping';
     } else if (
       lower.includes('event') ||

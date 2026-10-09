@@ -117,7 +117,7 @@ export function buildSynthesizedPrompt(form: StructuredRequestForm): string {
     case 'MOVIES': {
       const movieName = form.targetName || 'acclaimed movie';
       const city = form.city || 'Ahmedabad';
-      let movieStr = `Book ${form.partySize} tickets for ${movieName} in ${city}`;
+      let movieStr = `Book ${form.partySize} movie tickets for ${movieName} in ${city}`;
       if (form.date) movieStr += ` on ${form.date}`;
       if (form.time) movieStr += ` around ${form.time}`;
       else if (form.timeSlot && form.timeSlot !== 'ANY') movieStr += ` (${form.timeSlot.toLowerCase()} show)`;

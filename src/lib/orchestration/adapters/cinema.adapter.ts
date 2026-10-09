@@ -65,29 +65,32 @@ export class CinemaAdapter implements ProviderAdapterInterface {
     rawInput: string;
     constraints?: Record<string, any>;
   }): Promise<OptionProposal[]> {
-    const rawLower = query.rawInput.toLowerCase();
+    const rawLower = (query.rawInput || query.intent || '').toLowerCase();
     logger.info({ rawInput: query.rawInput }, '[CinemaAdapter] Searching cinema showtimes & luxury auditoriums');
 
     const isImax = rawLower.includes('imax') || rawLower.includes('4dx') || rawLower.includes('insignia') || rawLower.includes('luxe');
+    const city = query.constraints?.location || query.constraints?.destination || query.constraints?.city || (rawLower.includes('mumbai') ? 'Mumbai' : rawLower.includes('delhi') ? 'Delhi' : 'Ahmedabad');
 
-    return [
+    const auditoriums = [
       {
-        id: `cine-pvr-${Date.now()}-1`,
+        id: `cine-pvr-palladium-${Date.now()}-1`,
         providerId: this.providerId,
         providerName: 'PVR INOX Insignia / Luxe (Palladium Ahmedabad)',
         title: isImax
           ? 'PVR INOX IMAX with Laser / Insignia Prime — Recliner Seats'
           : 'PVR INOX Luxe — Recliner Experience with In-Seat Butler Service',
-        description: 'Ultra-plush leather recliners, gourmet dining menu served directly at your seat, Dolby Atmos audio.',
+        description: 'Ultra-plush leather recliners, gourmet dining menu served directly at your seat, Dolby Atmos immersive audio.',
         priceAmount: 1900,
         priceCurrency: 'INR',
         priceFormatted: '₹1,900 for two',
         availability: 'Prime Center Recliner Rows (H7-H8 Held)',
-        bookingMethod: 'API',
+        bookingMethod: 'API' as const,
         cancellationPolicy: 'Refundable as cinema credit up to 2 hours prior to showtime.',
-        environment: 'SANDBOX',
+        environment: 'SANDBOX' as const,
         isMock: true,
         metadata: {
+          city,
+          location: city,
           multiplex: 'PVR INOX Palladium, Thaltej, Ahmedabad',
           screenType: 'IMAX Laser / Insignia Luxe',
           showtime: 'Prime Evening (19:45)',
@@ -95,26 +98,96 @@ export class CinemaAdapter implements ProviderAdapterInterface {
         },
       },
       {
-        id: `cine-cinepolis-${Date.now()}-2`,
+        id: `cine-cinepolis-alpha-${Date.now()}-2`,
         providerId: this.providerId,
-        providerName: 'CinÃ©polis VIP (Alpha One / Ahmedabad One)',
-        title: 'CinÃ©polis VIP Club Lounge & Recliner Auditorium',
-        description: 'Exclusive VIP lounge access with welcome beverages, motorized full-recliners, personal blankets.',
+        providerName: 'Cinépolis VIP (Alpha One / Ahmedabad One)',
+        title: 'Cinépolis VIP Club Lounge & Recliner Auditorium',
+        description: 'Exclusive VIP lounge access with welcome beverages, motorized full-recliners, personal blankets and in-hall attendant.',
         priceAmount: 1600,
         priceCurrency: 'INR',
         priceFormatted: '₹1,600 for two',
         availability: 'VIP Row E (Center View)',
-        bookingMethod: 'API',
+        bookingMethod: 'API' as const,
         cancellationPolicy: 'Cancellation complimentary up to 4 hours prior.',
-        environment: 'SANDBOX',
+        environment: 'SANDBOX' as const,
         isMock: true,
         metadata: {
-          multiplex: 'CinÃ©polis Ahmedabad One Mall, Vastrapur',
+          city,
+          location: city,
+          multiplex: 'Cinépolis Ahmedabad One Mall, Vastrapur',
           screenType: 'VIP Auditorium',
           showtime: '20:15',
         },
       },
+      {
+        id: `cine-inox-himalaya-${Date.now()}-3`,
+        providerId: this.providerId,
+        providerName: 'INOX Megaplex (Himalaya Mall, Drive-In)',
+        title: 'INOX Megaplex Club Class & Dolby Atmos Experience',
+        description: 'Premium rocker seating with wide armrests, 4K RGB laser projection, curated gourmet concession privileges.',
+        priceAmount: 1200,
+        priceCurrency: 'INR',
+        priceFormatted: '₹1,200 for two',
+        availability: 'Center Row F Available',
+        bookingMethod: 'API' as const,
+        cancellationPolicy: 'Cancellation complimentary up to 2 hours prior.',
+        environment: 'SANDBOX' as const,
+        isMock: true,
+        metadata: {
+          city,
+          location: city,
+          multiplex: 'INOX Himalaya Mall, Drive-In Road, Ahmedabad',
+          screenType: 'Dolby Atmos Club',
+          showtime: '18:30',
+        },
+      },
+      {
+        id: `cine-pvr-acropolis-${Date.now()}-4`,
+        providerId: this.providerId,
+        providerName: 'PVR Acropolis Mall (SG Highway)',
+        title: 'PVR Prime Seating & Gourmet Concessions',
+        description: 'Spacious stadium seating with crisp acoustic clarity and express contactless concession pick-up.',
+        priceAmount: 1100,
+        priceCurrency: 'INR',
+        priceFormatted: '₹1,100 for two',
+        availability: 'Prime Row G Available',
+        bookingMethod: 'API' as const,
+        cancellationPolicy: 'Refundable up to 2 hours prior.',
+        environment: 'SANDBOX' as const,
+        isMock: true,
+        metadata: {
+          city,
+          location: city,
+          multiplex: 'PVR Acropolis, SG Highway, Thaltej',
+          screenType: 'PVR Prime 4K',
+          showtime: '21:00',
+        },
+      },
+      {
+        id: `cine-pvr-motera-${Date.now()}-5`,
+        providerId: this.providerId,
+        providerName: 'PVR 4DX (4D Multiplex Motera)',
+        title: 'PVR 4DX Sensory Motion Seating & Special Effects',
+        description: 'Synchronized motion seats, environmental atmospheric effects (wind, mist, strobe, scent), immersive 3D audio.',
+        priceAmount: 1800,
+        priceCurrency: 'INR',
+        priceFormatted: '₹1,800 for two',
+        availability: 'Center 4DX Pod Available',
+        bookingMethod: 'API' as const,
+        cancellationPolicy: 'Complimentary reschedule up to 3 hours prior.',
+        environment: 'SANDBOX' as const,
+        isMock: true,
+        metadata: {
+          city,
+          location: city,
+          multiplex: 'PVR Motera 4D, Sabarmati, Ahmedabad',
+          screenType: '4DX Motion Theater',
+          showtime: '19:15',
+        },
+      },
     ];
+
+    return auditoriums;
   }
 
   async execute(proposal: OptionProposal, bookingDetails: Record<string, any>): Promise<ExecutionOutput> {

@@ -592,6 +592,25 @@ export class EntityIntegrityValidator {
         }
       }
 
+      // 6. Cinema & Movies validation
+      if (
+        cat.includes('movie') ||
+        cat.includes('cinema') ||
+        p.providerId === 'cinema_pvr_inox'
+      ) {
+        if (constraints.destination || constraints.location || (constraints as any).city) {
+          const reqCity = (constraints.destination || (constraints as any).city || constraints.location || '').toUpperCase();
+          const cineCity = (meta.city || meta.location || '').toUpperCase();
+          if (reqCity && cineCity && reqCity !== 'GLOBAL' && reqCity !== 'ALL') {
+            const resolvedReq = CityResolver.normalizeCity(reqCity).toUpperCase();
+            const resolvedCine = CityResolver.normalizeCity(cineCity).toUpperCase();
+            if (resolvedReq !== resolvedCine && !resolvedReq.includes(resolvedCine) && !resolvedCine.includes(resolvedReq)) {
+              return false; // City mismatch! Reject.
+            }
+          }
+        }
+      }
+
       return true;
     });
   }

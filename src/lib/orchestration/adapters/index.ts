@@ -75,6 +75,7 @@ export class AdapterRegistry {
     this.register('appointments', new HealthcareDiscoveryAdapter());
     this.register('appointment', new HealthcareDiscoveryAdapter());
     this.register('healthcare', new HealthcareDiscoveryAdapter());
+    this.register('health_wellness', new HealthcareDiscoveryAdapter());
     this.register('doctor', new HealthcareDiscoveryAdapter());
     this.register('doctors', new HealthcareDiscoveryAdapter());
     this.register('medical', new HealthcareDiscoveryAdapter());
@@ -83,6 +84,16 @@ export class AdapterRegistry {
     this.register('dermatologist', new HealthcareDiscoveryAdapter());
     this.register('cardiologist', new HealthcareDiscoveryAdapter());
     this.register('pediatrician', new HealthcareDiscoveryAdapter());
+    this.register('gifting', new MockShoppingAdapter());
+    this.register('gifts_shopping', new MockShoppingAdapter());
+    this.register('mobility_transport', new MockMobilityAdapter());
+    this.register('trips', new AhmedabadVerifiedAdapter());
+    this.register('trips', new MockHotelAdapter());
+    this.register('trip', new AhmedabadVerifiedAdapter());
+    this.register('trip', new MockHotelAdapter());
+    this.register('bespoke_requests', new MockResearchPlanningAdapter());
+    this.register('other', new MockResearchPlanningAdapter());
+    this.register('other_concierge', new MockResearchPlanningAdapter());
     this.initialized = true;
   }
 

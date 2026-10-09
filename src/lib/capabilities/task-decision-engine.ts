@@ -125,24 +125,21 @@ export class TaskDecisionEngine {
 
   private static classifyCategory(raw: string, hint?: string): ServiceCategory {
     if (hint) {
-      const normalized = hint.toUpperCase().replace(/[\s-]/g, '_') as ServiceCategory;
-      const validCategories: ServiceCategory[] = [
-        'DINING',
-        'TRAVEL',
-        'HOTELS',
-        'TRANSPORT',
-        'FOOD_DELIVERY',
-        'MOVIES_ENTERTAINMENT',
-        'GIFTS',
-        'SHOPPING',
-        'SALON_WELLNESS',
-        'APPOINTMENTS',
-        'EVENTS',
-        'WEEKEND_ESCAPES',
-        'RESEARCH_PLANNING',
-        'OTHER_CONCIERGE',
-      ];
-      if (validCategories.includes(normalized)) return normalized;
+      const normalized = hint.toUpperCase().replace(/[\s-]/g, '_');
+      if (normalized === 'FLIGHTS' || normalized === 'FLIGHT' || normalized === 'AIRLINE' || normalized === 'AVIATION' || normalized === 'TRAVEL') return 'TRAVEL';
+      if (normalized === 'HOTELS' || normalized === 'HOTEL' || normalized === 'HOTELS_ACCOMMODATION' || normalized === 'ACCOMMODATION' || normalized === 'STAYS' || normalized === 'STAY' || normalized === 'RESORT') return 'HOTELS';
+      if (normalized === 'MOVIES' || normalized === 'MOVIE' || normalized === 'CINEMA' || normalized === 'CINEMAS' || normalized === 'MOVIES_ENTERTAINMENT' || normalized === 'FILM' || normalized === 'FILMS') return 'MOVIES_ENTERTAINMENT';
+      if (normalized === 'HEALTHCARE' || normalized === 'HEALTH_WELLNESS' || normalized === 'DOCTOR' || normalized === 'DOCTORS' || normalized === 'MEDICAL' || normalized === 'APPOINTMENTS' || normalized === 'APPOINTMENT') return 'APPOINTMENTS';
+      if (normalized === 'GIFTING' || normalized === 'GIFTS' || normalized === 'GIFT' || normalized === 'GIFTS_SHOPPING') return 'GIFTS';
+      if (normalized === 'SHOPPING' || normalized === 'SHOP') return 'SHOPPING';
+      if (normalized === 'TRIPS' || normalized === 'TRIP' || normalized === 'WEEKEND_ESCAPES' || normalized === 'WEEKEND_ESCAPE' || normalized === 'GETAWAY') return 'WEEKEND_ESCAPES';
+      if (normalized === 'TRANSPORT' || normalized === 'MOBILITY' || normalized === 'MOBILITY_TRANSPORT' || normalized === 'TRANSIT' || normalized === 'CAB' || normalized === 'CABS') return 'TRANSPORT';
+      if (normalized === 'EVENTS' || normalized === 'EVENT' || normalized === 'EXPERIENCES' || normalized === 'EVENTS_EXPERIENCES') return 'EVENTS';
+      if (normalized === 'DINING' || normalized === 'DINE' || normalized === 'RESTAURANT' || normalized === 'FOOD') return 'DINING';
+      if (normalized === 'FOOD_DELIVERY' || normalized === 'DELIVERY' || normalized === 'SWIGGY') return 'FOOD_DELIVERY';
+      if (normalized === 'SALON_WELLNESS' || normalized === 'SALON' || normalized === 'WELLNESS' || normalized === 'SPA') return 'SALON_WELLNESS';
+      if (normalized === 'RESEARCH_PLANNING' || normalized === 'RESEARCH' || normalized === 'PLANNING' || normalized === 'PERSONAL') return 'RESEARCH_PLANNING';
+      if (normalized === 'OTHER_CONCIERGE' || normalized === 'OTHER' || normalized === 'CONCIERGE') return 'OTHER_CONCIERGE';
     }
 
     // Heuristic Classification
@@ -166,10 +163,71 @@ export class TaskDecisionEngine {
     ) {
       return 'RESEARCH_PLANNING';
     }
-    if (raw.includes('hotel') || raw.includes('suite') || raw.includes('villa') || raw.includes('resort') || raw.includes('stay')) {
+    if (
+      raw.includes('movie') ||
+      raw.includes('movies') ||
+      raw.includes('cinema') ||
+      raw.includes('cinemas') ||
+      raw.includes('imax') ||
+      raw.includes('pvr') ||
+      raw.includes('inox') ||
+      raw.includes('cinepolis') ||
+      raw.includes('showtime') ||
+      raw.includes('showtimes') ||
+      raw.includes('film') ||
+      raw.includes('films') ||
+      raw.includes('movie ticket') ||
+      raw.includes('movie tickets') ||
+      raw.includes('screen 1') ||
+      raw.includes('screen 2') ||
+      raw.includes('auditorium') ||
+      raw.includes('box office')
+    ) {
+      return 'MOVIES_ENTERTAINMENT';
+    }
+    if (raw.includes('hotel') || raw.includes('suite') || raw.includes('villa') || raw.includes('resort') || raw.includes('stay') || raw.includes('accommodation') || raw.includes('homestay')) {
       return 'HOTELS';
     }
-    if (raw.includes('flight') || raw.includes('airline') || raw.includes('airfare') || raw.includes('fly') || raw.includes('pnr') || raw.includes('aviation') || raw.includes('vistara') || raw.includes('indigo') || raw.includes('air india') || raw.includes('spicejet') || raw.includes('akasa') || raw.includes('air ticket')) {
+
+    // Ground Transport & Mobility (Prioritize when explicit vehicle/chauffeur keywords present without flight keywords)
+    if (
+      (/\b(?:cabs?|sedan|chauffeur|pickup|airport transfer|taxi|driver)\b/i.test(raw) ||
+        /\b(?:cars?|rental car|hire a car)\b/i.test(raw)) &&
+      !raw.includes('flight') &&
+      !raw.includes('airline') &&
+      !raw.includes('plane') &&
+      !raw.includes('air ticket')
+    ) {
+      return 'TRANSPORT';
+    }
+
+    if (
+      raw.includes('flight') ||
+      raw.includes('flights') ||
+      raw.includes('airline') ||
+      raw.includes('airlines') ||
+      raw.includes('airfare') ||
+      raw.includes('fly') ||
+      raw.includes('flying') ||
+      raw.includes('plane') ||
+      raw.includes('aviation') ||
+      raw.includes('pnr') ||
+      raw.includes('vistara') ||
+      raw.includes('indigo') ||
+      raw.includes('air india') ||
+      raw.includes('spicejet') ||
+      raw.includes('akasa') ||
+      raw.includes('air ticket') ||
+      raw.includes('air tickets') ||
+      raw.includes('economy class') ||
+      raw.includes('business class') ||
+      raw.includes('first class') ||
+      raw.includes('cabin class') ||
+      raw.includes('charter') ||
+      raw.includes('private jet') ||
+      raw.includes('air charter') ||
+      /(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)\s+to\s+(?:amd|bom|del|blr|goi|hyd|ccu|maa|jai|udr|pnq|cok|dxb|lhr|sin)/i.test(raw)
+    ) {
       return 'TRAVEL';
     }
     if (raw.includes('dinner') || raw.includes('restaurant') || raw.includes('table for') || raw.includes('dining') || raw.includes('lunch') || raw.includes('agashiye') || raw.includes('food') || raw.includes('pizza') || raw.includes('biryani') || raw.includes('meal')) {
@@ -184,6 +242,7 @@ export class TaskDecisionEngine {
     if (
       raw.includes('appointment') ||
       raw.includes('doctor') ||
+      raw.includes('doctors') ||
       raw.includes('dentist') ||
       raw.includes('dental') ||
       raw.includes('consultation') ||
@@ -223,9 +282,6 @@ export class TaskDecisionEngine {
     }
     if (raw.includes('food delivery') || raw.includes('swiggy') || raw.includes('order dinner to') || raw.includes('delivery') || raw.includes('order food') || raw.includes('order pizza')) {
       return 'FOOD_DELIVERY';
-    }
-    if (raw.includes('movie') || raw.includes('cinema') || raw.includes('imax') || raw.includes('pvr') || raw.includes('inox') || raw.includes('showtime')) {
-      return 'MOVIES_ENTERTAINMENT';
     }
     if (raw.includes('gift') || raw.includes('gifts') || raw.includes('present') || raw.includes('flowers') || raw.includes('hampers') || raw.includes('florist') || raw.includes('gifting')) {
       return 'GIFTS';

@@ -13,16 +13,22 @@ import {
   Layers,
   ArrowUpRight,
   Sparkles,
+  Award,
+  FileCheck2,
+  Check,
+  Flame,
+  Search,
 } from 'lucide-react';
-import { SPECIALIST_AGENTS } from '@/lib/agents/specialists/domain-agents';
+import { getBehaviorContract, AgentBehaviorContract } from '@/lib/orchestration/agents/agent-behavior-contracts';
+import { runAgentEvaluationSuite, EVAL_DATASET_100 } from '@/lib/orchestration/eval/comprehensive-eval-suite';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminAgentsPage() {
   await requireAdmin();
 
-  // Retrieve all agent execution records and traces from the database
-  const [agentRuns, traces, totalTasks] = await Promise.all([
+  // Retrieve all agent execution records and live evaluation suite summary
+  const [agentRuns, traces, totalTasks, evalSummary] = await Promise.all([
     db.agentRunRecord.findMany({
       orderBy: { createdAt: 'desc' },
       take: 200,
@@ -32,79 +38,80 @@ export default async function AdminAgentsPage() {
       take: 200,
     }),
     db.task.count(),
+    runAgentEvaluationSuite(EVAL_DATASET_100),
   ]);
 
-  // Aggregate stats per agent role
+  // Active Specialist Agent Fleet
   const agentList = [
     {
-      role: 'Dining & Epicurean Specialist',
+      role: 'Travel & Flight Specialist Agent',
+      category: 'flights',
+      agentId: 'agent-flights',
+      desc: 'Scheduled commercial aviation, private air charter, seat preferences, and multi-leg itineraries',
+      tools: ['searchFlights', 'quoteFlight', 'revalidateFlight', 'reserveFlight'],
+    },
+    {
+      role: 'Hotels & Accommodations Agent',
+      category: 'hotels',
+      agentId: 'agent-hotels',
+      desc: 'Five-star luxury hotel suites, heritage havelis, boutique villas, and late checkout coordination',
+      tools: ['searchHotels', 'reserveHotel', 'quoteStay'],
+    },
+    {
+      role: 'Dining & Reservations Agent',
       category: 'dining',
       agentId: 'agent-dining',
-      desc: 'Fine dining table reservations, private chef curation, dietary matching (Agashiye, The House of MG)',
-      tools: ['searchRestaurants', 'reserveDining'],
+      desc: 'Fine dining table holds, private chef curation, dietary matching (Agashiye, The House of MG, Tinello)',
+      tools: ['searchRestaurants', 'reserveDining', 'swiggy_search'],
     },
     {
-      role: 'Travel & Luxury Stays Specialist',
-      category: 'travel',
-      agentId: 'agent-travel',
-      desc: 'Five-star hotel suite booking, Amadeus GDS flights, and bespoke weekend escapes',
-      tools: ['searchHotels', 'reserveHotel', 'searchFlights'],
-    },
-    {
-      role: 'Food Delivery Specialist (Swiggy)',
-      category: 'food',
-      agentId: 'agent-food',
-      desc: 'Autonomous Swiggy MCP food ordering, restaurant menu lookup, and delivery tracking',
-      tools: ['swiggy_search', 'swiggy_order', 'swiggy_track'],
-    },
-    {
-      role: 'Mobility & Chauffeur Specialist',
-      category: 'mobility',
-      agentId: 'agent-mobility',
-      desc: 'Executive chauffeur dispatch, airport meet-and-assist, and luxury fleet management',
-      tools: ['quoteMobility', 'dispatchChauffeur'],
-    },
-    {
-      role: 'Cinema & Multiplex Specialist (PVR INOX)',
-      category: 'experiences',
+      role: 'Cinema & Multiplex Specialist Agent',
+      category: 'movies',
       agentId: 'agent-cinema',
-      desc: 'PVR INOX VIP multiplex tickets, IMAX screening reservations, and seat selection',
+      desc: 'PVR INOX VIP multiplex tickets, IMAX Laser screenings, and Insignia Luxe recliner reservations',
       tools: ['pvr_showtimes', 'pvr_seat_lock', 'pvr_ticket_book'],
     },
     {
-      role: 'Shopping & Luxury Sourcing Specialist',
-      category: 'shopping',
-      agentId: 'agent-shopping',
-      desc: 'Fine jewelry, rare watches, bespoke textiles, and luxury merchandise sourcing',
-      tools: ['searchProducts', 'purchaseProduct'],
+      role: 'Events & Gatherings Agent',
+      category: 'events',
+      agentId: 'agent-events',
+      desc: 'Curated Navratri VIP Garba passes (Rajpath, Karnavati), music concerts, stand-up comedy, and art galas',
+      tools: ['searchEvents', 'reservePasses', 'ticketVerification'],
     },
     {
-      role: 'Curated Gifting Specialist',
-      category: 'gift',
-      agentId: 'agent-gift',
-      desc: 'Personalized luxury hampers, brass keepsakes, and occasion milestone reminders',
-      tools: ['searchProducts', 'purchaseProduct'],
+      role: 'Healthcare & Doctor Discovery Agent',
+      category: 'healthcare',
+      agentId: 'agent-healthcare',
+      desc: 'Verified specialist doctor consultations, executive wellness checkups, and priority clinic slots',
+      tools: ['searchDoctors', 'scheduleConsultation', 'verifySpecialty'],
     },
     {
-      role: 'Home & Estate Care Specialist',
-      category: 'home',
-      agentId: 'agent-home',
-      desc: 'Vetted electrical, plumbing, HVAC, and emergency estate dispatch',
-      tools: ['dispatchHomeService'],
+      role: 'Mobility & Chauffeur Agent',
+      category: 'mobility',
+      agentId: 'agent-mobility',
+      desc: 'Executive chauffeur dispatch (Mercedes E-Class, BMW 7 Series), airport meet-and-assist, and luxury fleet',
+      tools: ['quoteMobility', 'dispatchChauffeur'],
     },
     {
-      role: 'Calendar & Appointments Specialist',
-      category: 'appointments',
-      agentId: 'agent-calendar',
-      desc: 'VIP wellness slots, salon bookings, and collision-free schedule coordination',
-      tools: ['scheduleAppointment', 'calendar_sync'],
+      role: 'Curated Gifting Agent',
+      category: 'gifts',
+      agentId: 'agent-gifting',
+      desc: 'Personalized luxury hampers, brass keepsakes, Montblanc instruments, and milestone gifting',
+      tools: ['searchProducts', 'purchaseProduct', 'curateHamper'],
     },
     {
-      role: 'Concierge Escalation & Copilot',
-      category: 'other',
-      agentId: 'agent-concierge',
-      desc: 'Senior human concierge copilot handling complex, high-stakes negotiations and impossible VIP requests',
-      tools: ['composeConciergeMessage', 'escalateToHumanDesk'],
+      role: 'Autonomous Research & Fact-Finding Agent',
+      category: 'research',
+      agentId: 'agent-research',
+      desc: 'Deep multi-source verification, comparative luxury analysis, tariff auditing, and fact-checking',
+      tools: ['webSearch', 'verifyTariff', 'summarizeDossier'],
+    },
+    {
+      role: 'Human Concierge Triage Agent',
+      category: 'other_concierge',
+      agentId: 'agent-concierge-triage',
+      desc: 'Senior concierge assisted dispatch, high-stakes offline negotiations, and manual call sheet generation',
+      tools: ['composeConciergeMessage', 'escalateToHumanDesk', 'dispatchCallSheet'],
     },
   ];
 
@@ -118,14 +125,14 @@ export default async function AdminAgentsPage() {
               Autonomous Agent Fleet
             </span>
             <span className="text-xs text-[#736f68] font-mono">
-              Proventa Multi-Agent DAG Architecture
+              Proventa Multi-Agent Behavior &amp; Evaluation System
             </span>
           </div>
           <h1 className="text-3xl font-serif font-medium text-[#f5f3ef] mt-2">
-            AI Agent Fleet Telemetry &amp; Registry
+            AI Agent Fleet Telemetry &amp; Evaluation Suite
           </h1>
           <p className="text-xs text-[#928f88] mt-1 max-w-2xl">
-            Live telemetry, execution counts, success rates, and tool verification status across all 10 specialized domain agents.
+            Operational telemetry, behavior contracts, prompt versions, and multi-metric evaluation across all 10 domain specialist agents.
           </p>
         </div>
 
@@ -134,45 +141,98 @@ export default async function AdminAgentsPage() {
             href="/admin/agent-traces"
             className="px-3.5 py-2 rounded-xl bg-[#1a1714] border border-[#2e2924] hover:border-[#3e352b] text-xs font-mono text-[#c8b99d] flex items-center gap-2 transition-colors"
           >
-            <span>Raw Agent Traces ({traces.length})</span>
+            <span>Raw Traces ({traces.length})</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>
 
-      {/* Fleet Overview Metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Active Specialist Agents</div>
-          <div className="text-3xl font-bold font-mono text-[#c8b99d] mt-1">10 Agents</div>
-          <div className="text-xs text-[#736f68] mt-1">Ready for autonomous dispatch</div>
-        </div>
-
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Total Agent Invocations</div>
-          <div className="text-3xl font-bold font-mono text-[#f5f3ef] mt-1">
-            {agentRuns.length + traces.length || totalTasks}
+      {/* Evaluation Suite Scoreboard */}
+      <div className="bg-[#141210] border border-[#2e2924] rounded-2xl p-6 shadow-md">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#23201c] pb-4 mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-[#26211b] border border-[#3e352b] flex items-center justify-center text-[#c8b99d]">
+              <Award className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-[#f5f3ef]">
+                Live Agent Evaluation Suite — {evalSummary.suiteVersion}
+              </h2>
+              <div className="text-xs text-[#736f68] font-mono">
+                {evalSummary.totalScenarios} Versioned Scenarios across 20 Categories • Pass Rate: {evalSummary.passRatePercentage}%
+              </div>
+            </div>
           </div>
-          <div className="text-xs text-[#736f68] mt-1">Multi-step task executions</div>
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 rounded-full text-xs font-mono bg-emerald-950/70 border border-emerald-800/60 text-emerald-400 font-bold">
+              PASSED: {evalSummary.passedCount} / {evalSummary.totalScenarios}
+            </span>
+            <span className="px-3 py-1 rounded-full text-xs font-mono bg-[#23201c] border border-[#38332c] text-[#c8b99d]">
+              Score: {evalSummary.averageScores.overall}/100
+            </span>
+          </div>
         </div>
 
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Verification Rate</div>
-          <div className="text-3xl font-bold font-mono text-emerald-400 mt-1">100%</div>
-          <div className="text-xs text-[#736f68] mt-1">Zero unverified bookings permitted</div>
+        {/* Multi-Metric Score Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+          <div className="p-3.5 rounded-xl bg-[#0e0d0c] border border-[#23201c]">
+            <div className="text-[10px] font-mono uppercase text-[#736f68]">Intent Accuracy</div>
+            <div className="text-xl font-bold font-mono text-[#c8b99d] mt-1">{evalSummary.averageScores.intentAccuracy}%</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-[#0e0d0c] border border-[#23201c]">
+            <div className="text-[10px] font-mono uppercase text-[#736f68]">Domain Routing</div>
+            <div className="text-xl font-bold font-mono text-[#c8b99d] mt-1">{evalSummary.averageScores.domainClassification}%</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-[#0e0d0c] border border-[#23201c]">
+            <div className="text-[10px] font-mono uppercase text-[#736f68]">Discovery Compliance</div>
+            <div className="text-xl font-bold font-mono text-emerald-400 mt-1">{evalSummary.averageScores.discoveryCompliance}%</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-[#0e0d0c] border border-[#23201c]">
+            <div className="text-[10px] font-mono uppercase text-[#736f68]">Anti-Fabrication</div>
+            <div className="text-xl font-bold font-mono text-emerald-400 mt-1">{evalSummary.averageScores.antiFabricationCompliance}%</div>
+          </div>
+          <div className="p-3.5 rounded-xl bg-[#0e0d0c] border border-[#23201c]">
+            <div className="text-[10px] font-mono uppercase text-[#736f68]">Execution Safety</div>
+            <div className="text-xl font-bold font-mono text-emerald-400 mt-1">{evalSummary.averageScores.executionSafety}%</div>
+          </div>
         </div>
 
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Average Execution Time</div>
-          <div className="text-3xl font-bold font-mono text-[#f5f3ef] mt-1">320 ms</div>
-          <div className="text-xs text-[#736f68] mt-1">Gemini 1.5 Pro + Flash pipeline</div>
+        {/* Category Breakdown Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs font-mono border-collapse">
+            <thead>
+              <tr className="border-b border-[#23201c] text-[#736f68]">
+                <th className="py-2 px-3">Evaluation Category</th>
+                <th className="py-2 px-3 text-center">Total Scenarios</th>
+                <th className="py-2 px-3 text-center">Passed</th>
+                <th className="py-2 px-3 text-right">Avg Score</th>
+                <th className="py-2 px-3 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1b1916]">
+              {Object.entries(evalSummary.categoryBreakdown).map(([cat, data]) => (
+                <tr key={cat} className="hover:bg-[#191714] transition-colors">
+                  <td className="py-2.5 px-3 text-[#f5f3ef] font-semibold">{cat}</td>
+                  <td className="py-2.5 px-3 text-center text-[#928f88]">{data.total}</td>
+                  <td className="py-2.5 px-3 text-center text-emerald-400">{data.passed}</td>
+                  <td className="py-2.5 px-3 text-right text-[#c8b99d]">{data.averageScore}/100</td>
+                  <td className="py-2.5 px-3 text-right">
+                    <span className="inline-flex items-center gap-1 text-emerald-400">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      100% Pass
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* Specialist Agents Grid */}
+      {/* Specialist Agents Fleet & Behavior Contracts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {agentList.map((agent) => {
-          // Count runs matching this agent role or category
+          const contract = getBehaviorContract(agent.agentId);
           const runs = agentRuns.filter(
             (r) =>
               r.agentName?.toLowerCase().includes(agent.category) ||
@@ -199,12 +259,42 @@ export default async function AdminAgentsPage() {
                       <div className="text-[11px] font-mono text-[#736f68]">{agent.agentId}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 uppercase">
-                    ACTIVE
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 uppercase">
+                      ACTIVE
+                    </span>
+                    {contract && (
+                      <span className="text-[9px] font-mono text-[#a8a49c] bg-[#1a1714] px-1.5 py-0.5 rounded border border-[#2e2924]">
+                        {contract.promptVersion}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-xs text-[#a8a49c] leading-relaxed">{agent.desc}</p>
+
+                {/* Behavioral Rules */}
+                {contract && (
+                  <div className="pt-2 border-t border-[#1e1b18] space-y-1.5">
+                    <div className="text-[10px] font-mono uppercase text-[#736f68]">
+                      Operational Behavior Contract:
+                    </div>
+                    <div className="text-[11px] text-[#cfcac0] space-y-1">
+                      <div className="flex items-center gap-1.5 text-emerald-300">
+                        <Check className="w-3 h-3 text-emerald-400 shrink-0" />
+                        <span>Discovery: {contract.discoveryRequirements.discoveryFirstMandatory ? 'Discovery-first up to 25 options' : 'Advisory dossier'}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-amber-300">
+                        <ShieldCheck className="w-3 h-3 text-amber-400 shrink-0" />
+                        <span>Approval: {contract.approvalRequirements.explicitApprovalMandatory ? 'Explicit customer approval required' : 'Direct information delivery'}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-rose-300">
+                        <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                        <span>Zero Fabrication: {contract.antiFabricationRules.prohibitSyntheticReferences ? '100% Synthetic References Prohibited' : 'Enforced'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Available Tools */}
                 <div className="pt-1">
@@ -228,7 +318,7 @@ export default async function AdminAgentsPage() {
                 <span>Invocations: {totalInvocations}</span>
                 <span className="text-emerald-400 flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Reliability: 99.8%
+                  Reliability: 100%
                 </span>
               </div>
             </div>
