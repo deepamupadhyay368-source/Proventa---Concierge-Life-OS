@@ -1,22 +1,44 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-export const metadata: Metadata = { title: 'FAQ', description: 'Frequently asked questions about Proventa.' };
+export const metadata: Metadata = {
+  title: 'FAQ | PROVENTA — Every Business. One Place.',
+  description: 'Frequently asked questions about PROVENTA universal business discovery, digital storefronts, and customer enquiries.',
+};
 
 const FAQS = [
-  { q: 'What is Proventa?', a: 'Proventa is a Concierge Life OS — a service that combines intelligent technology with real human concierge support to research, arrange and manage things on your behalf. You describe what you need; Proventa figures out the rest.' },
-  { q: 'Is Proventa only for wealthy individuals?', a: "No. Proventa is designed to be broadly accessible. We believe that the experience of having things taken care of shouldn't be exclusive. What makes Proventa premium is the quality of the experience — not the price of entry." },
-  { q: 'How does the concierge work?', a: 'Every request is handled by a combination of technology and a real human concierge. The concierge reviews AI-prepared research, communicates with providers, handles negotiations, and is accountable for the outcome.' },
-  { q: 'Is AI involved?', a: 'Yes. Proventa uses AI to understand your requests, research options, compare information, and prepare recommendations. But AI is a tool — not the decision-maker. Human concierges review, verify, and execute.' },
-  { q: 'What can Proventa handle?', a: 'Dining, travel, shopping, experiences, appointments, home services, personal errands, business arrangements, and more. If it can reasonably be delegated, you can ask Proventa.' },
-  { q: 'Do I have to choose a category?', a: 'No. Just describe what you need in plain language. Proventa handles the classification.' },
-  { q: 'How does approval work?', a: 'Before any consequential action — a booking, a purchase, an arrangement — Proventa presents you with the details: provider, date, price, terms, and cancellation policy. You approve, request changes, or decline. Nothing happens without your confirmation.' },
-  { q: 'How are bookings confirmed?', a: "A confirmed booking means a real confirmation from the actual provider. Proventa will never tell you something is confirmed when it isn't." },
-  { q: 'Can Proventa handle unusual requests?', a: "Often, yes. If a request can reasonably be fulfilled by a concierge — even if it doesn't fit a standard category — we'll do our best. We will always be honest if something is outside our capability." },
-  { q: 'How is my data protected?', a: 'Your data is stored securely and used only to serve your requests. You can view, edit, and delete your preferences at any time. We do not use your data for model training without explicit authorisation.' },
-  { q: 'Where is Proventa currently available?', a: "Early Access Cohort 1 is now open for private membership application across India and select international destinations. We prioritize ground concierge depth wherever our members travel." },
-  { q: 'What is Early Access · Cohort 1?', a: "Cohort 1 is our inaugural group of private members. It allows us to deliver a bespoke, high-touch personal concierge experience with dedicated team members before opening wider access." },
-  { q: 'How do I join Cohort 1?', a: "Apply for membership using the Apply for Cohort 1 Access button. Our membership desk reviews applications and extends private invitations directly." },
+  {
+    q: 'What is PROVENTA?',
+    a: 'PROVENTA ("Every Business. One Place.") is a universal business discovery, digital storefront, and customer enquiry marketplace. Businesses create verified digital storefronts and showcase their products or services, while customers discover businesses, post structured requirements, and compare quotations.',
+  },
+  {
+    q: 'Who can list a business on PROVENTA?',
+    a: 'Any legitimate business, shop, clinic, restaurant, service provider, agency, consultant, freelancer, wholesaler, distributor, or manufacturer can register a digital storefront on PROVENTA across 18 industry categories.',
+  },
+  {
+    q: 'How does the Customer Enquiry Marketplace work?',
+    a: 'Customers can either send a direct enquiry to a specific business or post a requirement to a category/city marketplace. PROVENTA matches the enquiry with relevant published businesses based on category, subcategory, location, and catalog relevance, and matched businesses respond with structured quotations.',
+  },
+  {
+    q: 'Is my contact information shared publicly when I post an enquiry?',
+    a: 'No. By default, customer contact details (email and phone number) are kept private and are only shared with businesses whose quotations you explicitly shortlist or accept.',
+  },
+  {
+    q: 'How does business verification work on PROVENTA?',
+    a: 'PROVENTA uses transparent, honest verification badges: Self-Reported (newly registered), Contact Verified, Document Reviewed, and Verified Business (admin-reviewed business identity and documentation). We never fabricate verification badges or reviews.',
+  },
+  {
+    q: 'Is it free for customers to search and post enquiries?',
+    a: 'Yes. Searching the business directory, browsing product and service catalogs, posting customer enquiries, and comparing quotations are completely free for customers.',
+  },
+  {
+    q: 'What plans are available for businesses?',
+    a: 'Businesses can start on the Free Storefront plan (public storefront, up to 10 listings, and up to 5 quotation responses per month) or upgrade to Growth Pro or Enterprise Premium for higher listing capacity, priority enquiry matching, and multi-member team management.',
+  },
+  {
+    q: 'Which cities and regions does PROVENTA support?',
+    a: 'PROVENTA is launching across Gujarat (Ahmedabad, Surat, Vadodara, Rajkot, Gandhinagar, and surrounding industrial/commercial hubs) with pan-India and global expansion support built into every storefront.',
+  },
 ];
 
 export default function FAQPage() {
@@ -24,8 +46,10 @@ export default function FAQPage() {
     <div className="min-h-screen bg-white pt-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="mb-14">
-          <h1 className="text-4xl font-semibold tracking-tight text-neutral-900 mb-4">Frequently asked questions</h1>
-          <p className="text-neutral-500">If your question isn't here, <a href="/contact" className="text-brand-700 hover:underline">contact us</a>.</p>
+          <h1 className="text-4xl font-semibold tracking-tight text-neutral-900 mb-4">Frequently Asked Questions</h1>
+          <p className="text-neutral-500">
+            Have another question? <Link href="/contact" className="text-brand-700 hover:underline">Contact our team</Link>.
+          </p>
         </div>
         <div className="space-y-8">
           {FAQS.map((faq) => (
@@ -35,8 +59,13 @@ export default function FAQPage() {
             </div>
           ))}
         </div>
-        <div className="mt-14 text-center">
-          <Link href="/wave1" className="inline-flex items-center px-6 py-3 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition-colors">Join Wave 1</Link>
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/businesses" className="inline-flex items-center px-6 py-3 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition-colors">
+            Explore Businesses
+          </Link>
+          <Link href="/business/register" className="inline-flex items-center px-6 py-3 border border-neutral-300 text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-50 transition-colors">
+            List Your Business
+          </Link>
         </div>
       </div>
     </div>

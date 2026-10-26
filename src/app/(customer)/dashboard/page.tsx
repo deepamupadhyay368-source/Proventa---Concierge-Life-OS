@@ -1,527 +1,459 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
 import {
-  Sparkles,
-  ArrowRight,
-  Clock,
+  PlusCircle,
+  Building2,
+  Bookmark,
+  FileText,
   CheckCircle2,
-  AlertCircle,
-  Calendar,
-  MessageSquare,
-  ChevronRight,
-  ListTodo,
-  ShieldCheck,
-  UserCheck,
-  Plus,
-  Lock,
+  XCircle,
+  Star,
+  MapPin,
+  Loader2,
+  ArrowRight,
 } from 'lucide-react';
-import { getWelcomeMessage } from '@/lib/auth/greeting';
-import { MembershipGate } from '@/components/membership/MembershipGate';
-import { HybridRequestComposer } from '@/components/request-composer/HybridRequestComposer';
-
-function DashboardContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const isWelcome = searchParams.get('welcome') === 'true';
-
-  const [tasks, setTasks] = useState<any[]>([]);
-  const [showMembershipGateModal, setShowMembershipGateModal] = useState(false);
-  const [userProfile, setUserProfile] = useState<{
-    name?: string | null;
-    email?: string;
-    customerProfile?: {
-      membershipPlan?: string | null;
-      membershipStatus?: string | null;
-      membershipRenewsAt?: string | null;
-      freeRequestsUsed?: number;
-      freeRequestUsed?: boolean;
-    } | null;
-    entitlement?: {
-      hasActiveMembership: boolean;
-      complimentaryRequestsLimit?: number;
-      complimentaryRequestsUsed?: number;
-      complimentaryRequestsRemaining?: number;
-      freeRequestAvailable: boolean;
-      freeRequestUsed: boolean;
-      canCreateRequest: boolean;
-      state: 'FREE_REQUEST_AVAILABLE' | 'FREE_REQUEST_USED' | 'ACTIVE_MEMBER';
-    } | null;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/tasks')
-        .then((res) => (res.ok ? res.json() : { tasks: [] }))
-        .catch(() => ({ tasks: [] })),
-      fetch('/api/customer/profile')
-        .then((res) => (res.ok ? res.json() : null))
-        .catch(() => null),
-    ])
-      .then(([tasksData, profileData]) => {
-        if (tasksData?.tasks) setTasks(tasksData.tasks);
-        if (profileData?.profile) setUserProfile(profileData.profile);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  const tasksCount = tasks?.length ?? 0;
-  const usedCount = typeof userProfile?.customerProfile?.freeRequestsUsed === 'number'
-    ? userProfile.customerProfile.freeRequestsUsed
-    : tasksCount;
-  const remainingCount = Math.max(0, 3 - usedCount);
-
-  const entitlement = userProfile?.entitlement || {
-    hasActiveMembership: userProfile?.customerProfile?.membershipStatus === 'ACTIVE',
-    complimentaryRequestsLimit: 3,
-    complimentaryRequestsUsed: Math.min(usedCount, 3),
-    complimentaryRequestsRemaining: userProfile?.customerProfile?.membershipStatus === 'ACTIVE' ? 3 : remainingCount,
-    freeRequestAvailable:
-      userProfile?.customerProfile?.membershipStatus === 'ACTIVE' || remainingCount > 0,
-    freeRequestUsed: !(userProfile?.customerProfile?.membershipStatus === 'ACTIVE') && remainingCount === 0,
-    canCreateRequest:
-      userProfile?.customerProfile?.membershipStatus === 'ACTIVE' || remainingCount > 0,
-    state:
-      userProfile?.customerProfile?.membershipStatus === 'ACTIVE'
-        ? 'ACTIVE_MEMBER'
-        : remainingCount === 0
-        ? 'FREE_REQUEST_USED'
-        : 'FREE_REQUEST_AVAILABLE',
-  };
-
-  const activeTasks = tasks.filter((t) => !['COMPLETED', 'CANCELLED'].includes(t.status));
-  const pendingApprovals = tasks.filter((t) => t.status === 'AWAITING_APPROVAL');
-  const confirmedTasks = tasks.filter((t) => ['CONFIRMED', 'COMPLETED'].includes(t.status));
-
-  const welcomeGreeting = getWelcomeMessage({
-    name: userProfile?.name,
-    isFirstLogin: isWelcome,
-  });
-
-  return (
-    <div className="space-y-8 pb-12">
-      {/* Premium Personalized Welcome Header */}
-      <section className="pt-2 pb-1 border-b border-[#E1E5E8]">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
-                <Sparkles className="h-3 w-3 text-[#1F2933]" />
-                <span>
-                  {entitlement.hasActiveMembership ? 'Private Member Dashboard' : 'Proventa Experience'}
-                </span>
-              </span>
-              <span className="text-xs text-[#66717C] font-mono">
-                {new Date().toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}
-              </span>
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-serif font-normal tracking-tight text-[#1F2933] animate-fade-in">
-              {welcomeGreeting.title}
-            </h1>
-            <p className="text-sm text-[#66717C] mt-1 font-sans">
-              {welcomeGreeting.subtitle}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 shrink-0">
-            {entitlement.canCreateRequest ? (
-              <button
-                type="button"
-                onClick={() => {
-                  const el = document.getElementById('new-request');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                  const textarea = el?.querySelector('textarea');
-                  textarea?.focus();
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs cursor-pointer"
-              >
-                <Plus className="h-3.5 w-3.5 text-[#A7B0B8]" />
-                <span>+ New Request</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowMembershipGateModal(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs cursor-pointer"
-              >
-                <Sparkles className="h-3.5 w-3.5 text-[#A7B0B8]" />
-                <span>View Memberships</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* 1. Free Request Available Banner */}
-      {!entitlement.hasActiveMembership && entitlement.freeRequestAvailable && (
-        <section className="bg-gradient-to-r from-[#F7F8FA] to-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-white border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] shadow-xs shrink-0">
-              <Sparkles className="h-5 w-5 text-[#1F2933]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold tracking-wide text-[#111820]">
-                  Your first 3 requests are on us.
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-medium bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8]">
-                  {entitlement.complimentaryRequestsRemaining ?? (3 - tasksCount)} Remaining
-                </span>
-              </div>
-              <p className="text-xs text-[#66717C] mt-0.5">
-                Enjoy 3 complimentary Proventa requests before choosing a membership. Submit any request below.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              const el = document.getElementById('new-request');
-              el?.scrollIntoView({ behavior: 'smooth' });
-              const textarea = el?.querySelector('textarea');
-              textarea?.focus();
-            }}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1F2933] hover:bg-[#111820] text-white rounded-xl text-xs font-medium transition-colors shadow-xs shrink-0 cursor-pointer"
-          >
-            <span>+ New Request</span>
-            <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
-          </button>
-        </section>
-      )}
-
-      {/* 2. Free Request Consumed & No Active Membership -> Gate Banner */}
-      {!entitlement.hasActiveMembership && entitlement.freeRequestUsed && (
-        <section className="bg-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] shrink-0">
-              <Lock className="h-5 w-5 text-[#1F2933]" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold tracking-wide text-[#111820]">
-                You have used your 3 complimentary Proventa requests.
-              </div>
-              <p className="text-xs text-[#66717C] mt-0.5">
-                Choose a membership to continue having Proventa handle more of your life.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setShowMembershipGateModal(true)}
-            className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#111820] hover:bg-[#1F2933] text-white rounded-xl text-xs font-medium transition-colors shadow-xs shrink-0 cursor-pointer"
-          >
-            <span>View Memberships</span>
-            <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
-          </button>
-        </section>
-      )}
-
-      {/* 3. Active Membership Status Banner */}
-      {entitlement.hasActiveMembership && userProfile && (
-        <section className="bg-white border border-[#E1E5E8] rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-11 h-11 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933]">
-              <ShieldCheck className="h-6 w-6 text-[#1F2933]" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold tracking-wider uppercase text-[#66717C]">
-                  Active Membership
-                </span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  {userProfile.customerProfile?.membershipStatus || 'ACTIVE'}
-                </span>
-              </div>
-              <div className="text-base font-bold text-[#111820] mt-0.5 flex items-center gap-2">
-                <span>PROVENTA {userProfile.customerProfile?.membershipPlan || 'SELECT'}</span>
-                <span className="text-xs font-normal text-[#66717C]">
-                  {userProfile.customerProfile?.membershipPlan === 'RESERVE'
-                    ? '• ₹9,999/month'
-                    : userProfile.customerProfile?.membershipPlan === 'PRIVATE'
-                    ? '• ₹4,999/month'
-                    : '• ₹2,499/month'}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4 text-xs">
-            <div className="text-left sm:text-right">
-              <span className="text-[#66717C] block text-[11px]">Next Renewal</span>
-              <span className="font-semibold text-[#111820]">
-                {userProfile.customerProfile?.membershipRenewsAt
-                  ? new Date(userProfile.customerProfile.membershipRenewsAt).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })
-                  : 'Auto-renews monthly'}
-              </span>
-            </div>
-            <Link
-              href="/profile"
-              className="px-3.5 py-2 rounded-xl bg-[#F1F3F5] hover:bg-[#E1E5E8] border border-[#E1E5E8] text-xs font-semibold text-[#1F2933] transition-colors"
-            >
-              Manage Membership
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {isWelcome && (
-        <div className="p-4 bg-[#F7F8FA] border border-[#E1E5E8] rounded-xl text-sm text-[#1F2933] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Sparkles className="h-5 w-5 text-[#1F2933]" />
-            <span>Welcome to Proventa. Your concierge is ready. Tell us what you need handled below.</span>
-          </div>
-        </div>
-      )}
-
-      {/* Hybrid Structured + AI Conversational Request Experience */}
-      {!entitlement.canCreateRequest ? (
-        <section id="new-request" className="bg-white rounded-2xl border border-[#E1E5E8] p-6 sm:p-8 shadow-xs">
-          <div className="mb-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#66717C]">Concierge Life OS</p>
-            <h2 className="text-2xl font-semibold text-[#1F2933] mt-1">What can we take care of?</h2>
-            <p className="text-xs text-[#66717C] mt-1">
-              Choose what you need, tell us the essentials, and we&apos;ll take it from there.
-            </p>
-          </div>
-          <div className="py-2">
-            <MembershipGate
-              mode="inline"
-              title="You have used your 3 complimentary requests."
-              subtitle="Ready to have Proventa handle more of your life? Choose a membership to continue."
-            />
-          </div>
-        </section>
-      ) : (
-        <HybridRequestComposer
-          entitlement={entitlement}
-          onShowMembershipGate={() => setShowMembershipGateModal(true)}
-          onSuccess={(taskId) => router.push(`/tasks/${taskId}`)}
-        />
-      )}
-
-      {/* Curated Ahmedabad Directory Showcase */}
-      <section className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[11px] font-semibold tracking-wider uppercase text-[#1F2933]">Ahmedabad Network Live</span>
-            </div>
-            <h2 className="text-lg font-serif font-medium text-[#1F2933] mt-1">36 Verified Establishments in Ahmedabad</h2>
-            <p className="text-xs text-[#66717C]">From UNESCO heritage dining to Sindhu Bhavan luxury hubs and GIFT City protocols.</p>
-          </div>
-          <Link
-            href="/what-we-handle"
-            className="text-xs font-semibold text-[#1F2933] hover:underline inline-flex items-center gap-1 shrink-0"
-          >
-            Explore all services <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 text-xs">
-          {[
-            { tag: 'Dining', name: 'Agashiye Heritage', count: '10 venues', sample: 'Reserve dinner at Agashiye for 2 this weekend' },
-            { tag: 'Hotels', name: 'ITC Narmada & Taj', count: '6 hotels', sample: 'Check suite availability at ITC Narmada' },
-            { tag: 'Transit', name: 'SVPIA Airport Fleet', count: 'Chauffeurs', sample: 'Arrange Mercedes airport pickup at 6 PM' },
-            { tag: 'Wellness', name: 'Kaya Kalp & Spas', count: '5 sanctuaries', sample: 'Book a luxury spa package for Saturday' },
-            { tag: 'Heritage', name: 'Calico & Adalaj', count: '5 sites', sample: 'Arrange a private guided tour of Calico Museum' },
-            { tag: 'Shopping', name: 'Bandhej & TBZ', count: '7 boutiques', sample: 'Schedule private shopping appointment at Bandhej' },
-          ].map((item) => (
-            <button
-              key={item.tag}
-              type="button"
-              onClick={() => {
-                const el = document.getElementById('new-request');
-                el?.scrollIntoView({ behavior: 'smooth' });
-                const textarea = el?.querySelector('textarea');
-                if (textarea) {
-                  textarea.value = item.sample;
-                  textarea.dispatchEvent(new Event('input', { bubbles: true }));
-                  textarea.focus();
-                }
-              }}
-              className="text-left p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#1F2933] hover:bg-white hover:shadow-xs transition-all group cursor-pointer"
-            >
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-[#66717C] block">{item.tag}</span>
-              <p className="text-xs font-medium text-[#1F2933] mt-0.5 line-clamp-1">{item.name}</p>
-              <span className="text-[10px] text-[#A7B0B8] mt-1 block font-mono">{item.count}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Pending Approvals Notice */}
-      {pendingApprovals.length > 0 && (
-        <section className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-600" />
-              <div>
-                <p className="text-sm font-semibold text-amber-900">
-                  {pendingApprovals.length} Proposal{pendingApprovals.length > 1 ? 's' : ''} Awaiting Your Approval
-                </p>
-                <p className="text-xs text-amber-700">
-                  Your concierge agent has prepared recommendations and requires your confirmation before booking.
-                </p>
-              </div>
-            </div>
-            <Link
-              href={`/tasks/${pendingApprovals[0].id}`}
-              className="px-4 py-2 bg-amber-800 text-white rounded-lg text-xs font-medium hover:bg-amber-900 transition-colors"
-            >
-              Review Now
-            </Link>
-          </div>
-        </section>
-      )}
-
-      {/* Active Tasks & Delegations */}
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <ListTodo className="h-5 w-5 text-[#1F2933]" />
-            <h2 className="text-lg font-semibold text-[#1F2933]">Active Delegations</h2>
-          </div>
-          <Link href="/tasks" className="text-xs text-[#66717C] hover:text-[#1F2933] font-medium">
-            View Task Execution Center ({tasks.length})
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className="p-8 text-center text-sm text-[#66717C]">Loading tasks...</div>
-        ) : activeTasks.length === 0 ? (
-          <div className="p-8 bg-white border border-[#E1E5E8] rounded-xl text-center">
-            <p className="text-sm font-medium text-[#1F2933]">No active tasks</p>
-            <p className="text-xs text-[#66717C] mt-1">
-              {entitlement.freeRequestAvailable
-                ? 'Your first request is on us. Tell us what you need in the box above to get started.'
-                : 'Tell us what you need in the box above to get started.'}
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3">
-            {activeTasks.map((t) => {
-              const isNeedsHuman = t.status === 'NEEDS_HUMAN';
-              const isAwaitingApproval = t.status === 'AWAITING_APPROVAL';
-
-              return (
-                <Link
-                  key={t.id}
-                  href={`/tasks/${t.id}`}
-                  className="p-5 bg-white border border-[#E1E5E8] rounded-xl hover:border-[#1F2933] hover:shadow-xs transition-all flex items-center justify-between group"
-                >
-                  <div className="space-y-1 max-w-2xl">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1 ${
-                          isAwaitingApproval
-                            ? 'bg-amber-100 text-amber-800'
-                            : isNeedsHuman
-                            ? 'bg-purple-100 text-purple-800'
-                            : 'bg-[#F1F3F5] text-[#1F2933]'
-                        }`}
-                      >
-                        {isAwaitingApproval && <ShieldCheck className="h-3 w-3" />}
-                        {isNeedsHuman && <UserCheck className="h-3 w-3" />}
-                        {!isAwaitingApproval && !isNeedsHuman && <Clock className="h-3 w-3" />}
-                        {t.status.replace(/_/g, ' ')}
-                      </span>
-                      {t.priority !== 'NORMAL' && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-red-100 text-red-700 rounded">
-                          {t.priority}
-                        </span>
-                      )}
-                      <span className="text-xs font-mono text-[#66717C]">#{t.publicId}</span>
-                    </div>
-
-                    <p className="text-sm font-medium text-[#1F2933] group-hover:text-[#111820] transition-colors">
-                      {t.intent}
-                    </p>
-
-                    <p className="text-xs text-[#66717C] line-clamp-1">{t.originalRequest}</p>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-[#66717C] hidden sm:block font-mono">
-                      {new Date(t.createdAt).toLocaleDateString('en-IN', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                    <ChevronRight className="h-5 w-5 text-[#A7B0B8] group-hover:text-[#1F2933] group-hover:translate-x-0.5 transition-all" />
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* Completed History Preview */}
-      {confirmedTasks.length > 0 && (
-        <section className="space-y-3">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            <h2 className="text-sm font-semibold uppercase tracking-wider text-[#66717C]">
-              Fulfilled Delegations ({confirmedTasks.length})
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {confirmedTasks.slice(0, 4).map((t) => (
-              <Link
-                key={t.id}
-                href={`/tasks/${t.id}`}
-                className="p-4 bg-white border border-[#E1E5E8] rounded-xl hover:border-[#1F2933] transition-colors flex items-center justify-between group"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-[#66717C]">#{t.publicId}</span>
-                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">
-                      {t.status}
-                    </span>
-                  </div>
-                  <p className="text-xs font-medium text-[#1F2933] mt-1 line-clamp-1">{t.intent}</p>
-                </div>
-                <ChevronRight className="h-4 w-4 text-[#A7B0B8] group-hover:text-[#1F2933] transition-colors" />
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Membership Gate Modal */}
-      {showMembershipGateModal && (
-        <MembershipGate
-          mode="modal"
-          isOpen={showMembershipGateModal}
-          onClose={() => setShowMembershipGateModal(false)}
-          title="Your first Proventa request is complete."
-          subtitle="Ready to have Proventa handle more of your life? Choose a membership to continue."
-        />
-      )}
-    </div>
-  );
-}
+import type {
+  BusinessListingDTO,
+  BusinessProfileDTO,
+  BusinessQuotationDTO,
+  CustomerEnquiryDTO,
+} from '@/lib/marketplace/types';
 
 export default function CustomerDashboardPage() {
+  const [activeTab, setActiveTab] = useState<
+    'enquiries' | 'shortlisted' | 'saved'
+  >('enquiries');
+  const [enquiries, setEnquiries] = useState<CustomerEnquiryDTO[]>([]);
+  const [savedBusinesses, setSavedBusinesses] = useState<BusinessProfileDTO[]>([]);
+  const [savedListings, setSavedListings] = useState<BusinessListingDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [enqRes, savRes] = await Promise.all([
+        fetch('/api/enquiries'),
+        fetch('/api/saved'),
+      ]);
+      if (enqRes.ok) {
+        const enqJson = await enqRes.json();
+        setEnquiries(enqJson.items || []);
+      }
+      if (savRes.ok) {
+        const savJson = await savRes.json();
+        setSavedBusinesses(savJson.savedBusinesses || []);
+        setSavedListings(savJson.savedListings || []);
+      }
+    } catch {
+      // Ignore network errors during initial render
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  async function handleQuotationAction(
+    quotationId: string,
+    action: 'SHORTLIST' | 'ACCEPT' | 'REJECT',
+  ) {
+    setFeedbackMessage(null);
+    const res = await fetch(`/api/quotations/${quotationId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    });
+    if (res.ok) {
+      setFeedbackMessage(`Quotation updated (${action.toLowerCase()}ed).`);
+      loadData();
+    }
+  }
+
+  async function handleEnquiryLifecycle(
+    enquiryId: string,
+    action: 'CLOSE' | 'CANCEL',
+  ) {
+    setFeedbackMessage(null);
+    const res = await fetch(`/api/enquiries/${enquiryId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action }),
+    });
+    if (res.ok) {
+      setFeedbackMessage(`Enquiry ${action === 'CLOSE' ? 'closed' : 'cancelled'}.`);
+      loadData();
+    }
+  }
+
+  const allQuotations: Array<{
+    enquiry: CustomerEnquiryDTO;
+    quotation: BusinessQuotationDTO;
+  }> = [];
+  for (const enq of enquiries) {
+    for (const q of enq.quotations ?? []) {
+      allQuotations.push({ enquiry: enq, quotation: q });
+    }
+  }
+
+  const shortlistedOffers = allQuotations.filter(
+    (item) =>
+      item.quotation.status === 'SHORTLISTED' ||
+      item.quotation.status === 'ACCEPTED',
+  );
+
   return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-[#66717C]">Loading dashboard...</div>}>
-      <DashboardContent />
-    </Suspense>
+    <div className="space-y-8">
+      {/* Top Banner */}
+      <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            Customer Workspace
+          </span>
+          <h1 className="font-display text-2xl sm:text-3xl font-bold text-foreground mt-1">
+            Enquiries, Quotations &amp; Saved Businesses
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+            Post requirements, compare quotations from matched businesses,
+            shortlist or accept offers, and manage your saved storefronts.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 shrink-0">
+          <Link
+            href="/enquiries/new"
+            className="inline-flex items-center gap-2 bg-foreground text-background font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-lg hover:bg-foreground/90 transition-colors"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Post New Enquiry
+          </Link>
+          <Link
+            href="/business/dashboard"
+            className="inline-flex items-center gap-2 border border-border bg-background text-foreground font-medium text-xs sm:text-sm px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors"
+          >
+            <Building2 className="w-4 h-4" />
+            Switch to Business Dashboard
+          </Link>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs text-muted-foreground">My Enquiries</div>
+          <div className="font-display text-3xl font-bold text-foreground mt-1">
+            {enquiries.length}
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs text-muted-foreground">
+            Quotations Received
+          </div>
+          <div className="font-display text-3xl font-bold text-foreground mt-1">
+            {allQuotations.length}
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs text-muted-foreground">Shortlisted Offers</div>
+          <div className="font-display text-3xl font-bold text-emerald-700 mt-1">
+            {shortlistedOffers.length}
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-5">
+          <div className="text-xs text-muted-foreground">Saved Items</div>
+          <div className="font-display text-3xl font-bold text-foreground mt-1">
+            {savedBusinesses.length + savedListings.length}
+          </div>
+        </div>
+      </div>
+
+      {feedbackMessage && (
+        <div className="p-3.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-medium flex items-center justify-between">
+          <span>{feedbackMessage}</span>
+          <button
+            onClick={() => setFeedbackMessage(null)}
+            className="underline text-emerald-800"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2 border-b border-border pb-3">
+        <button
+          onClick={() => setActiveTab('enquiries')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold ${
+            activeTab === 'enquiries'
+              ? 'bg-foreground text-background'
+              : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          My Enquiries &amp; Quotations ({enquiries.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('shortlisted')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold ${
+            activeTab === 'shortlisted'
+              ? 'bg-foreground text-background'
+              : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Star className="w-3.5 h-3.5" />
+          Shortlisted &amp; Accepted Offers ({shortlistedOffers.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('saved')}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold ${
+            activeTab === 'saved'
+              ? 'bg-foreground text-background'
+              : 'bg-card border border-border text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Bookmark className="w-3.5 h-3.5" />
+          Saved Businesses &amp; Listings (
+          {savedBusinesses.length + savedListings.length})
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="py-12 text-center text-sm text-muted-foreground flex items-center justify-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          Loading your marketplace workspace…
+        </div>
+      ) : activeTab === 'enquiries' ? (
+        <div className="space-y-6">
+          {enquiries.length > 0 ? (
+            enquiries.map((enq) => (
+              <div
+                key={enq.id}
+                className="bg-card border border-border rounded-xl p-6 space-y-5"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded bg-secondary text-foreground">
+                      {enq.referenceCode}
+                    </span>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      {enq.status.replace(/_/g, ' ')}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {enq.categoryName} &middot; {enq.city}, {enq.state}
+                    </span>
+                  </div>
+
+                  {enq.status !== 'CLOSED' && enq.status !== 'CANCELLED' && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEnquiryLifecycle(enq.id, 'CLOSE')}
+                        className="text-xs px-3 py-1 rounded border border-border hover:bg-secondary"
+                      >
+                        Mark Closed
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h2 className="font-display text-xl font-bold text-foreground">
+                    {enq.title}
+                  </h2>
+                  <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                    {enq.description}
+                  </p>
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Matched Businesses: <strong>{enq.matchedCount}</strong>{' '}
+                    &middot; Quotations Received:{' '}
+                    <strong>{enq.responsesCount}</strong>
+                  </div>
+                </div>
+
+                {/* Quotations Comparison List */}
+                {(enq.quotations ?? []).length > 0 && (
+                  <div className="pt-4 border-t border-border space-y-3">
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                      Quotations Received ({(enq.quotations ?? []).length})
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {(enq.quotations ?? []).map((q) => (
+                        <div
+                          key={q.id}
+                          className="p-4 rounded-xl bg-background border border-border flex flex-col justify-between gap-4"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2">
+                              <Link
+                                href={`/business/${q.businessSlug || q.businessId}`}
+                                className="font-bold text-sm text-foreground hover:underline"
+                              >
+                                {q.businessName || 'Matched Business'}
+                              </Link>
+                              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-secondary">
+                                {q.status}
+                              </span>
+                            </div>
+
+                            <div className="mt-2 text-base font-bold text-foreground">
+                              {q.priceAmount
+                                ? `₹${q.priceAmount.toLocaleString('en-IN')}`
+                                : q.priceType.replace(/_/g, ' ')}
+                              <span className="text-xs font-normal text-muted-foreground">
+                                {' '}
+                                &middot; Delivery: {q.deliveryTimeline}
+                              </span>
+                            </div>
+
+                            <div className="text-xs font-semibold text-foreground mt-2">
+                              {q.summary}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {q.detailedProposal}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-border">
+                            {q.status !== 'SHORTLISTED' &&
+                              q.status !== 'ACCEPTED' && (
+                                <button
+                                  onClick={() =>
+                                    handleQuotationAction(q.id, 'SHORTLIST')
+                                  }
+                                  className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md bg-secondary text-foreground hover:bg-secondary/80"
+                                >
+                                  <Star className="w-3.5 h-3.5" />
+                                  Shortlist
+                                </button>
+                              )}
+                            {q.status !== 'ACCEPTED' && (
+                              <button
+                                onClick={() =>
+                                  handleQuotationAction(q.id, 'ACCEPT')
+                                }
+                                className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-md bg-foreground text-background hover:bg-foreground/90"
+                              >
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                Accept Quote
+                              </button>
+                            )}
+                            {q.status !== 'REJECTED' &&
+                              q.status !== 'ACCEPTED' && (
+                                <button
+                                  onClick={() =>
+                                    handleQuotationAction(q.id, 'REJECT')
+                                  }
+                                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive px-2 py-1.5"
+                                >
+                                  <XCircle className="w-3.5 h-3.5" />
+                                  Decline
+                                </button>
+                              )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="bg-card border border-border rounded-2xl p-10 text-center">
+              <h2 className="font-display text-xl font-bold text-foreground">
+                You Haven&apos;t Posted Any Enquiries Yet
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1.5 max-w-md mx-auto">
+                Post what you need — from manufacturing supplies and construction
+                contractors to software development or event services — and compare
+                business quotations in one place.
+              </p>
+              <Link
+                href="/enquiries/new"
+                className="mt-5 inline-flex items-center gap-2 bg-foreground text-background text-sm font-semibold px-5 py-2.5 rounded-lg"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Post Your First Enquiry
+              </Link>
+            </div>
+          )}
+        </div>
+      ) : activeTab === 'shortlisted' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {shortlistedOffers.length > 0 ? (
+            shortlistedOffers.map(({ enquiry, quotation }) => (
+              <div
+                key={quotation.id}
+                className="bg-card border border-border rounded-xl p-6 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    {quotation.status}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {quotation.referenceCode}
+                  </span>
+                </div>
+                <h3 className="font-display text-lg font-bold text-foreground">
+                  {quotation.businessName} — {quotation.summary}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  For Enquiry: <strong>{enquiry.title}</strong>
+                </p>
+                <div className="text-sm font-bold text-foreground">
+                  {quotation.priceAmount
+                    ? `₹${quotation.priceAmount.toLocaleString('en-IN')}`
+                    : quotation.priceType}{' '}
+                  &middot; {quotation.deliveryTimeline}
+                </div>
+                {quotation.businessContactPhone && (
+                  <div className="text-xs text-muted-foreground pt-2 border-t border-border">
+                    Direct Business Contact: {quotation.businessContactPhone}{' '}
+                    {quotation.businessContactEmail
+                      ? `(${quotation.businessContactEmail})`
+                      : ''}
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="col-span-2 bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              No shortlisted or accepted quotations yet.
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {savedBusinesses.map((biz) => (
+            <Link
+              key={biz.id}
+              href={`/business/${biz.slug}`}
+              className="bg-card border border-border rounded-xl p-5 flex items-center justify-between hover:border-foreground/40"
+            >
+              <div>
+                <h3 className="font-bold text-base text-foreground">{biz.name}</h3>
+                <span className="text-xs text-muted-foreground inline-flex items-center gap-1 mt-1">
+                  <MapPin className="w-3 h-3" /> {biz.city}, {biz.state}
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-muted-foreground" />
+            </Link>
+          ))}
+          {savedBusinesses.length === 0 && savedListings.length === 0 && (
+            <div className="col-span-2 bg-card border border-border rounded-xl p-8 text-center text-sm text-muted-foreground">
+              You have not saved any businesses or listings yet.{' '}
+              <Link href="/businesses" className="text-foreground underline">
+                Explore the directory
+              </Link>
+              .
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

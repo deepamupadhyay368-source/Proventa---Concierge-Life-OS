@@ -1,131 +1,178 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Menu, X, Building2, PlusCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { BRAND_CONFIG } from '@/lib/brand';
 
-export function PublicNav() {
-  const [open, setOpen] = useState(false);
+const navLinks = [
+  { href: '/businesses', label: 'Explore Businesses' },
+  { href: '/listings', label: 'Products & Services' },
+  { href: '/enquiries/new', label: 'Post an Enquiry' },
+  { href: '/for-businesses', label: 'For Businesses' },
+];
+
+export function MarketingNav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-[#E1E5E8]/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <span className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#1F2933] group-hover:opacity-90 transition-opacity">
-              Proventa
-            </span>
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-widest uppercase bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] shadow-2xs">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10B981]"></span>
+    <header
+      className={cn(
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-200',
+        scrolled
+          ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-sm'
+          : 'bg-background/85 backdrop-blur-sm border-b border-border/50',
+      )}
+    >
+      <div className="container-wide">
+        <nav
+          className="flex items-center justify-between h-16 md:h-20"
+          aria-label="Main navigation"
+        >
+          {/* Brand Logo */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 group focus-visible:outline-none"
+          >
+            <div className="w-9 h-9 rounded-lg bg-foreground text-background flex items-center justify-center font-display font-bold text-lg tracking-tight">
+              P
+            </div>
+            <div className="flex flex-col">
+              <span className="font-display text-xl font-bold tracking-tight text-foreground leading-none">
+                {BRAND_CONFIG.name}
               </span>
-              Cohort 1
-            </span>
+              <span className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase mt-0.5 hidden sm:inline">
+                {BRAND_CONFIG.tagline}
+              </span>
+            </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link href="/how-it-works" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
-              How It Works
-            </Link>
-            <Link href="/what-we-handle" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
-              Services
-            </Link>
-            <Link href="/membership" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
-              Membership
-            </Link>
-            <Link href="/about" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
-              Philosophy
-            </Link>
-            <Link href="/faq" className="text-xs uppercase tracking-widest font-medium text-[#66717C] hover:text-[#1F2933] transition-colors">
-              FAQ
-            </Link>
-          </nav>
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-7">
+            {navLinks.map((link) => {
+              const isActive =
+                pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    'text-sm font-medium transition-colors py-1',
+                    isActive
+                      ? 'text-foreground font-semibold border-b-2 border-foreground'
+                      : 'text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
 
-          {/* Right Side CTAs */}
-          <div className="hidden md:flex items-center gap-5">
-            <Link href="/sign-in" className="text-xs uppercase tracking-widest font-semibold text-[#1F2933] hover:text-[#111820] transition-colors">
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-3">
+            <Link
+              href="/sign-in"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+            >
               Sign In
             </Link>
-
             <Link
               href="/sign-up"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1F2933] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#111820] transition-all shadow-xs"
+              className="text-sm font-medium text-foreground border border-border hover:bg-secondary/70 transition-colors px-4 py-2 rounded-md"
             >
-              <span>Join Proventa</span>
-              <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
+              Register
+            </Link>
+            <Link
+              href="/business/register"
+              className="inline-flex items-center gap-1.5 text-sm font-medium bg-foreground text-background px-4 py-2 rounded-md hover:bg-foreground/90 transition-colors shadow-sm"
+            >
+              <Building2 className="w-4 h-4" />
+              Register Your Business
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Toggle */}
           <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden p-2 text-[#1F2933] hover:text-[#111820]"
-            aria-label="Toggle menu"
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
           >
-            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-        </div>
+        </nav>
       </div>
 
-      {/* Mobile dropdown */}
-      {open && (
-        <div className="md:hidden bg-white border-b border-[#E1E5E8] px-6 pt-4 pb-8 space-y-4">
-          <Link
-            href="/how-it-works"
-            onClick={() => setOpen(false)}
-            className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
-          >
-            How It Works
-          </Link>
-          <Link
-            href="/what-we-handle"
-            onClick={() => setOpen(false)}
-            className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
-          >
-            Curated Services
-          </Link>
-          <Link
-            href="/membership"
-            onClick={() => setOpen(false)}
-            className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
-          >
-            Membership &amp; Pricing
-          </Link>
-          <Link
-            href="/about"
-            onClick={() => setOpen(false)}
-            className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
-          >
-            Philosophy
-          </Link>
-          <Link
-            href="/faq"
-            onClick={() => setOpen(false)}
-            className="block py-2 text-sm uppercase tracking-wider font-semibold text-[#1F2933]"
-          >
-            Frequently Asked
-          </Link>
-          <div className="pt-4 border-t border-[#E1E5E8] flex flex-col gap-3">
-            <Link
-              href="/sign-up"
-              onClick={() => setOpen(false)}
-              className="text-center py-3.5 text-xs uppercase tracking-widest font-bold bg-[#1F2933] text-white rounded-lg shadow-xs hover:bg-[#111820]"
-            >
-              Join Proventa
-            </Link>
-            <Link
-              href="/sign-in"
-              onClick={() => setOpen(false)}
-              className="text-center py-3 text-xs uppercase tracking-widest font-bold text-[#1F2933] border border-[#E1E5E8] rounded-lg"
-            >
-              Already a member? Sign In
-            </Link>
+      {/* Mobile Drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden bg-background border-b border-border px-4 pb-6 pt-2 shadow-lg">
+          <div className="flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'py-2.5 px-3 rounded-md text-sm font-medium transition-colors',
+                  pathname === link.href
+                    ? 'bg-secondary text-foreground font-semibold'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="pt-4 mt-2 border-t border-border flex flex-col gap-2.5">
+              <Link
+                href="/business/register"
+                className="flex items-center justify-center gap-2 text-sm font-medium bg-foreground text-background px-4 py-2.5 rounded-md"
+              >
+                <Building2 className="w-4 h-4" />
+                Register Your Business
+              </Link>
+              <Link
+                href="/enquiries/new"
+                className="flex items-center justify-center gap-2 text-sm font-medium border border-border text-foreground px-4 py-2.5 rounded-md hover:bg-secondary"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Post an Enquiry
+              </Link>
+              <div className="grid grid-cols-2 gap-2 pt-1">
+                <Link
+                  href="/sign-in"
+                  className="text-center text-sm font-medium text-muted-foreground hover:text-foreground py-2 border border-border rounded-md"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/sign-up"
+                  className="text-center text-sm font-medium text-foreground py-2 bg-secondary rounded-md"
+                >
+                  Register
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}
     </header>
   );
 }
+
+export const PublicNav = MarketingNav;
+

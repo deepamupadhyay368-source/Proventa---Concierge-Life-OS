@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { BRAND_CONFIG } from '@/lib/brand';
 import './globals.css';
 
 const inter = Inter({
@@ -18,49 +19,51 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || BRAND_CONFIG.domain),
   title: {
-    default: 'Proventa — Concierge Life OS | Early Access · Cohort 1',
-    template: '%s | Proventa — Concierge Life OS',
+    default: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
+    template: `%s | ${BRAND_CONFIG.name}`,
   },
-  description:
-    'Proventa is a premier Concierge Life OS. Intelligent AI combined with verified human concierges to research, arrange, and manage dining, travel, appointments, and daily lifestyle logistics. Life, handled.',
+  description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition} Built for businesses and customers across Gujarat and India.`,
   keywords: [
-    'Proventa',
-    'Concierge Life OS',
-    'personal concierge',
-    'luxury concierge',
-    'lifestyle management',
-    'restaurant reservations',
-    'travel concierge',
-    'life handled',
-    'Early Access Cohort 1',
+    'PROVENTA',
+    'Every Business. One Place.',
+    'business directory India',
+    'Gujarat business marketplace',
+    'digital storefront India',
+    'customer enquiries marketplace',
+    'products and services directory',
+    'B2B and B2C business discovery',
+    'Ahmedabad businesses',
+    'Surat businesses',
+    'Vadodara businesses',
+    'Rajkot businesses',
   ],
-  authors: [{ name: 'Proventa' }],
-  creator: 'Proventa',
-  publisher: 'Proventa',
-  category: 'Lifestyle & Personal Concierge',
-  classification: 'Concierge Life OS',
+  authors: [{ name: BRAND_CONFIG.name }],
+  creator: BRAND_CONFIG.name,
+  publisher: BRAND_CONFIG.name,
+  category: BRAND_CONFIG.category,
+  classification: BRAND_CONFIG.category,
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: 'https://proventa.in',
-    siteName: 'Proventa Concierge Life OS',
-    title: 'Proventa — Concierge Life OS | Early Access · Cohort 1',
-    description: 'Life, handled. Intelligent AI meets verified human concierge support.',
+    url: BRAND_CONFIG.domain,
+    siteName: BRAND_CONFIG.name,
+    title: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
+    description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition}`,
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Proventa — Concierge Life OS',
+        alt: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Proventa — Concierge Life OS | Early Access · Cohort 1',
-    description: 'Life, handled. Intelligent technology meets real human concierge support.',
+    title: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
+    description: BRAND_CONFIG.supportingStatement,
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -98,24 +101,27 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': 'https://proventa.in/#organization',
-      name: 'Proventa',
-      alternateName: 'Proventa Concierge Life OS',
-      url: 'https://proventa.in',
+      name: BRAND_CONFIG.name,
+      slogan: BRAND_CONFIG.tagline,
+      url: BRAND_CONFIG.domain,
       logo: 'https://proventa.in/og-image.jpg',
-      description:
-        'Proventa is a Concierge Life OS combining intelligent technology with verified human concierges.',
-      email: 'proventa.in@gmail.com',
+      description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition}`,
+      email: BRAND_CONFIG.supportEmail,
     },
     {
-      '@type': 'Service',
-      '@id': 'https://proventa.in/#service',
-      name: 'Proventa Concierge Life OS',
-      provider: {
+      '@type': 'WebSite',
+      '@id': 'https://proventa.in/#website',
+      url: BRAND_CONFIG.domain,
+      name: BRAND_CONFIG.name,
+      description: BRAND_CONFIG.supportingStatement,
+      publisher: {
         '@id': 'https://proventa.in/#organization',
       },
-      serviceType: 'Personal Concierge & Lifestyle Management',
-      description:
-        'Personal concierge operations for dining reservations, travel itineraries, wellness appointments, and delegated lifestyle logistics.',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://proventa.in/businesses?q={search_term_string}',
+        'query-input': 'required name=search_term_string',
+      },
     },
   ],
 };

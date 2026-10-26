@@ -1,79 +1,148 @@
 import Link from 'next/link';
+import { BRAND_CONFIG } from '@/lib/brand';
 
-export function PublicFooter() {
+const footerLinks = {
+  discover: [
+    { href: '/businesses', label: 'Explore Businesses' },
+    { href: '/listings', label: 'Products & Services' },
+    { href: '/enquiries/new', label: 'Post an Enquiry' },
+    { href: '/how-it-works', label: 'How It Works' },
+  ],
+  businesses: [
+    { href: '/business/register', label: 'Business registration' },
+    { href: '/for-businesses', label: 'For Businesses' },
+    { href: '/pricing', label: 'Plans & Pricing' },
+    { href: '/business/dashboard', label: 'Business Dashboard' },
+  ],
+  companyAndSupport: [
+    { href: '/about', label: 'About' },
+    { href: '/contact', label: 'Contact' },
+    { href: '/guidelines', label: 'Community and marketplace guidelines' },
+    { href: '/faq', label: 'Help and support' },
+  ],
+  legal: [
+    { href: '/privacy', label: 'Privacy policy' },
+    { href: '/terms', label: 'Terms of service' },
+    { href: '/cookie-policy', label: 'Cookie policy' },
+    { href: '/data-rights', label: 'Data rights' },
+  ],
+};
+
+export function MarketingFooter() {
   return (
-    <footer className="bg-[#111820] text-[#A7B0B8] py-16 font-sans border-t border-[#1F2933]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-semibold tracking-tight text-white">PROVENTA</span>
+    <footer className="border-t border-border bg-card">
+      <div className="container-wide py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+          {/* Brand Column */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-2.5 mb-3">
+              <div className="w-8 h-8 rounded-md bg-foreground text-background flex items-center justify-center font-display font-bold text-base">
+                P
+              </div>
+              <span className="font-display text-xl font-bold text-foreground tracking-tight">
+                {BRAND_CONFIG.name}
+              </span>
             </div>
-            <p className="text-[11px] font-semibold text-[#A7B0B8] tracking-wider uppercase">
-              Concierge Life OS · Private Beta
+            <p className="text-sm font-semibold text-foreground mb-1">
+              {BRAND_CONFIG.tagline}
             </p>
-            <p className="text-xs text-[#8795A1] leading-relaxed max-w-sm">
-              The premier personal concierge service combining fast modern technology with verified resident concierges on the ground in Ahmedabad.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+              {BRAND_CONFIG.supportingStatement}{' '}
+              {BRAND_CONFIG.centralValueProposition}
             </p>
+            <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span className="px-2.5 py-1 rounded-full bg-secondary border border-border text-foreground font-medium">
+                Gujarat &amp; Pan-India
+              </span>
+              <span className="px-2.5 py-1 rounded-full bg-secondary border border-border">
+                B2B &amp; B2C Discovery
+              </span>
+              <span className="px-2.5 py-1 rounded-full bg-secondary border border-border">
+                Verified Storefronts
+              </span>
+            </div>
           </div>
 
+          {/* Marketplace Discovery */}
           <div>
-            <p className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
-              Services
-            </p>
-            <ul className="space-y-2.5 text-xs text-[#8795A1]">
-              <li><Link href="/services/dining" className="hover:text-white transition-colors">Fine Dining &amp; Tables</Link></li>
-              <li><Link href="/services/travel" className="hover:text-white transition-colors">Curated Stays &amp; Travel</Link></li>
-              <li><Link href="/services/shopping" className="hover:text-white transition-colors">Luxury Sourcing &amp; Gifting</Link></li>
-              <li><Link href="/services/experiences" className="hover:text-white transition-colors">Events &amp; Cultural Access</Link></li>
-              <li><Link href="/services/home" className="hover:text-white transition-colors">Estate &amp; Residence Care</Link></li>
-              <li><Link href="/what-we-handle" className="hover:text-white transition-colors">All Capabilities</Link></li>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Marketplace
+            </h3>
+            <ul className="space-y-2.5">
+              {footerLinks.discover.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
+          {/* For Businesses */}
           <div>
-            <p className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
-              Organization
-            </p>
-            <ul className="space-y-2.5 text-xs text-[#8795A1]">
-              <li><Link href="/how-it-works" className="hover:text-white transition-colors">The Operating Model</Link></li>
-              <li><Link href="/membership" className="hover:text-white transition-colors font-medium text-[#E1E5E8]">Membership &amp; Pricing</Link></li>
-              <li><Link href="/about" className="hover:text-white transition-colors">About Proventa</Link></li>
-              <li><Link href="/faq" className="hover:text-white transition-colors">Member FAQ</Link></li>
-              <li><Link href="/wave1" className="hover:text-white transition-colors">Wave 1 Early Access</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Concierge Desk</Link></li>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              For Businesses
+            </h3>
+            <ul className="space-y-2.5">
+              {footerLinks.businesses.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
+          {/* Company, Guidelines & Legal */}
           <div>
-            <p className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
-              Legal, Privacy &amp; Trust
-            </p>
-            <ul className="space-y-2.5 text-xs text-[#8795A1]">
-              <li><Link href="/legal" className="hover:text-white transition-colors font-semibold text-[#E5E9ED]">Legal &amp; Trust Hub</Link></li>
-              <li><Link href="/legal/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="/legal/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              <li><Link href="/legal/private-beta" className="hover:text-white transition-colors">Private Beta Terms</Link></li>
-              <li><Link href="/legal/concierge-terms" className="hover:text-white transition-colors">Concierge Service Terms</Link></li>
-              <li><Link href="/legal/payments" className="hover:text-white transition-colors">Payment Terms &amp; Security</Link></li>
-              <li><Link href="/legal/ai" className="hover:text-white transition-colors">AI &amp; Automation Disclosure</Link></li>
-              <li><Link href="/legal/refunds" className="hover:text-white transition-colors">Cancellation &amp; Refund Policy</Link></li>
-              <li><Link href="/legal/privacy-requests" className="hover:text-white transition-colors">Data Rights &amp; Export</Link></li>
-              <li><Link href="/legal/grievance" className="hover:text-white transition-colors">Grievance &amp; Redressal Desk</Link></li>
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+              Platform &amp; Policies
+            </h3>
+            <ul className="space-y-2.5">
+              {footerLinks.companyAndSupport.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+              {footerLinks.legal.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="pt-8 border-t border-[#1F2933] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#66717C]">
-          <p>
-            &copy; {new Date().getFullYear()} Proventa. Founder-led venture in Ahmedabad, Gujarat, India. All rights reserved.
+        <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground">
+            &copy; {new Date().getFullYear()} {BRAND_CONFIG.name}. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <span>Privacy Desk: <a href="mailto:privacy@proventa.in" className="text-[#A7B0B8] hover:text-white transition-colors underline">privacy@proventa.in</a></span>
-            <span>Concierge: <a href="mailto:concierge@proventa.in" className="text-[#A7B0B8] hover:text-white transition-colors underline">concierge@proventa.in</a></span>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            {BRAND_CONFIG.tagline} &middot; Universal Business Discovery &amp; Enquiry Marketplace
+          </p>
         </div>
       </div>
     </footer>
   );
 }
+
+export const PublicFooter = MarketingFooter;
+

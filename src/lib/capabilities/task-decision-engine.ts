@@ -59,7 +59,8 @@ export class TaskDecisionEngine {
     const capability = CapabilityRegistry.getCapability(category);
 
     // 3. Classify Objective
-    const objective = this.classifyObjective(raw, input.objective);
+    const isAlternative = this.isDiscoveryAlternative(raw);
+    const objective = isAlternative ? 'SEARCH' : this.classifyObjective(raw, input.objective);
 
     // 4. Determine Execution Mode
     let executionMode: ExecutionMode;
@@ -68,7 +69,8 @@ export class TaskDecisionEngine {
     let explanation = '';
 
     const isExplicitBooking =
-      objective === 'BOOK' ||
+      !isAlternative &&
+      (objective === 'BOOK' ||
       objective === 'ARRANGE' ||
       input.executionRequired === true ||
       raw.startsWith('book ') ||
@@ -77,14 +79,14 @@ export class TaskDecisionEngine {
       raw.includes('arrange the reservation') ||
       raw.includes('call the restaurant') ||
       raw.includes('call and ask') ||
-      raw.includes('buy me');
+      raw.includes('buy me'));
 
-    if (!isExplicitBooking || objective === 'RESEARCH' || objective === 'COMPARE') {
-      // Advisory / Research Mode
+    if (!isExplicitBooking || objective === 'RESEARCH' || objective === 'COMPARE' || isAlternative) {
+      // Advisory / Research / Discovery Continuation Mode
       executionMode = 'AI_RESEARCH';
       approvalRequired = false;
       requiresHumanHandoff = false;
-      explanation = `Research and curation mode: Sourcing verified ${capability.name.toLowerCase()} for member review.`;
+      explanation = `Discovery and curation mode: Sourcing verified ${capability.name.toLowerCase()} options for member review.`;
     } else {
       // Execution Mode requested
       approvalRequired = capability.customerApprovalRequired;
@@ -318,10 +320,63 @@ export class TaskDecisionEngine {
       return 'EVENTS';
     }
 
+    if (hint && this.isDiscoveryAlternative(raw)) {
+      const normalized = hint.toUpperCase().replace(/[\s-]/g, '_');
+      if (normalized === 'FLIGHTS' || normalized === 'FLIGHT' || normalized === 'AIRLINE' || normalized === 'AVIATION' || normalized === 'TRAVEL') return 'TRAVEL';
+      if (normalized === 'HOTELS' || normalized === 'HOTEL' || normalized === 'HOTELS_ACCOMMODATION' || normalized === 'ACCOMMODATION' || normalized === 'STAYS' || normalized === 'STAY' || normalized === 'RESORT') return 'HOTELS';
+      if (normalized === 'MOVIES' || normalized === 'MOVIE' || normalized === 'CINEMA' || normalized === 'CINEMAS' || normalized === 'MOVIES_ENTERTAINMENT' || normalized === 'FILM' || normalized === 'FILMS') return 'MOVIES_ENTERTAINMENT';
+      if (normalized === 'HEALTHCARE' || normalized === 'HEALTH_WELLNESS' || normalized === 'DOCTOR' || normalized === 'DOCTORS' || normalized === 'MEDICAL' || normalized === 'APPOINTMENTS' || normalized === 'APPOINTMENT') return 'APPOINTMENTS';
+      if (normalized === 'GIFTING' || normalized === 'GIFTS' || normalized === 'GIFT' || normalized === 'GIFTS_SHOPPING') return 'GIFTS';
+      if (normalized === 'SHOPPING' || normalized === 'SHOP') return 'SHOPPING';
+      if (normalized === 'TRIPS' || normalized === 'TRIP' || normalized === 'WEEKEND_ESCAPES' || normalized === 'WEEKEND_ESCAPE' || normalized === 'GETAWAY') return 'WEEKEND_ESCAPES';
+      if (normalized === 'TRANSPORT' || normalized === 'MOBILITY' || normalized === 'MOBILITY_TRANSPORT' || normalized === 'TRANSIT' || normalized === 'CAB' || normalized === 'CABS') return 'TRANSPORT';
+      if (normalized === 'EVENTS' || normalized === 'EVENT' || normalized === 'EXPERIENCES' || normalized === 'EVENTS_EXPERIENCES') return 'EVENTS';
+      if (normalized === 'DINING' || normalized === 'DINE' || normalized === 'RESTAURANT' || normalized === 'FOOD') return 'DINING';
+      if (normalized === 'FOOD_DELIVERY' || normalized === 'DELIVERY' || normalized === 'SWIGGY') return 'FOOD_DELIVERY';
+      if (normalized === 'SALON_WELLNESS' || normalized === 'SALON' || normalized === 'WELLNESS' || normalized === 'SPA') return 'SALON_WELLNESS';
+      if (normalized === 'RESEARCH_PLANNING' || normalized === 'RESEARCH' || normalized === 'PLANNING' || normalized === 'PERSONAL') return 'RESEARCH_PLANNING';
+    }
+
     return 'OTHER_CONCIERGE';
   }
 
+  static isDiscoveryAlternative(raw: string): boolean {
+    const r = raw.toLowerCase().trim();
+    return (
+      r.includes('show other') ||
+      r.includes('show more') ||
+      r.includes('more options') ||
+      r.includes('other options') ||
+      r.includes('more flights') ||
+      r.includes('other flights') ||
+      r.includes('different flights') ||
+      r.includes('different airlines') ||
+      r.includes('different options') ||
+      r.includes('find alternatives') ||
+      r.includes('find other') ||
+      r.includes('replace these') ||
+      r.includes('replace options') ||
+      r.includes('replace the') ||
+      r.includes('try another batch') ||
+      r.includes('next batch') ||
+      r.includes('another batch') ||
+      r.includes('these flights don\'t suit') ||
+      r.includes('don\'t suit') ||
+      r.includes('does not suit') ||
+      r.includes('none of these') ||
+      r.includes('search again') ||
+      r.includes('refresh options') ||
+      r.includes('new options') ||
+      r.includes('alternative') ||
+      r.includes('alternatives')
+    );
+  }
+
   private static classifyObjective(raw: string, hint?: string): TaskObjective {
+    if (this.isDiscoveryAlternative(raw)) {
+      return 'SEARCH';
+    }
+
     if (hint) {
       const normalized = hint.toUpperCase() as TaskObjective;
       const valid: TaskObjective[] = ['BOOK', 'SEARCH', 'RECOMMEND', 'RESEARCH', 'COMPARE', 'CANCEL', 'INQUIRE', 'ARRANGE'];
@@ -332,7 +387,7 @@ export class TaskDecisionEngine {
     if (raw.includes('cancel')) return 'CANCEL';
     if (raw.includes('book') || raw.includes('reserve')) return 'BOOK';
     if (raw.includes('arrange') || raw.includes('call the') || raw.includes('schedule')) return 'ARRANGE';
-    if (raw.includes('find me') || raw.includes('search') || raw.includes('where can')) return 'SEARCH';
+    if (raw.includes('find') || raw.includes('search') || raw.includes('where can') || raw.includes('looking for') || raw.includes('show')) return 'SEARCH';
     if (raw.includes('recommend') || raw.includes('best ') || raw.includes('nice ')) return 'RECOMMEND';
     if (raw.includes('plan') || raw.includes('itinerary') || raw.includes('curate') || raw.includes('research') || raw.includes('tell me about')) return 'RESEARCH';
 

@@ -3,8 +3,8 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Member Access | Proventa — Concierge Life OS',
-  description: 'Sign in to your Proventa private concierge dashboard.',
+  title: 'Sign In | PROVENTA — Every Business. One Place.',
+  description: 'Sign in to PROVENTA to manage your customer enquiries, quotations, or business digital storefront.',
 };
 
 export default async function SignInPage({
@@ -19,8 +19,8 @@ export default async function SignInPage({
         {/* Logo */}
         <div className="text-center mb-8">
           <Link href="/" className="inline-block group">
-            <p className="text-3xl font-serif tracking-tight text-[#141312]">Proventa</p>
-            <p className="text-[11px] tracking-[0.2em] uppercase text-[#8a7053] mt-1 font-medium">Concierge Life OS</p>
+            <p className="text-3xl font-serif tracking-tight text-[#141312]">PROVENTA</p>
+            <p className="text-[11px] tracking-[0.2em] uppercase text-[#8a7053] mt-1 font-medium">Every Business. One Place.</p>
           </Link>
         </div>
 
@@ -42,18 +42,24 @@ export default async function SignInPage({
 
         <div className="luxury-card rounded-2xl p-8 sm:p-9 shadow-lg border border-[#e8e2d8]">
           <div className="mb-6">
-            <h1 className="text-2xl font-serif font-normal text-[#141312]">Member Sign In</h1>
+            <h1 className="text-2xl font-serif font-normal text-[#141312]">Sign In to PROVENTA</h1>
             <p className="text-xs text-[#6e6b65] mt-1 font-sans">
-              Enter using your verified email, phone number, or SSO provider.
+              Access your customer enquiry workspace or business storefront dashboard.
             </p>
           </div>
           <SignInForm callbackUrl={params.callbackUrl} />
         </div>
 
-        <p className="text-center text-xs text-[#8a7053] mt-8 font-sans">
-          New to Proventa?{' '}
-          <Link href="/sign-up" className="text-[#141312] hover:underline font-semibold">Create your account</Link>
-        </p>
+        <div className="text-center text-xs text-[#8a7053] mt-8 font-sans space-y-2">
+          <p>
+            New to PROVENTA?{' '}
+            <Link href="/sign-up" className="text-[#141312] hover:underline font-semibold">Create your account</Link>
+          </p>
+          <p>
+            Want to list a business?{' '}
+            <Link href="/business/register" className="text-[#141312] hover:underline font-semibold">Register your business storefront</Link>
+          </p>
+        </div>
       </div>
     </div>
   );

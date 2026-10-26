@@ -1,5 +1,5 @@
-// Proventa — Concierge Life OS
-// Full database schema
+// PROVENTA — Every Business. One Place.
+// Universal Business Discovery, Digital Storefront & Customer Enquiry Marketplace
 // Generator: Prisma ORM
 // Database: PostgreSQL
 
@@ -27,11 +27,14 @@ enum UserRole {
   SUPER_ADMIN
   FOUNDER
   ADMIN
+  MODERATOR
   SUPPORT
   CONCIERGE_MANAGER
   SENIOR_CONCIERGE
   CONCIERGE
   FINANCE
+  BUSINESS_OWNER
+  BUSINESS_MEMBER
   CUSTOMER
 }
 
@@ -148,6 +151,14 @@ enum NotificationType {
   ACCOUNT_CREATED
   PASSWORD_RESET
   SECURITY_ALERT
+  BUSINESS_APPROVED
+  BUSINESS_MODERATION_UPDATE
+  ENQUIRY_MATCHED
+  QUOTATION_RECEIVED
+  QUOTATION_STATUS_UPDATED
+  ENQUIRY_STATUS_UPDATED
+  SUBSCRIPTION_UPDATED
+  PLATFORM_ANNOUNCEMENT
 }
 
 enum NotificationChannel {
@@ -331,6 +342,16 @@ model User {
   featureFlagOverrides   FeatureFlagOverride[]
   externalTransactions   ExternalTransaction[]
   connectedIntegrations  ConnectedIntegration[]
+
+  // Universal Business Platform Relations
+  businessesOwned        Business[]            @relation("BusinessOwner")
+  businessMemberships    BusinessMembership[]
+  customerEnquiries      CustomerEnquiry[]     @relation("CustomerEnquiryOwner")
+  submittedQuotations    BusinessQuotation[]   @relation("QuotationSubmitter")
+  savedBusinesses        SavedBusiness[]
+  savedListings          SavedListing[]
+  businessReviews        BusinessReview[]
+  moderationReports      ModerationReport[]    @relation("ModerationReporter")
 
   @@index([email])
   @@index([status])
@@ -1727,4 +1748,560 @@ model AgentExecutionTrace {
   @@index([createdAt])
   @@map("agent_execution_traces")
 }
+
+// ============================================================
+// UNIVERSAL BUSINESS PLATFORM — ENUMS
+// ============================================================
+
+enum BusinessType {
+  PRODUCT
+  SERVICE
+  HYBRID
+}
+
+enum BusinessStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHED
+  SUSPENDED
+  ARCHIVED
+}
+
+enum BusinessOperatingStatus {
+  OPEN
+  ACCEPTING_ENQUIRIES
+  TEMPORARILY_CLOSED
+  BY_APPOINTMENT
+}
+
+enum VerificationLevel {
+  UNVERIFIED
+  SELF_REPORTED
+  CONTACT_VERIFIED
+  DOCUMENT_REVIEWED
+  VERIFIED_BUSINESS
+}
+
+enum BusinessMemberRole {
+  OWNER
+  MANAGER
+  RESPONDER
+  VIEWER
+}
+
+enum ListingType {
+  PRODUCT
+  SERVICE
+}
+
+enum ListingStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  SUSPENDED
+}
+
+enum PriceDisplayType {
+  FIXED_PRICE
+  INDICATIVE_PRICE
+  PRICE_ON_REQUEST
+  QUOTE_REQUIRED
+}
+
+enum EnquiryStatus {
+  DRAFT
+  OPEN
+  MATCHING
+  RESPONSES_RECEIVED
+  SHORTLISTED
+  ACCEPTED
+  CLOSED
+  CANCELLED
+  EXPIRED
+  FLAGGED_FOR_REVIEW
+}
+
+enum MatchStatus {
+  MATCHED
+  NOTIFIED
+  VIEWED
+  RESPONDED
+  DECLINED
+  EXPIRED
+}
+
+enum QuotationStatus {
+  SUBMITTED
+  UPDATED
+  SHORTLISTED
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum QuotationPriceType {
+  FIXED_QUOTE
+  INDICATIVE_ESTIMATE
+  RANGE_ESTIMATE
+  INSPECTION_REQUIRED
+}
+
+enum SubscriptionPlanTier {
+  FREE
+  PRO
+  PREMIUM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+enum ReportTargetType {
+  BUSINESS
+  LISTING
+  ENQUIRY
+  QUOTATION
+  REVIEW
+}
+
+enum ReportStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+// ============================================================
+// UNIVERSAL BUSINESS PLATFORM — MODELS
+// ============================================================
+
+model MarketplaceCategory {
+  id                  String   @id @default(cuid())
+  name                String
+  slug                String   @unique
+  description         String?
+  icon                String?
+  parentId            String?
+  sortOrder           Int      @default(0)
+  active              Boolean  @default(true)
+  attributeSchema     Json?    // Optional category-specific enquiry fields schema
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  parent              MarketplaceCategory?           @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  subcategories       MarketplaceCategory[]          @relation("CategoryHierarchy")
+  primaryBusinesses   Business[]                     @relation("PrimaryBusinessCategory")
+  businessAssignments BusinessCategoryAssignment[]
+  listings            BusinessListing[]              @relation("ListingCategory")
+  subListings         BusinessListing[]              @relation("ListingSubcategory")
+  enquiries           CustomerEnquiry[]              @relation("EnquiryCategory")
+  subEnquiries        CustomerEnquiry[]              @relation("EnquirySubcategory")
+
+  @@index([slug])
+  @@index([parentId])
+  @@index([active, sortOrder])
+  @@map("marketplace_categories")
+}
+
+model Business {
+  id                      String                  @id @default(cuid())
+  ownerId                 String
+  name                    String
+  legalName               String?
+  slug                    String                  @unique
+  tagline                 String?
+  shortDescription        String?
+  description             String?                 @db.Text
+  businessType            BusinessType            @default(HYBRID)
+  status                  BusinessStatus          @default(DRAFT)
+  operatingStatus         BusinessOperatingStatus @default(ACCEPTING_ENQUIRIES)
+  verificationLevel       VerificationLevel       @default(SELF_REPORTED)
+  primaryCategoryId       String
+  logoUrl                 String?
+  coverImageUrl           String?
+  yearEstablished         Int?
+  gstNumber               String?
+  registrationNumber      String?
+  contactEmail            String?
+  contactPhone            String?
+  whatsappNumber          String?
+  website                 String?
+  socialLinks             Json?                   // { linkedin, instagram, facebook, youtube, x }
+  addressLine1            String?
+  addressLine2            String?
+  area                    String?
+  city                    String
+  state                   String                  @default("Gujarat")
+  postalCode              String?
+  country                 String                  @default("India")
+  serviceAreas            String[]                // Cities/regions served
+  servesPanIndia          Boolean                 @default(false)
+  businessHours           Json?                   // Day-by-day schedule
+  highlights              String[]                // Key strengths / capabilities
+  tags                    String[]                // Search keywords
+  featured                Boolean                 @default(false)
+  profileViews            Int                     @default(0)
+  enquiryClicks           Int                     @default(0)
+  contactClicks           Int                     @default(0)
+  averageRating           Float?
+  reviewCount             Int                     @default(0)
+  moderationNote          String?
+  publishedAt             DateTime?
+  suspendedAt             DateTime?
+  archivedAt              DateTime?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+
+  owner                   User                         @relation("BusinessOwner", fields: [ownerId], references: [id])
+  primaryCategory         MarketplaceCategory          @relation("PrimaryBusinessCategory", fields: [primaryCategoryId], references: [id])
+  secondaryCategories     BusinessCategoryAssignment[]
+  memberships             BusinessMembership[]
+  listings                BusinessListing[]
+  media                   BusinessMedia[]
+  verificationRecords     BusinessVerificationRecord[]
+  enquiryMatches          EnquiryMatch[]
+  quotations              BusinessQuotation[]
+  savedBy                 SavedBusiness[]
+  reviews                 BusinessReview[]
+  subscription            BusinessSubscription?
+  directEnquiries         CustomerEnquiry[]            @relation("DirectTargetBusiness")
+
+  @@index([slug])
+  @@index([ownerId])
+  @@index([status, verificationLevel])
+  @@index([primaryCategoryId, status])
+  @@index([city, state, status])
+  @@index([businessType, status])
+  @@index([featured, status])
+  @@map("businesses")
+}
+
+model BusinessCategoryAssignment {
+  id          String   @id @default(cuid())
+  businessId  String
+  categoryId  String
+  isPrimary   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  business    Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category    MarketplaceCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, categoryId])
+  @@index([businessId])
+  @@index([categoryId])
+  @@map("business_category_assignments")
+}
+
+model BusinessMembership {
+  id          String             @id @default(cuid())
+  businessId  String
+  userId      String
+  role        BusinessMemberRole @default(RESPONDER)
+  invitedBy   String?
+  active      Boolean            @default(true)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([businessId])
+  @@index([userId])
+  @@map("business_memberships")
+}
+
+model BusinessListing {
+  id                  String           @id @default(cuid())
+  businessId          String
+  categoryId          String
+  subcategoryId       String?
+  title               String
+  slug                String           @unique
+  shortSummary        String?
+  description         String           @db.Text
+  listingType         ListingType      @default(SERVICE)
+  status              ListingStatus    @default(PUBLISHED)
+  priceDisplayType    PriceDisplayType @default(INDICATIVE_PRICE)
+  priceAmount         Int?             // In INR (whole rupees)
+  priceMaxAmount      Int?             // Optional upper range in INR
+  currency            String           @default("INR")
+  priceUnit           String?          // e.g., "per project", "per sq.ft", "per unit", "per month"
+  images              String[]
+  specifications      Json?            // Key-value technical specs or deliverables
+  tags                String[]
+  availabilityStatus  String           @default("AVAILABLE") // AVAILABLE | MADE_TO_ORDER | BY_CONSULTATION | OUT_OF_STOCK
+  deliveryTimeframe   String?          // e.g., "3-5 business days", "2-4 weeks"
+  serviceAreaOverride String[]
+  ctaLabel            String           @default("Send Enquiry")
+  featured            Boolean          @default(false)
+  viewsCount          Int              @default(0)
+  enquiryCount        Int              @default(0)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  business            Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category            MarketplaceCategory  @relation("ListingCategory", fields: [categoryId], references: [id])
+  subcategory         MarketplaceCategory? @relation("ListingSubcategory", fields: [subcategoryId], references: [id])
+  savedBy             SavedListing[]
+  enquiries           CustomerEnquiry[]    @relation("TargetListingEnquiry")
+
+  @@index([businessId, status])
+  @@index([categoryId, status])
+  @@index([subcategoryId, status])
+  @@index([listingType, status])
+  @@index([slug])
+  @@map("business_listings")
+}
+
+model BusinessMedia {
+  id          String   @id @default(cuid())
+  businessId  String
+  title       String?
+  caption     String?
+  url         String
+  mediaType   String   @default("IMAGE") // IMAGE | DOCUMENT | PORTFOLIO
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId, sortOrder])
+  @@map("business_media")
+}
+
+model BusinessVerificationRecord {
+  id                String            @id @default(cuid())
+  businessId        String
+  previousLevel     VerificationLevel
+  newLevel          VerificationLevel
+  method            String            // EMAIL_OTP | PHONE_OTP | GST_DOCUMENT | MANUAL_ADMIN_REVIEW
+  documentType      String?           // GST_CERTIFICATE | INCORPORATION | SHOP_ESTABLISHMENT | PAN
+  documentRef       String?
+  notes             String?
+  reviewedById      String?
+  reviewedAt        DateTime          @default(now())
+  createdAt         DateTime          @default(now())
+
+  business          Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@map("business_verification_records")
+}
+
+model CustomerEnquiry {
+  id                      String        @id @default(cuid())
+  referenceCode           String        @unique
+  customerId              String
+  categoryId              String
+  subcategoryId           String?
+  targetBusinessId        String?       // Optional: if customer initiated directly from a storefront
+  targetListingId         String?       // Optional: if customer initiated directly from a product/service listing
+  title                   String
+  description             String        @db.Text
+  requirementType         BusinessType  @default(HYBRID)
+  city                    String
+  state                   String        @default("Gujarat")
+  deliveryMode            String        @default("EITHER") // ON_SITE | REMOTE | DELIVERY | EITHER
+  quantity                String?
+  budgetMin               Int?          // In INR
+  budgetMax               Int?          // In INR
+  currency                String        @default("INR")
+  timeline                String?       // e.g., "Immediate", "Within 2 weeks", "1-3 months"
+  urgency                 String        @default("STANDARD") // STANDARD | URGENT | FLEXIBLE
+  categoryAttributes      Json?         // Category-specific attributes (e.g. construction area, software platform, etc.)
+  attachments             String[]
+  preferredContactMethod  String        @default("PLATFORM") // PLATFORM | EMAIL | PHONE | WHATSAPP
+  shareContactWithShortlistedOnly Boolean @default(true)
+  status                  EnquiryStatus @default(OPEN)
+  matchedCount            Int           @default(0)
+  responsesCount          Int           @default(0)
+  expiresAt               DateTime?
+  closedAt                DateTime?
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+
+  customer                User                 @relation("CustomerEnquiryOwner", fields: [customerId], references: [id])
+  category                MarketplaceCategory  @relation("EnquiryCategory", fields: [categoryId], references: [id])
+  subcategory             MarketplaceCategory? @relation("EnquirySubcategory", fields: [subcategoryId], references: [id])
+  targetBusiness          Business?            @relation("DirectTargetBusiness", fields: [targetBusinessId], references: [id])
+  targetListing           BusinessListing?     @relation("TargetListingEnquiry", fields: [targetListingId], references: [id])
+  matches                 EnquiryMatch[]
+  quotations              BusinessQuotation[]
+
+  @@index([customerId, status])
+  @@index([categoryId, status])
+  @@index([city, state, status])
+  @@index([status, createdAt])
+  @@index([referenceCode])
+  @@map("customer_enquiries")
+}
+
+model EnquiryMatch {
+  id                  String      @id @default(cuid())
+  enquiryId           String
+  businessId          String
+  matchScore          Float       // 0.0 to 100.0
+  matchReasons        String[]    // Human-readable explanation of why matched
+  scoreBreakdown      Json?       // { categoryScore, locationScore, listingScore, keywordScore, directTargetBonus }
+  status              MatchStatus @default(MATCHED)
+  notifiedAt          DateTime?
+  viewedAt            DateTime?
+  respondedAt         DateTime?
+  declinedAt          DateTime?
+  declineReason       String?
+  notificationDedupeKey String    @unique
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  enquiry             CustomerEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  business            Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([enquiryId, businessId])
+  @@index([businessId, status])
+  @@index([enquiryId, matchScore])
+  @@map("enquiry_matches")
+}
+
+model BusinessQuotation {
+  id                  String             @id @default(cuid())
+  referenceCode       String             @unique
+  enquiryId           String
+  businessId          String
+  submittedById       String
+  summary             String
+  detailedProposal    String             @db.Text
+  priceType           QuotationPriceType @default(FIXED_QUOTE)
+  priceAmount         Int?               // In INR
+  priceMaxAmount      Int?               // Optional upper bound for range estimate
+  currency            String             @default("INR")
+  priceUnit           String?            // e.g., "total", "per unit", "per month"
+  deliveryTimeline    String             // e.g., "7 working days"
+  validityDays        Int                @default(14)
+  validUntil          DateTime?
+  inclusions          String[]
+  exclusions          String?
+  termsAndAssumptions String?
+  availabilityNote    String?
+  attachments         String[]
+  followUpPreference  String             @default("PLATFORM_AND_PHONE")
+  status              QuotationStatus    @default(SUBMITTED)
+  customerNote        String?
+  shortlistedAt       DateTime?
+  acceptedAt          DateTime?
+  rejectedAt          DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  enquiry             CustomerEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  business            Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  submittedBy         User            @relation("QuotationSubmitter", fields: [submittedById], references: [id])
+
+  @@unique([enquiryId, businessId])
+  @@index([enquiryId, status])
+  @@index([businessId, status])
+  @@index([submittedById])
+  @@map("business_quotations")
+}
+
+model SavedBusiness {
+  id          String   @id @default(cuid())
+  userId      String
+  businessId  String
+  note        String?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([userId])
+  @@map("saved_businesses")
+}
+
+model SavedListing {
+  id          String   @id @default(cuid())
+  userId      String
+  listingId   String
+  note        String?
+  createdAt   DateTime @default(now())
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing     BusinessListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+  @@index([userId])
+  @@map("saved_listings")
+}
+
+model BusinessReview {
+  id                  String   @id @default(cuid())
+  businessId          String
+  userId              String
+  enquiryId           String?  // Links review to a real interaction/enquiry if applicable
+  rating              Int      // 1 to 5
+  title               String?
+  comment             String   @db.Text
+  verifiedInteraction Boolean  @default(false)
+  published           Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  business            Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, userId])
+  @@index([businessId, published])
+  @@map("business_reviews")
+}
+
+model BusinessSubscription {
+  id                    String               @id @default(cuid())
+  businessId            String               @unique
+  planTier              SubscriptionPlanTier @default(FREE)
+  status                SubscriptionStatus   @default(ACTIVE)
+  billingCycle          String               @default("MONTHLY") // MONTHLY | ANNUAL
+  amountInr             Int                  @default(0)
+  currentPeriodStart    DateTime             @default(now())
+  currentPeriodEnd      DateTime?
+  quotationsUsedMonth   Int                  @default(0)
+  quotationsLimitMonth  Int                  @default(5)
+  listingsLimit         Int                  @default(5)
+  teamMembersLimit      Int                  @default(1)
+  razorpayOrderId       String?
+  razorpaySubscriptionId String?
+  razorpayPaymentId     String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  business              Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([planTier, status])
+  @@map("business_subscriptions")
+}
+
+model ModerationReport {
+  id              String           @id @default(cuid())
+  reporterId      String
+  targetType      ReportTargetType
+  targetId        String
+  reason          String
+  details         String?          @db.Text
+  status          ReportStatus     @default(OPEN)
+  resolutionNote  String?
+  resolvedById    String?
+  resolvedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  reporter        User             @relation("ModerationReporter", fields: [reporterId], references: [id])
+
+  @@index([targetType, targetId])
+  @@index([status, createdAt])
+  @@map("moderation_reports")
+}
+
 

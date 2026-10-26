@@ -257,6 +257,15 @@ export default async function AdminMainDashboardPage() {
             </div>
             <div className="space-y-2">
               <Link
+                href="/admin/marketplace"
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/70 border border-amber-200 hover:border-amber-300 hover:bg-amber-50 text-xs text-[#111820] font-semibold transition-colors"
+              >
+                <span>Business Marketplace &amp; Verification</span>
+                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-medium">
+                  Storefronts &amp; Leads
+                </span>
+              </Link>
+              <Link
                 href="/admin/concierge"
                 className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#A7B0B8] hover:bg-white text-xs text-[#111820] transition-colors"
               >

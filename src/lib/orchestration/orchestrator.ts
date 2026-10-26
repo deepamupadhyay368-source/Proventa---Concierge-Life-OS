@@ -199,11 +199,46 @@ export class RequestOrchestrator {
       task = await db.task.findUnique({ where: { id: existingTaskId } });
     }
 
+    // Check if customer is requesting alternative options / next batch on an existing task with proposals
+    const isAlternative = TaskDecisionEngine.isDiscoveryAlternative(rawInput);
+    if (task && isAlternative) {
+      const hasOptions = Array.isArray(task.proposedOptions) && (task.proposedOptions as any[]).length > 0;
+      if (hasOptions) {
+        // Detect if modification of constraints (e.g. time, budget, airline) or general batch cycle
+        const hasTimeFilter = /strictly\s+after|after\s+\d|before\s+\d|morning|evening|night|non-?stop/i.test(rawInput);
+        const hasAirlineFilter = /vistara|indigo|air india|akasa|spicejet/i.test(rawInput);
+        const isModification = hasTimeFilter || hasAirlineFilter || /instead of|change to|strictly under/i.test(rawInput);
+
+        const cycleResult = await RequestOrchestrator.cycleOptionBatch({
+          taskId: task.id,
+          userId: customerId,
+          action: isModification ? 'MODIFY_REQUEST' : 'REJECT_ALL',
+          feedback: rawInput,
+          newRawInput: rawInput,
+        });
+
+        const decision = TaskDecisionEngine.evaluate({
+          rawInput,
+          category: task.category,
+          objective: 'SEARCH',
+        });
+
+        return {
+          task: cycleResult.task,
+          proposals: cycleResult.batch?.options || (cycleResult.task.proposedOptions as any[]) || [],
+          missingInfo: [],
+          decision,
+          cycleResult,
+        };
+      }
+    }
+
     // 2. Extract Entities, Structured Intent, & Capabilities
     const extractedData = await understandRequest(rawInput);
+    const categoryHint = task?.category || extractedData.category;
     const decision = TaskDecisionEngine.evaluate({
       rawInput,
-      category: extractedData.category,
+      category: categoryHint,
       objective: extractedData.objective,
       destination: extractedData.destination,
       location: extractedData.location,
@@ -1943,26 +1978,12 @@ export class RequestOrchestrator {
       });
 
       if (validCandidates.length === 0) {
-        const escalatedTask = await db.task.update({
-          where: { id: task.id },
-          data: {
-            status: 'NEEDS_HUMAN',
-            isEscalated: true,
-            failedReason: 'Customer has rejected previous recommendation batches and requires additional alternatives.',
-            clientPreferences: {
-              ...currentPrefs,
-              batchHistory,
-              rejectedOptionIds,
-              rejectedOptionKeys,
-              lastFeedback: params.feedback,
-            } as any,
-          },
-        });
         return {
           success: true,
-          task: escalatedTask,
-          escalatedToConcierge: true,
-          message: 'Your Proventa Concierge is actively sourcing additional verified alternatives.',
+          task,
+          batch: activeBatch,
+          escalatedToConcierge: false,
+          message: 'All verified options for this specific route and criteria are currently displayed.',
         };
       }
 
@@ -2272,12 +2293,50 @@ export class RequestOrchestrator {
     });
 
     if (validCandidates.length === 0) {
-      const escalatedTask = await db.task.update({
+      if (params.action === 'ASK_CONCIERGE') {
+        const escalatedTask = await db.task.update({
+          where: { id: task.id },
+          data: {
+            status: 'NEEDS_HUMAN',
+            isEscalated: true,
+            failedReason: 'Customer requested Senior Concierge assistance.',
+            clientPreferences: {
+              ...currentPrefs,
+              batchHistory,
+              rejectedOptionIds,
+              rejectedOptionKeys,
+              lastFeedback: params.feedback,
+            } as any,
+          },
+        });
+
+        await appendTaskEvent({
+          taskId: task.id,
+          eventType: 'CONCIERGE_ESCALATED',
+          actorRole: 'SYSTEM',
+          message: 'Customer requested Senior Concierge assistance.',
+          data: {
+            previousBatchesCount: batchHistory.length,
+            rejectedOptionsCount: rejectedOptionIds.length,
+            feedback: params.feedback,
+          },
+        });
+
+        return {
+          success: true,
+          task: escalatedTask,
+          escalatedToConcierge: true,
+          message: 'Your Proventa Concierge is actively sourcing additional verified alternatives.',
+        };
+      }
+
+      const updatedTask = await db.task.update({
         where: { id: task.id },
         data: {
-          status: 'NEEDS_HUMAN',
-          isEscalated: true,
-          failedReason: 'Customer has rejected previous recommendation batches and requires additional alternatives.',
+          status: 'AWAITING_APPROVAL',
+          approvalStatus: 'PENDING',
+          isEscalated: false,
+          failedReason: null,
           clientPreferences: {
             ...currentPrefs,
             batchHistory,
@@ -2288,23 +2347,11 @@ export class RequestOrchestrator {
         },
       });
 
-      await appendTaskEvent({
-        taskId: task.id,
-        eventType: 'CONCIERGE_ESCALATED',
-        actorRole: 'SYSTEM',
-        message: 'Customer has rejected previous recommendation batches and requires additional alternatives.',
-        data: {
-          previousBatchesCount: batchHistory.length,
-          rejectedOptionsCount: rejectedOptionIds.length,
-          feedback: params.feedback,
-        },
-      });
-
       return {
         success: true,
-        task: escalatedTask,
-        escalatedToConcierge: true,
-        message: 'Your Proventa Concierge is actively sourcing additional verified alternatives.',
+        task: updatedTask,
+        escalatedToConcierge: false,
+        message: 'All verified scheduled flight options for this route and date have been explored. You can modify your departure criteria or request Senior Concierge assistance.',
       };
     }
 

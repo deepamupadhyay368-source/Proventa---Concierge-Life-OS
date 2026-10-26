@@ -82,7 +82,11 @@ export async function requireSuperAdmin(): Promise<SessionUser> {
 }
 
 export async function requireAdmin(): Promise<SessionUser> {
-  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN']);
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR']);
+}
+
+export async function requireModerator(): Promise<SessionUser> {
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR']);
 }
 
 export async function requireConciergeManager(): Promise<SessionUser> {
@@ -98,7 +102,7 @@ export async function requireFinance(): Promise<SessionUser> {
 }
 
 export async function requireSupport(): Promise<SessionUser> {
-  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'SUPPORT']);
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'SUPPORT', 'MODERATOR']);
 }
 
 export async function requireConcierge(): Promise<SessionUser> {
@@ -106,11 +110,11 @@ export async function requireConcierge(): Promise<SessionUser> {
 }
 
 export async function requireEmployee(): Promise<SessionUser> {
-  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE', 'FINANCE', 'SUPPORT']);
+  return requireAnyRole(['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE', 'FINANCE', 'SUPPORT']);
 }
 
 export async function requireCustomer(): Promise<SessionUser> {
-  return requireAnyRole(['CUSTOMER', 'SUPER_ADMIN', 'FOUNDER', 'ADMIN']);
+  return requireAnyRole(['CUSTOMER', 'BUSINESS_OWNER', 'BUSINESS_MEMBER', 'SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR']);
 }
 
 export function hasRole(user: SessionUser, role: UserRole): boolean {
@@ -120,5 +124,11 @@ export function hasRole(user: SessionUser, role: UserRole): boolean {
 export function hasAnyRole(user: SessionUser, roles: UserRole[]): boolean {
   return roles.some((r) => (user.roles ?? []).includes(r));
 }
+
+export function isAdminOrModerator(user: SessionUser | null | undefined): boolean {
+  if (!user) return false;
+  return hasAnyRole(user, ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR']);
+}
+
 
 

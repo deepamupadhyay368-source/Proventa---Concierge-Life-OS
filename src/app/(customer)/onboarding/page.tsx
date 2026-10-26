@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Utensils, Plane, ShoppingBag, Ticket, Calendar, Home, User, Briefcase, Sparkles, Check } from 'lucide-react';
 
@@ -52,9 +53,17 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-4 sm:p-6">
       <div className="max-w-2xl w-full bg-white rounded-2xl border border-neutral-200 p-6 sm:p-10 shadow-sm">
         <div className="text-center mb-8">
-          <p className="text-xs tracking-[0.15em] uppercase text-neutral-400 font-semibold mb-1">PROVENTA ONBOARDING</p>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900">What would you most like handled?</h1>
-          <p className="text-sm text-neutral-500 mt-2">Select the areas where having a concierge is most valuable to you.</p>
+          <p className="text-xs tracking-[0.15em] uppercase text-neutral-400 font-semibold mb-1">PROVENTA · EVERY BUSINESS. ONE PLACE.</p>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-neutral-900">Which categories interest you most?</h1>
+          <p className="text-sm text-neutral-500 mt-2">
+            Select the categories where you frequently discover businesses, products, services, or post customer enquiries.
+          </p>
+          <p className="text-xs text-neutral-500 mt-3">
+            Are you a business owner?{' '}
+            <Link href="/business/register" className="text-neutral-900 font-semibold underline hover:text-neutral-700">
+              Register your business storefront instead →
+            </Link>
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
@@ -85,7 +94,7 @@ export default function OnboardingPage() {
 
         <div className="border-t border-neutral-100 pt-6 mb-8">
           <label className="block text-sm font-semibold text-neutral-900 mb-3">
-            How should your concierge communicate updates with you?
+            How should PROVENTA notify you when businesses respond with quotations?
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[

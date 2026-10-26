@@ -39,10 +39,11 @@ export function AdminShell({
 
   const primaryNavItems = [
     { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
-    { href: '/admin/customers', label: 'Customers', icon: Users },
-    { href: '/admin/requests', label: 'Requests', icon: ListTodo },
-    { href: '/admin/bookings', label: 'Bookings', icon: CalendarCheck },
-    { href: '/admin/concierge', label: 'Concierge Operations', icon: Headphones },
+    { href: '/admin/marketplace', label: 'Marketplace & Storefronts', icon: ShieldCheck },
+    { href: '/admin/customers', label: 'Users & Customers', icon: Users },
+    { href: '/admin/requests', label: 'Legacy Requests', icon: ListTodo },
+    { href: '/admin/bookings', label: 'Legacy Bookings', icon: CalendarCheck },
+    { href: '/admin/concierge', label: 'Concierge Archive', icon: Headphones },
     { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/audit', label: 'Audit Logs', icon: ShieldAlert },
     { href: '/admin/system', label: 'System Health', icon: HeartPulse },

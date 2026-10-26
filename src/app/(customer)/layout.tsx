@@ -4,13 +4,29 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { Home, Inbox, CalendarCheck, Sliders, Bell, User, LogOut, Sparkles, HelpCircle, ListTodo } from 'lucide-react';
-import { FloatingConcierge } from '@/components/ui/FloatingConcierge';
+import {
+  Home,
+  Building2,
+  Package,
+  PlusCircle,
+  Bell,
+  User,
+  LogOut,
+  Briefcase,
+} from 'lucide-react';
+import { BRAND_CONFIG } from '@/lib/brand';
 import { getTimeAwareGreeting } from '@/lib/auth/greeting';
 
-export default function CustomerLayout({ children }: { children: React.ReactNode }) {
+export default function CustomerLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
-  const [userProfile, setUserProfile] = useState<{ name?: string | null; email?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{
+    name?: string | null;
+    email?: string;
+  } | null>(null);
 
   useEffect(() => {
     fetch('/api/customer/profile')
@@ -24,49 +40,43 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
   const greeting = getTimeAwareGreeting(userProfile?.name);
 
   const navItems = [
-    { href: '/dashboard', label: 'Home', icon: Home },
-    { href: '/tasks', label: 'Tasks', icon: ListTodo },
-    { href: '/requests', label: 'Requests', icon: Inbox },
-    { href: '/bookings', label: 'Bookings', icon: CalendarCheck },
-    { href: '/preferences', label: 'Preferences', icon: Sliders },
+    { href: '/dashboard', label: 'My Dashboard', icon: Home },
+    { href: '/businesses', label: 'Explore Businesses', icon: Building2 },
+    { href: '/listings', label: 'Products & Services', icon: Package },
+    { href: '/business/dashboard', label: 'Business Mode', icon: Briefcase },
     { href: '/notifications', label: 'Notifications', icon: Bell },
-    { href: '/profile', label: 'Profile', icon: User },
-    { href: '/support', label: 'Support', icon: HelpCircle },
+    { href: '/profile', label: 'Account', icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]/70 flex flex-col font-sans text-[#1F2933] relative overflow-hidden live-bg-canvas">
-      {/* Moving Ambient Glow Orbs for Customer Workspace */}
-      <div className="absolute top-10 left-10 w-[450px] h-[450px] bg-gradient-to-br from-[#E5E9ED]/50 to-transparent blur-[120px] pointer-events-none -z-10 live-orb-1" />
-      <div className="absolute top-40 right-10 w-[550px] h-[550px] bg-gradient-to-tl from-[#F1F3F5]/60 to-transparent blur-[140px] pointer-events-none -z-10 live-orb-2" />
-
-      {/* Customer Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-xl border-b border-[#E1E5E8]/80 shadow-[0_2px_15px_rgba(0,0,0,0.02)] transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-background flex flex-col font-sans text-foreground">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border">
+        <div className="container-wide h-16 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="flex items-center gap-2 group">
-              <span className="text-xl font-semibold tracking-tight text-[#1F2933] group-hover:opacity-90 transition-opacity">Proventa</span>
-              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-wider bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] rounded-full px-2 py-0.5 font-mono font-medium shadow-2xs">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10B981]"></span>
-                </span>
-                Wave 1
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded bg-foreground text-background flex items-center justify-center font-display font-bold text-sm">
+                P
+              </div>
+              <span className="font-display text-lg font-bold tracking-tight text-foreground">
+                {BRAND_CONFIG.name}
               </span>
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+                const active =
+                  pathname === item.href ||
+                  (item.href !== '/dashboard' && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                       active
-                        ? 'bg-[#1F2933] text-white shadow-xs'
-                        : 'text-[#66717C] hover:text-[#1F2933] hover:bg-white/80'
+                        ? 'bg-foreground text-background'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -79,22 +89,22 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
 
           <div className="flex items-center gap-3">
             {userProfile?.name && (
-              <span className="hidden lg:inline-flex text-xs font-medium text-[#66717C] border border-[#E1E5E8] bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-2xs">
+              <span className="hidden lg:inline-flex text-xs font-medium text-muted-foreground border border-border bg-background px-3 py-1 rounded-full">
                 {greeting}
               </span>
             )}
 
             <Link
-              href="/dashboard#new-request"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#1F2933] text-white text-xs font-semibold rounded-xl hover:bg-[#111820] hover:shadow-md transition-all shadow-xs active:scale-[0.98]"
+              href="/enquiries/new"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-foreground text-background text-xs font-semibold rounded-lg hover:bg-foreground/90 transition-colors"
             >
-              <Sparkles className="h-3.5 w-3.5 text-[#A7B0B8]" />
-              <span>New Request</span>
+              <PlusCircle className="h-3.5 w-3.5" />
+              <span>Post an Enquiry</span>
             </Link>
 
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="p-1.5 text-[#66717C] hover:text-[#1F2933] rounded-lg hover:bg-[#F1F3F5] transition-colors"
+              className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-secondary transition-colors"
               title="Sign out"
             >
               <LogOut className="h-4 w-4" />
@@ -103,47 +113,32 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
         </div>
       </header>
 
-      {/* Main Content with Safe Area Bottom Padding for Mobile Nav */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-32 sm:pb-12 relative z-10">
+      <main className="flex-1 container-wide w-full py-6 sm:py-10 pb-28 sm:pb-12">
         {children}
       </main>
 
-      {/* Discreet Customer Portal Footer */}
-      <footer className="border-t border-[#E1E5E8] bg-white py-6 text-xs text-[#66717C] font-sans hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>© {new Date().getFullYear()} Proventa · Concierge Life OS</p>
+      <footer className="border-t border-border bg-card py-6 text-xs text-muted-foreground hidden md:block">
+        <div className="container-wide flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p>
+            &copy; {new Date().getFullYear()} {BRAND_CONFIG.name} &middot;{' '}
+            {BRAND_CONFIG.tagline}
+          </p>
           <div className="flex items-center gap-4 text-[11px]">
-            <Link href="/legal" className="hover:text-[#1F2933] transition-colors">Trust Center</Link>
-            <Link href="/legal/privacy" className="hover:text-[#1F2933] transition-colors">Privacy Policy</Link>
-            <Link href="/legal/terms" className="hover:text-[#1F2933] transition-colors">Terms</Link>
-            <Link href="/legal/privacy-requests" className="hover:text-[#1F2933] transition-colors font-medium text-[#1F2933]">Data Rights &amp; Export</Link>
-            <Link href="/legal/grievance" className="hover:text-[#1F2933] transition-colors">Grievance Desk</Link>
+            <Link href="/guidelines" className="hover:text-foreground">
+              Marketplace Guidelines
+            </Link>
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy Policy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              Terms of Service
+            </Link>
+            <Link href="/contact" className="hover:text-foreground">
+              Help &amp; Support
+            </Link>
           </div>
         </div>
       </footer>
-
-      {/* Floating Concierge Desk Widget */}
-      <FloatingConcierge />
-
-      {/* Mobile Bottom Navigation - Optimized for 375px/390px/430px & Safe Area Inset */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-[#E1E5E8] flex items-center justify-around px-2 pt-2 pb-[calc(0.65rem+env(safe-area-inset-bottom,0px))] shadow-[0_-4px_20px_rgba(0,0,0,0.04)] transition-all">
-        {navItems.slice(0, 5).map((item) => {
-          const Icon = item.icon;
-          const active = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex-1 flex flex-col items-center justify-center gap-1 py-1 rounded-xl text-[10px] font-medium transition-all duration-150 active:scale-95 ${
-                active ? 'text-[#1F2933] font-semibold bg-[#F1F3F5]/80' : 'text-[#66717C] hover:text-[#1F2933]'
-              }`}
-            >
-              <Icon className={`h-4 w-4 ${active ? 'text-[#1F2933]' : 'text-[#66717C]'}`} />
-              <span className="leading-tight">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
     </div>
   );
 }

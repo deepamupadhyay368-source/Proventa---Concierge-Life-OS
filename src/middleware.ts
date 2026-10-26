@@ -5,6 +5,11 @@ import { auth } from '@/lib/auth/config';
 // Public routes — no auth needed
 const PUBLIC_ROUTES = [
   '/',
+  '/businesses',
+  '/listings',
+  '/for-businesses',
+  '/enquiries/new',
+  '/guidelines',
   '/how-it-works',
   '/what-we-handle',
   '/membership',
@@ -36,11 +41,26 @@ const PUBLIC_ROUTES = [
 const AUTH_ROUTES = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password'];
 
 export default auth(async (req) => {
-  const { nextUrl, auth: session } = req as NextRequest & { auth: { user?: { id?: string; roles?: string[] } } | null };
+  const { nextUrl, auth: session } = req as NextRequest & {
+    auth: { user?: { id?: string; roles?: string[] } } | null;
+  };
   const pathname = nextUrl.pathname;
+
+  const isPublicGetApi =
+    req.method === 'GET' &&
+    (pathname.startsWith('/api/categories') ||
+      (pathname.startsWith('/api/businesses') && nextUrl.searchParams.get('mine') !== 'true') ||
+      pathname.startsWith('/api/listings') ||
+      pathname === '/api/business/subscription');
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname.startsWith('/business/') && !pathname.startsWith('/business/dashboard') && !pathname.startsWith('/business/register') ||
+    pathname.startsWith('/businesses') ||
+    pathname.startsWith('/listings') ||
+    pathname.startsWith('/for-businesses') ||
+    pathname.startsWith('/guidelines') ||
+    isPublicGetApi ||
     pathname.startsWith('/legal') ||
     pathname.startsWith('/api/legal') ||
     pathname.startsWith('/membership') ||
@@ -66,12 +86,22 @@ export default auth(async (req) => {
 
   // Redirect logged-in users away from customer auth pages
   if (isAuthRoute && isLoggedIn) {
+    const callbackUrl = nextUrl.searchParams.get('callbackUrl');
+    if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
+      return NextResponse.redirect(new URL(callbackUrl, nextUrl));
+    }
     return NextResponse.redirect(new URL('/dashboard', nextUrl));
   }
 
   // Concierge employee sign-in page handling
   if (pathname === '/concierge/sign-in') {
-    if (conciergeToken || (isLoggedIn && userRoles.some((r) => ['CONCIERGE', 'SENIOR_CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN', 'FOUNDER', 'SUPER_ADMIN'].includes(r)))) {
+    if (
+      conciergeToken ||
+      (isLoggedIn &&
+        userRoles.some((r) =>
+          ['CONCIERGE', 'SENIOR_CONCIERGE', 'CONCIERGE_MANAGER', 'ADMIN', 'FOUNDER', 'SUPER_ADMIN'].includes(r),
+        ))
+    ) {
       return NextResponse.redirect(new URL('/concierge/tasks', nextUrl));
     }
     return NextResponse.next();
@@ -79,7 +109,7 @@ export default auth(async (req) => {
 
   // Special handling for admin routes
   if (pathname === '/admin/login') {
-    if (isLoggedIn && userRoles.some((r) => ['SUPER_ADMIN', 'FOUNDER', 'ADMIN'].includes(r))) {
+    if (isLoggedIn && userRoles.some((r) => ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR'].includes(r))) {
       return NextResponse.redirect(new URL('/admin/overview', nextUrl));
     }
     return NextResponse.next();
@@ -88,20 +118,28 @@ export default auth(async (req) => {
   // Allow public routes
   if (isPublic) return NextResponse.next();
 
-  // Admin route protection: strictly for SUPER_ADMIN, FOUNDER, ADMIN (Concierge employees denied)
+  // Admin route protection: strictly for SUPER_ADMIN, FOUNDER, ADMIN, MODERATOR
   if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
     if (!isLoggedIn) {
       if (pathname.startsWith('/api/')) {
-        return NextResponse.json({ error: 'Admin authentication required', code: 'UNAUTHORIZED' }, { status: 401 });
+        return NextResponse.json(
+          { error: 'Admin authentication required', code: 'UNAUTHORIZED' },
+          { status: 401 },
+        );
       }
       const adminLoginUrl = new URL('/admin/login', nextUrl);
       adminLoginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(adminLoginUrl);
     }
-    const isFounderOrAdmin = userRoles.some((r) => ['SUPER_ADMIN', 'FOUNDER', 'ADMIN'].includes(r));
+    const isFounderOrAdmin = userRoles.some((r) =>
+      ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'MODERATOR'].includes(r),
+    );
     if (!isFounderOrAdmin) {
       if (pathname.startsWith('/api/')) {
-        return NextResponse.json({ error: 'Forbidden: Admin / Founder privileges required', code: 'FORBIDDEN' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'Forbidden: Admin / Moderator privileges required', code: 'FORBIDDEN' },
+          { status: 403 },
+        );
       }
       return NextResponse.redirect(new URL('/admin/login?error=Unauthorized', nextUrl));
     }
@@ -111,7 +149,7 @@ export default auth(async (req) => {
   const isConciergeRoute = pathname.startsWith('/concierge') || pathname.startsWith('/concierge-ops');
   if (isConciergeRoute) {
     const isEmployeeRole = userRoles.some((r) =>
-      ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE', 'FINANCE', 'SUPPORT'].includes(r)
+      ['SUPER_ADMIN', 'FOUNDER', 'ADMIN', 'CONCIERGE_MANAGER', 'SENIOR_CONCIERGE', 'CONCIERGE', 'FINANCE', 'SUPPORT'].includes(r),
     );
     const hasConciergeAuth = Boolean(conciergeToken) || (isLoggedIn && isEmployeeRole);
 
@@ -119,7 +157,7 @@ export default auth(async (req) => {
       if (pathname.startsWith('/api/concierge')) {
         return NextResponse.json(
           { error: 'Concierge authentication required. Please sign in to the Concierge Desk.', code: 'UNAUTHORIZED' },
-          { status: 401 }
+          { status: 401 },
         );
       }
       const conciergeSignInUrl = new URL('/concierge/sign-in', nextUrl);
@@ -133,7 +171,7 @@ export default auth(async (req) => {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json(
         { error: 'Authentication required. Please sign in.', code: 'UNAUTHORIZED' },
-        { status: 401 }
+        { status: 401 },
       );
     }
     const signInUrl = new URL('/sign-in', nextUrl);

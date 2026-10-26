@@ -1,43 +1,105 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import {
+  Search,
+  Send,
+  Handshake,
+  Building2,
+  PlusCircle,
+  ArrowRight,
+} from 'lucide-react';
+import { BRAND_CONFIG } from '@/lib/brand';
 
-export const metadata: Metadata = { title: 'How It Works', description: 'Understand the Proventa process from request to completion.' };
-
-const STEPS = [
-  { n: '01', title: 'Tell us what you need', body: "Open Proventa and describe what you need — in plain language. You don't need to pick a category, fill out a form, or figure out which provider to use. Just say what you want." },
-  { n: '02', title: 'We figure it out', body: "Proventa uses intelligent technology to understand your request, research relevant options, and prepare a recommendation tailored to your preferences. If something is unclear, we'll ask a quick clarifying question." },
-  { n: '03', title: 'A concierge takes over when needed', body: "For requests that require a phone call, a negotiation, a real-time availability check, or any form of human judgment, a Proventa concierge takes over directly. You'll see this happen transparently." },
-  { n: '04', title: 'You approve', body: "Before anything is booked or arranged, you'll see exactly what we're proposing — provider, date, price, terms, cancellation policy. You approve, request changes, or decline. Nothing happens without your confirmation." },
-  { n: '05', title: 'Done', body: "Proventa or your concierge executes the approved action and provides you with a genuine confirmation. Your request is marked complete and we follow up where appropriate." },
-];
+export const metadata: Metadata = {
+  title: `How It Works | ${BRAND_CONFIG.name}`,
+  description:
+    'Learn how customers discover businesses, post enquiries, compare quotations, and how businesses grow on PROVENTA.',
+};
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-white pt-16">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="mb-14">
-          <p className="text-xs font-medium text-brand-700 tracking-widest uppercase mb-4">The process</p>
-          <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-neutral-900 mb-6">How Proventa works</h1>
-          <p className="text-lg text-neutral-500 leading-relaxed">One request. One owner. One clear outcome.</p>
+    <div className="pt-20 md:pt-24 pb-20 min-h-screen bg-background">
+      <div className="container-wide max-w-5xl">
+        <div className="text-center max-w-3xl mx-auto mb-14">
+          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+            Platform Workflow
+          </span>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mt-1">
+            How {BRAND_CONFIG.name} Works
+          </h1>
+          <p className="text-base sm:text-lg text-muted-foreground mt-3">
+            {BRAND_CONFIG.centralValueProposition}
+          </p>
         </div>
-        <div className="space-y-12">
-          {STEPS.map((step) => (
-            <div key={step.n} className="flex gap-8">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 flex items-center justify-center bg-neutral-50 border border-neutral-200 rounded-xl">
-                  <span className="text-sm font-semibold text-neutral-400">{step.n}</span>
-                </div>
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold text-neutral-900 mb-3">{step.title}</h2>
-                <p className="text-neutral-500 leading-relaxed">{step.body}</p>
-              </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
+          <div className="bg-card border border-border rounded-xl p-7">
+            <Search className="w-7 h-7 text-primary mb-4" />
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              1. Discover Businesses
             </div>
-          ))}
+            <h2 className="font-display text-xl font-bold text-foreground mt-1">
+              Search by Industry, Offering, or City
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+              Browse 18 universal industry categories, inspect digital
+              storefronts, check verification badges, and compare products and
+              services with clear pricing modes.
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-7">
+            <Send className="w-7 h-7 text-primary mb-4" />
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              2. Post What You Need
+            </div>
+            <h2 className="font-display text-xl font-bold text-foreground mt-1">
+              Submit a Structured Requirement
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+              Post a customer enquiry with your category, city, budget range, and
+              timeline. Our matching engine scores and notifies eligible
+              published businesses while protecting your contact privacy.
+            </p>
+          </div>
+
+          <div className="bg-card border border-border rounded-xl p-7">
+            <Handshake className="w-7 h-7 text-primary mb-4" />
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              3. Connect &amp; Grow
+            </div>
+            <h2 className="font-display text-xl font-bold text-foreground mt-1">
+              Compare Quotations &amp; Move Forward
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+              Matched businesses respond with structured quotations including
+              pricing, delivery timelines, validity, and terms. Shortlist or
+              accept the best offer directly from your dashboard.
+            </p>
+          </div>
         </div>
-        <div className="mt-16 pt-10 border-t border-neutral-100 text-center">
-          <Link href="/wave1" className="inline-flex items-center px-6 py-3 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-            Join Wave 1
+
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <Link
+            href="/businesses"
+            className="inline-flex items-center gap-2 bg-foreground text-background font-semibold text-sm px-6 py-3 rounded-lg"
+          >
+            Explore Businesses
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/enquiries/new"
+            className="inline-flex items-center gap-2 border border-border bg-card text-foreground font-medium text-sm px-6 py-3 rounded-lg"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Post an Enquiry
+          </Link>
+          <Link
+            href="/business/register"
+            className="inline-flex items-center gap-2 border border-border bg-card text-foreground font-medium text-sm px-6 py-3 rounded-lg"
+          >
+            <Building2 className="w-4 h-4" />
+            Register Your Business
           </Link>
         </div>
       </div>
