@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth/config';
 const PUBLIC_ROUTES = [
   '/',
   '/businesses',
+  '/business/register',
   '/listings',
   '/for-businesses',
   '/enquiries/new',
@@ -55,7 +56,7 @@ export default auth(async (req) => {
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
-    pathname.startsWith('/business/') && !pathname.startsWith('/business/dashboard') && !pathname.startsWith('/business/register') ||
+    (pathname.startsWith('/business/') && !pathname.startsWith('/business/dashboard')) ||
     pathname.startsWith('/businesses') ||
     pathname.startsWith('/listings') ||
     pathname.startsWith('/for-businesses') ||
