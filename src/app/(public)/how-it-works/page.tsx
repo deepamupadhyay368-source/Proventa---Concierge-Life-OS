@@ -1,108 +1,90 @@
-import type { Metadata } from 'next';
 import Link from 'next/link';
-import {
-  Search,
-  Send,
-  Handshake,
-  Building2,
-  PlusCircle,
-  ArrowRight,
-} from 'lucide-react';
-import { BRAND_CONFIG } from '@/lib/brand';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: `How It Works | ${BRAND_CONFIG.name}`,
-  description:
-    'Learn how customers discover businesses, post enquiries, compare quotations, and how businesses grow on PROVENTA.',
-};
+const PROTOCOL_STEPS = [
+  {
+    num: '01',
+    code: 'PHASE // REGISTRY & TAXONOMY',
+    title: 'BUSINESSES PUBLISH STRUCTURED STOREFRONTS & CATALOGS',
+    body: 'Enterprises across 18 commercial sectors register their storefront dossier, specify operating cities, and publish product or service offerings with transparent pricing models.',
+  },
+  {
+    num: '02',
+    code: 'PHASE // DISCOVERY & RFQ DISPATCH',
+    title: 'BUYERS QUERY THE INDEX OR SUBMIT STRUCTURED ENQUIRIES',
+    body: 'Procurement teams and consumers search by keyword, sector code, and city—then dispatch either a direct enquiry to a chosen vendor or an open sector requirement.',
+  },
+  {
+    num: '03',
+    code: 'PHASE // QUOTATION LEDGER & AWARD',
+    title: 'VENDORS ISSUE FORMAL QUOTATIONS FOR SIDE-BY-SIDE ACCEPTANCE',
+    body: 'Matching businesses respond with structured quotations containing price, scope inclusions, and delivery timelines. Buyers compare proposals and accept the winning quote.',
+  },
+];
 
 export default function HowItWorksPage() {
   return (
-    <div className="pt-20 md:pt-24 pb-20 min-h-screen bg-background">
-      <div className="container-wide max-w-5xl">
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-            Platform Workflow
-          </span>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mt-1">
-            How {BRAND_CONFIG.name} Works
+    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11]">
+      <section className="border-b-2 border-[#0D0E11] bg-[#FAF8F3] py-16 lg:py-24">
+        <div className="container-wide">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="index-code-lime">PROTOCOL SPECIFICATION // 05</span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+              END-TO-END COMMERCIAL EXCHANGE
+            </span>
+          </div>
+          <h1 className="font-display text-4xl sm:text-6xl font-bold uppercase tracking-[-0.04em] text-[#0D0E11] leading-[0.94] max-w-4xl">
+            THE PROVENTA TRADE &amp; QUOTATION PROTOCOL.
           </h1>
-          <p className="text-base sm:text-lg text-muted-foreground mt-3">
-            {BRAND_CONFIG.centralValueProposition}
+          <p className="mt-5 text-base sm:text-lg text-[#52514E] max-w-2xl leading-relaxed">
+            Built to eliminate opaque directories and middlemen. A unified three-stage workflow
+            connecting verified businesses and qualified buyers.
           </p>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-14">
-          <div className="bg-card border border-border rounded-xl p-7">
-            <Search className="w-7 h-7 text-primary mb-4" />
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              1. Discover Businesses
+      <section className="py-16 lg:py-24">
+        <div className="container-wide space-y-6">
+          {PROTOCOL_STEPS.map((step) => (
+            <div
+              key={step.num}
+              className="grid grid-cols-1 lg:grid-cols-12 border-2 border-[#0D0E11] bg-[#FAF8F3]"
+            >
+              <div className="lg:col-span-3 p-8 bg-[#0D0E11] text-[#F4F1EA] flex flex-col justify-between">
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#C8F904]">
+                  {step.code}
+                </span>
+                <span className="font-display text-6xl font-bold tracking-tighter text-[#F4F1EA] mt-4">
+                  {step.num}
+                </span>
+              </div>
+              <div className="lg:col-span-9 p-8 sm:p-10 flex flex-col justify-center">
+                <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase text-[#0D0E11]">
+                  {step.title}
+                </h2>
+                <p className="mt-3 text-sm sm:text-base text-[#52514E] leading-relaxed max-w-3xl">
+                  {step.body}
+                </p>
+              </div>
             </div>
-            <h2 className="font-display text-xl font-bold text-foreground mt-1">
-              Search by Industry, Offering, or City
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-              Browse 18 universal industry categories, inspect digital
-              storefronts, check verification badges, and compare products and
-              services with clear pricing modes.
-            </p>
-          </div>
+          ))}
 
-          <div className="bg-card border border-border rounded-xl p-7">
-            <Send className="w-7 h-7 text-primary mb-4" />
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              2. Post What You Need
-            </div>
-            <h2 className="font-display text-xl font-bold text-foreground mt-1">
-              Submit a Structured Requirement
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-              Post a customer enquiry with your category, city, budget range, and
-              timeline. Our matching engine scores and notifies eligible
-              published businesses while protecting your contact privacy.
-            </p>
-          </div>
-
-          <div className="bg-card border border-border rounded-xl p-7">
-            <Handshake className="w-7 h-7 text-primary mb-4" />
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              3. Connect &amp; Grow
-            </div>
-            <h2 className="font-display text-xl font-bold text-foreground mt-1">
-              Compare Quotations &amp; Move Forward
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-              Matched businesses respond with structured quotations including
-              pricing, delivery timelines, validity, and terms. Shortlist or
-              accept the best offer directly from your dashboard.
-            </p>
+          <div className="pt-8 flex flex-wrap gap-3">
+            <Link href="/businesses" className="btn-primary">
+              <span>EXPLORE BUSINESS DIRECTORY</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/enquiries/new" className="btn-accent">
+              <span>POST BUYER ENQUIRY</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/business/register" className="btn-secondary">
+              <span>PUBLISH BUSINESS STOREFRONT</span>
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
-
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          <Link
-            href="/businesses"
-            className="inline-flex items-center gap-2 bg-foreground text-background font-semibold text-sm px-6 py-3 rounded-lg"
-          >
-            Explore Businesses
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/enquiries/new"
-            className="inline-flex items-center gap-2 border border-border bg-card text-foreground font-medium text-sm px-6 py-3 rounded-lg"
-          >
-            <PlusCircle className="w-4 h-4" />
-            Post an Enquiry
-          </Link>
-          <Link
-            href="/business/register"
-            className="inline-flex items-center gap-2 border border-border bg-card text-foreground font-medium text-sm px-6 py-3 rounded-lg"
-          >
-            <Building2 className="w-4 h-4" />
-            Register Your Business
-          </Link>
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

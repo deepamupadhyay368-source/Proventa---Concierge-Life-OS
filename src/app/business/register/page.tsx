@@ -1,542 +1,480 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import {
-  Building2,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-  ArrowRight,
-  ShieldCheck,
-} from 'lucide-react';
-import { BRAND_CONFIG, INITIAL_MARKETPLACE_CATEGORIES } from '@/lib/brand';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Check } from 'lucide-react';
 import { MarketingNav } from '@/components/marketing/nav';
 import { MarketingFooter } from '@/components/marketing/footer';
+import { BRAND_CONFIG } from '@/lib/brand';
+
+interface CategoryOption {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export default function BusinessRegisterPage() {
-  const router = useRouter();
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
   const [name, setName] = useState('');
-  const [legalName, setLegalName] = useState('');
-  const [slug, setSlug] = useState('');
   const [tagline, setTagline] = useState('');
-  const [shortDescription, setShortDescription] = useState('');
   const [description, setDescription] = useState('');
   const [businessType, setBusinessType] = useState<'PRODUCT' | 'SERVICE' | 'HYBRID'>('HYBRID');
-  const [primaryCategoryId, setPrimaryCategoryId] = useState(
-    INITIAL_MARKETPLACE_CATEGORIES[0].slug,
-  );
+  const [primaryCategoryId, setPrimaryCategoryId] = useState('cat-business-services');
   const [city, setCity] = useState('Ahmedabad');
-  const [state, setState] = useState('Gujarat');
-  const [area, setArea] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [serviceAreasText, setServiceAreasText] = useState('Ahmedabad, Gandhinagar');
-  const [servesPanIndia, setServesPanIndia] = useState(false);
+  const [stateName, setStateName] = useState('Gujarat');
+  const [serviceAreasInput, setServiceAreasInput] = useState('Ahmedabad, Gandhinagar, Mumbai');
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
-  const [whatsappNumber] = useState('');
-  const [website, setWebsite] = useState('');
-  const [gstNumber, setGstNumber] = useState('');
-  const [yearEstablished, setYearEstablished] = useState('');
-  const [highlightsText, setHighlightsText] = useState('');
-  const [tagsText, setTagsText] = useState('');
+  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [websiteUrl, setWebsiteUrl] = useState('');
+  const [establishedYear, setEstablishedYear] = useState('2020');
+  const [keywordsInput, setKeywordsInput] = useState('');
+  const [highlightsInput, setHighlightsInput] = useState('');
   const [publishImmediately, setPublishImmediately] = useState(true);
 
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [createdBusiness, setCreatedBusiness] = useState<{
+    name: string;
+    slug: string;
+  } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/marketplace/categories')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data.categories) && data.categories.length > 0) {
+          setCategories(data.categories);
+          setPrimaryCategoryId(data.categories[0].id);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setSubmitting(true);
+    setErrorMsg(null);
 
     try {
-      const serviceAreas = serviceAreasText
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const highlights = highlightsText
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-      const tags = tagsText
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      const res = await fetch('/api/businesses', {
+      const res = await fetch('/api/marketplace/businesses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
-          legalName: legalName || undefined,
-          slug: slug.trim() || undefined,
-          tagline: tagline || undefined,
-          shortDescription,
+          tagline,
           description,
           businessType,
           primaryCategoryId,
           city,
-          state,
-          area: area || undefined,
-          postalCode: postalCode || undefined,
-          serviceAreas,
-          servesPanIndia,
-          contactEmail: contactEmail || undefined,
-          contactPhone: contactPhone || undefined,
-          whatsappNumber: whatsappNumber || undefined,
-          website: website || undefined,
-          gstNumber: gstNumber.trim().toUpperCase() || undefined,
-          yearEstablished: yearEstablished ? Number(yearEstablished) : undefined,
-          highlights,
-          tags,
+          state: stateName,
+          serviceAreas: serviceAreasInput
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+          contactEmail,
+          contactPhone,
+          whatsappNumber: whatsappNumber || contactPhone,
+          websiteUrl: websiteUrl || undefined,
+          establishedYear: parseInt(establishedYear, 10) || undefined,
+          keywords: keywordsInput
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
+          highlights: highlightsInput
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean),
           publishImmediately,
         }),
       });
 
       const data = await res.json();
-      if (res.status === 401) {
-        router.push(
-          `/sign-in?callbackUrl=${encodeURIComponent('/business/register')}`,
-        );
-        return;
-      }
-
       if (!res.ok) {
-        setError(data.message || data.error || 'Could not register business profile');
+        setErrorMsg(data.error || 'Could not register business dossier.');
         setSubmitting(false);
         return;
       }
 
-      router.push('/business/dashboard?onboarded=true');
+      setCreatedBusiness({
+        name: data.business.name,
+        slug: data.business.slug,
+      });
     } catch {
-      setError('A network error occurred. Please try again.');
+      setErrorMsg('Network error while publishing storefront.');
+    } finally {
       setSubmitting(false);
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAFAF8] text-[#15171B]">
+    <div className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#0D0E11]">
       <MarketingNav />
 
-      <main className="flex-1 py-12 md:py-16">
-        <div className="container-wide max-w-4xl">
-          <div className="mb-8">
-            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
-              <Building2 className="w-3.5 h-3.5" />
-              Guided Storefront Onboarding
-            </span>
-            <h1 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.03em] text-[#15171B] mt-1">
-              Create Your Business Storefront on {BRAND_CONFIG.name}
-            </h1>
-            <p className="text-[15px] text-[#696D76] mt-1.5">
-              Set up your official digital storefront, select your industry
-              categories and service areas, and start receiving matched customer
-              enquiries.
-            </p>
-          </div>
-
-          <form
-            onSubmit={handleSubmit}
-            className="surface-card p-6 sm:p-8 space-y-8"
-          >
-            {error && (
-              <div className="p-4 rounded-[10px] bg-[#FEF2F2] border border-[#C53B43]/30 text-[#C53B43] text-[13px] flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{error}</span>
+      <main className="flex-1 py-12 lg:py-16">
+        <div className="container-wide">
+          {createdBusiness ? (
+            <div className="max-w-3xl mx-auto border-2 border-[#0D0E11] bg-[#FAF8F3] p-8 sm:p-12">
+              <div className="inline-flex items-center gap-2 mb-4">
+                <span className="index-code-lime">STOREFRONT PUBLISHED</span>
+                <span className="font-mono text-xs font-bold text-[#0D0E11]">
+                  SLUG // /business/{createdBusiness.slug}
+                </span>
               </div>
-            )}
+              <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-[-0.035em] text-[#0D0E11]">
+                {createdBusiness.name} IS NOW INDEXED ON PROVENTA.
+              </h1>
+              <p className="mt-4 text-sm text-[#52514E] leading-relaxed">
+                Your commercial dossier is live. You can now inspect your public storefront, add
+                product and service listings, and respond to buyer enquiries from your vendor
+                console.
+              </p>
 
-            {/* Section 1: Business Identity */}
-            <div className="space-y-4">
-              <h2 className="text-[18px] font-bold text-[#15171B] border-b border-[#E8E9ED] pb-2.5">
-                1. Business Identity &amp; Category
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Business / Brand Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    minLength={2}
-                    maxLength={120}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Apex Industrial Engineering"
-                    className="input-enterprise"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Registered Legal Name (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={legalName}
-                    onChange={(e) => setLegalName(e.target.value)}
-                    placeholder="e.g., Apex Industrial Engineering Pvt. Ltd."
-                    className="input-enterprise"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Primary Category *
-                  </label>
-                  <select
-                    value={primaryCategoryId}
-                    onChange={(e) => setPrimaryCategoryId(e.target.value)}
-                    className="input-enterprise"
-                  >
-                    {INITIAL_MARKETPLACE_CATEGORIES.map((cat) => (
-                      <option key={cat.slug} value={cat.slug}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Business Type *
-                  </label>
-                  <select
-                    value={businessType}
-                    onChange={(e) =>
-                      setBusinessType(
-                        e.target.value as 'PRODUCT' | 'SERVICE' | 'HYBRID',
-                      )
-                    }
-                    className="input-enterprise"
-                  >
-                    <option value="HYBRID">Product + Service (Hybrid)</option>
-                    <option value="PRODUCT">Product / Manufacturer / Trader</option>
-                    <option value="SERVICE">Service Provider / Agency / Consultant</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Custom URL Slug (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={slug}
-                    onChange={(e) =>
-                      setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-                    }
-                    placeholder="apex-industrial-ahmedabad"
-                    className="input-enterprise"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                  Tagline (Optional)
-                </label>
-                <input
-                  type="text"
-                  maxLength={140}
-                  value={tagline}
-                  onChange={(e) => setTagline(e.target.value)}
-                  placeholder="Precision fabrication & turnkey automation across Gujarat"
-                  className="input-enterprise"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                  Short Summary (15–300 chars) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  minLength={15}
-                  maxLength={300}
-                  value={shortDescription}
-                  onChange={(e) => setShortDescription(e.target.value)}
-                  placeholder="Brief summary displayed on directory search cards…"
-                  className="input-enterprise"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                  Full Business Description &amp; Capabilities (Min 30 chars) *
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  minLength={30}
-                  maxLength={5000}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe your products, services, experience, industries served, and quality standards…"
-                  className="input-enterprise"
-                />
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link
+                  href={`/business/${createdBusiness.slug}`}
+                  className="btn-accent"
+                >
+                  <span>VIEW PUBLIC STOREFRONT</span>
+                  <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <Link href="/business/dashboard" className="btn-primary">
+                  <span>OPEN VENDOR CONSOLE</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
             </div>
-
-            {/* Section 2: Location & Service Areas */}
-            <div className="space-y-4">
-              <h2 className="text-[18px] font-bold text-[#15171B] border-b border-[#E8E9ED] pb-2.5">
-                2. Location &amp; Service Coverage
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Primary City *
-                  </label>
-                  <select
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="input-enterprise"
-                  >
-                    {BRAND_CONFIG.initialCities.map((c) => (
-                      <option key={c} value={c}>
-                        {c}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Area / Locality
-                  </label>
-                  <input
-                    type="text"
-                    value={area}
-                    onChange={(e) => setArea(e.target.value)}
-                    placeholder="e.g., Prahlad Nagar / GIDC Vatva"
-                    className="input-enterprise"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    State *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className="input-enterprise"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    PIN Code
-                  </label>
-                  <input
-                    type="text"
-                    value={postalCode}
-                    onChange={(e) => setPostalCode(e.target.value)}
-                    placeholder="380015"
-                    className="input-enterprise"
-                  />
+          ) : (
+            <>
+              <div className="pb-6 mb-8 border-b-2 border-[#0D0E11]">
+                <Link
+                  href="/businesses"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#0D0E11] hover:underline mb-4"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>BACK TO THE BUSINESS INDEX</span>
+                </Link>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
+                  <div className="lg:col-span-8">
+                    <div className="inline-flex items-center gap-2 mb-3">
+                      <span className="index-code-lime">REGISTRY ONBOARDING // FORM-01</span>
+                      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+                        COMMERCIAL ENTITY DOSSIER
+                      </span>
+                    </div>
+                    <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-[-0.04em] text-[#0D0E11] leading-[0.95]">
+                      PUBLISH YOUR BUSINESS IN THE INDEX.
+                    </h1>
+                  </div>
+                  <div className="lg:col-span-4 font-mono text-xs text-[#52514E]">
+                    Complete your commercial dossier to establish a canonical storefront URL,
+                    publish offerings, and receive direct buyer enquiries.
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Cities / Regions Served (Comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={serviceAreasText}
-                    onChange={(e) => setServiceAreasText(e.target.value)}
-                    placeholder="Ahmedabad, Surat, Vadodara, Rajkot"
-                    className="input-enterprise"
-                  />
-                </div>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <form
+                  onSubmit={handleSubmit}
+                  className="lg:col-span-8 border-2 border-[#0D0E11] bg-[#FAF8F3] divide-y divide-[#0D0E11]"
+                >
+                  {errorMsg && (
+                    <div className="p-4 bg-[#B8232A] text-[#FAF8F3] font-mono text-xs">
+                      ERROR // {errorMsg}
+                    </div>
+                  )}
 
-                <div className="pt-4">
-                  <label className="inline-flex items-center gap-2 text-[13px] font-medium text-[#15171B] cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={servesPanIndia}
-                      onChange={(e) => setServesPanIndia(e.target.checked)}
-                      className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
-                    />
-                    <span>We also serve customers Pan-India (Delivery or Remote)</span>
-                  </label>
-                </div>
+                  {/* Section 01: Entity Identity */}
+                  <div className="p-6 sm:p-8 space-y-5">
+                    <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11]">
+                      01 // ENTITY IDENTITY &amp; SECTOR CLASSIFICATION
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          LEGAL OR TRADING BUSINESS NAME *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="e.g., Aether Precision Engineering Pvt. Ltd."
+                          className="input-enterprise"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          PRIMARY SECTOR CODE *
+                        </label>
+                        <select
+                          value={primaryCategoryId}
+                          onChange={(e) => setPrimaryCategoryId(e.target.value)}
+                          className="input-enterprise font-mono text-xs"
+                        >
+                          {categories.map((cat, idx) => (
+                            <option key={cat.id} value={cat.id}>
+                              [{String(idx + 1).padStart(2, '0')}] {cat.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                        ONE-LINE COMMERCIAL POSITIONING / TAGLINE *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={tagline}
+                        onChange={(e) => setTagline(e.target.value)}
+                        placeholder="e.g., ISO-certified CNC machining, sheet metal fabrication & rapid prototyping"
+                        className="input-enterprise"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                        OPERATING MODEL *
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {(['PRODUCT', 'SERVICE', 'HYBRID'] as const).map((t) => (
+                          <button
+                            key={t}
+                            type="button"
+                            onClick={() => setBusinessType(t)}
+                            className={`py-3 px-4 font-mono text-xs font-bold uppercase tracking-[0.12em] border border-[#0D0E11] transition-colors ${
+                              businessType === t
+                                ? 'bg-[#0D0E11] text-[#C8F904]'
+                                : 'bg-[#F4F1EA] text-[#0D0E11] hover:bg-[#EAE5DA]'
+                            }`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                        CAPABILITIES, PRODUCTS &amp; SERVICES OVERVIEW *
+                      </label>
+                      <textarea
+                        rows={4}
+                        required
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Describe what your business manufactures, supplies, or delivers, typical client profiles, and quality standards..."
+                        className="input-enterprise"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Section 02: Jurisdiction & Coordinates */}
+                  <div className="p-6 sm:p-8 space-y-5">
+                    <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11]">
+                      02 // JURISDICTION &amp; COMMERCIAL CONTACT LEDGER
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          HEADQUARTERS CITY *
+                        </label>
+                        <select
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          className="input-enterprise font-mono text-xs"
+                        >
+                          {BRAND_CONFIG.initialCities.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          STATE / REGION
+                        </label>
+                        <input
+                          type="text"
+                          value={stateName}
+                          onChange={(e) => setStateName(e.target.value)}
+                          className="input-enterprise"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          ESTABLISHED YEAR
+                        </label>
+                        <input
+                          type="number"
+                          value={establishedYear}
+                          onChange={(e) => setEstablishedYear(e.target.value)}
+                          className="input-enterprise font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                        SERVICE / DELIVERY COVERAGE AREAS (COMMA-SEPARATED)
+                      </label>
+                      <input
+                        type="text"
+                        value={serviceAreasInput}
+                        onChange={(e) => setServiceAreasInput(e.target.value)}
+                        placeholder="Ahmedabad, Mumbai, Pan-India"
+                        className="input-enterprise"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          BUSINESS EMAIL *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={contactEmail}
+                          onChange={(e) => setContactEmail(e.target.value)}
+                          placeholder="desk@company.com"
+                          className="input-enterprise"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          PRIMARY PHONE *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={contactPhone}
+                          onChange={(e) => setContactPhone(e.target.value)}
+                          placeholder="+91 98765 43210"
+                          className="input-enterprise"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          WEBSITE URL
+                        </label>
+                        <input
+                          type="url"
+                          value={websiteUrl}
+                          onChange={(e) => setWebsiteUrl(e.target.value)}
+                          placeholder="https://company.com"
+                          className="input-enterprise"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          SEARCH INDEX KEYWORDS (COMMA-SEPARATED)
+                        </label>
+                        <input
+                          type="text"
+                          value={keywordsInput}
+                          onChange={(e) => setKeywordsInput(e.target.value)}
+                          placeholder="cnc machining, laser cutting, industrial parts"
+                          className="input-enterprise"
+                        />
+                      </div>
+                      <div>
+                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
+                          KEY CREDENTIALS / HIGHLIGHTS
+                        </label>
+                        <input
+                          type="text"
+                          value={highlightsInput}
+                          onChange={(e) => setHighlightsInput(e.target.value)}
+                          placeholder="ISO 9001:2015, Pan-India Dispatch, 48h Quotes"
+                          className="input-enterprise"
+                        />
+                      </div>
+                    </div>
+
+                    <label className="flex items-center gap-3 pt-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={publishImmediately}
+                        onChange={(e) => setPublishImmediately(e.target.checked)}
+                        className="h-4 w-4 accent-[#0D0E11]"
+                      />
+                      <span className="font-mono text-xs text-[#0D0E11]">
+                        PUBLISH IMMEDIATELY TO THE PUBLIC BUSINESS INDEX
+                      </span>
+                    </label>
+                  </div>
+
+                  <div className="p-6 bg-[#EAE5DA] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <span className="font-mono text-[11px] text-[#52514E]">
+                      INSTANT STOREFRONT DOSSIER + CATALOG ACCESS
+                    </span>
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="btn-accent w-full sm:w-auto"
+                    >
+                      <span>
+                        {submitting ? 'PUBLISHING DOSSIER...' : 'PUBLISH BUSINESS STOREFRONT →'}
+                      </span>
+                    </button>
+                  </div>
+                </form>
+
+                {/* Right Column: Specification Sheet */}
+                <aside className="lg:col-span-4 border border-[#0D0E11] bg-[#0D0E11] text-[#F4F1EA] p-6 sm:p-8 space-y-6">
+                  <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#C8F904] pb-3 border-b border-[#2B2D33]">
+                    INCLUDED WITH YOUR ENTRY
+                  </div>
+                  <ul className="space-y-4 text-xs text-[#CFCAC0]">
+                    <li className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] text-[#0D0E11]">
+                        <Check className="h-3 w-3" />
+                      </span>
+                      <span>
+                        <strong className="text-[#F4F1EA] block font-mono uppercase">
+                          Permanent Storefront URL
+                        </strong>
+                        Dedicated publication page indexed by sector and city.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] text-[#0D0E11]">
+                        <Check className="h-3 w-3" />
+                      </span>
+                      <span>
+                        <strong className="text-[#F4F1EA] block font-mono uppercase">
+                          Structured Offerings Catalog
+                        </strong>
+                        Publish products, service packages, pricing tiers, and turnaround specs.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] text-[#0D0E11]">
+                        <Check className="h-3 w-3" />
+                      </span>
+                      <span>
+                        <strong className="text-[#F4F1EA] block font-mono uppercase">
+                          Quotation Dispatch Console
+                        </strong>
+                        Receive targeted buyer RFQs and issue formal quotations directly.
+                      </span>
+                    </li>
+                  </ul>
+                </aside>
               </div>
-            </div>
-
-            {/* Section 3: Contact, Credentials & Keywords */}
-            <div className="space-y-4">
-              <h2 className="text-[18px] font-bold text-[#15171B] border-b border-[#E8E9ED] pb-2.5">
-                3. Contact Channels &amp; Business Details
-              </h2>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Business Email
-                  </label>
-                  <input
-                    type="email"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    placeholder="contact@yourcompany.in"
-                    className="input-enterprise"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Business Phone (10-digit)
-                  </label>
-                  <input
-                    type="text"
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                    placeholder="9876543210"
-                    className="input-enterprise"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Website URL
-                  </label>
-                  <input
-                    type="url"
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                    placeholder="https://yourcompany.in"
-                    className="input-enterprise"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    GSTIN (Optional — 15 characters)
-                  </label>
-                  <input
-                    type="text"
-                    value={gstNumber}
-                    onChange={(e) => setGstNumber(e.target.value)}
-                    placeholder="24AAAAA0000A1Z5"
-                    className="input-enterprise uppercase"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Year Established (Optional)
-                  </label>
-                  <input
-                    type="number"
-                    min="1900"
-                    max={new Date().getFullYear()}
-                    value={yearEstablished}
-                    onChange={(e) => setYearEstablished(e.target.value)}
-                    placeholder="2018"
-                    className="input-enterprise"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Key Highlights (Comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={highlightsText}
-                    onChange={(e) => setHighlightsText(e.target.value)}
-                    placeholder="ISO 9001 Certified, On-time Delivery, Custom Fabrication"
-                    className="input-enterprise"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
-                    Search Keywords / Tags (Comma separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={tagsText}
-                    onChange={(e) => setTagsText(e.target.value)}
-                    placeholder="cnc machining, steel fabrication, industrial automation"
-                    className="input-enterprise"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Honest Verification & Publication Notice */}
-            <div className="p-4 sm:p-5 rounded-[10px] bg-[#FAFAF8] border border-[#E8E9ED] flex items-start gap-3.5 text-[13px]">
-              <ShieldCheck className="w-5 h-5 text-[#304FFE] shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <div className="font-semibold text-[#15171B]">
-                  Honest Verification &amp; Publication Policy
-                </div>
-                <p className="text-[#696D76] mt-0.5 leading-relaxed">
-                  Newly registered storefronts are labeled{' '}
-                  <strong className="text-[#15171B]">Self-Reported Profile</strong>{' '}
-                  until contact and business documents are independently reviewed.
-                </p>
-                <label className="inline-flex items-center gap-2 mt-3 font-medium text-[#15171B] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={publishImmediately}
-                    onChange={(e) => setPublishImmediately(e.target.checked)}
-                    className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
-                  />
-                  <span>
-                    Publish my storefront immediately so customers can discover my business and send enquiries
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between pt-2">
-              <Link
-                href="/for-businesses"
-                className="text-[13px] font-medium text-[#696D76] hover:text-[#15171B]"
-              >
-                &larr; Back to For Businesses
-              </Link>
-
-              <button
-                type="submit"
-                disabled={submitting}
-                className="btn-accent px-6 py-3"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Creating Storefront…</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Create Business Storefront</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+            </>
+          )}
         </div>
       </main>
 

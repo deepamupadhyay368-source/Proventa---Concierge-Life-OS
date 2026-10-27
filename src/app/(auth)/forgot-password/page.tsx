@@ -3,39 +3,47 @@ import { ForgotPasswordForm } from '@/components/auth/forgot-password-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Reset Password | PROVENTA',
+  title: 'Reset Password | PROVENTA — The Business Index',
 };
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#15171B] flex items-center justify-center px-4 py-14">
+    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11] flex items-center justify-center px-4 py-14">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#15171B] text-[14px] font-bold text-white">
-              P
+        <div className="mb-6 flex items-center justify-between border-b-2 border-[#0D0E11] pb-4">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center bg-[#0D0E11] text-[#C8F904] font-mono text-xs font-bold border border-[#0D0E11]">
+              PV/I
             </span>
-            <span className="text-[22px] font-bold tracking-[-0.03em] text-[#15171B]">
-              PROVENTA
-            </span>
+            <div>
+              <span className="font-display text-xl font-bold tracking-[-0.04em] text-[#0D0E11] block leading-none">
+                PROVENTA
+              </span>
+              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#52514E]">
+                THE BUSINESS INDEX
+              </span>
+            </div>
           </Link>
+          <span className="index-code">AUTH // 03</span>
         </div>
 
-        <div className="surface-card p-8 sm:p-9">
-          <h1 className="text-[22px] font-bold tracking-tight text-[#15171B] mb-1.5">
-            Reset your password
-          </h1>
-          <p className="text-[13px] text-[#696D76] mb-6">
-            Enter your registered email address and we will send you a password reset link.
-          </p>
+        <div className="border-2 border-[#0D0E11] bg-[#FAF8F3] p-8">
+          <div className="mb-6 pb-4 border-b border-[#CFCAC0]">
+            <h1 className="font-display text-2xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
+              CREDENTIAL RECOVERY
+            </h1>
+            <p className="text-xs text-[#52514E] mt-1 font-mono">
+              ENTER YOUR REGISTERED EMAIL TO RECEIVE A RESET LINK
+            </p>
+          </div>
           <ForgotPasswordForm />
         </div>
 
-        <p className="text-center text-[13px] text-[#696D76] mt-7">
-          <Link href="/sign-in" className="text-[#304FFE] hover:underline font-semibold">
-            &larr; Back to sign in
+        <div className="mt-6 border border-[#0D0E11] bg-[#EAE5DA] p-4 font-mono text-xs text-[#0D0E11] flex items-center justify-between">
+          <Link href="/sign-in" className="font-bold underline">
+            ← RETURN TO SIGN IN
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

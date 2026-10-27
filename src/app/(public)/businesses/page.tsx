@@ -1,455 +1,495 @@
 import Link from 'next/link';
 import {
-  Search,
-  MapPin,
-  Building2,
-  CheckCircle2,
   ArrowRight,
   ArrowUpRight,
-  SlidersHorizontal,
-  RotateCcw,
+  MapPin,
+  Search,
+  ShieldCheck,
 } from 'lucide-react';
-import { BRAND_CONFIG } from '@/lib/brand';
 import { getCategories, searchBusinesses } from '@/lib/marketplace/repository';
 import {
+  BusinessType,
   VERIFICATION_BADGE_META,
-  type BusinessType,
-  type DirectorySearchParams,
 } from '@/lib/marketplace/types';
+import { BRAND_CONFIG } from '@/lib/brand';
 
 export const dynamic = 'force-dynamic';
 
 interface BusinessesDirectoryPageProps {
-  searchParams:
-    | Promise<{
-        q?: string;
-        category?: string;
-        city?: string;
-        type?: string;
-        verified?: string;
-        sort?: string;
-        page?: string;
-      }>
-    | {
-        q?: string;
-        category?: string;
-        city?: string;
-        type?: string;
-        verified?: string;
-        sort?: string;
-        page?: string;
-      };
+  searchParams?: {
+    q?: string;
+    category?: string;
+    city?: string;
+    type?: string;
+    verified?: string;
+    sort?: string;
+    page?: string;
+  };
 }
 
-export default async function BusinessesDirectoryPage({
-  searchParams: searchParamsInput,
+export default function BusinessesDirectoryPage({
+  searchParams = {},
 }: BusinessesDirectoryPageProps) {
-  const searchParams = await Promise.resolve(searchParamsInput);
-  const page = Number(searchParams.page) || 1;
-  const sortBy: DirectorySearchParams['sortBy'] =
-    searchParams.sort === 'newest' ||
-    searchParams.sort === 'name' ||
-    searchParams.sort === 'popular' ||
-    searchParams.sort === 'rating'
-      ? searchParams.sort
+  const query = searchParams.q?.trim() || '';
+  const selectedCategory = searchParams.category?.trim() || '';
+  const selectedCity = searchParams.city?.trim() || '';
+  const selectedType = (searchParams.type?.toUpperCase() || '') as BusinessType | '';
+  const verifiedOnly = searchParams.verified === 'true';
+  const rawSort = searchParams.sort || 'relevance';
+  const sortBy: 'relevance' | 'newest' | 'popular' | 'rating' | 'name' =
+    rawSort === 'newest' ||
+    rawSort === 'popular' ||
+    rawSort === 'rating' ||
+    rawSort === 'name'
+      ? rawSort
       : 'relevance';
+  const page = Math.max(1, parseInt(searchParams.page || '1', 10) || 1);
 
   const categories = getCategories({ onlyTopLevel: true });
-  const result = searchBusinesses({
-    query: searchParams.q,
-    categorySlug: searchParams.category,
-    city: searchParams.city,
-    businessType: (searchParams.type as BusinessType) || undefined,
-    verificationLevel:
-      searchParams.verified === 'true' ? 'VERIFIED_BUSINESS' : undefined,
+  const activeCategoryObj = categories.find(
+    (c) => c.slug === selectedCategory || c.id === selectedCategory,
+  );
+  const activeCategoryIndex = categories.findIndex(
+    (c) => c.slug === selectedCategory || c.id === selectedCategory,
+  );
+
+  const searchResult = searchBusinesses({
+    query: query || undefined,
+    categorySlug: selectedCategory || undefined,
+    city: selectedCity || undefined,
+    businessType:
+      selectedType && ['PRODUCT', 'SERVICE', 'HYBRID'].includes(selectedType)
+        ? selectedType
+        : undefined,
+    verificationLevel: verifiedOnly ? 'VERIFIED_BUSINESS' : undefined,
     sortBy,
     page,
-    limit: 12,
+    limit: 24,
   });
 
-  const activeCategory = categories.find((c) => c.slug === searchParams.category);
-  const hasFilters = Boolean(
-    searchParams.q ||
-      searchParams.category ||
-      searchParams.city ||
-      searchParams.type ||
-      searchParams.verified === 'true',
+  const hasActiveFilters = Boolean(
+    query || selectedCategory || selectedCity || selectedType || verifiedOnly,
   );
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#15171B] pb-20">
+    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11]">
       {/* =====================================================================
-          SEARCH & FILTER HEADER
+          DIRECTORY MASTHEAD & QUERY BAR
       ===================================================================== */}
-      <section className="border-b border-[#E8E9ED] bg-[#FFFFFF] py-10">
-        <div className="container-wide">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
+      <section className="border-b-2 border-[#0D0E11] bg-[#FAF8F3]">
+        <div className="container-wide py-10 lg:py-14">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-[#CFCAC0] font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+            <div className="flex items-center gap-2">
+              <span className="index-code">DIRECTORY // 01</span>
+              <span>ENTITY REGISTRY &amp; COMMERCIAL INDEX</span>
+            </div>
             <div>
-              <div className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE] mb-2">
-                <span>Business Directory</span>
-                <span className="text-[#E8E9ED]">•</span>
-                <span className="text-[#696D76]">
-                  {result.total} {result.total === 1 ? 'Business' : 'Businesses'} Found
-                </span>
-              </div>
-              <h1 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.03em] text-[#15171B]">
-                {activeCategory
-                  ? activeCategory.name
-                  : 'Explore Businesses Across Industries'}
+              <span>
+                RECORDS MATCHED:{' '}
+                <strong className="text-[#0D0E11]">
+                  {String(searchResult.total).padStart(3, '0')}
+                </strong>
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            <div className="lg:col-span-8">
+              {activeCategoryObj && (
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <span className="index-code-lime">
+                    SECTOR CAT/{String(activeCategoryIndex + 1).padStart(2, '0')}
+                  </span>
+                  <span className="font-mono text-xs uppercase tracking-[0.12em] text-[#52514E]">
+                    {activeCategoryObj.slug}
+                  </span>
+                </div>
+              )}
+              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.04em] text-[#0D0E11] uppercase leading-[0.94]">
+                {activeCategoryObj ? activeCategoryObj.name : 'THE BUSINESS DIRECTORY.'}
               </h1>
-              <p className="mt-1.5 text-[15px] text-[#696D76] max-w-2xl">
-                {activeCategory
-                  ? activeCategory.description
-                  : 'Search verified storefronts, compare products and services, and connect directly with providers.'}
+              <p className="mt-4 text-sm sm:text-base text-[#52514E] max-w-2xl leading-relaxed">
+                {activeCategoryObj
+                  ? activeCategoryObj.description
+                  : 'Inspect verified commercial entities across 18 industry sectors. Filter by sector code, operating city, and offering model—or dispatch a structured buyer enquiry.'}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Link href="/enquiries/new" className="btn-secondary">
-                Post a Custom Requirement
+            <div className="lg:col-span-4 flex flex-wrap lg:justify-end gap-2.5">
+              <Link href="/enquiries/new" className="btn-primary">
+                <span>POST BUYER ENQUIRY</span>
+                <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/business/register" className="btn-primary">
-                <span>List Your Business</span>
+              <Link href="/business/register" className="btn-accent">
+                <span>PUBLISH BUSINESS</span>
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          {/* Filter Form */}
+          {/* Structured Filter Terminal */}
           <form
             action="/businesses"
             method="GET"
-            className="rounded-[12px] border border-[#E8E9ED] bg-[#FAFAF8] p-3"
+            className="mt-8 grid grid-cols-1 md:grid-cols-12 border-2 border-[#0D0E11] bg-[#F4F1EA]"
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
-              {/* Query */}
-              <div className="lg:col-span-4 relative flex items-center">
-                <Search className="h-4 w-4 text-[#696D76] absolute left-3.5 pointer-events-none" />
+            <div className="md:col-span-4 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+              <label
+                htmlFor="dir-q"
+                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+              >
+                01 // KEYWORD OR CAPABILITY
+              </label>
+              <div className="flex items-center">
+                <Search className="h-4 w-4 text-[#52514E] mr-2 shrink-0" />
                 <input
+                  id="dir-q"
                   type="text"
                   name="q"
-                  defaultValue={searchParams.q || ''}
-                  placeholder="Business name, product, service, or keyword..."
-                  className="input-enterprise pl-10"
+                  defaultValue={query}
+                  placeholder="Company name, product, service, tag..."
+                  className="w-full bg-transparent text-sm text-[#0D0E11] placeholder:text-[#78756F] focus:outline-none"
                 />
-              </div>
-
-              {/* Category */}
-              <div className="lg:col-span-3">
-                <select
-                  name="category"
-                  aria-label="Filter by category"
-                  defaultValue={searchParams.category || ''}
-                  className="input-enterprise"
-                >
-                  <option value="">All Categories ({categories.length})</option>
-                  {categories.map((cat) => (
-                    <option key={cat.slug} value={cat.slug}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* City */}
-              <div className="lg:col-span-2">
-                <select
-                  name="city"
-                  aria-label="Filter by city"
-                  defaultValue={searchParams.city || ''}
-                  className="input-enterprise"
-                >
-                  <option value="">All Cities</option>
-                  {BRAND_CONFIG.initialCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Business Type */}
-              <div className="lg:col-span-2">
-                <select
-                  name="type"
-                  aria-label="Filter by business type"
-                  defaultValue={searchParams.type || ''}
-                  className="input-enterprise"
-                >
-                  <option value="">All Business Types</option>
-                  <option value="PRODUCT">Products / Manufacturing / Retail</option>
-                  <option value="SERVICE">Services / Consulting / Agency</option>
-                  <option value="HYBRID">Hybrid (Product + Service)</option>
-                </select>
-              </div>
-
-              {/* Submit */}
-              <div className="lg:col-span-1">
-                <button
-                  type="submit"
-                  className="w-full h-full min-h-[42px] rounded-[10px] bg-[#304FFE] hover:bg-[#243FE0] text-white font-semibold text-[14px] px-4 transition-colors"
-                >
-                  Filter
-                </button>
               </div>
             </div>
 
-            {/* Secondary Controls Bar: Verified Only + Sort + Reset */}
-            <div className="mt-3 pt-3 border-t border-[#E8E9ED] flex flex-wrap items-center justify-between gap-3 text-[13px]">
-              <div className="flex flex-wrap items-center gap-4">
-                <label className="inline-flex items-center gap-2 text-[#15171B] font-medium cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="verified"
-                    value="true"
-                    defaultChecked={searchParams.verified === 'true'}
-                    className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
-                  />
-                  <span>Verified businesses only</span>
-                </label>
+            <div className="md:col-span-3 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+              <label
+                htmlFor="dir-cat"
+                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+              >
+                02 // SECTOR CODE
+              </label>
+              <select
+                id="dir-cat"
+                name="category"
+                defaultValue={selectedCategory}
+                className="w-full bg-transparent font-mono text-xs text-[#0D0E11] focus:outline-none"
+              >
+                <option value="">ALL 18 SECTORS</option>
+                {categories.map((cat, idx) => (
+                  <option key={cat.id} value={cat.slug}>
+                    [{String(idx + 1).padStart(2, '0')}] {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="h-3.5 w-3.5 text-[#696D76]" />
-                  <span className="text-[#696D76]">Sort by:</span>
-                  <select
-                    name="sort"
-                    aria-label="Sort businesses"
-                    defaultValue={sortBy}
-                    className="rounded-[7px] border border-[#E8E9ED] bg-[#FFFFFF] px-2.5 py-1 text-[12px] font-medium text-[#15171B]"
-                  >
-                    <option value="relevance">Relevance &amp; Verified First</option>
-                    <option value="newest">Recently Listed</option>
-                    <option value="popular">Most Viewed</option>
-                    <option value="name">Alphabetical (A–Z)</option>
-                  </select>
-                </div>
-              </div>
+            <div className="md:col-span-2 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+              <label
+                htmlFor="dir-city"
+                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+              >
+                03 // CITY
+              </label>
+              <select
+                id="dir-city"
+                name="city"
+                defaultValue={selectedCity}
+                className="w-full bg-transparent font-mono text-xs text-[#0D0E11] focus:outline-none"
+              >
+                <option value="">ALL INDIA</option>
+                {BRAND_CONFIG.initialCities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              {hasFilters && (
-                <Link
-                  href="/businesses"
-                  className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#696D76] hover:text-[#15171B] transition-colors"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                  <span>Reset all filters</span>
-                </Link>
-              )}
+            <div className="md:col-span-1 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+              <label
+                htmlFor="dir-type"
+                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+              >
+                04 // MODEL
+              </label>
+              <select
+                id="dir-type"
+                name="type"
+                defaultValue={selectedType}
+                className="w-full bg-transparent font-mono text-xs text-[#0D0E11] focus:outline-none"
+              >
+                <option value="">ALL</option>
+                <option value="PRODUCT">PRODUCT</option>
+                <option value="SERVICE">SERVICE</option>
+                <option value="HYBRID">HYBRID</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2 flex">
+              <button
+                type="submit"
+                className="w-full bg-[#0D0E11] text-[#F4F1EA] font-mono text-xs font-bold uppercase tracking-[0.14em] px-4 py-3 hover:bg-[#C8F904] hover:text-[#0D0E11] transition-colors flex items-center justify-center gap-2"
+              >
+                <span>FILTER INDEX</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
             </div>
           </form>
         </div>
       </section>
 
       {/* =====================================================================
-          MAIN DIRECTORY BODY (Category Sidebar + Business Cards Grid)
+          MAIN SPLIT LAYOUT: SECTOR INDEX SIDEBAR + TABULAR ENTITY LEDGER
       ===================================================================== */}
-      <div className="container-wide pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Sidebar: Industry Categories */}
-          <aside className="lg:col-span-3 space-y-5">
-            <div className="surface-card p-5">
-              <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#15171B] mb-3">
-                Industry Categories
-              </h2>
-              <div className="space-y-1 max-h-[480px] overflow-y-auto pr-1">
+      <section className="py-12 lg:py-16">
+        <div className="container-wide">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left Sidebar (3 Cols): Sector Classification Codes */}
+            <aside className="lg:col-span-3 border border-[#0D0E11] bg-[#FAF8F3]">
+              <div className="p-4 border-b border-[#0D0E11] bg-[#0D0E11] text-[#F4F1EA] flex items-center justify-between">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.14em]">
+                  SECTOR INDEX (18)
+                </span>
+                {hasActiveFilters && (
+                  <Link
+                    href="/businesses"
+                    className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#C8F904] underline"
+                  >
+                    RESET
+                  </Link>
+                )}
+              </div>
+
+              <div className="divide-y divide-[#CFCAC0] max-h-[560px] overflow-y-auto">
                 <Link
                   href="/businesses"
-                  className={`block px-3 py-2 rounded-[8px] text-[13px] font-medium transition-colors ${
-                    !searchParams.category
-                      ? 'bg-[#15171B] text-white'
-                      : 'text-[#696D76] hover:bg-[#F2F3F6] hover:text-[#15171B]'
+                  className={`flex items-center justify-between px-4 py-2.5 font-mono text-xs transition-colors ${
+                    !selectedCategory
+                      ? 'bg-[#C8F904] text-[#0D0E11] font-bold'
+                      : 'text-[#0D0E11] hover:bg-[#EAE5DA]'
                   }`}
                 >
-                  All Categories ({categories.length})
+                  <span>00 // ALL SECTORS</span>
+                  <span>→</span>
                 </Link>
-                {categories.map((cat) => {
-                  const isSelected = searchParams.category === cat.slug;
+                {categories.map((cat, idx) => {
+                  const active = selectedCategory === cat.slug;
                   return (
                     <Link
-                      key={cat.slug}
+                      key={cat.id}
                       href={`/businesses?category=${cat.slug}${
-                        searchParams.city ? `&city=${searchParams.city}` : ''
+                        selectedCity ? `&city=${encodeURIComponent(selectedCity)}` : ''
                       }`}
-                      className={`block px-3 py-2 rounded-[8px] text-[13px] font-medium transition-colors ${
-                        isSelected
-                          ? 'bg-[#304FFE] text-white'
-                          : 'text-[#696D76] hover:bg-[#F2F3F6] hover:text-[#15171B]'
+                      className={`flex items-center justify-between gap-2 px-4 py-2.5 text-xs transition-colors ${
+                        active
+                          ? 'bg-[#0D0E11] text-[#C8F904] font-bold'
+                          : 'text-[#0D0E11] hover:bg-[#EAE5DA]'
                       }`}
                     >
-                      {cat.name}
+                      <div className="flex items-center gap-2.5 truncate">
+                        <span
+                          className={`font-mono text-[10px] ${
+                            active ? 'text-[#C8F904]' : 'text-[#52514E]'
+                          }`}
+                        >
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span className="truncate font-medium">{cat.name}</span>
+                      </div>
+                      <span className="font-mono text-[10px] shrink-0">→</span>
                     </Link>
                   );
                 })}
               </div>
-            </div>
+            </aside>
 
-            {/* Sidebar Enquiry Prompt */}
-            <div className="rounded-[12px] bg-[#101319] p-5 text-white">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
-                Custom Requirement
-              </p>
-              <h3 className="mt-1.5 text-[16px] font-bold text-white">
-                Need quotes from multiple providers?
-              </h3>
-              <p className="mt-1.5 text-[13px] text-[#9CA1AE] leading-relaxed">
-                Post your specification once and receive structured quotations from matching businesses.
-              </p>
-              <Link
-                href={`/enquiries/new${
-                  searchParams.category ? `?category=${searchParams.category}` : ''
-                }`}
-                className="mt-4 w-full inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-[#304FFE] hover:bg-[#243FE0] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors"
-              >
-                <span>Post an Enquiry</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-            </div>
-          </aside>
+            {/* Right Column (9 Cols): Structured Entity Ledger */}
+            <div className="lg:col-span-9">
+              {/* Ledger Status Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border border-[#0D0E11] bg-[#EAE5DA] px-4 py-3 mb-6 font-mono text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-[#0D0E11]">
+                    SHOWING {searchResult.items.length} OF {searchResult.total} ENTITIES
+                  </span>
+                  {selectedCategory && (
+                    <span className="bg-[#0D0E11] text-[#C8F904] px-2 py-0.5 text-[10px] uppercase">
+                      SECTOR: {selectedCategory}
+                    </span>
+                  )}
+                  {selectedCity && (
+                    <span className="bg-[#0D0E11] text-[#F4F1EA] px-2 py-0.5 text-[10px] uppercase">
+                      CITY: {selectedCity}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 text-[11px]">
+                  <Link
+                    href="/listings"
+                    className="underline font-bold text-[#0D0E11] hover:text-[#52514E]"
+                  >
+                    SWITCH TO OFFERINGS CATALOG →
+                  </Link>
+                </div>
+              </div>
 
-          {/* Right Column: Business Results */}
-          <div className="lg:col-span-9">
-            {result.items.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {result.items.map((biz) => {
-                  const badgeMeta = VERIFICATION_BADGE_META[biz.verificationLevel];
+              {searchResult.items.length > 0 ? (
+                <div className="divide-y divide-[#0D0E11] border border-[#0D0E11] bg-[#FAF8F3]">
+                  {searchResult.items.map((biz, idx) => {
+                    const badge = VERIFICATION_BADGE_META[biz.verificationLevel];
+                    const catIdx = categories.findIndex(
+                      (c) => c.id === biz.primaryCategoryId || c.slug === biz.primaryCategoryId,
+                    );
+                    const catCode =
+                      catIdx >= 0 ? `SEC-${String(catIdx + 1).padStart(2, '0')}` : 'SEC-00';
+                    const catName =
+                      biz.primaryCategory?.name ||
+                      categories[catIdx]?.name ||
+                      'Commercial Entity';
+                    const listingsCount = (biz.listings || []).length;
 
-                  return (
-                    <div
-                      key={biz.id}
-                      className="surface-card-interactive p-6 flex flex-col justify-between"
-                    >
-                      <div>
-                        {/* Card Top: Monogram + Verification Badge */}
-                        <div className="flex items-start justify-between gap-3 mb-4">
-                          <div className="flex items-center gap-3.5">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] border border-[#E8E9ED] bg-[#FAFAF8] text-[15px] font-bold text-[#15171B]">
-                              {biz.name.slice(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="flex flex-wrap items-center gap-1.5">
-                                <span className="text-[12px] font-semibold text-[#304FFE]">
-                                  {biz.primaryCategory?.name || 'Business'}
-                                </span>
-                                <span className="text-[#D1D4DC]">•</span>
-                                <span className="text-[12px] text-[#696D76]">
-                                  {biz.businessType}
-                                </span>
+                    return (
+                      <article
+                        key={biz.id}
+                        className="group p-6 sm:p-8 hover:bg-[#EAE5DA]/60 transition-colors"
+                      >
+                        {/* Top Metadata Strip */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#CFCAC0] font-mono text-[11px]">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="bg-[#0D0E11] text-[#F4F1EA] px-2 py-0.5 font-bold">
+                              #{String((page - 1) * 24 + idx + 1).padStart(3, '0')}
+                            </span>
+                            <span className="border border-[#0D0E11] bg-[#F4F1EA] px-2 py-0.5 font-semibold text-[#0D0E11]">
+                              {catCode} // {catName}
+                            </span>
+                            <span className="text-[#52514E] uppercase">
+                              MODEL: {biz.businessType}
+                            </span>
+                          </div>
+
+                          <span
+                            className={
+                              badge.isVerified ? 'badge-verified' : 'badge-neutral'
+                            }
+                          >
+                            {badge.isVerified && <ShieldCheck className="h-3 w-3" />}
+                            {badge.label}
+                          </span>
+                        </div>
+
+                        {/* Main Entity Content Row */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                          <div className="lg:col-span-8">
+                            <Link href={`/business/${biz.slug}`} className="inline-block">
+                              <h2 className="font-display text-2xl sm:text-3xl font-bold tracking-[-0.03em] text-[#0D0E11] group-hover:underline">
+                                {biz.name}
+                              </h2>
+                            </Link>
+                            {biz.tagline && (
+                              <p className="mt-1 text-sm font-semibold text-[#0D0E11]">
+                                {biz.tagline}
+                              </p>
+                            )}
+                            <p className="mt-2.5 text-sm text-[#52514E] leading-relaxed line-clamp-2">
+                              {biz.description || biz.shortDescription}
+                            </p>
+
+                            {biz.tags.length > 0 && (
+                              <div className="mt-4 flex flex-wrap gap-1.5">
+                                {biz.tags.slice(0, 6).map((kw: string) => (
+                                  <span
+                                    key={kw}
+                                    className="font-mono text-[10px] uppercase tracking-[0.08em] px-2 py-0.5 border border-[#CFCAC0] bg-[#F4F1EA] text-[#52514E]"
+                                  >
+                                    {kw}
+                                  </span>
+                                ))}
                               </div>
+                            )}
+                          </div>
+
+                          {/* Right Specification & Action Column */}
+                          <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[#CFCAC0] pt-4 lg:pt-0 lg:pl-6 flex flex-col justify-between h-full">
+                            <dl className="space-y-2 font-mono text-xs">
+                              <div className="flex items-center justify-between">
+                                <dt className="text-[#52514E]">JURISDICTION</dt>
+                                <dd className="font-bold text-[#0D0E11] flex items-center gap-1">
+                                  <MapPin className="h-3 w-3" />
+                                  {biz.city}
+                                </dd>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <dt className="text-[#52514E]">COVERAGE</dt>
+                                <dd className="text-[#0D0E11]">
+                                  {biz.serviceAreas.length > 0
+                                    ? biz.serviceAreas.slice(0, 2).join(', ')
+                                    : biz.city}
+                                </dd>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <dt className="text-[#52514E]">CATALOG ITEMS</dt>
+                                <dd className="font-bold text-[#0D0E11]">
+                                  {listingsCount} PUBLISHED
+                                </dd>
+                              </div>
+                            </dl>
+
+                            <div className="mt-5 grid grid-cols-2 gap-2">
                               <Link
                                 href={`/business/${biz.slug}`}
-                                className="text-[18px] font-bold text-[#15171B] hover:text-[#304FFE] transition-colors line-clamp-1"
+                                className="inline-flex items-center justify-center gap-1 border border-[#0D0E11] bg-[#FAF8F3] px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-[#0D0E11] hover:bg-[#0D0E11] hover:text-[#F4F1EA] transition-colors"
                               >
-                                {biz.name}
+                                <span>DOSSIER</span>
+                                <ArrowUpRight className="h-3.5 w-3.5" />
+                              </Link>
+                              <Link
+                                href={`/enquiries/new?businessId=${biz.id}`}
+                                className="inline-flex items-center justify-center gap-1 border border-[#0D0E11] bg-[#C8F904] px-3 py-2 font-mono text-[11px] font-bold uppercase tracking-[0.08em] text-[#0D0E11] hover:bg-[#0D0E11] hover:text-[#C8F904] transition-colors"
+                              >
+                                <span>ENQUIRE</span>
+                                <ArrowRight className="h-3.5 w-3.5" />
                               </Link>
                             </div>
                           </div>
-
-                          {badgeMeta.isVerified ? (
-                            <span className="badge-verified shrink-0">
-                              <CheckCircle2 className="h-3.5 w-3.5" />
-                              {badgeMeta.shortLabel}
-                            </span>
-                          ) : (
-                            <span className="badge-neutral shrink-0">
-                              {badgeMeta.shortLabel}
-                            </span>
-                          )}
                         </div>
-
-                        {/* Tagline & Summary */}
-                        {biz.tagline && (
-                          <p className="text-[13px] font-medium text-[#15171B] mb-1.5 line-clamp-1">
-                            {biz.tagline}
-                          </p>
-                        )}
-                        <p className="text-[13px] text-[#696D76] line-clamp-2 leading-relaxed">
-                          {biz.shortDescription || biz.description}
-                        </p>
-
-                        {/* Offerings Preview */}
-                        {biz.listings && biz.listings.length > 0 && (
-                          <div className="mt-4 pt-3.5 border-t border-[#E8E9ED]">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#696D76] mb-2">
-                              Featured Offerings ({biz.listings.length})
-                            </p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {biz.listings.slice(0, 3).map((item) => (
-                                <span
-                                  key={item.id}
-                                  className="inline-flex items-center rounded-[6px] bg-[#FAFAF8] border border-[#E8E9ED] px-2.5 py-1 text-[12px] font-medium text-[#15171B]"
-                                >
-                                  {item.title}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Card Footer */}
-                      <div className="mt-5 pt-4 border-t border-[#E8E9ED] flex items-center justify-between gap-3">
-                        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#696D76]">
-                          <MapPin className="h-3.5 w-3.5 text-[#696D76]" />
-                          {biz.city}, {biz.state}
-                        </span>
-
-                        <div className="flex items-center gap-2">
-                          <Link
-                            href={`/enquiries/new?businessId=${biz.id}&category=${
-                              biz.primaryCategory?.slug || ''
-                            }`}
-                            className="rounded-[8px] border border-[#E8E9ED] bg-[#FAFAF8] hover:bg-[#F2F3F6] px-3 py-1.5 text-[12px] font-medium text-[#15171B] transition-colors"
-                          >
-                            Enquire
-                          </Link>
-                          <Link
-                            href={`/business/${biz.slug}`}
-                            className="inline-flex items-center gap-1 rounded-[8px] bg-[#15171B] hover:bg-[#304FFE] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors"
-                          >
-                            <span>View Business</span>
-                            <ArrowRight className="h-3 w-3" />
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              /* Polished Empty State */
-              <div className="surface-card p-10 sm:p-12 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#F2F3F6] text-[#15171B]">
-                  <Building2 className="h-6 w-6" />
+                      </article>
+                    );
+                  })}
                 </div>
-                <h2 className="text-[22px] font-bold text-[#15171B]">
-                  No published businesses match this filter yet
-                </h2>
-                <p className="mt-2 text-[14px] text-[#696D76] max-w-lg mx-auto leading-relaxed">
-                  PROVENTA displays only authentic registered businesses. You can post a customer enquiry for this category so businesses can respond with quotations, or register your own business storefront.
-                </p>
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-                  <Link
-                    href={`/enquiries/new${
-                      searchParams.category ? `?category=${searchParams.category}` : ''
-                    }`}
-                    className="btn-accent"
-                  >
-                    <span>Post a Customer Enquiry</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link href="/business/register" className="btn-secondary">
-                    List Your Business in This Category
-                  </Link>
-                  {hasFilters && (
-                    <Link href="/businesses" className="btn-secondary">
-                      Clear Filters
+              ) : (
+                /* Empty / Founding Directory State */
+                <div className="border-2 border-[#0D0E11] bg-[#FAF8F3] p-8 sm:p-12">
+                  <div className="inline-flex items-center gap-2 mb-4">
+                    <span className="index-code-lime">INDEX QUERY RESULT // 0 MATCHES</span>
+                  </div>
+                  <h2 className="font-display text-2xl sm:text-3xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
+                    {hasActiveFilters
+                      ? 'NO REGISTERED ENTITIES MATCH YOUR CURRENT FILTER PARAMETERS.'
+                      : 'THE DIRECTORY IS OPEN FOR FOUNDING BUSINESS REGISTRATIONS.'}
+                  </h2>
+                  <p className="mt-3 text-sm text-[#52514E] max-w-2xl leading-relaxed">
+                    {hasActiveFilters
+                      ? 'Clear one or more filter constraints to broaden your search, or submit an open buyer enquiry and our registry will route it to matching businesses in this sector.'
+                      : 'PROVENTA maintains strict data integrity—we never display fabricated placeholder companies. Register your business storefront today or dispatch a buyer requirement.'}
+                  </p>
+
+                  <div className="mt-8 flex flex-wrap gap-3">
+                    {hasActiveFilters && (
+                      <Link href="/businesses" className="btn-secondary">
+                        RESET ALL FILTERS
+                      </Link>
+                    )}
+                    <Link
+                      href={`/enquiries/new${
+                        activeCategoryObj ? `?categoryId=${activeCategoryObj.id}` : ''
+                      }`}
+                      className="btn-primary"
+                    >
+                      <span>DISPATCH OPEN BUYER ENQUIRY</span>
+                      <ArrowRight className="h-4 w-4" />
                     </Link>
-                  )}
+                    <Link href="/business/register" className="btn-accent">
+                      <span>PUBLISH BUSINESS STOREFRONT</span>
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

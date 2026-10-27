@@ -3,9 +3,9 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA — Every Business. One Place.',
+  title: 'Sign In | PROVENTA — The Business Index',
   description:
-    'Sign in to PROVENTA to manage your customer enquiries, quotations, or business digital storefront.',
+    'Sign in to PROVENTA — The Business Index to manage your buyer enquiries, quotations, or business storefront dossier.',
 };
 
 export default async function SignInPage({
@@ -17,74 +17,67 @@ export default async function SignInPage({
 }) {
   const params = await Promise.resolve(searchParams);
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#15171B] flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11] flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
-        {/* Brand Wordmark */}
-        <div className="text-center mb-8">
-          <Link href="/" className="inline-flex flex-col items-center gap-1.5 group">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#15171B] text-[14px] font-bold text-white group-hover:bg-[#304FFE] transition-colors">
-                P
-              </span>
-              <span className="text-[22px] font-bold tracking-[-0.03em] text-[#15171B]">
+        {/* Brand Masthead */}
+        <div className="mb-6 flex items-center justify-between border-b-2 border-[#0D0E11] pb-4">
+          <Link href="/" className="inline-flex items-center gap-3 group">
+            <span className="flex h-10 w-10 items-center justify-center bg-[#0D0E11] text-[#C8F904] font-mono text-xs font-bold group-hover:bg-[#C8F904] group-hover:text-[#0D0E11] border border-[#0D0E11] transition-colors">
+              PV/I
+            </span>
+            <div>
+              <span className="font-display text-xl font-bold tracking-[-0.04em] text-[#0D0E11] block leading-none">
                 PROVENTA
               </span>
+              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#52514E]">
+                THE BUSINESS INDEX
+              </span>
             </div>
-            <p className="text-[11px] tracking-[0.14em] uppercase text-[#696D76] font-semibold">
-              Every Business. One Place.
-            </p>
           </Link>
+          <span className="index-code-lime">AUTH // 01</span>
         </div>
 
-        {/* Verified or Registered message */}
         {(params.verified || params.registered) && (
-          <div className="mb-6 p-4 bg-[#ECFDF5] border border-[#16845B]/25 rounded-[10px] text-[13px] text-[#16845B]">
-            Credentials configured and account activated. You can now sign in with your email and password.
+          <div className="mb-6 p-4 bg-[#C8F904] border border-[#0D0E11] font-mono text-xs font-bold text-[#0D0E11]">
+            ✓ CREDENTIALS CONFIGURED. YOU CAN NOW SIGN IN BELOW.
           </div>
         )}
 
-        {/* Error message */}
         {params.error && (
-          <div className="mb-6 p-4 bg-[#FEF2F2] border border-[#C53B43]/25 rounded-[10px] text-[13px] text-[#C53B43]">
+          <div className="mb-6 p-4 bg-[#B8232A] border border-[#0D0E11] font-mono text-xs text-[#FAF8F3]">
             {params.error === 'invalid_token'
-              ? 'Invalid or expired verification link.'
+              ? 'INVALID OR EXPIRED VERIFICATION LINK.'
               : params.error === 'invalid_or_expired_token'
-                ? 'This verification link has expired. Please request a new one.'
-                : 'Authentication was not completed. Please try again.'}
+                ? 'THIS VERIFICATION LINK HAS EXPIRED. PLEASE REQUEST A NEW ONE.'
+                : 'AUTHENTICATION FAILED. PLEASE VERIFY YOUR CREDENTIALS.'}
           </div>
         )}
 
-        <div className="surface-card p-8 sm:p-9">
-          <div className="mb-6">
-            <h1 className="text-[22px] font-bold tracking-tight text-[#15171B]">
-              Sign In to PROVENTA
+        <div className="border-2 border-[#0D0E11] bg-[#FAF8F3] p-8">
+          <div className="mb-6 pb-4 border-b border-[#CFCAC0]">
+            <h1 className="font-display text-2xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
+              SIGN IN TO THE REGISTRY
             </h1>
-            <p className="text-[13px] text-[#696D76] mt-1">
-              Access your customer enquiry workspace or business storefront dashboard.
+            <p className="text-xs text-[#52514E] mt-1 font-mono">
+              ACCESS YOUR BUYER LEDGER OR VENDOR STOREFRONT CONSOLE
             </p>
           </div>
           <SignInForm callbackUrl={params.callbackUrl} />
         </div>
 
-        <div className="text-center text-[13px] text-[#696D76] mt-7 space-y-2">
-          <p>
-            New to PROVENTA?{' '}
-            <Link
-              href="/sign-up"
-              className="text-[#304FFE] hover:underline font-semibold"
-            >
-              Create your account
+        <div className="mt-6 border border-[#0D0E11] bg-[#EAE5DA] p-4 font-mono text-xs text-[#0D0E11] space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[#52514E]">NEW TO PROVENTA?</span>
+            <Link href="/sign-up" className="font-bold underline">
+              CREATE ACCOUNT →
             </Link>
-          </p>
-          <p>
-            Want to list a business?{' '}
-            <Link
-              href="/business/register"
-              className="text-[#15171B] hover:text-[#304FFE] hover:underline font-semibold"
-            >
-              Register your business storefront
+          </div>
+          <div className="flex items-center justify-between pt-2 border-t border-[#CFCAC0]">
+            <span className="text-[#52514E]">PUBLISHING AN ENTITY?</span>
+            <Link href="/business/register" className="font-bold underline">
+              REGISTER STOREFRONT →
             </Link>
-          </p>
+          </div>
         </div>
       </div>
     </div>

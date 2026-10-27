@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { Toaster } from '@/components/ui/sonner';
-import { BRAND_CONFIG } from '@/lib/brand';
 import './globals.css';
 
 const inter = Inter({
@@ -12,52 +11,62 @@ const inter = Inter({
   display: 'swap',
 });
 
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['500', '600', '700'],
+  display: 'swap',
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || BRAND_CONFIG.domain),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
-    template: `%s | ${BRAND_CONFIG.name}`,
+    default: 'PROVENTA — The Business Index | Every Business. One Place.',
+    template: '%s | PROVENTA — The Business Index',
   },
-  description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition} Built for businesses and customers across Gujarat and India.`,
+  description:
+    'PROVENTA is The Business Index — a universal trade and commerce registry where businesses publish verified storefronts, buyers search across 18 sectors, and structured enquiries convert into direct quotations.',
   keywords: [
+    'The Business Index',
+    'business discovery platform',
+    'B2B and B2C directory India',
+    'verified business storefronts',
+    'product and service catalog',
+    'request quotations',
     'PROVENTA',
-    'Every Business. One Place.',
-    'business directory India',
-    'Gujarat business marketplace',
-    'digital storefront India',
-    'customer enquiries marketplace',
-    'products and services directory',
-    'B2B and B2C business discovery',
-    'Ahmedabad businesses',
-    'Surat businesses',
-    'Vadodara businesses',
-    'Rajkot businesses',
   ],
-  authors: [{ name: BRAND_CONFIG.name }],
-  creator: BRAND_CONFIG.name,
-  publisher: BRAND_CONFIG.name,
-  category: BRAND_CONFIG.category,
-  classification: BRAND_CONFIG.category,
+  authors: [{ name: 'PROVENTA' }],
+  creator: 'PROVENTA',
+  publisher: 'PROVENTA',
   openGraph: {
     type: 'website',
     locale: 'en_IN',
-    url: BRAND_CONFIG.domain,
-    siteName: BRAND_CONFIG.name,
-    title: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
-    description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition}`,
+    url: 'https://proventa.in',
+    siteName: 'PROVENTA — The Business Index',
+    title: 'PROVENTA — Every Business. One Place.',
+    description:
+      'The Business Index. Discover verified businesses, inspect structured product & service catalogs, and dispatch enquiries for competitive quotations.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
+        alt: 'PROVENTA — The Business Index | Every Business. One Place.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
-    description: BRAND_CONFIG.supportingStatement,
+    title: 'PROVENTA — The Business Index',
+    description:
+      'Every Business. One Place. Search verified storefronts, products, services, and trade quotations.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -84,39 +93,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAFAF8' },
-    { media: '(prefers-color-scheme: dark)', color: '#101319' },
-  ],
-};
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': 'https://proventa.in/#organization',
-      name: BRAND_CONFIG.name,
-      slogan: BRAND_CONFIG.tagline,
-      url: BRAND_CONFIG.domain,
-      logo: 'https://proventa.in/og-image.jpg',
-      description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition}`,
-      email: BRAND_CONFIG.supportEmail,
-    },
-    {
-      '@type': 'WebSite',
-      '@id': 'https://proventa.in/#website',
-      url: BRAND_CONFIG.domain,
-      name: BRAND_CONFIG.name,
-      description: BRAND_CONFIG.supportingStatement,
-      publisher: {
-        '@id': 'https://proventa.in/#organization',
-      },
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: 'https://proventa.in/businesses?q={search_term_string}',
-        'query-input': 'required name=search_term_string',
-      },
-    },
+    { media: '(prefers-color-scheme: light)', color: '#F4F1EA' },
+    { media: '(prefers-color-scheme: dark)', color: '#0D0E11' },
   ],
 };
 
@@ -129,15 +107,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={inter.variable}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
     >
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </head>
-      <body>
+      <body className="min-h-screen bg-[#F4F1EA] text-[#0D0E11] antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

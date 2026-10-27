@@ -4,82 +4,78 @@
 
 @layer base {
   :root {
-    /* PROVENTA Enterprise Design System
-       Primary background: #FAFAF8 (60 14% 98%)
-       Main surface:       #FFFFFF (0 0% 100%)
-       Primary text:       #15171B (220 13% 9%)
-       Secondary text:     #696D76 (222 6% 44%)
-       Primary accent:     #304FFE (231 99% 59%)
-       Dark section bg:    #101319 (220 22% 8%)
-       Borders:            #E8E9ED (228 11% 92%)
-       Subtle surface:     #F2F3F6 (225 14% 95%)
-       Success:            #16845B (158 71% 30%)
-       Warning:            #B7791F (36 71% 42%)
-       Error:              #C53B43 (357 54% 50%)
-    */
-    --background: 60 14% 98%;
-    --foreground: 220 13% 9%;
+    /* THE BUSINESS INDEX — Swiss Modernist Editorial Palette */
+    /* Warm Paper-Ivory (#F4F1EA) & Ink-Black (#0D0E11) & Acid-Lime (#C8F904) */
+    --background: 42 27% 94%;
+    --foreground: 225 13% 6%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 13% 9%;
+    --card: 43 33% 97%;
+    --card-foreground: 225 13% 6%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 13% 9%;
+    --popover: 43 33% 97%;
+    --popover-foreground: 225 13% 6%;
 
-    --primary: 220 13% 9%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Deep Printing-Press Ink-Black (#0D0E11) */
+    --primary: 225 13% 6%;
+    --primary-foreground: 42 27% 94%;
 
-    --secondary: 225 14% 95%;
-    --secondary-foreground: 220 13% 9%;
+    /* Secondary / Muted: Recessed Ledger Ivory (#EAE5DA) */
+    --secondary: 40 24% 89%;
+    --secondary-foreground: 225 13% 6%;
 
-    --muted: 225 14% 95%;
-    --muted-foreground: 222 6% 44%;
+    --muted: 40 24% 89%;
+    --muted-foreground: 45 3% 31%;
 
-    --accent: 231 99% 59%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent: High-Visibility Acid-Lime Signal (#C8F904) */
+    --accent: 72 97% 50%;
+    --accent-foreground: 225 13% 6%;
 
-    --destructive: 357 54% 50%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive: Editorial Crimson (#B8232A) */
+    --destructive: 357 68% 43%;
+    --destructive-foreground: 43 33% 97%;
 
-    --border: 228 11% 92%;
-    --input: 228 11% 92%;
-    --ring: 231 99% 59%;
+    /* Structural Hairlines (#CFCAC0) */
+    --border: 39 15% 78%;
+    --input: 225 13% 6%;
+    --ring: 225 13% 6%;
 
-    --radius: 0.625rem;
+    /* Architectural 0px Swiss Grid Corners */
+    --radius: 0rem;
 
     /* Typography */
-    --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    --font-playfair: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
   }
 
   .dark {
-    --background: 220 22% 8%;
-    --foreground: 60 14% 98%;
+    --background: 225 13% 6%;
+    --foreground: 42 27% 94%;
 
-    --card: 220 18% 11%;
-    --card-foreground: 60 14% 98%;
+    --card: 225 12% 9%;
+    --card-foreground: 42 27% 94%;
 
-    --popover: 220 22% 8%;
-    --popover-foreground: 60 14% 98%;
+    --popover: 225 12% 9%;
+    --popover-foreground: 42 27% 94%;
 
-    --primary: 231 99% 59%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 72 97% 50%;
+    --primary-foreground: 225 13% 6%;
 
-    --secondary: 220 16% 16%;
-    --secondary-foreground: 60 14% 98%;
+    --secondary: 225 10% 14%;
+    --secondary-foreground: 42 27% 94%;
 
-    --muted: 220 16% 16%;
-    --muted-foreground: 220 9% 65%;
+    --muted: 225 10% 14%;
+    --muted-foreground: 40 12% 68%;
 
-    --accent: 231 99% 59%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 72 97% 50%;
+    --accent-foreground: 225 13% 6%;
 
-    --destructive: 357 54% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 357 68% 50%;
+    --destructive-foreground: 42 27% 94%;
 
-    --border: 220 16% 18%;
-    --input: 220 16% 18%;
-    --ring: 231 99% 59%;
+    --border: 225 10% 20%;
+    --input: 225 10% 24%;
+    --ring: 72 97% 50%;
   }
 }
 
@@ -89,73 +85,20 @@
   }
 
   html {
-    background-color: #FAFAF8;
-    color: #15171B;
     scroll-behavior: smooth;
+    background-color: #F4F1EA;
+    color: #0D0E11;
   }
 
   body {
-    @apply bg-[#FAFAF8] text-[#15171B] font-sans antialiased selection:bg-[#304FFE]/15 selection:text-[#304FFE];
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    @apply bg-[#F4F1EA] text-[#0D0E11] antialiased selection:bg-[#C8F904] selection:text-[#0D0E11];
+    font-family: var(--font-inter);
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-sans tracking-tight text-[#15171B];
-  }
-}
-
-@layer components {
-  .container-narrow {
-    @apply max-w-3xl mx-auto px-4 sm:px-6;
-  }
-
-  .container-wide {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-
-  /* Enterprise surface cards */
-  .card-premium,
-  .surface-card {
-    @apply bg-[#FFFFFF] border border-[#E8E9ED] rounded-[12px] shadow-card transition-all duration-200;
-  }
-
-  .surface-card-interactive {
-    @apply bg-[#FFFFFF] border border-[#E8E9ED] rounded-[12px] shadow-card hover:border-[#D1D4DC] hover:shadow-card-hover transition-all duration-200;
-  }
-
-  /* Primary & Secondary CTA Buttons */
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-[10px] bg-[#15171B] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#252830] active:bg-[#101319] transition-colors disabled:opacity-50 disabled:pointer-events-none;
-  }
-
-  .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-[10px] bg-[#304FFE] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#243FE0] active:bg-[#1B32C4] transition-colors disabled:opacity-50 disabled:pointer-events-none;
-  }
-
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-[10px] bg-[#FFFFFF] border border-[#E8E9ED] px-5 py-2.5 text-sm font-medium text-[#15171B] hover:bg-[#F2F3F6] hover:border-[#D5D7DE] transition-colors disabled:opacity-50 disabled:pointer-events-none;
-  }
-
-  /* Form controls */
-  .input-enterprise {
-    @apply w-full rounded-[10px] border border-[#E8E9ED] bg-[#FFFFFF] px-3.5 py-2.5 text-sm text-[#15171B] placeholder:text-[#696D76] focus:border-[#304FFE] focus:outline-none focus:ring-2 focus:ring-[#304FFE]/15 transition-all;
-  }
-
-  /* Status badges */
-  .badge-verified {
-    @apply inline-flex items-center gap-1.5 rounded-md bg-[#ECFDF5] border border-[#16845B]/20 px-2.5 py-0.5 text-xs font-medium text-[#16845B];
-  }
-
-  .badge-neutral {
-    @apply inline-flex items-center gap-1.5 rounded-md bg-[#F2F3F6] border border-[#E8E9ED] px-2.5 py-0.5 text-xs font-medium text-[#696D76];
-  }
-
-  .badge-accent {
-    @apply inline-flex items-center gap-1.5 rounded-md bg-[#EEF1FF] border border-[#304FFE]/20 px-2.5 py-0.5 text-xs font-medium text-[#304FFE];
-  }
-
-  .divider {
-    @apply border-t border-[#E8E9ED];
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
   }
 }
 
@@ -165,25 +108,109 @@
   }
 
   .font-display {
-    font-family: var(--font-inter);
+    font-family: var(--font-display);
+  }
+
+  .font-mono-tech {
+    font-family: var(--font-mono);
+    letter-spacing: 0.06em;
+  }
+
+  .container-narrow {
+    @apply max-w-3xl mx-auto px-4 sm:px-6;
+  }
+
+  .container-wide {
+    @apply max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10;
+  }
+
+  /* THE BUSINESS INDEX — Structural Surfaces & Ledger Sheets */
+  .surface-card,
+  .card-premium,
+  .index-sheet {
+    @apply bg-[#FAF8F3] border border-[#0D0E11] rounded-none;
+  }
+
+  .surface-card-interactive {
+    @apply bg-[#FAF8F3] border border-[#0D0E11] rounded-none transition-colors duration-150 hover:bg-[#EAE5DA];
+  }
+
+  .surface-muted,
+  .index-cell {
+    @apply bg-[#EAE5DA] border border-[#CFCAC0] rounded-none;
+  }
+
+  /* Technical Labels & Index Numerals */
+  .index-label {
+    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E] font-medium;
+  }
+
+  .index-code {
+    @apply inline-flex items-center font-mono text-[11px] font-semibold uppercase tracking-[0.1em] px-1.5 py-0.5 bg-[#0D0E11] text-[#F4F1EA];
+  }
+
+  .index-code-lime {
+    @apply inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] px-1.5 py-0.5 bg-[#C8F904] text-[#0D0E11] border border-[#0D0E11];
+  }
+
+  /* THE BUSINESS INDEX — Primary & Secondary Action Triggers */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-none bg-[#0D0E11] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#F4F1EA] border border-[#0D0E11] transition-colors duration-150 hover:bg-[#C8F904] hover:text-[#0D0E11] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D0E11] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-none bg-[#C8F904] px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#0D0E11] border border-[#0D0E11] transition-colors duration-150 hover:bg-[#0D0E11] hover:text-[#C8F904] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D0E11] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-none border border-[#0D0E11] bg-[#FAF8F3] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#0D0E11] transition-colors duration-150 hover:bg-[#0D0E11] hover:text-[#F4F1EA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D0E11] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  /* Editorial Form Controls */
+  .input-enterprise {
+    @apply w-full rounded-none border border-[#0D0E11] bg-[#FAF8F3] px-3.5 py-2.5 text-sm text-[#0D0E11] placeholder:text-[#78756F] transition-colors focus:border-[#0D0E11] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C8F904];
+  }
+
+  /* Classification Badges & Verification Stamps */
+  .badge-verified {
+    @apply inline-flex items-center gap-1.5 rounded-none bg-[#C8F904] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] border border-[#0D0E11];
+  }
+
+  .badge-neutral {
+    @apply inline-flex items-center gap-1.5 rounded-none bg-[#EAE5DA] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#0D0E11] border border-[#CFCAC0];
+  }
+
+  .badge-accent {
+    @apply inline-flex items-center gap-1.5 rounded-none bg-[#0D0E11] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#C8F904] border border-[#0D0E11];
+  }
+
+  .divider {
+    @apply border-t border-[#CFCAC0];
+  }
+
+  .divider-heavy {
+    @apply border-t-2 border-[#0D0E11];
   }
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #EAE5DA;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-[#D5D7DE] rounded-full hover:bg-[#A0A4B0];
+  background: #0D0E11;
 }
 
-/* Accessible focus styles */
+::-webkit-scrollbar-thumb:hover {
+  background: #52514E;
+}
+
 :focus-visible {
-  @apply outline-none ring-2 ring-[#304FFE] ring-offset-1;
+  @apply outline-none ring-2 ring-[#0D0E11] ring-offset-2 ring-offset-[#F4F1EA];
 }

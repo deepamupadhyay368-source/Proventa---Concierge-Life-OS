@@ -1,122 +1,401 @@
 import Link from 'next/link';
+import { ArrowRight, ArrowUpRight, Check, MapPin, Search, ShieldCheck } from 'lucide-react';
 import {
-  Search,
-  Building2,
-  MapPin,
-  ArrowRight,
-  ArrowUpRight,
-  CheckCircle2,
-  ShieldCheck,
-  Sparkles,
-  Layers,
-  FileText,
-  Store,
-  Briefcase,
-  Globe,
-  SlidersHorizontal,
-  MessageSquareQuote,
-  BadgeCheck,
-} from 'lucide-react';
+  getCategories,
+  searchBusinesses,
+  searchListings,
+} from '@/lib/marketplace/repository';
+import {
+  PRICE_DISPLAY_LABELS,
+  VERIFICATION_BADGE_META,
+} from '@/lib/marketplace/types';
 import { BRAND_CONFIG } from '@/lib/brand';
-import { getCategories, searchBusinesses, searchListings } from '@/lib/marketplace/repository';
-import { VERIFICATION_BADGE_META, PRICE_DISPLAY_LABELS } from '@/lib/marketplace/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
-  const categories = getCategories({ onlyTopLevel: true });
-  const featuredResult = searchBusinesses({ limit: 6, sortBy: 'popular' });
-  const listingsResult = searchListings({ limit: 4 });
+function formatSectorCode(index: number, slug: string): string {
+  const num = String(index + 1).padStart(2, '0');
+  const code = slug.replace(/[^a-z]/gi, '').slice(0, 4).toUpperCase();
+  return `CAT/${num}—${code}`;
+}
 
-  const featuredBusinesses = featuredResult.items;
-  const recentListings = listingsResult.items;
-  const quickCategories = categories.slice(0, 6);
+export default function HomePage() {
+  const categories = getCategories({ onlyTopLevel: true });
+  const featuredBusinessesResult = searchBusinesses({
+    limit: 6,
+    sortBy: 'popular',
+  });
+  const recentBusinessesResult = searchBusinesses({
+    limit: 6,
+    sortBy: 'newest',
+  });
+  const recentListingsResult = searchListings({
+    limit: 6,
+  });
+
+  const displayBusinesses =
+    featuredBusinessesResult.items.length > 0
+      ? featuredBusinessesResult.items
+      : recentBusinessesResult.items;
+
+  const totalPublishedBusinesses = recentBusinessesResult.total;
+  const totalPublishedListings = recentListingsResult.total;
+  const quickSectors = categories.slice(0, 8);
 
   return (
-    <div className="bg-[#FAFAF8] text-[#15171B]">
+    <div className="bg-[#F4F1EA] text-[#0D0E11]">
       {/* =====================================================================
-          1. HERO SECTION — Universal Discovery & Marketplace Preview
+          SECTION 01 // ASYMMETRIC EDITORIAL OPENING & INDEX QUERY TERMINAL
       ===================================================================== */}
-      <section className="relative overflow-hidden border-b border-[#E8E9ED] pt-12 pb-16 lg:pt-20 lg:pb-24">
-        {/* Subtle structural grid accent */}
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,#E8E9ED_1px,transparent_1px),linear-gradient(to_bottom,#E8E9ED_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_70%_50%_at_50%_0%,#000_40%,transparent_100%)] opacity-45"
-        />
+      <section className="border-b-2 border-[#0D0E11]">
+        <div className="container-wide">
+          {/* Sub-Masthead Metadata Row */}
+          <div className="grid grid-cols-1 md:grid-cols-12 border-b border-[#CFCAC0] py-3 font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+            <div className="md:col-span-4 flex items-center gap-2">
+              <span className="inline-block h-2 w-2 bg-[#0D0E11]" />
+              <span>FOLIO 01 // THE BUSINESS INDEX</span>
+            </div>
+            <div className="md:col-span-5 hidden md:block">
+              <span>CLASSIFICATION: PRODUCTS · SERVICES · HYBRID ENTERPRISES</span>
+            </div>
+            <div className="md:col-span-3 md:text-right text-[#0D0E11] font-semibold">
+              <span>SECTORS INDEXED: {String(categories.length).padStart(2, '0')}</span>
+            </div>
+          </div>
 
-        <div className="container-wide relative">
-          <div className="mx-auto max-w-4xl text-center">
-            {/* Eyebrow badge */}
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#E8E9ED] bg-[#FFFFFF] px-3.5 py-1.5 shadow-card">
-              <span className="h-2 w-2 rounded-full bg-[#304FFE]" />
-              <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#15171B]">
-                PROVENTA Universal Business Platform
-              </span>
-              <span className="hidden sm:inline text-[#E8E9ED]">|</span>
-              <span className="hidden sm:inline text-[12px] font-medium text-[#696D76]">
-                Storefronts • Discovery • Quotations
+          {/* Main Asymmetric Editorial Spread */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#0D0E11]">
+            {/* Left Column (8 Cols): Oversized Display Typography & Editorial Lead */}
+            <div className="lg:col-span-8 py-10 sm:py-14 lg:py-20 lg:pr-12 flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 mb-6">
+                  <span className="index-code-lime">INDEX EDITION // 01</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+                    UNIVERSAL COMMERCE &amp; QUOTATION REGISTRY
+                  </span>
+                </div>
+
+                <h1 className="font-display text-[3.25rem] sm:text-[5rem] lg:text-[6.25rem] xl:text-[7rem] font-bold tracking-[-0.045em] leading-[0.9] text-[#0D0E11] uppercase">
+                  EVERY BUSINESS.
+                  <br />
+                  <span className="inline-block bg-[#0D0E11] text-[#F4F1EA] px-3 py-1 mt-1.5">
+                    ONE PLACE<span className="text-[#C8F904]">.</span>
+                  </span>
+                </h1>
+              </div>
+
+              <div className="mt-10 lg:mt-14 grid grid-cols-1 sm:grid-cols-12 gap-6 pt-8 border-t border-[#CFCAC0] items-end">
+                <div className="sm:col-span-7">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#52514E] mb-2">
+                    ABSTRACT // 01.A
+                  </p>
+                  <p className="text-base sm:text-lg leading-relaxed text-[#0D0E11] font-normal">
+                    PROVENTA is a structured commercial index where verified businesses publish
+                    products and services, buyers inspect capabilities across{' '}
+                    <span className="font-semibold underline decoration-[#0D0E11] underline-offset-4">
+                      {categories.length} industry sectors
+                    </span>
+                    , and structured enquiries convert directly into formal quotations.
+                  </p>
+                </div>
+                <div className="sm:col-span-5 flex flex-col gap-2.5">
+                  <Link href="/business/register" className="btn-accent w-full justify-between">
+                    <span>PUBLISH STOREFRONT</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                  <Link href="/enquiries/new" className="btn-secondary w-full justify-between">
+                    <span>POST BUYER ENQUIRY</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (4 Cols): Custom Geometric Connection Schematic & Live Registry Ledger */}
+            <div className="lg:col-span-4 py-10 lg:py-14 lg:pl-10 flex flex-col justify-between bg-[#FAF8F3]/60">
+              <div>
+                <div className="flex items-center justify-between border-b border-[#0D0E11] pb-3 mb-6">
+                  <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#0D0E11]">
+                    FIG 01 // CONNECTION TOPOLOGY
+                  </span>
+                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#52514E]">
+                    SYS-DIRECT
+                  </span>
+                </div>
+
+                {/* Custom Geometric SVG Graphic — Business Connection Protocol */}
+                <div className="border border-[#0D0E11] bg-[#FAF8F3] p-5">
+                  <svg
+                    viewBox="0 0 360 220"
+                    className="w-full h-auto"
+                    role="img"
+                    aria-label="Diagram showing how Business Storefronts, Catalog Listings, and Buyer Enquiries connect to produce Quotations"
+                  >
+                    <line x1="0" y1="40" x2="360" y2="40" stroke="#EAE5DA" strokeWidth="1" />
+                    <line x1="0" y1="110" x2="360" y2="110" stroke="#EAE5DA" strokeWidth="1" />
+                    <line x1="0" y1="180" x2="360" y2="180" stroke="#EAE5DA" strokeWidth="1" />
+                    <line x1="180" y1="0" x2="180" y2="220" stroke="#EAE5DA" strokeWidth="1" />
+
+                    <path
+                      d="M 110 46 L 180 110 L 110 174"
+                      fill="none"
+                      stroke="#0D0E11"
+                      strokeWidth="1.5"
+                    />
+                    <line
+                      x1="180"
+                      y1="110"
+                      x2="262"
+                      y2="110"
+                      stroke="#0D0E11"
+                      strokeWidth="2"
+                    />
+
+                    {/* Node 01: Business Storefront */}
+                    <rect
+                      x="14"
+                      y="24"
+                      width="96"
+                      height="44"
+                      fill="#0D0E11"
+                      stroke="#0D0E11"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="22"
+                      y="41"
+                      fill="#C8F904"
+                      fontFamily="monospace"
+                      fontSize="8"
+                      fontWeight="bold"
+                    >
+                      NODE // 01
+                    </text>
+                    <text
+                      x="22"
+                      y="56"
+                      fill="#F4F1EA"
+                      fontFamily="sans-serif"
+                      fontSize="10"
+                      fontWeight="bold"
+                    >
+                      STOREFRONT
+                    </text>
+
+                    {/* Node 02: Buyer Enquiry */}
+                    <rect
+                      x="14"
+                      y="152"
+                      width="96"
+                      height="44"
+                      fill="#FAF8F3"
+                      stroke="#0D0E11"
+                      strokeWidth="1.5"
+                    />
+                    <text
+                      x="22"
+                      y="169"
+                      fill="#52514E"
+                      fontFamily="monospace"
+                      fontSize="8"
+                      fontWeight="bold"
+                    >
+                      NODE // 02
+                    </text>
+                    <text
+                      x="22"
+                      y="184"
+                      fill="#0D0E11"
+                      fontFamily="sans-serif"
+                      fontSize="10"
+                      fontWeight="bold"
+                    >
+                      BUYER RFQ
+                    </text>
+
+                    {/* Central Index Junction */}
+                    <circle
+                      cx="180"
+                      cy="110"
+                      r="22"
+                      fill="#C8F904"
+                      stroke="#0D0E11"
+                      strokeWidth="2"
+                    />
+                    <circle cx="180" cy="110" r="4" fill="#0D0E11" />
+                    <text
+                      x="180"
+                      y="78"
+                      textAnchor="middle"
+                      fill="#0D0E11"
+                      fontFamily="monospace"
+                      fontSize="8"
+                      fontWeight="bold"
+                    >
+                      THE INDEX
+                    </text>
+
+                    {/* Node 03: Structured Quotation */}
+                    <rect
+                      x="250"
+                      y="84"
+                      width="96"
+                      height="52"
+                      fill="#C8F904"
+                      stroke="#0D0E11"
+                      strokeWidth="2"
+                    />
+                    <text
+                      x="258"
+                      y="102"
+                      fill="#0D0E11"
+                      fontFamily="monospace"
+                      fontSize="8"
+                      fontWeight="bold"
+                    >
+                      OUTPUT // 03
+                    </text>
+                    <text
+                      x="258"
+                      y="117"
+                      fill="#0D0E11"
+                      fontFamily="sans-serif"
+                      fontSize="10"
+                      fontWeight="bold"
+                    >
+                      QUOTATION
+                    </text>
+                    <text
+                      x="258"
+                      y="128"
+                      fill="#0D0E11"
+                      fontFamily="monospace"
+                      fontSize="7.5"
+                    >
+                      DIRECT TERMS
+                    </text>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Technical Ledger Specification Table */}
+              <div className="mt-8 border-t border-[#0D0E11] pt-5">
+                <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#52514E] mb-3">
+                  REGISTRY TELEMETRY // REAL-TIME
+                </div>
+                <dl className="divide-y divide-[#CFCAC0] border-y border-[#CFCAC0] font-mono text-xs">
+                  <div className="py-2.5 flex items-center justify-between">
+                    <dt className="text-[#52514E]">INDUSTRY SECTORS</dt>
+                    <dd className="font-bold text-[#0D0E11]">
+                      {String(categories.length).padStart(2, '0')} ACTIVE CODES
+                    </dd>
+                  </div>
+                  <div className="py-2.5 flex items-center justify-between">
+                    <dt className="text-[#52514E]">ENTITY TYPES</dt>
+                    <dd className="font-bold text-[#0D0E11]">PRODUCT / SERVICE / HYBRID</dd>
+                  </div>
+                  <div className="py-2.5 flex items-center justify-between">
+                    <dt className="text-[#52514E]">PUBLISHED ENTITIES</dt>
+                    <dd className="font-bold text-[#0D0E11]">
+                      {totalPublishedBusinesses > 0
+                        ? `${totalPublishedBusinesses} VERIFIED`
+                        : 'FOUNDING COHORT OPEN'}
+                    </dd>
+                  </div>
+                  <div className="py-2.5 flex items-center justify-between">
+                    <dt className="text-[#52514E]">COMMISSION / MIDDLEMEN</dt>
+                    <dd className="bg-[#C8F904] text-[#0D0E11] px-1.5 py-0.5 font-bold text-[10px]">
+                      0% — DIRECT B2B/B2C
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* =====================================================================
+            INTERACTIVE BUSINESS INDEX QUERY TERMINAL
+        ===================================================================== */}
+        <div className="border-t-2 border-[#0D0E11] bg-[#0D0E11] text-[#F4F1EA]">
+          <div className="container-wide py-8 lg:py-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#2B2D33]">
+              <div className="flex items-center gap-2.5">
+                <span className="inline-block h-2.5 w-2.5 bg-[#C8F904]" />
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.16em] text-[#C8F904]">
+                  INDEX QUERY TERMINAL // SEARCH REGISTRY
+                </span>
+              </div>
+              <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#9E998E]">
+                QUERY BY KEYWORD, SECTOR CODE, OR OPERATING JURISDICTION
               </span>
             </div>
 
-            {/* Primary Headline */}
-            <h1 className="text-[40px] sm:text-[54px] lg:text-[64px] font-bold tracking-[-0.035em] text-[#15171B] leading-[1.06]">
-              Every Business. One Place.
-            </h1>
-
-            {/* Supporting Copy */}
-            <p className="mt-5 text-[17px] sm:text-[19px] text-[#696D76] leading-[1.6] max-w-2xl mx-auto font-normal">
-              Discover businesses, explore products and services, and connect with the right providers—all in one place.
-            </p>
-          </div>
-
-          {/* Universal Search Bar */}
-          <div className="mt-9 mx-auto max-w-4xl">
             <form
               action="/businesses"
               method="GET"
-              className="rounded-[14px] border border-[#E8E9ED] bg-[#FFFFFF] p-2 shadow-elevated"
+              className="mt-5 grid grid-cols-1 md:grid-cols-12 border border-[#3A3D45] bg-[#14161B]"
             >
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-                {/* Search Query Input */}
-                <div className="md:col-span-5 flex items-center gap-3 rounded-[10px] bg-[#FAFAF8] px-3.5 py-3 border border-transparent focus-within:border-[#304FFE] focus-within:bg-[#FFFFFF] transition-colors">
-                  <Search className="h-4 w-4 text-[#696D76] shrink-0" />
+              {/* Field 01: Keyword Query */}
+              <div className="md:col-span-5 p-4 border-b md:border-b-0 md:border-r border-[#2B2D33]">
+                <label
+                  htmlFor="index-search-q"
+                  className="block font-mono text-[10px] uppercase tracking-[0.16em] text-[#C8F904] mb-1.5"
+                >
+                  QUERY // 01 — KEYWORD, PRODUCT, OR ENTITY NAME
+                </label>
+                <div className="relative flex items-center">
+                  <Search className="h-4 w-4 text-[#9E998E] mr-2.5 shrink-0" />
                   <input
+                    id="index-search-q"
                     type="text"
                     name="q"
-                    aria-label="Search businesses, products, or services"
-                    placeholder="Search businesses, products, or services..."
-                    className="w-full bg-transparent text-[14px] text-[#15171B] placeholder:text-[#696D76] focus:outline-none"
+                    placeholder="e.g., CNC machining, enterprise SaaS, architectural lighting, catering..."
+                    className="w-full bg-transparent text-sm text-[#F4F1EA] placeholder:text-[#78756F] focus:outline-none font-sans"
                   />
                 </div>
+              </div>
 
-                {/* Category Selector */}
-                <div className="md:col-span-3 flex items-center gap-2.5 rounded-[10px] bg-[#FAFAF8] px-3.5 py-3 border border-transparent focus-within:border-[#304FFE] focus-within:bg-[#FFFFFF] transition-colors">
-                  <Building2 className="h-4 w-4 text-[#696D76] shrink-0" />
-                  <select
-                    name="category"
-                    aria-label="Filter by category"
-                    defaultValue=""
-                    className="w-full bg-transparent text-[14px] text-[#15171B] focus:outline-none truncate"
-                  >
-                    <option value="">All Categories ({categories.length})</option>
-                    {categories.map((cat) => (
-                      <option key={cat.slug} value={cat.slug}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              {/* Field 02: Sector Classification */}
+              <div className="md:col-span-3 p-4 border-b md:border-b-0 md:border-r border-[#2B2D33]">
+                <label
+                  htmlFor="index-search-category"
+                  className="block font-mono text-[10px] uppercase tracking-[0.16em] text-[#9E998E] mb-1.5"
+                >
+                  SECTOR // 02 — CLASSIFICATION
+                </label>
+                <select
+                  id="index-search-category"
+                  name="category"
+                  defaultValue=""
+                  className="w-full bg-[#14161B] text-sm text-[#F4F1EA] focus:outline-none font-mono"
+                >
+                  <option value="">ALL 18 SECTORS</option>
+                  {categories.map((cat, idx) => (
+                    <option key={cat.id} value={cat.slug}>
+                      [{String(idx + 1).padStart(2, '0')}] {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-                {/* City / Location Selector */}
-                <div className="md:col-span-2 flex items-center gap-2.5 rounded-[10px] bg-[#FAFAF8] px-3.5 py-3 border border-transparent focus-within:border-[#304FFE] focus-within:bg-[#FFFFFF] transition-colors">
-                  <MapPin className="h-4 w-4 text-[#696D76] shrink-0" />
+              {/* Field 03: Jurisdiction / City */}
+              <div className="md:col-span-2 p-4 border-b md:border-b-0 md:border-r border-[#2B2D33]">
+                <label
+                  htmlFor="index-search-city"
+                  className="block font-mono text-[10px] uppercase tracking-[0.16em] text-[#9E998E] mb-1.5"
+                >
+                  JURISDICTION // 03
+                </label>
+                <div className="flex items-center">
+                  <MapPin className="h-3.5 w-3.5 text-[#9E998E] mr-1.5 shrink-0" />
                   <select
+                    id="index-search-city"
                     name="city"
-                    aria-label="Filter by city or location"
                     defaultValue=""
-                    className="w-full bg-transparent text-[14px] text-[#15171B] focus:outline-none truncate"
+                    className="w-full bg-[#14161B] text-sm text-[#F4F1EA] focus:outline-none font-mono"
                   >
-                    <option value="">All Cities</option>
+                    <option value="">ALL INDIA</option>
                     {BRAND_CONFIG.initialCities.map((city) => (
                       <option key={city} value={city}>
                         {city}
@@ -124,420 +403,361 @@ export default async function HomePage() {
                     ))}
                   </select>
                 </div>
+              </div>
 
-                {/* Search Action */}
-                <div className="md:col-span-2">
-                  <button
-                    type="submit"
-                    className="w-full h-full min-h-[46px] inline-flex items-center justify-center gap-2 rounded-[10px] bg-[#304FFE] hover:bg-[#243FE0] text-white font-semibold text-[14px] px-4 transition-colors shadow-card"
-                  >
-                    <span>Search</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
+              {/* Submit Trigger */}
+              <div className="md:col-span-2 flex">
+                <button
+                  type="submit"
+                  className="w-full bg-[#C8F904] text-[#0D0E11] px-5 py-4 font-mono text-xs font-bold uppercase tracking-[0.14em] hover:bg-[#FAF8F3] transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>EXECUTE QUERY</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
               </div>
             </form>
 
-            {/* Popular Category Shortcuts */}
-            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-[12px] font-medium text-[#696D76] mr-1">
-                Popular sectors:
+            {/* Quick Sector Index Codes */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#9E998E] mr-1">
+                DIRECT INDEX KEYS:
               </span>
-              {quickCategories.map((cat) => (
+              {quickSectors.map((cat, idx) => (
                 <Link
-                  key={cat.slug}
+                  key={cat.id}
                   href={`/businesses?category=${cat.slug}`}
-                  className="inline-flex items-center gap-1.5 rounded-[8px] border border-[#E8E9ED] bg-[#FFFFFF] px-3 py-1 text-[12px] font-medium text-[#15171B] hover:border-[#304FFE]/40 hover:text-[#304FFE] transition-colors"
+                  className="inline-flex items-center gap-1.5 border border-[#2B2D33] bg-[#14161B] px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-[#CFCAC0] hover:border-[#C8F904] hover:text-[#C8F904] transition-colors"
                 >
+                  <span className="text-[#C8F904] font-bold">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
                   <span>{cat.name}</span>
                 </Link>
               ))}
-              <Link
-                href="#categories"
-                className="inline-flex items-center gap-1 px-2.5 py-1 text-[12px] font-semibold text-[#304FFE] hover:underline"
-              >
-                <span>View all {categories.length} categories</span>
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Refined Marketplace Architecture Preview */}
-          <div className="mt-14 mx-auto max-w-6xl">
-            <div className="rounded-[14px] border border-[#E8E9ED] bg-[#FFFFFF] p-5 sm:p-7 shadow-card">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 mb-6 border-b border-[#E8E9ED]">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#EEF1FF] text-[#304FFE]">
-                    <Layers className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <h2 className="text-[14px] font-semibold text-[#15171B]">
-                      Unified Commerce &amp; Discovery Architecture
-                    </h2>
-                    <p className="text-[12px] text-[#696D76]">
-                      Structured business profiles, searchable catalogs, and direct quotation workflows
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="badge-neutral">
-                    {categories.length} Industry Sectors Configured
-                  </span>
-                  <span className="badge-verified">
-                    <ShieldCheck className="h-3.5 w-3.5" />
-                    Authentic Verification Badges
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {/* Preview Pillar 1 */}
-                <div className="rounded-[10px] border border-[#E8E9ED] bg-[#FAFAF8] p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
-                        01 • Digital Storefronts
-                      </span>
-                      <Store className="h-4 w-4 text-[#696D76]" />
-                    </div>
-                    <h3 className="text-[16px] font-semibold text-[#15171B]">
-                      Verified Business Profiles
-                    </h3>
-                    <p className="mt-1.5 text-[13px] text-[#696D76] leading-relaxed">
-                      Every business receives a dedicated SEO-indexed storefront displaying legal identity, service coverage, operating hours, and transparent verification status.
-                    </p>
-                  </div>
-                  <div className="mt-5 pt-3.5 border-t border-[#E8E9ED] flex items-center justify-between text-[12px]">
-                    <span className="text-[#696D76]">B2C, B2B &amp; Hybrid support</span>
-                    <Link
-                      href="/businesses"
-                      className="font-semibold text-[#15171B] hover:text-[#304FFE] inline-flex items-center gap-1"
-                    >
-                      Browse Directory <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Preview Pillar 2 */}
-                <div className="rounded-[10px] border border-[#E8E9ED] bg-[#FAFAF8] p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
-                        02 • Structured Catalogs
-                      </span>
-                      <SlidersHorizontal className="h-4 w-4 text-[#696D76]" />
-                    </div>
-                    <h3 className="text-[16px] font-semibold text-[#15171B]">
-                      Products, Services &amp; Packages
-                    </h3>
-                    <p className="mt-1.5 text-[13px] text-[#696D76] leading-relaxed">
-                      Search across fixed-price items, custom B2B manufacturing capabilities, professional retainers, and local service packages with structured specifications.
-                    </p>
-                  </div>
-                  <div className="mt-5 pt-3.5 border-t border-[#E8E9ED] flex items-center justify-between text-[12px]">
-                    <span className="text-[#696D76]">Transparent pricing models</span>
-                    <Link
-                      href="/listings"
-                      className="font-semibold text-[#15171B] hover:text-[#304FFE] inline-flex items-center gap-1"
-                    >
-                      Explore Catalog <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Preview Pillar 3 */}
-                <div className="rounded-[10px] border border-[#E8E9ED] bg-[#FAFAF8] p-5 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
-                        03 • Enquiry &amp; RFQ Engine
-                      </span>
-                      <MessageSquareQuote className="h-4 w-4 text-[#696D76]" />
-                    </div>
-                    <h3 className="text-[16px] font-semibold text-[#15171B]">
-                      Direct Buyer-to-Business Quotes
-                    </h3>
-                    <p className="mt-1.5 text-[13px] text-[#696D76] leading-relaxed">
-                      Message a specific business directly or broadcast an open category requirement to receive structured quotations with pricing, timelines, and terms.
-                    </p>
-                  </div>
-                  <div className="mt-5 pt-3.5 border-t border-[#E8E9ED] flex items-center justify-between text-[12px]">
-                    <span className="text-[#696D76]">Zero commission markups</span>
-                    <Link
-                      href="/enquiries/new"
-                      className="font-semibold text-[#304FFE] hover:underline inline-flex items-center gap-1"
-                    >
-                      Post an Enquiry <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          2. POPULAR BUSINESS CATEGORIES — All 18 Real Sectors
+          SECTION 02 // STRUCTURED SECTOR INDEX LEDGER (18 SECTORS)
       ===================================================================== */}
-      <section id="categories" className="py-16 lg:py-24 border-b border-[#E8E9ED]">
+      <section id="categories" className="border-b-2 border-[#0D0E11] py-16 lg:py-24">
         <div className="container-wide">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE] mb-2">
-                Universal Industry Taxonomy
-              </p>
-              <h2 className="text-[28px] sm:text-[34px] font-bold tracking-[-0.025em] text-[#15171B]">
-                Explore by Business Category
+          {/* Section Header */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pb-8 border-b-2 border-[#0D0E11]">
+            <div className="lg:col-span-7">
+              <div className="inline-flex items-center gap-2 mb-3">
+                <span className="index-code">SEC // 02</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+                  STANDARD COMMERCIAL TAXONOMY
+                </span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-[-0.035em] text-[#0D0E11] uppercase leading-[0.95]">
+                THE 18 SECTOR CLASSIFICATIONS.
               </h2>
-              <p className="mt-2 text-[15px] text-[#696D76] max-w-2xl">
-                Built for every legitimate enterprise—from local retail, healthcare, and hospitality to industrial manufacturing and B2B supply chains.
-              </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Link href="/businesses" className="btn-secondary">
-                <span>View Full Directory</span>
-                <ArrowRight className="h-4 w-4" />
+            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:items-end justify-between gap-4">
+              <p className="text-sm text-[#52514E] max-w-md leading-relaxed">
+                Every business and catalog offering on PROVENTA is indexed under a standardized
+                sector code for instant procurement and consumer discovery.
+              </p>
+              <Link
+                href="/businesses"
+                className="font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#0D0E11] underline decoration-2 underline-offset-4 hover:bg-[#C8F904] px-2 py-1 shrink-0"
+              >
+                OPEN FULL DIRECTORY →
               </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {categories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/businesses?category=${cat.slug}`}
-                className="group surface-card-interactive p-5 flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#F2F3F6] text-[13px] font-bold text-[#15171B] group-hover:bg-[#304FFE] group-hover:text-white transition-colors">
-                      {cat.name.slice(0, 2).toUpperCase()}
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-[#696D76] group-hover:text-[#304FFE] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                  </div>
-                  <h3 className="mt-4 text-[16px] font-semibold text-[#15171B] group-hover:text-[#304FFE] transition-colors">
-                    {cat.name}
-                  </h3>
-                  <p className="mt-1.5 text-[13px] text-[#696D76] line-clamp-2 leading-relaxed">
-                    {cat.description}
-                  </p>
-                </div>
+          {/* Column Headers (Desktop Ledger) */}
+          <div className="hidden lg:grid lg:grid-cols-12 border-b border-[#0D0E11] bg-[#EAE5DA] py-2.5 px-4 font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-[#52514E]">
+            <div className="col-span-2">INDEX CODE</div>
+            <div className="col-span-3">SECTOR CLASSIFICATION</div>
+            <div className="col-span-4">SCOPE &amp; COMMERCIAL COVERAGE</div>
+            <div className="col-span-2">SUB-INDEX TAGS</div>
+            <div className="col-span-1 text-right">ACTION</div>
+          </div>
 
-                {cat.subcategories && cat.subcategories.length > 0 && (
-                  <div className="mt-4 pt-3.5 border-t border-[#E8E9ED] flex flex-wrap gap-1.5">
-                    {cat.subcategories.slice(0, 3).map((sub) => (
+          {/* Structured Index Entries (Tabular Ledger Rows) */}
+          <div className="divide-y divide-[#0D0E11] border-b border-[#0D0E11]">
+            {categories.map((cat, idx) => {
+              const sectorCode = formatSectorCode(idx, cat.slug);
+              const subcats = cat.subcategories || [];
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/businesses?category=${cat.slug}`}
+                  className="group grid grid-cols-1 lg:grid-cols-12 items-start lg:items-center gap-3 lg:gap-4 py-4 px-3 sm:px-4 bg-[#FAF8F3] hover:bg-[#0D0E11] hover:text-[#F4F1EA] transition-colors duration-150"
+                >
+                  {/* Column 1: Index Number & Code */}
+                  <div className="lg:col-span-2 flex items-center gap-3">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 border border-[#0D0E11] bg-[#EAE5DA] text-[#0D0E11] group-hover:bg-[#C8F904] group-hover:border-[#C8F904]">
+                      {String(idx + 1).padStart(2, '0')}
+                    </span>
+                    <span className="font-mono text-[11px] font-semibold tracking-[0.08em] text-[#52514E] group-hover:text-[#C8F904]">
+                      {sectorCode}
+                    </span>
+                  </div>
+
+                  {/* Column 2: Sector Title */}
+                  <div className="lg:col-span-3">
+                    <h3 className="font-display text-lg font-bold tracking-[-0.02em] text-[#0D0E11] group-hover:text-[#F4F1EA]">
+                      {cat.name}
+                    </h3>
+                  </div>
+
+                  {/* Column 3: Editorial Scope Description */}
+                  <div className="lg:col-span-4">
+                    <p className="text-xs text-[#52514E] group-hover:text-[#CFCAC0] line-clamp-2 leading-relaxed">
+                      {cat.description}
+                    </p>
+                  </div>
+
+                  {/* Column 4: Subcategory Index Pills */}
+                  <div className="lg:col-span-2 flex flex-wrap gap-1.5">
+                    {subcats.slice(0, 2).map((sub) => (
                       <span
                         key={sub.id}
-                        className="inline-block rounded-[6px] bg-[#FAFAF8] border border-[#E8E9ED] px-2 py-0.5 text-[11px] font-medium text-[#696D76]"
+                        className="font-mono text-[10px] uppercase tracking-[0.06em] px-1.5 py-0.5 border border-[#CFCAC0] bg-[#F4F1EA] text-[#52514E] group-hover:border-[#3A3D45] group-hover:bg-[#1D1F26] group-hover:text-[#CFCAC0]"
                       >
                         {sub.name}
                       </span>
                     ))}
-                    {cat.subcategories.length > 3 && (
-                      <span className="inline-block px-1.5 py-0.5 text-[11px] font-medium text-[#696D76]">
-                        +{cat.subcategories.length - 3} more
-                      </span>
-                    )}
                   </div>
-                )}
-              </Link>
-            ))}
+
+                  {/* Column 5: Right-Aligned Trigger */}
+                  <div className="lg:col-span-1 flex items-center justify-end">
+                    <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] group-hover:text-[#C8F904]">
+                      <span>INDEX</span>
+                      <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          3. FEATURED / VERIFIED BUSINESSES (Real Database State — Zero Fabrication)
+          SECTION 03 // PUBLISHED STOREFRONTS OR FOUNDING REGISTRY DOSSIER
       ===================================================================== */}
-      <section className="py-16 lg:py-24 bg-[#FFFFFF] border-b border-[#E8E9ED]">
+      <section className="border-b-2 border-[#0D0E11] py-16 lg:py-24 bg-[#FAF8F3]">
         <div className="container-wide">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-            <div>
-              <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE] mb-2">
-                Live Marketplace Directory
-              </p>
-              <h2 className="text-[28px] sm:text-[34px] font-bold tracking-[-0.025em] text-[#15171B]">
-                Published Business Storefronts
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pb-8 border-b-2 border-[#0D0E11]">
+            <div className="lg:col-span-8">
+              <div className="inline-flex items-center gap-2 mb-3">
+                <span className="index-code-lime">SEC // 03</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+                  VERIFIED COMMERCIAL STOREFRONTS
+                </span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-[-0.035em] text-[#0D0E11] uppercase leading-[0.95]">
+                INDEXED BUSINESS DOSSIERS.
               </h2>
-              <p className="mt-2 text-[15px] text-[#696D76] max-w-2xl">
-                PROVENTA displays only authentic, registered businesses and clearly distinguishes verified businesses from self-reported profiles.
-              </p>
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="lg:col-span-4 flex lg:justify-end">
               <Link href="/businesses" className="btn-secondary">
-                Browse Directory
-              </Link>
-              <Link href="/business/register" className="btn-primary">
-                <span>List Your Business</span>
+                <span>BROWSE ALL ENTITIES</span>
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          {featuredBusinesses.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {featuredBusinesses.map((biz) => {
-                const badgeMeta = VERIFICATION_BADGE_META[biz.verificationLevel];
-
+          {displayBusinesses.length > 0 ? (
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-l border-[#0D0E11]">
+              {displayBusinesses.map((biz, idx) => {
+                const badge = VERIFICATION_BADGE_META[biz.verificationLevel];
+                const categoryLabel =
+                  biz.primaryCategory?.name || 'Commercial Entity';
                 return (
-                  <Link
+                  <article
                     key={biz.id}
-                    href={`/business/${biz.slug}`}
-                    className="group rounded-[12px] border border-[#E8E9ED] bg-[#FAFAF8] p-6 hover:bg-[#FFFFFF] hover:border-[#D1D4DC] hover:shadow-card-hover transition-all flex flex-col justify-between"
+                    className="group flex flex-col justify-between border-r border-b border-[#0D0E11] bg-[#FAF8F3] p-6 hover:bg-[#EAE5DA] transition-colors"
                   >
                     <div>
-                      <div className="flex items-start justify-between gap-3 mb-4">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-[10px] border border-[#E8E9ED] bg-[#FFFFFF] text-[15px] font-bold text-[#15171B]">
-                          {biz.name.slice(0, 2).toUpperCase()}
-                        </div>
-                        {badgeMeta.isVerified ? (
-                          <span className="badge-verified">
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            {badgeMeta.shortLabel}
-                          </span>
-                        ) : (
-                          <span className="badge-neutral">{badgeMeta.shortLabel}</span>
-                        )}
+                      <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-[#CFCAC0]">
+                        <span className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-[#52514E]">
+                          DOSSIER // {String(idx + 1).padStart(3, '0')}
+                        </span>
+                        <span
+                          className={
+                            badge.isVerified ? 'badge-verified' : 'badge-neutral'
+                          }
+                        >
+                          {badge.isVerified && <ShieldCheck className="h-3 w-3" />}
+                          {badge.shortLabel}
+                        </span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-[12px] font-medium text-[#696D76]">
-                        <span>{biz.primaryCategory?.name || 'Business'}</span>
-                        <span>•</span>
+                      <div className="mb-2 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.12em] text-[#52514E]">
+                        <span>{categoryLabel}</span>
+                        <span>·</span>
                         <span>{biz.businessType}</span>
                       </div>
 
-                      <h3 className="mt-1.5 text-[18px] font-bold text-[#15171B] group-hover:text-[#304FFE] transition-colors">
-                        {biz.name}
-                      </h3>
+                      <Link href={`/business/${biz.slug}`} className="block">
+                        <h3 className="font-display text-2xl font-bold tracking-[-0.03em] text-[#0D0E11] group-hover:underline">
+                          {biz.name}
+                        </h3>
+                      </Link>
 
                       {biz.tagline && (
-                        <p className="mt-1 text-[13px] font-medium text-[#15171B]/80 line-clamp-1">
+                        <p className="mt-1.5 text-xs font-medium text-[#0D0E11]">
                           {biz.tagline}
                         </p>
                       )}
 
-                      <p className="mt-2 text-[13px] text-[#696D76] line-clamp-2 leading-relaxed">
-                        {biz.shortDescription || biz.description}
+                      <p className="mt-3 text-xs text-[#52514E] line-clamp-3 leading-relaxed">
+                        {biz.description || biz.shortDescription}
                       </p>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-[#E8E9ED] flex items-center justify-between text-[12px]">
-                      <span className="inline-flex items-center gap-1.5 text-[#696D76]">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {biz.city}, {biz.state}
-                      </span>
-                      <span className="font-semibold text-[#15171B] group-hover:text-[#304FFE] inline-flex items-center gap-1">
-                        View Storefront <ArrowRight className="h-3.5 w-3.5" />
-                      </span>
+                    <div className="mt-6 pt-4 border-t border-[#CFCAC0] flex items-center justify-between">
+                      <div className="font-mono text-[11px] text-[#0D0E11] flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5 text-[#52514E]" />
+                        <span>
+                          {biz.city}
+                          {biz.state ? `, ${biz.state}` : ''}
+                        </span>
+                      </div>
+                      <Link
+                        href={`/business/${biz.slug}`}
+                        className="inline-flex items-center gap-1 font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] bg-[#C8F904] px-2.5 py-1 border border-[#0D0E11]"
+                      >
+                        <span>OPEN DOSSIER</span>
+                        <ArrowUpRight className="h-3.5 w-3.5" />
+                      </Link>
                     </div>
-                  </Link>
+                  </article>
                 );
               })}
             </div>
           ) : (
-            /* Honest, high-craft Empty / Onboarding State when 0 businesses are published */
-            <div className="rounded-[14px] border border-[#E8E9ED] bg-[#FAFAF8] p-8 sm:p-10 lg:p-12">
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-7 space-y-4">
-                  <div className="inline-flex items-center gap-2 rounded-md bg-[#EEF1FF] border border-[#304FFE]/20 px-3 py-1 text-[12px] font-semibold text-[#304FFE]">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    <span>Founding Business Onboarding Open</span>
+            /* Honest Founding Registry Spread when 0 businesses are seeded in memory */
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 border-2 border-[#0D0E11] bg-[#F4F1EA]">
+              <div className="lg:col-span-7 p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-[#0D0E11]">
+                <div className="inline-flex items-center gap-2 mb-4">
+                  <span className="index-code-lime">REGISTRY STATUS // LIVE</span>
+                  <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#52514E]">
+                    ZERO SYNTHETIC PROFILES
+                  </span>
+                </div>
+                <h3 className="font-display text-2xl sm:text-4xl font-bold tracking-[-0.03em] text-[#0D0E11] uppercase leading-tight">
+                  CLAIM YOUR PERMANENT ENTRY IN THE BUSINESS INDEX.
+                </h3>
+                <p className="mt-4 text-sm sm:text-base text-[#52514E] leading-relaxed max-w-2xl">
+                  PROVENTA never populates its directory with fake placeholder companies or
+                  synthetic ratings. Every storefront in this index represents a real operating
+                  enterprise. Register your business to publish your verified dossier, list
+                  products and services, and receive direct buyer RFQs.
+                </p>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href="/business/register" className="btn-primary">
+                    <span>REGISTER YOUR BUSINESS</span>
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                  <Link href="/enquiries/new" className="btn-secondary">
+                    <span>SUBMIT A BUYER ENQUIRY</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 p-8 sm:p-10 bg-[#FAF8F3] flex flex-col justify-between">
+                <div>
+                  <div className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#0D0E11] pb-3 border-b border-[#0D0E11]">
+                    STOREFRONT DOSSIER SPECIFICATION
                   </div>
-                  <h3 className="text-[22px] sm:text-[26px] font-bold tracking-tight text-[#15171B]">
-                    Be among the first verified businesses on PROVENTA
-                  </h3>
-                  <p className="text-[14px] sm:text-[15px] text-[#696D76] leading-relaxed">
-                    We do not populate our directory with scraped or fabricated listings. Every storefront on PROVENTA is created by an authentic business owner or verified by our marketplace operations team.
-                  </p>
-                  <div className="pt-2 flex flex-wrap items-center gap-3">
-                    <Link href="/business/register" className="btn-accent">
-                      <span>Create Your Business Profile</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                    <Link href="/enquiries/new" className="btn-secondary">
-                      Post a Buyer Requirement
-                    </Link>
-                  </div>
+                  <ul className="mt-5 space-y-3.5 text-xs text-[#0D0E11]">
+                    <li className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] border border-[#0D0E11]">
+                        <Check className="h-3 w-3 text-[#0D0E11]" />
+                      </span>
+                      <span>
+                        <strong>Dedicated Publication URL:</strong> Canonical{' '}
+                        <code className="font-mono bg-[#EAE5DA] px-1">/business/[slug]</code>{' '}
+                        dossier indexed by sector and city.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] border border-[#0D0E11]">
+                        <Check className="h-3 w-3 text-[#0D0E11]" />
+                      </span>
+                      <span>
+                        <strong>Structured Offerings Ledger:</strong> List fixed-price products,
+                        custom services, MOQ specs, and turnaround times.
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] border border-[#0D0E11]">
+                        <Check className="h-3 w-3 text-[#0D0E11]" />
+                      </span>
+                      <span>
+                        <strong>Direct Quotation Dispatch:</strong> Respond to targeted buyer
+                        enquiries with formal pricing proposals.
+                      </span>
+                    </li>
+                  </ul>
                 </div>
 
-                <div className="lg:col-span-5">
-                  <div className="rounded-[12px] border border-[#E8E9ED] bg-[#FFFFFF] p-5 shadow-card space-y-3.5">
-                    <div className="flex items-center justify-between border-b border-[#E8E9ED] pb-3">
-                      <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B]">
-                        What Your Storefront Includes
-                      </span>
-                      <span className="badge-verified">Free Onboarding</span>
-                    </div>
-                    <ul className="space-y-2.5 text-[13px] text-[#696D76]">
-                      <li className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0 mt-0.5" />
-                        <span>Dedicated public URL (<code className="text-[12px] text-[#15171B]">/business/your-name</code>)</span>
-                      </li>
-                      <li className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0 mt-0.5" />
-                        <span>Unlimited product, service, and package catalog listings</span>
-                      </li>
-                      <li className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0 mt-0.5" />
-                        <span>Direct customer enquiries &amp; category RFQ lead routing</span>
-                      </li>
-                      <li className="flex items-start gap-2.5">
-                        <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0 mt-0.5" />
-                        <span>Structured quotation builder &amp; GST/identity verification badge</span>
-                      </li>
-                    </ul>
-                  </div>
+                <div className="mt-8 pt-4 border-t border-[#CFCAC0] flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.14em] text-[#52514E]">
+                  <span>ONBOARDING TIME: ~3 MINUTES</span>
+                  <span className="text-[#0D0E11] font-bold">VERIFICATION INCLUDED</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Recent Product & Service Offerings (if any published) */}
-          {recentListings.length > 0 && (
-            <div className="mt-14 pt-12 border-t border-[#E8E9ED]">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-[20px] font-bold text-[#15171B]">
-                  Recent Products &amp; Services
-                </h3>
+          {/* Published Catalog Offerings Ledger (if listings exist) */}
+          {totalPublishedListings > 0 && (
+            <div className="mt-14">
+              <div className="flex items-center justify-between pb-4 border-b border-[#0D0E11]">
+                <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11]">
+                  CATALOG LEDGER // LATEST PRODUCTS &amp; SERVICES ({totalPublishedListings})
+                </span>
                 <Link
                   href="/listings"
-                  className="text-[13px] font-semibold text-[#304FFE] hover:underline inline-flex items-center gap-1"
+                  className="font-mono text-xs font-bold uppercase tracking-[0.12em] underline"
                 >
-                  View All Offerings <ArrowRight className="h-3.5 w-3.5" />
+                  VIEW ALL LISTINGS →
                 </Link>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {recentListings.map((item) => (
-                  <Link
+              <div className="grid grid-cols-1 md:grid-cols-3 border-l border-[#0D0E11]">
+                {recentListingsResult.items.slice(0, 3).map((item) => (
+                  <div
                     key={item.id}
-                    href={
-                      item.businessSlug
-                        ? `/business/${item.businessSlug}`
-                        : '/listings'
-                    }
-                    className="surface-card-interactive p-5 flex flex-col justify-between"
+                    className="border-r border-b border-[#0D0E11] p-5 bg-[#FAF8F3] flex flex-col justify-between"
                   >
                     <div>
-                      <span className="badge-neutral">{item.listingType}</span>
-                      <h4 className="mt-3 text-[15px] font-semibold text-[#15171B]">
+                      <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.12em] text-[#52514E] mb-2">
+                        <span>{item.listingType}</span>
+                        <span>{PRICE_DISPLAY_LABELS[item.priceDisplayType]}</span>
+                      </div>
+                      <h4 className="font-display text-lg font-bold text-[#0D0E11]">
                         {item.title}
                       </h4>
-                      <p className="mt-1 text-[13px] text-[#696D76] line-clamp-2">
+                      <p className="mt-2 text-xs text-[#52514E] line-clamp-2">
                         {item.shortSummary || item.description}
                       </p>
                     </div>
-                    <div className="mt-4 pt-3 border-t border-[#E8E9ED] flex items-center justify-between text-[12px]">
-                      <span className="font-semibold text-[#15171B]">
+                    <div className="mt-4 pt-3 border-t border-[#CFCAC0] flex items-center justify-between font-mono text-xs">
+                      <span className="font-bold text-[#0D0E11]">
                         {item.priceAmount
                           ? `₹${item.priceAmount.toLocaleString('en-IN')}`
                           : PRICE_DISPLAY_LABELS[item.priceDisplayType]}
                       </span>
-                      <span className="text-[#696D76] truncate max-w-[120px]">
-                        {item.businessName}
-                      </span>
+                      <Link
+                        href={`/enquiries/new?listingId=${item.id}&businessId=${item.businessId}`}
+                        className="text-[#0D0E11] underline font-bold"
+                      >
+                        REQUEST QUOTE →
+                      </Link>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             </div>
@@ -546,196 +766,169 @@ export default async function HomePage() {
       </section>
 
       {/* =====================================================================
-          4. HOW PROVENTA WORKS — Structured 3-Step Workflow
+          SECTION 04 // THE 3-STAGE COMMERCIAL PROTOCOL
       ===================================================================== */}
-      <section className="py-16 lg:py-24 bg-[#FAFAF8] border-b border-[#E8E9ED]">
+      <section className="border-b-2 border-[#0D0E11] py-16 lg:py-24 bg-[#F4F1EA]">
         <div className="container-wide">
-          <div className="max-w-3xl mb-12">
-            <p className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE] mb-2">
-              Platform Workflow
-            </p>
-            <h2 className="text-[28px] sm:text-[34px] font-bold tracking-[-0.025em] text-[#15171B]">
-              How PROVENTA Works
-            </h2>
-            <p className="mt-2 text-[15px] text-[#696D76]">
-              Designed for clarity, speed, and trust—whether you are sourcing a provider or scaling your business visibility.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end pb-10 border-b-2 border-[#0D0E11]">
+            <div className="lg:col-span-7">
+              <div className="inline-flex items-center gap-2 mb-3">
+                <span className="index-code">SEC // 04</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
+                  OPERATIONAL ARCHITECTURE
+                </span>
+              </div>
+              <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-[-0.035em] text-[#0D0E11] uppercase leading-[0.95]">
+                HOW THE BUSINESS INDEX OPERATES.
+              </h2>
+            </div>
+            <div className="lg:col-span-5">
+              <p className="text-sm text-[#52514E] leading-relaxed">
+                Designed around clarity, speed, and zero noise. Whether procuring industrial
+                components, contracting an agency, or booking local services, the protocol
+                remains identical.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="surface-card p-6 sm:p-7">
-              <div className="flex items-center justify-between mb-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#15171B] text-[13px] font-bold text-white">
-                  01
-                </span>
-                <span className="text-[12px] font-semibold text-[#696D76]">
-                  Discovery &amp; Storefronts
-                </span>
+          <div className="grid grid-cols-1 lg:grid-cols-3 divide-y lg:divide-y-0 lg:divide-x divide-[#0D0E11] border-b border-x border-[#0D0E11] bg-[#FAF8F3]">
+            {/* Stage 01 */}
+            <div className="p-8 lg:p-10 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-8">
+                  <span className="font-display text-5xl font-bold tracking-tighter text-[#0D0E11]">
+                    01
+                  </span>
+                  <span className="index-code-lime">STAGE // DISCOVERY</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold text-[#0D0E11] uppercase">
+                  QUERY THE INDEX OR BROWSE BY SECTOR CODE
+                </h3>
+                <p className="mt-3 text-sm text-[#52514E] leading-relaxed">
+                  Filter registered businesses by sector code, operating city, offering type
+                  (Product, Service, or Hybrid), and verification tier. Inspect detailed
+                  storefront dossiers and catalog specifications without paywalls.
+                </p>
               </div>
-              <h3 className="text-[18px] font-bold text-[#15171B]">
-                Search or List Structured Profiles
-              </h3>
-              <p className="mt-2 text-[14px] text-[#696D76] leading-relaxed">
-                Businesses publish rich storefronts with verified details and product/service catalogs. Customers search by keyword, industry category, city, and business model.
-              </p>
+              <div className="mt-8 pt-4 border-t border-[#CFCAC0] font-mono text-[11px] uppercase tracking-[0.12em] text-[#0D0E11] font-semibold">
+                INPUT: KEYWORD + SECTOR + JURISDICTION
+              </div>
             </div>
 
-            <div className="surface-card p-6 sm:p-7">
-              <div className="flex items-center justify-between mb-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#15171B] text-[13px] font-bold text-white">
-                  02
-                </span>
-                <span className="text-[12px] font-semibold text-[#696D76]">
-                  Enquiries &amp; RFQs
-                </span>
+            {/* Stage 02 */}
+            <div className="p-8 lg:p-10 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-8">
+                  <span className="font-display text-5xl font-bold tracking-tighter text-[#0D0E11]">
+                    02
+                  </span>
+                  <span className="index-code">STAGE // DISPATCH</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold text-[#0D0E11] uppercase">
+                  DISPATCH DIRECT OR OPEN BUYER ENQUIRIES
+                </h3>
+                <p className="mt-3 text-sm text-[#52514E] leading-relaxed">
+                  Send a targeted enquiry directly to a selected business storefront, or publish
+                  an open sector requirement specifying your quantity, budget range, timeline,
+                  and delivery city.
+                </p>
               </div>
-              <h3 className="text-[18px] font-bold text-[#15171B]">
-                Send Direct or Open Enquiries
-              </h3>
-              <p className="mt-2 text-[14px] text-[#696D76] leading-relaxed">
-                Customers can contact a chosen business directly from its storefront or post an open category requirement (with budget, quantity, and location) for matching providers.
-              </p>
+              <div className="mt-8 pt-4 border-t border-[#CFCAC0] font-mono text-[11px] uppercase tracking-[0.12em] text-[#0D0E11] font-semibold">
+                PRIVACY: CONTACT REDACTED UNTIL AUTHORIZED
+              </div>
             </div>
 
-            <div className="surface-card p-6 sm:p-7">
-              <div className="flex items-center justify-between mb-5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-[8px] bg-[#304FFE] text-[13px] font-bold text-white">
-                  03
-                </span>
-                <span className="text-[12px] font-semibold text-[#304FFE]">
-                  Quotations &amp; Fulfilment
-                </span>
+            {/* Stage 03 */}
+            <div className="p-8 lg:p-10 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between mb-8">
+                  <span className="font-display text-5xl font-bold tracking-tighter text-[#0D0E11]">
+                    03
+                  </span>
+                  <span className="index-code-lime">STAGE // SETTLEMENT</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold text-[#0D0E11] uppercase">
+                  COMPARE STRUCTURED QUOTATIONS &amp; AWARD
+                </h3>
+                <p className="mt-3 text-sm text-[#52514E] leading-relaxed">
+                  Receive structured quotations with line-item pricing, validity dates, and
+                  delivery commitments. Compare responses side by side in your workspace and
+                  accept the winning proposal.
+                </p>
               </div>
-              <h3 className="text-[18px] font-bold text-[#15171B]">
-                Compare Quotes &amp; Connect Directly
-              </h3>
-              <p className="mt-2 text-[14px] text-[#696D76] leading-relaxed">
-                Businesses respond with structured quotations detailing price, validity, and delivery timeline. Customers compare responses side by side and finalize directly.
-              </p>
+              <div className="mt-8 pt-4 border-t border-[#CFCAC0] font-mono text-[11px] uppercase tracking-[0.12em] text-[#0D0E11] font-semibold">
+                OUTPUT: ACCEPTED COMMERCIAL QUOTATION
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          5. BENEFITS FOR CUSTOMERS & BUSINESS OWNERS
+          SECTION 05 // DUAL FOR-BUSINESSES & FOR-BUYERS DISPATCH BLOCK
       ===================================================================== */}
-      <section className="py-16 lg:py-24 bg-[#FFFFFF] border-b border-[#E8E9ED]">
+      <section className="py-16 lg:py-24 bg-[#EAE5DA]">
         <div className="container-wide">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* For Customers & Procurement Teams */}
-            <div className="rounded-[14px] border border-[#E8E9ED] bg-[#FAFAF8] p-7 sm:p-9 flex flex-col justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-12 border-2 border-[#0D0E11]">
+            {/* Left Panel: For Businesses (Ink-Black Surface) */}
+            <div className="lg:col-span-6 bg-[#0D0E11] text-[#F4F1EA] p-8 sm:p-12 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-[#0D0E11]">
               <div>
-                <div className="inline-flex items-center gap-2 rounded-md bg-[#FFFFFF] border border-[#E8E9ED] px-3 py-1 text-[12px] font-semibold text-[#15171B] mb-5">
-                  <Globe className="h-3.5 w-3.5 text-[#304FFE]" />
-                  <span>For Customers &amp; Buyers</span>
-                </div>
-                <h3 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[#15171B]">
-                  Find the right provider without endless phone calls
-                </h3>
-                <p className="mt-2.5 text-[14px] sm:text-[15px] text-[#696D76] leading-relaxed">
-                  Whether you are an individual consumer looking for a local specialist or a procurement manager sourcing B2B suppliers, PROVENTA brings structure to discovery.
+                <span className="inline-block bg-[#C8F904] text-[#0D0E11] font-mono text-[10px] font-bold uppercase tracking-[0.14em] px-2 py-0.5 mb-5">
+                  PORTAL A // FOR BUSINESSES &amp; VENDORS
+                </span>
+                <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-[#F4F1EA] uppercase leading-tight">
+                  PUBLISH YOUR STOREFRONT IN THE INDEX.
+                </h2>
+                <p className="mt-4 text-sm text-[#CFCAC0] leading-relaxed">
+                  Establish an authoritative commercial presence. Showcase your products,
+                  services, technical specifications, and service areas—and respond to qualified
+                  buyer enquiries from one unified console.
                 </p>
-
-                <ul className="mt-6 space-y-3.5">
-                  {[
-                    'Search across 18+ structured consumer, commercial, and industrial categories.',
-                    'Inspect clear verification badges so you know whether a profile is verified or self-reported.',
-                    'Post a single requirement and receive structured quotes from relevant businesses.',
-                    'Keep your personal contact details private until you choose to share them.',
-                  ].map((point) => (
-                    <li key={point} className="flex items-start gap-3 text-[14px] text-[#15171B]">
-                      <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0 mt-1" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-[#E8E9ED] flex flex-wrap items-center gap-3">
-                <Link href="/businesses" className="btn-primary">
-                  <span>Explore Businesses</span>
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link href="/enquiries/new" className="btn-secondary">
-                  Post an Enquiry
-                </Link>
-              </div>
-            </div>
-
-            {/* For Business Owners & Enterprises */}
-            <div className="rounded-[14px] border border-[#E8E9ED] bg-[#FAFAF8] p-7 sm:p-9 flex flex-col justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-md bg-[#EEF1FF] border border-[#304FFE]/20 px-3 py-1 text-[12px] font-semibold text-[#304FFE] mb-5">
-                  <Briefcase className="h-3.5 w-3.5" />
-                  <span>For Business Owners &amp; Vendors</span>
+                <div className="mt-6 grid grid-cols-2 gap-3 pt-6 border-t border-[#2B2D33] font-mono text-[11px] text-[#CFCAC0]">
+                  <div>✓ VERIFIED ENTITY STAMP</div>
+                  <div>✓ UNLIMITED CATALOG ITEMS</div>
+                  <div>✓ DIRECT RFQ INBOX</div>
+                  <div>✓ QUOTATION BUILDER</div>
                 </div>
-                <h3 className="text-[24px] sm:text-[28px] font-bold tracking-tight text-[#15171B]">
-                  Build your digital storefront and capture high-intent leads
-                </h3>
-                <p className="mt-2.5 text-[14px] sm:text-[15px] text-[#696D76] leading-relaxed">
-                  Establish a professional digital presence in minutes, showcase your complete catalog, and respond to genuine buyer enquiries from your dashboard.
-                </p>
-
-                <ul className="mt-6 space-y-3.5">
-                  {[
-                    'Launch a modern storefront with your brand story, service areas, and business hours.',
-                    'Publish products, services, or custom packages with flexible pricing models.',
-                    'Receive direct enquiries and category-matched buyer RFQs in real time.',
-                    'Submit formal quotations and apply for official PROVENTA verification.',
-                  ].map((point) => (
-                    <li key={point} className="flex items-start gap-3 text-[14px] text-[#15171B]">
-                      <BadgeCheck className="h-4 w-4 text-[#304FFE] shrink-0 mt-1" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
-
-              <div className="mt-8 pt-6 border-t border-[#E8E9ED] flex flex-wrap items-center gap-3">
-                <Link href="/business/register" className="btn-accent">
-                  <span>List Your Business</span>
+              <div className="mt-10">
+                <Link href="/business/register" className="btn-accent w-full sm:w-auto">
+                  <span>REGISTER BUSINESS STOREFRONT</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
-                <Link href="/for-businesses" className="btn-secondary">
-                  Learn More for Businesses
-                </Link>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* =====================================================================
-          6. STRONG BUSINESS REGISTRATION CTA SECTION (#101319 Dark Section)
-      ===================================================================== */}
-      <section className="bg-[#101319] text-white py-16 lg:py-24">
-        <div className="container-wide">
-          <div className="mx-auto max-w-4xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#252A36] bg-[#181C24] px-3.5 py-1 text-[12px] font-medium text-[#9CA1AE] mb-6">
-              <FileText className="h-3.5 w-3.5 text-[#304FFE]" />
-              <span>PROVENTA — Every Business. One Place.</span>
-            </div>
-            <h2 className="text-[30px] sm:text-[42px] font-bold tracking-[-0.03em] text-white leading-[1.12]">
-              Ready to grow your business on PROVENTA?
-            </h2>
-            <p className="mt-4 text-[16px] sm:text-[18px] text-[#9CA1AE] max-w-2xl mx-auto leading-relaxed">
-              Create your digital storefront, list your products and services, and start receiving structured customer enquiries across Gujarat and India.
-            </p>
-            <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-              <Link
-                href="/business/register"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-[10px] bg-[#304FFE] hover:bg-[#243FE0] px-6 py-3.5 text-[14px] font-semibold text-white transition-colors"
-              >
-                <span>Register Your Business</span>
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/enquiries/new"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-[10px] border border-[#252A36] bg-[#181C24] hover:bg-[#252A36] px-6 py-3.5 text-[14px] font-semibold text-white transition-colors"
-              >
-                <span>Post a Customer Enquiry</span>
-              </Link>
+            {/* Right Panel: For Buyers & Procurement (Paper-Ivory Surface) */}
+            <div className="lg:col-span-6 bg-[#FAF8F3] text-[#0D0E11] p-8 sm:p-12 flex flex-col justify-between">
+              <div>
+                <span className="inline-block bg-[#0D0E11] text-[#F4F1EA] font-mono text-[10px] font-bold uppercase tracking-[0.14em] px-2 py-0.5 mb-5">
+                  PORTAL B // FOR BUYERS &amp; PROCUREMENT
+                </span>
+                <h2 className="font-display text-3xl sm:text-4xl font-bold tracking-[-0.03em] text-[#0D0E11] uppercase leading-tight">
+                  DISPATCH AN ENQUIRY. RECEIVE DIRECT QUOTES.
+                </h2>
+                <p className="mt-4 text-sm text-[#52514E] leading-relaxed">
+                  Skip cold outreach and fragmented directories. Submit a structured requirement
+                  once—either to a specific business or open to a sector—and evaluate transparent
+                  quotations in your buyer ledger.
+                </p>
+                <div className="mt-6 grid grid-cols-2 gap-3 pt-6 border-t border-[#CFCAC0] font-mono text-[11px] text-[#0D0E11]">
+                  <div>✓ 18 INDUSTRY SECTORS</div>
+                  <div>✓ PRIVACY-PROTECTED CONTACT</div>
+                  <div>✓ SIDE-BY-SIDE QUOTES</div>
+                  <div>✓ ZERO BUYER FEES</div>
+                </div>
+              </div>
+              <div className="mt-10 flex flex-wrap gap-3">
+                <Link href="/enquiries/new" className="btn-primary">
+                  <span>POST A BUYER ENQUIRY</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/businesses" className="btn-secondary">
+                  <span>EXPLORE DIRECTORY</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

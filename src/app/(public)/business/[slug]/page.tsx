@@ -1,444 +1,446 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import {
-  MapPin,
-  CheckCircle2,
-  Globe,
-  Phone,
-  Mail,
-  Building2,
+  ArrowLeft,
   ArrowRight,
   ArrowUpRight,
-  Package,
+  Check,
+  Globe,
+  MapPin,
   ShieldCheck,
-  Clock,
-  Tag,
-  MessageSquareQuote,
 } from 'lucide-react';
 import { getBusinessBySlug } from '@/lib/marketplace/repository';
 import {
-  VERIFICATION_BADGE_META,
   PRICE_DISPLAY_LABELS,
+  VERIFICATION_BADGE_META,
 } from '@/lib/marketplace/types';
 
 export const dynamic = 'force-dynamic';
 
-export default async function BusinessStorefrontPage({
-  params: paramsInput,
-}: {
-  params: Promise<{ slug: string }> | { slug: string };
-}) {
-  const params = await Promise.resolve(paramsInput);
+interface BusinessStorefrontPageProps {
+  params: {
+    slug: string;
+  };
+}
+
+export default function BusinessStorefrontPage({
+  params,
+}: BusinessStorefrontPageProps) {
   const result = getBusinessBySlug(params.slug);
 
   if (!result) {
     notFound();
   }
 
-  const { business } = result;
-  const badgeMeta = VERIFICATION_BADGE_META[business.verificationLevel];
+  const { business, relatedBusinesses } = result;
+  const badge = VERIFICATION_BADGE_META[business.verificationLevel];
+  const activeListings = (business.listings || []).filter(
+    (l) => l.status === 'PUBLISHED',
+  );
+  const categoryName =
+    business.primaryCategory?.name || 'Commercial Sector';
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#15171B] pb-24">
+    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11]">
       {/* =====================================================================
-          STOREFRONT HEADER WITH ARCHITECTURAL COVER BANNER
+          PUBLICATION DOSSIER MASTHEAD
       ===================================================================== */}
-      <section className="border-b border-[#E8E9ED] bg-[#FFFFFF]">
-        {/* Architectural Cover Placeholder / Banner */}
-        <div className="h-32 sm:h-40 bg-[#101319] relative overflow-hidden">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-[linear-gradient(to_right,#252A36_1px,transparent_1px),linear-gradient(to_bottom,#252A36_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-50"
-          />
-          <div className="container-wide h-full flex items-end justify-between pb-4 relative">
-            <div className="flex items-center gap-2 text-[12px] text-[#9CA1AE]">
-              <Link href="/businesses" className="hover:text-white transition-colors">
-                Business Directory
-              </Link>
-              <span>/</span>
+      <section className="border-b-2 border-[#0D0E11] bg-[#FAF8F3]">
+        <div className="container-wide py-8 lg:py-12">
+          {/* Top Breadcrumb & Dossier Coordinates */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-8 border-b border-[#0D0E11] font-mono text-[11px] uppercase tracking-[0.14em]">
+            <div className="flex items-center gap-3">
               <Link
-                href={`/businesses?category=${business.primaryCategory?.slug || ''}`}
-                className="hover:text-white transition-colors"
+                href="/businesses"
+                className="inline-flex items-center gap-1.5 text-[#0D0E11] font-bold hover:underline"
               >
-                {business.primaryCategory?.name || 'Category'}
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>INDEX DIRECTORY</span>
               </Link>
-              <span>/</span>
-              <span className="text-white font-medium truncate max-w-[200px]">
-                {business.name}
+              <span className="text-[#CFCAC0]">/</span>
+              <span className="text-[#52514E]">{categoryName}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="index-code">DOSSIER // {business.slug.toUpperCase()}</span>
+              <span
+                className={badge.isVerified ? 'badge-verified' : 'badge-neutral'}
+              >
+                {badge.isVerified && <ShieldCheck className="h-3.5 w-3.5" />}
+                {badge.label}
               </span>
             </div>
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-md border border-[#252A36] bg-[#181C24] px-2.5 py-1 text-[11px] font-medium text-[#9CA1AE]">
-              Storefront ID: {business.slug}
-            </span>
           </div>
-        </div>
 
-        {/* Storefront Identity Bar */}
-        <div className="container-wide pb-10">
-          <div className="-mt-10 sm:-mt-12 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-5">
-              {/* Monogram / Logo Card */}
-              <div className="flex h-20 w-20 sm:h-24 sm:w-24 shrink-0 items-center justify-center rounded-[14px] border-2 border-[#FFFFFF] bg-[#15171B] text-[26px] sm:text-[30px] font-bold text-white shadow-elevated">
-                {business.name.slice(0, 2).toUpperCase()}
-              </div>
-
-              <div className="pt-2 sm:pt-0">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className="badge-accent">
-                    {business.primaryCategory?.name || 'Business'}
-                  </span>
-                  <span className="badge-neutral">{business.businessType}</span>
-                  {badgeMeta.isVerified ? (
-                    <span className="badge-verified">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      {badgeMeta.label}
-                    </span>
-                  ) : (
-                    <span className="badge-neutral">{badgeMeta.label}</span>
-                  )}
-                </div>
-
-                <h1 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.03em] text-[#15171B]">
-                  {business.name}
-                </h1>
-
-                {business.tagline && (
-                  <p className="mt-1 text-[16px] text-[#696D76] font-medium">
-                    {business.tagline}
-                  </p>
+          {/* Main Publication Title Block */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            <div className="lg:col-span-8">
+              <div className="inline-flex flex-wrap items-center gap-2 mb-3 font-mono text-xs uppercase tracking-[0.12em] text-[#52514E]">
+                <span className="font-bold text-[#0D0E11]">
+                  {categoryName}
+                </span>
+                <span>—</span>
+                <span>{business.businessType} ENTITY</span>
+                {business.yearEstablished && (
+                  <>
+                    <span>—</span>
+                    <span>EST. {business.yearEstablished}</span>
+                  </>
                 )}
-
-                <div className="mt-3 flex flex-wrap items-center gap-4 text-[13px] text-[#696D76]">
-                  <span className="inline-flex items-center gap-1.5">
-                    <MapPin className="h-4 w-4 text-[#15171B]" />
-                    {business.city}, {business.state}, {business.country}
-                  </span>
-                  {business.yearEstablished && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock className="h-4 w-4 text-[#15171B]" />
-                      Est. {business.yearEstablished}
-                    </span>
-                  )}
-                  {business.serviceAreas && business.serviceAreas.length > 0 && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Globe className="h-4 w-4 text-[#15171B]" />
-                      Serves: {business.serviceAreas.join(', ')}
-                    </span>
-                  )}
-                </div>
               </div>
+
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.04em] text-[#0D0E11] uppercase leading-[0.94]">
+                {business.name}
+              </h1>
+
+              {business.tagline && (
+                <p className="mt-4 font-display text-xl sm:text-2xl font-medium text-[#0D0E11] leading-snug">
+                  {business.tagline}
+                </p>
+              )}
+
+              <p className="mt-5 text-sm sm:text-base text-[#52514E] leading-relaxed max-w-3xl whitespace-pre-line">
+                {business.description || business.shortDescription}
+              </p>
+
+              {business.tags.length > 0 && (
+                <div className="mt-6 flex flex-wrap gap-1.5">
+                  {business.tags.map((kw: string) => (
+                    <span
+                      key={kw}
+                      className="font-mono text-[10px] uppercase tracking-[0.1em] px-2.5 py-1 border border-[#0D0E11] bg-[#F4F1EA] text-[#0D0E11]"
+                    >
+                      #{kw}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Primary Storefront CTA Actions */}
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link
-                href={`/enquiries/new?businessId=${business.id}&category=${
-                  business.primaryCategory?.slug || ''
-                }`}
-                className="btn-accent px-5 py-3"
-              >
-                <MessageSquareQuote className="h-4 w-4" />
-                <span>Send Enquiry / Request Quote</span>
-              </Link>
-              {business.website && (
-                <a
-                  href={business.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-secondary px-4 py-3"
+            {/* Right Column: Primary Commercial Dispatch Box */}
+            <div className="lg:col-span-4 border-2 border-[#0D0E11] bg-[#0D0E11] text-[#F4F1EA] p-6 sm:p-8">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#2B2D33] font-mono text-[10px] uppercase tracking-[0.14em]">
+                <span className="text-[#C8F904] font-bold">COMMERCIAL DESK</span>
+                <span className="text-[#CFCAC0]">DIRECT RFQ</span>
+              </div>
+
+              <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-[#F4F1EA]">
+                REQUEST A QUOTATION FROM {business.name}
+              </h2>
+              <p className="mt-2 text-xs text-[#CFCAC0] leading-relaxed">
+                Dispatch your requirement, specifications, and target timeline directly to this
+                business. Receive a formal quotation in your PROVENTA ledger.
+              </p>
+
+              <div className="mt-6 space-y-2.5">
+                <Link
+                  href={`/enquiries/new?businessId=${business.id}`}
+                  className="btn-accent w-full justify-between"
                 >
-                  <Globe className="h-4 w-4" />
-                  <span>Website</span>
-                  <ArrowUpRight className="h-3.5 w-3.5" />
-                </a>
-              )}
+                  <span>DISPATCH ENQUIRY / RFQ</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                {business.website && (
+                  <a
+                    href={business.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-full items-center justify-between border border-[#3A3D45] bg-[#16181E] px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[#F4F1EA] hover:border-[#C8F904] hover:text-[#C8F904]"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Globe className="h-3.5 w-3.5" />
+                      OFFICIAL WEBSITE
+                    </span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                )}
+              </div>
+
+              <dl className="mt-6 pt-5 border-t border-[#2B2D33] space-y-2.5 font-mono text-xs">
+                <div className="flex items-center justify-between">
+                  <dt className="text-[#9E998E]">HEADQUARTERS</dt>
+                  <dd className="text-[#F4F1EA] font-semibold flex items-center gap-1">
+                    <MapPin className="h-3.5 w-3.5 text-[#C8F904]" />
+                    {business.city}
+                    {business.state ? `, ${business.state}` : ''}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-[#9E998E]">SERVICE COVERAGE</dt>
+                  <dd className="text-[#F4F1EA] text-right">
+                    {business.serviceAreas.length > 0
+                      ? business.serviceAreas.join(', ')
+                      : business.city}
+                  </dd>
+                </div>
+                <div className="flex items-center justify-between">
+                  <dt className="text-[#9E998E]">VERIFICATION</dt>
+                  <dd className="text-[#C8F904] font-bold">{badge.shortLabel}</dd>
+                </div>
+              </dl>
             </div>
           </div>
         </div>
       </section>
 
       {/* =====================================================================
-          STOREFRONT MAIN CONTENT GRID
+          CATALOG OF PRODUCTS, SERVICES & PACKAGES
       ===================================================================== */}
-      <div className="container-wide pt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column (8 cols): About & Structured Products/Services */}
-          <div className="lg:col-span-8 space-y-8">
-            {/* About / Overview Section */}
-            <section className="surface-card p-6 sm:p-8">
-              <h2 className="text-[18px] font-bold text-[#15171B] mb-3">
-                About {business.name}
+      <section className="py-14 lg:py-20 border-b-2 border-[#0D0E11]">
+        <div className="container-wide">
+          <div className="flex flex-wrap items-end justify-between gap-4 pb-6 border-b-2 border-[#0D0E11]">
+            <div>
+              <span className="index-code mb-2">SECTION // OFFERINGS LEDGER</span>
+              <h2 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
+                PUBLISHED PRODUCTS &amp; SERVICES ({activeListings.length})
               </h2>
-              <p className="text-[15px] text-[#696D76] leading-relaxed whitespace-pre-line">
-                {business.description || business.shortDescription}
-              </p>
+            </div>
+            <Link
+              href={`/enquiries/new?businessId=${business.id}`}
+              className="btn-secondary"
+            >
+              <span>REQUEST CUSTOM SPECIFICATION</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
 
-              {business.highlights && business.highlights.length > 0 && (
-                <div className="mt-6 pt-5 border-t border-[#E8E9ED]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#696D76] mb-2.5">
-                    Key Highlights
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {business.highlights.map((h) => (
-                      <div
-                        key={h}
-                        className="flex items-center gap-2 text-[13px] font-medium text-[#15171B]"
-                      >
-                        <CheckCircle2 className="h-4 w-4 text-[#16845B] shrink-0" />
-                        <span>{h}</span>
+          {activeListings.length > 0 ? (
+            <div className="mt-8 divide-y divide-[#0D0E11] border border-[#0D0E11] bg-[#FAF8F3]">
+              {activeListings.map((item, idx) => {
+                const specRecord: Record<string, string> =
+                  item.specifications || {};
+                const formattedPrice = item.priceAmount
+                  ? `₹${item.priceAmount.toLocaleString('en-IN')}${
+                      item.priceUnit ? ` / ${item.priceUnit}` : ''
+                    }`
+                  : PRICE_DISPLAY_LABELS[item.priceDisplayType];
+
+                return (
+                  <article
+                    key={item.id}
+                    className="p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start hover:bg-[#EAE5DA]/50 transition-colors"
+                  >
+                    <div className="lg:col-span-8">
+                      <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-[#52514E] mb-2">
+                        <span className="bg-[#0D0E11] text-[#F4F1EA] px-2 py-0.5 font-bold">
+                          OFFERING #{String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span className="border border-[#0D0E11] px-2 py-0.5 text-[#0D0E11] font-semibold">
+                          {item.listingType}
+                        </span>
+                        <span>REF: {item.slug}</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
 
-              {business.tags && business.tags.length > 0 && (
-                <div className="mt-6 pt-5 border-t border-[#E8E9ED]">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#696D76] mb-2.5 flex items-center gap-1.5">
-                    <Tag className="h-3.5 w-3.5" />
-                    Specialties &amp; Capabilities
-                  </p>
+                      <h3 className="font-display text-2xl font-bold text-[#0D0E11]">
+                        {item.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-[#52514E] leading-relaxed">
+                        {item.description || item.shortSummary}
+                      </p>
+
+                      {item.tags.length > 0 && (
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 pt-4 border-t border-[#CFCAC0]">
+                          {item.tags.map((hl: string) => (
+                            <div
+                              key={hl}
+                              className="flex items-center gap-2 text-xs text-[#0D0E11]"
+                            >
+                              <span className="flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] border border-[#0D0E11]">
+                                <Check className="h-2.5 w-2.5 text-[#0D0E11]" />
+                              </span>
+                              <span>{hl}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {Object.keys(specRecord).length > 0 && (
+                        <dl className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-2 border-t border-[#CFCAC0] pt-3 font-mono text-[11px]">
+                          {Object.entries(specRecord).map(([k, v]) => (
+                            <div key={k}>
+                              <dt className="text-[#52514E] uppercase">{k}</dt>
+                              <dd className="font-bold text-[#0D0E11]">{v}</dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
+                    </div>
+
+                    <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-[#CFCAC0] pt-4 lg:pt-0 lg:pl-6 flex flex-col justify-between h-full">
+                      <div>
+                        <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#52514E]">
+                          PRICING CLASSIFICATION
+                        </div>
+                        <div className="mt-1 font-display text-2xl font-bold text-[#0D0E11]">
+                          {formattedPrice}
+                        </div>
+                        <div className="mt-1 font-mono text-[11px] text-[#52514E]">
+                          {PRICE_DISPLAY_LABELS[item.priceDisplayType]}
+                        </div>
+
+                        <dl className="mt-4 space-y-1.5 border-t border-[#CFCAC0] pt-3 font-mono text-xs">
+                          <div className="flex justify-between">
+                            <dt className="text-[#52514E]">AVAILABILITY</dt>
+                            <dd className="font-semibold text-[#0D0E11]">
+                              {item.availabilityStatus}
+                            </dd>
+                          </div>
+                          {item.deliveryTimeframe && (
+                            <div className="flex justify-between">
+                              <dt className="text-[#52514E]">TURNAROUND</dt>
+                              <dd className="font-semibold text-[#0D0E11]">
+                                {item.deliveryTimeframe}
+                              </dd>
+                            </div>
+                          )}
+                        </dl>
+                      </div>
+
+                      <div className="mt-6">
+                        <Link
+                          href={`/enquiries/new?businessId=${business.id}&listingId=${item.id}`}
+                          className="btn-accent w-full justify-between"
+                        >
+                          <span>ENQUIRE THIS OFFERING</span>
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-8 border border-[#0D0E11] bg-[#FAF8F3] p-8">
+              <p className="font-mono text-xs uppercase tracking-[0.12em] text-[#52514E]">
+                CATALOG NOTICE // DIRECT QUOTATION MODE
+              </p>
+              <h3 className="mt-2 font-display text-xl font-bold text-[#0D0E11]">
+                This business handles custom requirements via direct buyer enquiry.
+              </h3>
+              <p className="mt-1 text-sm text-[#52514E]">
+                Submit your project scope or product specification to receive a tailored quotation
+                directly from {business.name}.
+              </p>
+              <div className="mt-5">
+                <Link
+                  href={`/enquiries/new?businessId=${business.id}`}
+                  className="btn-primary"
+                >
+                  <span>DISPATCH DIRECT ENQUIRY</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* =====================================================================
+          ENTITY SPECIFICATIONS & RELATED SECTOR DOSSIERS
+      ===================================================================== */}
+      <section className="py-14 lg:py-20">
+        <div className="container-wide">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Entity Technical Metadata Table */}
+            <div className="lg:col-span-6 border border-[#0D0E11] bg-[#FAF8F3] p-6 sm:p-8">
+              <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11] pb-3 mb-4 border-b border-[#0D0E11]">
+                ENTITY REGISTRY SPECIFICATIONS
+              </div>
+              <dl className="divide-y divide-[#CFCAC0] font-mono text-xs">
+                <div className="py-3 flex justify-between">
+                  <dt className="text-[#52514E]">PRIMARY SECTOR</dt>
+                  <dd className="font-bold text-[#0D0E11]">{categoryName}</dd>
+                </div>
+                <div className="py-3 flex justify-between">
+                  <dt className="text-[#52514E]">OPERATING MODEL</dt>
+                  <dd className="font-bold text-[#0D0E11]">{business.businessType}</dd>
+                </div>
+                <div className="py-3 flex justify-between">
+                  <dt className="text-[#52514E]">BASE JURISDICTION</dt>
+                  <dd className="font-bold text-[#0D0E11]">
+                    {business.city}, {business.state || 'India'}
+                  </dd>
+                </div>
+                <div className="py-3 flex justify-between">
+                  <dt className="text-[#52514E]">TRUST CLASSIFICATION</dt>
+                  <dd className="font-bold text-[#0D0E11]">{badge.label}</dd>
+                </div>
+              </dl>
+
+              {business.highlights.length > 0 && (
+                <div className="mt-6 pt-5 border-t border-[#0D0E11]">
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#52514E] mb-3">
+                    OPERATIONAL HIGHLIGHTS
+                  </div>
                   <div className="flex flex-wrap gap-2">
-                    {business.tags.map((tag) => (
+                    {business.highlights.map((hl) => (
                       <span
-                        key={tag}
-                        className="rounded-[7px] border border-[#E8E9ED] bg-[#FAFAF8] px-3 py-1 text-[12px] font-medium text-[#15171B]"
+                        key={hl}
+                        className="font-mono text-xs px-2.5 py-1 bg-[#EAE5DA] border border-[#0D0E11] text-[#0D0E11]"
                       >
-                        {tag}
+                        {hl}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
-            </section>
+            </div>
 
-            {/* Structured Products & Services Catalog */}
-            <section>
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-[20px] font-bold text-[#15171B]">
-                    Products, Services &amp; Offerings
-                  </h2>
-                  <p className="text-[13px] text-[#696D76]">
-                    {business.listings?.length || 0} published{' '}
-                    {business.listings?.length === 1 ? 'offering' : 'offerings'} available for enquiry
-                  </p>
+            {/* Related Businesses in Same Sector */}
+            <div className="lg:col-span-6 border border-[#0D0E11] bg-[#FAF8F3] p-6 sm:p-8 flex flex-col justify-between">
+              <div>
+                <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11] pb-3 mb-4 border-b border-[#0D0E11]">
+                  RELATED ENTITIES IN {categoryName.toUpperCase()}
                 </div>
-                <Link
-                  href={`/enquiries/new?businessId=${business.id}&category=${
-                    business.primaryCategory?.slug || ''
-                  }`}
-                  className="text-[13px] font-semibold text-[#304FFE] hover:underline inline-flex items-center gap-1"
-                >
-                  Request Custom Specification <ArrowRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-
-              {business.listings && business.listings.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {business.listings.map((item) => {
-                    const priceText = item.priceAmount
-                      ? `₹${item.priceAmount.toLocaleString('en-IN')}${
-                          item.priceMaxAmount
-                            ? ` – ₹${item.priceMaxAmount.toLocaleString('en-IN')}`
-                            : ''
-                        }${item.priceUnit ? ` / ${item.priceUnit}` : ''}`
-                      : PRICE_DISPLAY_LABELS[item.priceDisplayType];
-
-                    return (
-                      <div
-                        key={item.id}
-                        className="surface-card-interactive p-6 flex flex-col justify-between"
+                {relatedBusinesses.length > 0 ? (
+                  <div className="divide-y divide-[#CFCAC0]">
+                    {relatedBusinesses.map((rel) => (
+                      <Link
+                        key={rel.id}
+                        href={`/business/${rel.slug}`}
+                        className="py-3.5 flex items-center justify-between hover:bg-[#EAE5DA] px-2 transition-colors"
                       >
                         <div>
-                          <div className="flex items-center justify-between gap-2 mb-3">
-                            <span className="badge-neutral">
-                              {item.listingType}
-                            </span>
-                            {item.deliveryTimeframe && (
-                              <span className="text-[12px] text-[#696D76] inline-flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {item.deliveryTimeframe}
-                              </span>
-                            )}
+                          <div className="font-display text-base font-bold text-[#0D0E11]">
+                            {rel.name}
                           </div>
-
-                          <h3 className="text-[17px] font-bold text-[#15171B]">
-                            {item.title}
-                          </h3>
-                          <p className="mt-2 text-[13px] text-[#696D76] leading-relaxed">
-                            {item.description}
-                          </p>
-                        </div>
-
-                        <div className="mt-5 pt-4 border-t border-[#E8E9ED] flex items-center justify-between gap-3">
-                          <div>
-                            <p className="text-[11px] uppercase tracking-[0.06em] text-[#696D76]">
-                              Pricing
-                            </p>
-                            <p className="text-[15px] font-bold text-[#15171B]">
-                              {priceText}
-                            </p>
+                          <div className="font-mono text-[11px] text-[#52514E]">
+                            {rel.city} · {rel.businessType}
                           </div>
-                          <Link
-                            href={`/enquiries/new?businessId=${business.id}&listingId=${item.id}&category=${
-                              business.primaryCategory?.slug || ''
-                            }`}
-                            className="inline-flex items-center gap-1 rounded-[8px] bg-[#15171B] hover:bg-[#304FFE] px-3.5 py-2 text-[12px] font-semibold text-white transition-colors"
-                          >
-                            <span>{item.ctaLabel || 'Enquire'}</span>
-                            <ArrowRight className="h-3 w-3" />
-                          </Link>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="surface-card p-8 text-center">
-                  <Package className="h-8 w-8 text-[#696D76] mx-auto mb-3" />
-                  <h3 className="text-[16px] font-bold text-[#15171B]">
-                    Custom Products &amp; Services on Request
-                  </h3>
-                  <p className="mt-1 text-[13px] text-[#696D76] max-w-md mx-auto">
-                    {business.name} has not published individual catalog items yet. Send a direct enquiry to request their catalog or receive a custom quotation.
+                        <span className="font-mono text-xs font-bold text-[#0D0E11]">
+                          DOSSIER →
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#52514E] leading-relaxed">
+                    Explore the full {categoryName} sector index or submit an open
+                    sector enquiry to receive quotations from multiple verified businesses.
                   </p>
-                  <Link
-                    href={`/enquiries/new?businessId=${business.id}&category=${
-                      business.primaryCategory?.slug || ''
-                    }`}
-                    className="mt-4 btn-primary"
-                  >
-                    <span>Send Direct Enquiry</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              )}
-            </section>
+                )}
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-[#CFCAC0] flex flex-wrap gap-3">
+                <Link
+                  href={`/businesses?category=${business.primaryCategoryId}`}
+                  className="btn-secondary"
+                >
+                  <span>SECTOR DIRECTORY</span>
+                </Link>
+                <Link
+                  href={`/enquiries/new?categoryId=${business.primaryCategoryId}`}
+                  className="btn-primary"
+                >
+                  <span>OPEN SECTOR ENQUIRY</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
           </div>
-
-          {/* Right Column (4 cols): Contact, Location & Trust Verification */}
-          <aside className="lg:col-span-4 space-y-5">
-            {/* Direct Enquiry CTA Card */}
-            <div className="rounded-[12px] bg-[#101319] p-6 text-white">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
-                Direct Connection
-              </p>
-              <h3 className="mt-1.5 text-[18px] font-bold text-white">
-                Contact {business.name}
-              </h3>
-              <p className="mt-1.5 text-[13px] text-[#9CA1AE] leading-relaxed">
-                Submit your requirement to receive a structured quotation with pricing, delivery timeline, and terms.
-              </p>
-              <Link
-                href={`/enquiries/new?businessId=${business.id}&category=${
-                  business.primaryCategory?.slug || ''
-                }`}
-                className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-[9px] bg-[#304FFE] hover:bg-[#243FE0] px-4 py-3 text-[14px] font-semibold text-white transition-colors"
-              >
-                <span>Request Quotation</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-
-            {/* Contact & Location Details */}
-            <div className="surface-card p-6 space-y-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-[0.08em] text-[#15171B]">
-                Business Details &amp; Contact
-              </h3>
-
-              <div className="space-y-3.5 text-[13px]">
-                <div className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 text-[#696D76] shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-[#15171B]">Location</p>
-                    <p className="text-[#696D76]">
-                      {business.addressLine1 ? `${business.addressLine1}, ` : ''}
-                      {business.area ? `${business.area}, ` : ''}
-                      {business.city}, {business.state}{' '}
-                      {business.postalCode || ''}
-                    </p>
-                  </div>
-                </div>
-
-                {business.contactPhone && (
-                  <div className="flex items-start gap-3">
-                    <Phone className="h-4 w-4 text-[#696D76] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-[#15171B]">Phone</p>
-                      <a
-                        href={`tel:${business.contactPhone}`}
-                        className="text-[#304FFE] hover:underline"
-                      >
-                        {business.contactPhone}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {business.contactEmail && (
-                  <div className="flex items-start gap-3">
-                    <Mail className="h-4 w-4 text-[#696D76] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-[#15171B]">Business Email</p>
-                      <a
-                        href={`mailto:${business.contactEmail}`}
-                        className="text-[#304FFE] hover:underline break-all"
-                      >
-                        {business.contactEmail}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {business.website && (
-                  <div className="flex items-start gap-3">
-                    <Globe className="h-4 w-4 text-[#696D76] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-[#15171B]">Website</p>
-                      <a
-                        href={business.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-[#304FFE] hover:underline break-all"
-                      >
-                        {business.website}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {business.gstNumber && (
-                  <div className="flex items-start gap-3">
-                    <Building2 className="h-4 w-4 text-[#696D76] shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold text-[#15171B]">GSTIN</p>
-                      <p className="font-mono text-[12px] text-[#696D76]">
-                        {business.gstNumber}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Trust & Transparency Card */}
-            <div className="surface-card p-6 bg-[#FAFAF8]">
-              <div className="flex items-center gap-2 text-[13px] font-semibold text-[#15171B] mb-2">
-                <ShieldCheck
-                  className={`h-4 w-4 ${
-                    badgeMeta.isVerified ? 'text-[#16845B]' : 'text-[#696D76]'
-                  }`}
-                />
-                <span>PROVENTA Trust &amp; Transparency</span>
-              </div>
-              <p className="text-[12px] text-[#696D76] leading-relaxed">
-                {badgeMeta.description}
-              </p>
-            </div>
-          </aside>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

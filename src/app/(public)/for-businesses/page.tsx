@@ -1,214 +1,105 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
-import {
-  Building2,
-  CheckCircle2,
-  ArrowRight,
-  Layers,
-  Target,
-  BarChart3,
-  ShieldCheck,
-} from 'lucide-react';
-import { BRAND_CONFIG, BUSINESS_SUBSCRIPTION_PLANS } from '@/lib/brand';
-
-export const metadata: Metadata = {
-  title: 'For Businesses — Digital Storefronts & Enquiry Marketplace',
-  description:
-    'Create your digital storefront on PROVENTA, showcase your products and services, and receive matched customer enquiries across Gujarat and India.',
-};
+import { ArrowRight, ArrowUpRight, Check } from 'lucide-react';
+import { getCategories } from '@/lib/marketplace/repository';
 
 export default function ForBusinessesPage() {
-  const plans = Object.values(BUSINESS_SUBSCRIPTION_PLANS);
+  const categories = getCategories({ onlyTopLevel: true });
 
   return (
-    <div className="pt-20 md:pt-24 pb-20 bg-background">
-      {/* Hero */}
-      <section className="border-b border-border bg-card py-16 md:py-24">
-        <div className="container-wide text-center max-w-4xl mx-auto">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider px-3 py-1 rounded-full bg-secondary border border-border text-foreground mb-5">
-            <Building2 className="w-3.5 h-3.5 text-primary" />
-            Built for Manufacturers, Agencies, Retailers, Consultants &amp; Suppliers
-          </span>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold text-foreground tracking-tight">
-            Make your business discoverable.
-          </h1>
-          <p className="mt-5 text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Create your digital storefront, list your products and services, and
-            receive relevant customer enquiries on {BRAND_CONFIG.name}. Start with a
-            free storefront and scale as you grow.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/business/register"
-              className="inline-flex items-center gap-2 bg-foreground text-background font-semibold px-6 py-3.5 rounded-lg hover:bg-foreground/90 transition-colors"
-            >
-              Create Your Business Profile
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/business/dashboard"
-              className="inline-flex items-center gap-2 border border-border bg-background text-foreground font-medium px-6 py-3.5 rounded-lg hover:bg-secondary transition-colors"
-            >
-              Open Business Dashboard
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Core Capabilities */}
-      <section className="py-16 md:py-24 border-b border-border">
+    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11]">
+      <section className="border-b-2 border-[#0D0E11] bg-[#0D0E11] text-[#F4F1EA] py-16 lg:py-24">
         <div className="container-wide">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-card border border-border rounded-xl p-6">
-              <Building2 className="w-7 h-7 text-primary mb-4" />
-              <h2 className="font-display text-lg font-bold text-foreground">
-                Shareable Digital Storefront
-              </h2>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Get a clean, SEO-indexed `/business/[slug]` page showcasing your
-                brand, service areas, operating hours, and honest verification
-                status.
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
+            <div className="lg:col-span-8">
+              <div className="inline-flex items-center gap-2 mb-5">
+                <span className="index-code-lime">COMMERCIAL ONBOARDING // 04</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#CFCAC0]">
+                  FOR MANUFACTURERS, SUPPLIERS &amp; SERVICE ENTERPRISES
+                </span>
+              </div>
+              <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold uppercase tracking-[-0.04em] leading-[0.92]">
+                YOUR PERMANENT DOSSIER IN{' '}
+                <span className="text-[#C8F904]">THE BUSINESS INDEX.</span>
+              </h1>
+              <p className="mt-6 text-base sm:text-lg text-[#CFCAC0] max-w-2xl leading-relaxed">
+                Replace fragmented social links and static PDF brochures with an indexed,
+                structured storefront on PROVENTA. Publish your product and service catalog across{' '}
+                {categories.length} standardized industry sectors and receive direct buyer RFQs.
               </p>
             </div>
-
-            <div className="bg-card border border-border rounded-xl p-6">
-              <Layers className="w-7 h-7 text-primary mb-4" />
-              <h2 className="font-display text-lg font-bold text-foreground">
-                Product &amp; Service Catalog
-              </h2>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Publish offerings with fixed pricing, indicative ranges, price on
-                request, or custom quote requirements.
-              </p>
-            </div>
-
-            <div className="bg-card border border-border rounded-xl p-6">
-              <Target className="w-7 h-7 text-primary mb-4" />
-              <h2 className="font-display text-lg font-bold text-foreground">
-                Intelligent Enquiry Matching
-              </h2>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Receive deduplicated notifications when customers post requirements
-                matching your category, specialties, and cities served.
-              </p>
-            </div>
-
-            <div className="bg-card border border-border rounded-xl p-6">
-              <BarChart3 className="w-7 h-7 text-primary mb-4" />
-              <h2 className="font-display text-lg font-bold text-foreground">
-                Structured Quotations &amp; Analytics
-              </h2>
-              <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                Send professional proposals with timelines, validity, and terms, and
-                track views, shortlists, and accepted quotes.
-              </p>
+            <div className="lg:col-span-4 flex flex-col gap-3">
+              <Link href="/business/register" className="btn-accent w-full justify-between">
+                <span>PUBLISH BUSINESS STOREFRONT</span>
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/business/dashboard"
+                className="inline-flex items-center justify-between border border-[#3A3D45] bg-[#16181E] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#F4F1EA] hover:border-[#C8F904] hover:text-[#C8F904]"
+              >
+                <span>OPEN VENDOR CONSOLE</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Freemium Plans */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 lg:py-24 border-b-2 border-[#0D0E11]">
         <div className="container-wide">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Transparent Freemium Pricing
-            </span>
-            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-1">
-              Plans Built for Every Stage of Business Growth
-            </h2>
-            <p className="text-sm text-muted-foreground mt-2">
-              Every business can register and publish a digital storefront for free.
-              Upgrade to Pro or Premium for higher listing limits, more monthly
-              quotation responses, and multi-user team collaboration.
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-3 border border-[#0D0E11] bg-[#FAF8F3] divide-y lg:divide-y-0 lg:divide-x divide-[#0D0E11]">
+            <div className="p-8 lg:p-10">
+              <span className="index-code-lime mb-4">SPEC // 01</span>
+              <h2 className="font-display text-2xl font-bold uppercase text-[#0D0E11]">
+                ARCHITECTURAL STOREFRONT DOSSIER
+              </h2>
+              <p className="mt-3 text-sm text-[#52514E] leading-relaxed">
+                Every business receives a clean, typography-led publication page with verified
+                trust badges, operating jurisdictions, and search-indexed capability tags.
+              </p>
+            </div>
+            <div className="p-8 lg:p-10">
+              <span className="index-code mb-4">SPEC // 02</span>
+              <h2 className="font-display text-2xl font-bold uppercase text-[#0D0E11]">
+                STRUCTURED OFFERINGS LEDGER
+              </h2>
+              <p className="mt-3 text-sm text-[#52514E] leading-relaxed">
+                List physical products, professional services, or turnkey packages with clear
+                pricing classifications (Fixed Price, Starting From, Price Range, or Custom Quote).
+              </p>
+            </div>
+            <div className="p-8 lg:p-10">
+              <span className="index-code-lime mb-4">SPEC // 03</span>
+              <h2 className="font-display text-2xl font-bold uppercase text-[#0D0E11]">
+                DIRECT QUOTATION DESK
+              </h2>
+              <p className="mt-3 text-sm text-[#52514E] leading-relaxed">
+                Respond to targeted and sector-wide buyer enquiries with formal quotations,
+                delivery timelines, and commercial terms—with 0% platform commission.
+              </p>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {plans.map((plan) => {
-              const isHighlighted = plan.tier === 'PRO';
-              return (
-                <div
-                  key={plan.tier}
-                  className={`rounded-2xl p-7 flex flex-col justify-between border ${
-                    isHighlighted
-                      ? 'bg-foreground text-background border-foreground shadow-lg'
-                      : 'bg-card text-foreground border-border'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs font-bold uppercase tracking-wider">
-                        {plan.name}
-                      </span>
-                      {isHighlighted && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-background/15 text-background font-semibold">
-                          Most Popular
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-baseline gap-1 mt-2">
-                      <span className="font-display text-4xl font-bold">
-                        ₹{plan.monthlyPriceInr.toLocaleString('en-IN')}
-                      </span>
-                      <span
-                        className={`text-xs ${
-                          isHighlighted ? 'text-background/70' : 'text-muted-foreground'
-                        }`}
-                      >
-                        / month
-                      </span>
-                    </div>
-
-                    <p
-                      className={`text-xs mt-3 leading-relaxed ${
-                        isHighlighted ? 'text-background/80' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {plan.description}
-                    </p>
-
-                    <ul className="mt-6 space-y-2.5 text-xs">
-                      {plan.features.map((feat) => (
-                        <li key={feat} className="flex items-start gap-2">
-                          <CheckCircle2
-                            className={`w-4 h-4 shrink-0 mt-0.5 ${
-                              isHighlighted ? 'text-emerald-400' : 'text-emerald-600'
-                            }`}
-                          />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="mt-8">
-                    <Link
-                      href={`/business/register?plan=${plan.tier}`}
-                      className={`w-full inline-flex items-center justify-center gap-1.5 text-sm font-semibold px-4 py-3 rounded-lg transition-colors ${
-                        isHighlighted
-                          ? 'bg-background text-foreground hover:bg-background/90'
-                          : 'bg-foreground text-background hover:bg-foreground/90'
-                      }`}
-                    >
-                      {plan.monthlyPriceInr === 0
-                        ? 'Start Free Storefront'
-                        : `Choose ${plan.name}`}
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-10 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>
-              Verification badges are awarded based on contact and document review —
-              never sold as a paid claim without review.
-            </span>
+          <div className="mt-12 border-2 border-[#0D0E11] bg-[#EAE5DA] p-8 sm:p-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            <div>
+              <h3 className="font-display text-2xl sm:text-3xl font-bold uppercase text-[#0D0E11]">
+                READY TO INDEX YOUR ENTERPRISE?
+              </h3>
+              <div className="mt-2 flex flex-wrap gap-4 font-mono text-xs text-[#0D0E11]">
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5" /> INSTANT PUBLICATION
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5" /> 18 INDUSTRY SECTORS
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Check className="h-3.5 w-3.5" /> DIRECT B2B &amp; B2C LEADS
+                </span>
+              </div>
+            </div>
+            <Link href="/business/register" className="btn-primary shrink-0">
+              <span>REGISTER BUSINESS NOW</span>
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
           </div>
         </div>
       </section>
