@@ -1,86 +1,61 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { auth, signOut } from '@/lib/auth/config';
+import { redirect } from 'next/navigation';
 import {
-  Home,
   Building2,
-  Package,
-  PlusCircle,
-  Bell,
+  FileText,
+  Store,
   User,
   LogOut,
-  Briefcase,
+  Plus,
 } from 'lucide-react';
-import { BRAND_CONFIG } from '@/lib/brand';
-import { getTimeAwareGreeting } from '@/lib/auth/greeting';
 
-export default function CustomerLayout({
+export default async function CustomerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const [userProfile, setUserProfile] = useState<{
-    name?: string | null;
-    email?: string;
-  } | null>(null);
-
-  useEffect(() => {
-    fetch('/api/customer/profile')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (data?.profile) setUserProfile(data.profile);
-      })
-      .catch(() => {});
-  }, []);
-
-  const greeting = getTimeAwareGreeting(userProfile?.name);
+  const session = await auth();
+  if (!session?.user) redirect('/sign-in');
 
   const navItems = [
-    { href: '/dashboard', label: 'My Dashboard', icon: Home },
+    { href: '/dashboard', label: 'My Enquiries', icon: FileText },
     { href: '/businesses', label: 'Explore Businesses', icon: Building2 },
-    { href: '/listings', label: 'Products & Services', icon: Package },
-    { href: '/business/dashboard', label: 'Business Mode', icon: Briefcase },
-    { href: '/notifications', label: 'Notifications', icon: Bell },
+    { href: '/business/dashboard', label: 'Business Portal', icon: Store },
     { href: '/profile', label: 'Account', icon: User },
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col font-sans text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-md border-b border-border">
-        <div className="container-wide h-16 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-foreground text-background flex items-center justify-center font-display font-bold text-sm">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#15171B] flex flex-col">
+      {/* Top Navigation */}
+      <header className="sticky top-0 z-40 h-16 border-b border-[#E8E9ED] bg-[#FFFFFF]/95 backdrop-blur-md">
+        <div className="container-wide h-full flex items-center justify-between gap-4">
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2.5">
+              <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#15171B] text-[13px] font-bold text-white">
                 P
-              </div>
-              <span className="font-display text-lg font-bold tracking-tight text-foreground">
-                {BRAND_CONFIG.name}
               </span>
+              <div className="flex items-baseline gap-2">
+                <span className="text-[16px] font-bold tracking-[-0.03em] text-[#15171B]">
+                  PROVENTA
+                </span>
+                <span className="hidden lg:inline-block text-[11px] font-medium text-[#696D76] border-l border-[#E8E9ED] pl-2">
+                  Customer Workspace
+                </span>
+              </div>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-1" aria-label="Customer Workspace Navigation">
               {navItems.map((item) => {
                 const Icon = item.icon;
-                const active =
-                  pathname === item.href ||
-                  (item.href !== '/dashboard' && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                      active
-                        ? 'bg-foreground text-background'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                    }`}
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-medium text-[#696D76] hover:text-[#15171B] hover:bg-[#F2F3F6] transition-colors"
                   >
-                    <Icon className="h-3.5 w-3.5" />
-                    {item.label}
+                    <Icon className="h-4 w-4" />
+                    <span>{item.label}</span>
                   </Link>
                 );
               })}
@@ -88,57 +63,39 @@ export default function CustomerLayout({
           </div>
 
           <div className="flex items-center gap-3">
-            {userProfile?.name && (
-              <span className="hidden lg:inline-flex text-xs font-medium text-muted-foreground border border-border bg-background px-3 py-1 rounded-full">
-                {greeting}
-              </span>
-            )}
-
             <Link
               href="/enquiries/new"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-foreground text-background text-xs font-semibold rounded-lg hover:bg-foreground/90 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-[9px] bg-[#304FFE] hover:bg-[#243FE0] px-3.5 py-2 text-[13px] font-semibold text-white transition-colors"
             >
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span>Post an Enquiry</span>
+              <Plus className="h-4 w-4" />
+              <span>Post Enquiry</span>
             </Link>
-
-            <button
-              onClick={() => signOut({ callbackUrl: '/' })}
-              className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-secondary transition-colors"
-              title="Sign out"
+            <span className="text-[13px] font-medium text-[#696D76] hidden sm:block">
+              {session.user.name ?? session.user.email}
+            </span>
+            <form
+              action={async () => {
+                'use server';
+                await signOut({ redirectTo: '/' });
+              }}
             >
-              <LogOut className="h-4 w-4" />
-            </button>
+              <button
+                type="submit"
+                aria-label="Sign out"
+                title="Sign out"
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-[8px] border border-[#E8E9ED] bg-[#FFFFFF] text-[12px] font-medium text-[#696D76] hover:text-[#15171B] hover:bg-[#F2F3F6] transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Sign Out</span>
+              </button>
+            </form>
           </div>
         </div>
       </header>
 
-      <main className="flex-1 container-wide w-full py-6 sm:py-10 pb-28 sm:pb-12">
+      <main className="flex-1 container-wide py-8 md:py-10 w-full">
         {children}
       </main>
-
-      <footer className="border-t border-border bg-card py-6 text-xs text-muted-foreground hidden md:block">
-        <div className="container-wide flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p>
-            &copy; {new Date().getFullYear()} {BRAND_CONFIG.name} &middot;{' '}
-            {BRAND_CONFIG.tagline}
-          </p>
-          <div className="flex items-center gap-4 text-[11px]">
-            <Link href="/guidelines" className="hover:text-foreground">
-              Marketplace Guidelines
-            </Link>
-            <Link href="/privacy" className="hover:text-foreground">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="hover:text-foreground">
-              Terms of Service
-            </Link>
-            <Link href="/contact" className="hover:text-foreground">
-              Help &amp; Support
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

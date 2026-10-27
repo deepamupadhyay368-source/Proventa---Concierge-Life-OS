@@ -10,6 +10,7 @@ import {
   AlertCircle,
   Loader2,
   Lock,
+  ArrowRight,
 } from 'lucide-react';
 import { BRAND_CONFIG, INITIAL_MARKETPLACE_CATEGORIES } from '@/lib/brand';
 
@@ -17,8 +18,8 @@ function NewEnquiryFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'manufacturing-industrial';
-  const targetBusinessId = searchParams.get('businessId') || '';
-  const targetListingId = searchParams.get('listingId') || '';
+  const targetBusinessId = searchParams.get('businessId') || searchParams.get('business') || '';
+  const targetListingId = searchParams.get('listingId') || searchParams.get('listing') || '';
 
   const [categorySlug, setCategorySlug] = useState(initialCategory);
   const [title, setTitle] = useState('');
@@ -31,8 +32,8 @@ function NewEnquiryFormContent() {
   const [budgetMin, setBudgetMin] = useState('');
   const [budgetMax, setBudgetMax] = useState('');
   const [timeline, setTimeline] = useState('Within 2 weeks');
-  const [urgency, setUrgency] = useState<'STANDARD' | 'URGENT' | 'FLEXIBLE'>('STANDARD');
-  const [preferredContactMethod, setPreferredContactMethod] = useState<'PLATFORM' | 'EMAIL' | 'PHONE' | 'WHATSAPP'>('PLATFORM');
+  const [urgency] = useState<'STANDARD' | 'URGENT' | 'FLEXIBLE'>('STANDARD');
+  const [preferredContactMethod] = useState<'PLATFORM' | 'EMAIL' | 'PHONE' | 'WHATSAPP'>('PLATFORM');
   const [shareContactWithShortlistedOnly, setShareContactWithShortlistedOnly] = useState(true);
   const [categoryAttributes, setCategoryAttributes] = useState<Record<string, string>>({});
 
@@ -113,36 +114,31 @@ function NewEnquiryFormContent() {
 
   if (createdResult) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-8 md:p-10 text-center max-w-2xl mx-auto shadow-sm">
-        <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto mb-4">
+      <div className="surface-card p-8 md:p-10 text-center max-w-2xl mx-auto">
+        <div className="w-12 h-12 rounded-full bg-[#ECFDF5] text-[#16845B] flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-6 h-6" />
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
+        <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#16845B]">
           Enquiry Published &middot; {createdResult.referenceCode}
         </span>
-        <h2 className="font-display text-2xl sm:text-3xl font-bold text-foreground mt-1">
+        <h2 className="text-[24px] sm:text-[28px] font-bold text-[#15171B] mt-1">
           Your Requirement Has Been Posted
         </h2>
-        <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto leading-relaxed">
+        <p className="text-[14px] text-[#696D76] mt-2 max-w-lg mx-auto leading-relaxed">
           Our matching engine evaluated published businesses in your category and
           location and notified{' '}
-          <strong className="text-foreground">
+          <strong className="text-[#15171B]">
             {createdResult.matchedBusinessesCount} eligible business(es)
           </strong>
           . You can track responses, compare quotations, and shortlist offers from
           your Customer Dashboard.
         </p>
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/dashboard"
-            className="bg-foreground text-background text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-foreground/90 transition-colors"
-          >
-            Go to My Enquiries Dashboard
+          <Link href="/dashboard" className="btn-accent">
+            <span>Go to My Enquiries Dashboard</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link
-            href="/businesses"
-            className="border border-border bg-background text-foreground text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-secondary transition-colors"
-          >
+          <Link href="/businesses" className="btn-secondary">
             Continue Exploring Businesses
           </Link>
         </div>
@@ -153,10 +149,10 @@ function NewEnquiryFormContent() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-6"
+      className="surface-card p-6 sm:p-8 space-y-6"
     >
       {error && (
-        <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-start gap-2.5">
+        <div className="p-4 rounded-[10px] bg-[#FEF2F2] border border-[#C53B43]/30 text-[#C53B43] text-[13px] flex items-start gap-2.5">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <span>{error}</span>
         </div>
@@ -165,13 +161,13 @@ function NewEnquiryFormContent() {
       {/* 1. Category & Requirement Type */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             Primary Category *
           </label>
           <select
             value={categorySlug}
             onChange={(e) => setCategorySlug(e.target.value)}
-            className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
             required
           >
             {INITIAL_MARKETPLACE_CATEGORIES.map((cat) => (
@@ -183,7 +179,7 @@ function NewEnquiryFormContent() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             What do you need? *
           </label>
           <select
@@ -191,7 +187,7 @@ function NewEnquiryFormContent() {
             onChange={(e) =>
               setRequirementType(e.target.value as 'PRODUCT' | 'SERVICE' | 'HYBRID')
             }
-            className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           >
             <option value="HYBRID">Product + Service / Turnkey Solution</option>
             <option value="PRODUCT">Products / Materials / Supply Only</option>
@@ -202,7 +198,7 @@ function NewEnquiryFormContent() {
 
       {/* 2. Title & Detailed Description */}
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+        <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
           Requirement Title *
         </label>
         <input
@@ -213,12 +209,12 @@ function NewEnquiryFormContent() {
           required
           minLength={5}
           maxLength={160}
-          className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+          className="input-enterprise"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+        <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
           Detailed Requirement &amp; Specifications *
         </label>
         <textarea
@@ -229,26 +225,26 @@ function NewEnquiryFormContent() {
           required
           minLength={20}
           maxLength={5000}
-          className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+          className="input-enterprise"
         />
       </div>
 
       {/* 3. Category-Specific Optional Fields */}
       {activeCategoryConfig.enquiryAttributes &&
         activeCategoryConfig.enquiryAttributes.length > 0 && (
-          <div className="p-4 sm:p-5 rounded-xl bg-secondary/40 border border-border space-y-4">
+          <div className="p-5 rounded-[10px] bg-[#FAFAF8] border border-[#E8E9ED] space-y-4">
             <div>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+              <h3 className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B]">
                 {activeCategoryConfig.name} — Specific Details (Optional)
               </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-[12px] text-[#696D76] mt-0.5">
                 Providing these details helps businesses prepare sharper quotes.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {activeCategoryConfig.enquiryAttributes.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-xs font-medium text-foreground mb-1.5">
+                  <label className="block text-[12px] font-medium text-[#15171B] mb-1.5">
                     {field.label}
                   </label>
                   {field.type === 'select' && field.options ? (
@@ -260,7 +256,7 @@ function NewEnquiryFormContent() {
                           [field.key]: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                      className="input-enterprise"
                     >
                       <option value="">Select option…</option>
                       {field.options.map((opt) => (
@@ -280,7 +276,7 @@ function NewEnquiryFormContent() {
                           [field.key]: e.target.value,
                         }))
                       }
-                      className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                      className="input-enterprise"
                     />
                   )}
                 </div>
@@ -292,13 +288,13 @@ function NewEnquiryFormContent() {
       {/* 4. Location, Delivery Mode & Timeline */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             City *
           </label>
           <select
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           >
             {BRAND_CONFIG.initialCities.map((c) => (
               <option key={c} value={c}>
@@ -309,7 +305,7 @@ function NewEnquiryFormContent() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             State *
           </label>
           <input
@@ -317,12 +313,12 @@ function NewEnquiryFormContent() {
             value={state}
             onChange={(e) => setState(e.target.value)}
             required
-            className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             Delivery / Execution Mode
           </label>
           <select
@@ -332,7 +328,7 @@ function NewEnquiryFormContent() {
                 e.target.value as 'ON_SITE' | 'REMOTE' | 'DELIVERY' | 'EITHER',
               )
             }
-            className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           >
             <option value="EITHER">On-Site, Delivery, or Remote</option>
             <option value="ON_SITE">On-Site Execution Required</option>
@@ -345,7 +341,7 @@ function NewEnquiryFormContent() {
       {/* 5. Budget Range, Quantity & Timeline */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             Quantity / Scale
           </label>
           <input
@@ -353,12 +349,12 @@ function NewEnquiryFormContent() {
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             placeholder="e.g., 200 units / 1 project"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             Min Budget (INR)
           </label>
           <input
@@ -367,12 +363,12 @@ function NewEnquiryFormContent() {
             value={budgetMin}
             onChange={(e) => setBudgetMin(e.target.value)}
             placeholder="Optional"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             Max Budget (INR)
           </label>
           <input
@@ -381,18 +377,18 @@ function NewEnquiryFormContent() {
             value={budgetMax}
             onChange={(e) => setBudgetMax(e.target.value)}
             placeholder="Optional"
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+          <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-2">
             Expected Timeline
           </label>
           <select
             value={timeline}
             onChange={(e) => setTimeline(e.target.value)}
-            className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+            className="input-enterprise"
           >
             <option value="Immediate (Within days)">Immediate (Within days)</option>
             <option value="Within 2 weeks">Within 2 weeks</option>
@@ -406,28 +402,29 @@ function NewEnquiryFormContent() {
       </div>
 
       {/* 6. Contact Privacy Protection */}
-      <div className="p-4 rounded-xl bg-secondary/40 border border-border flex items-start gap-3">
-        <Lock className="w-5 h-5 text-foreground shrink-0 mt-0.5" />
-        <div className="flex-1 text-xs">
-          <div className="font-semibold text-foreground">
+      <div className="p-4 sm:p-5 rounded-[10px] bg-[#FAFAF8] border border-[#E8E9ED] flex items-start gap-3.5">
+        <Lock className="w-5 h-5 text-[#304FFE] shrink-0 mt-0.5" />
+        <div className="flex-1 text-[13px]">
+          <div className="font-semibold text-[#15171B]">
             Customer Contact Privacy Protection
           </div>
-          <p className="text-muted-foreground mt-0.5 leading-relaxed">
+          <p className="text-[#696D76] mt-0.5 leading-relaxed">
             By default, matched businesses can view your requirement and submit
             quotations on PROVENTA without seeing your personal phone number or
             email address until you shortlist or accept their quotation.
           </p>
-          <label className="inline-flex items-center gap-2 mt-2.5 font-medium text-foreground cursor-pointer">
+          <label className="inline-flex items-center gap-2 mt-3 font-medium text-[#15171B] cursor-pointer">
             <input
               type="checkbox"
               checked={shareContactWithShortlistedOnly}
               onChange={(e) =>
                 setShareContactWithShortlistedOnly(e.target.checked)
               }
-              className="rounded border-border"
+              className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
             />
-            Keep my direct contact details hidden until I shortlist or accept a
-            quotation (Recommended)
+            <span>
+              Keep my direct contact details hidden until I shortlist or accept a quotation (Recommended)
+            </span>
           </label>
         </div>
       </div>
@@ -436,17 +433,17 @@ function NewEnquiryFormContent() {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center gap-2 bg-foreground text-background font-semibold text-sm px-6 py-3 rounded-lg hover:bg-foreground/90 transition-colors disabled:opacity-50"
+          className="btn-accent px-6 py-3"
         >
           {submitting ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Matching Businesses…
+              <span>Matching Businesses…</span>
             </>
           ) : (
             <>
               <Send className="w-4 h-4" />
-              Post Enquiry &amp; Notify Matched Businesses
+              <span>Post Enquiry &amp; Notify Matched Businesses</span>
             </>
           )}
         </button>
@@ -457,17 +454,17 @@ function NewEnquiryFormContent() {
 
 export default function NewEnquiryPage() {
   return (
-    <div className="pt-20 md:pt-24 pb-20 min-h-screen bg-background">
+    <div className="py-12 md:py-16 min-h-screen bg-[#FAFAF8] text-[#15171B]">
       <div className="container-wide max-w-4xl">
         <div className="mb-8">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+          <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
             <ShieldCheck className="w-3.5 h-3.5" />
             Customer Enquiry Marketplace
           </span>
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-1">
+          <h1 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.03em] text-[#15171B] mt-1">
             Post a Requirement or Business Enquiry
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground mt-1.5">
+          <p className="text-[15px] text-[#696D76] mt-1.5">
             Describe the product, service, or custom solution you need. Relevant
             published businesses will be matched and invited to submit structured
             quotations.
@@ -476,7 +473,7 @@ export default function NewEnquiryPage() {
 
         <Suspense
           fallback={
-            <div className="p-12 text-center text-sm text-muted-foreground">
+            <div className="surface-card p-12 text-center text-[14px] text-[#696D76]">
               Loading enquiry form…
             </div>
           }

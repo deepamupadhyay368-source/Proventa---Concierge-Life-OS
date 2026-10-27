@@ -1,20 +1,16 @@
 import Link from 'next/link';
-import type { Metadata } from 'next';
 import {
   Search,
   MapPin,
   Building2,
-  PlusCircle,
-  Filter,
+  CheckCircle2,
   ArrowRight,
-  Star,
+  ArrowUpRight,
+  SlidersHorizontal,
+  RotateCcw,
 } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/brand';
-import {
-  getCategories,
-  getCategoryBySlugOrId,
-  searchBusinesses,
-} from '@/lib/marketplace/repository';
+import { getCategories, searchBusinesses } from '@/lib/marketplace/repository';
 import {
   VERIFICATION_BADGE_META,
   type BusinessType,
@@ -23,334 +19,394 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Explore Businesses — Universal Business Directory',
-  description:
-    'Search and discover verified product, service, and hybrid businesses across Gujarat and India on PROVENTA.',
-};
-
-interface BusinessesPageProps {
-  searchParams: Promise<{
-    q?: string;
-    category?: string;
-    subcategory?: string;
-    city?: string;
-    type?: string;
-    sort?: string;
-    page?: string;
-  }>;
+interface BusinessesDirectoryPageProps {
+  searchParams:
+    | Promise<{
+        q?: string;
+        category?: string;
+        city?: string;
+        type?: string;
+        verified?: string;
+        sort?: string;
+        page?: string;
+      }>
+    | {
+        q?: string;
+        category?: string;
+        city?: string;
+        type?: string;
+        verified?: string;
+        sort?: string;
+        page?: string;
+      };
 }
 
 export default async function BusinessesDirectoryPage({
-  searchParams: searchParamsPromise,
-}: BusinessesPageProps) {
-  const searchParams = await searchParamsPromise;
-  const categories = getCategories({ onlyTopLevel: true });
-  const activeCategory = searchParams.category
-    ? getCategoryBySlugOrId(searchParams.category)
-    : null;
+  searchParams: searchParamsInput,
+}: BusinessesDirectoryPageProps) {
+  const searchParams = await Promise.resolve(searchParamsInput);
+  const page = Number(searchParams.page) || 1;
+  const sortBy: DirectorySearchParams['sortBy'] =
+    searchParams.sort === 'newest' ||
+    searchParams.sort === 'name' ||
+    searchParams.sort === 'popular' ||
+    searchParams.sort === 'rating'
+      ? searchParams.sort
+      : 'relevance';
 
-  const queryParams: DirectorySearchParams = {
+  const categories = getCategories({ onlyTopLevel: true });
+  const result = searchBusinesses({
     query: searchParams.q,
     categorySlug: searchParams.category,
-    subcategorySlug: searchParams.subcategory,
     city: searchParams.city,
     businessType: (searchParams.type as BusinessType) || undefined,
-    sortBy:
-      (searchParams.sort as DirectorySearchParams['sortBy']) || 'relevance',
-    page: Number(searchParams.page || 1),
+    verificationLevel:
+      searchParams.verified === 'true' ? 'VERIFIED_BUSINESS' : undefined,
+    sortBy,
+    page,
     limit: 12,
-  };
+  });
 
-  const results = searchBusinesses(queryParams);
+  const activeCategory = categories.find((c) => c.slug === searchParams.category);
+  const hasFilters = Boolean(
+    searchParams.q ||
+      searchParams.category ||
+      searchParams.city ||
+      searchParams.type ||
+      searchParams.verified === 'true',
+  );
 
   return (
-    <div className="pt-20 md:pt-24 pb-20 min-h-screen bg-background">
-      {/* Header & Search Bar */}
-      <section className="border-b border-border bg-card py-10">
+    <div className="min-h-screen bg-[#FAFAF8] text-[#15171B] pb-20">
+      {/* =====================================================================
+          SEARCH & FILTER HEADER
+      ===================================================================== */}
+      <section className="border-b border-[#E8E9ED] bg-[#FFFFFF] py-10">
         <div className="container-wide">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-                Universal Business Directory
-              </span>
-              <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-1">
+              <div className="inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE] mb-2">
+                <span>Business Directory</span>
+                <span className="text-[#E8E9ED]">•</span>
+                <span className="text-[#696D76]">
+                  {result.total} {result.total === 1 ? 'Business' : 'Businesses'} Found
+                </span>
+              </div>
+              <h1 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.03em] text-[#15171B]">
                 {activeCategory
-                  ? `${activeCategory.name} Businesses`
-                  : 'Explore Businesses'}
+                  ? activeCategory.name
+                  : 'Explore Businesses Across Industries'}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                {activeCategory?.description ||
-                  'Discover product manufacturers, service providers, agencies, retailers, and suppliers across Gujarat and India.'}
+              <p className="mt-1.5 text-[15px] text-[#696D76] max-w-2xl">
+                {activeCategory
+                  ? activeCategory.description
+                  : 'Search verified storefronts, compare products and services, and connect directly with providers.'}
               </p>
             </div>
-            <div className="flex items-center gap-2.5">
-              <Link
-                href="/enquiries/new"
-                className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-lg border border-border bg-background hover:bg-secondary transition-colors"
-              >
-                <PlusCircle className="w-4 h-4" />
-                Post an Enquiry
+
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/enquiries/new" className="btn-secondary">
+                Post a Custom Requirement
               </Link>
-              <Link
-                href="/business/register"
-                className="inline-flex items-center gap-1.5 text-sm font-medium px-4 py-2.5 rounded-lg bg-foreground text-background hover:bg-foreground/90 transition-colors"
-              >
-                <Building2 className="w-4 h-4" />
-                List Your Business
+              <Link href="/business/register" className="btn-primary">
+                <span>List Your Business</span>
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          {/* Search & Filter Form */}
+          {/* Filter Form */}
           <form
             action="/businesses"
             method="GET"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 bg-background border border-border p-3 rounded-xl"
+            className="rounded-[12px] border border-[#E8E9ED] bg-[#FAFAF8] p-3"
           >
-            <div className="lg:col-span-4 relative flex items-center">
-              <Search className="w-4 h-4 text-muted-foreground absolute left-3 pointer-events-none" />
-              <input
-                type="text"
-                name="q"
-                defaultValue={searchParams.q || ''}
-                placeholder="Search business name, product, service, keyword…"
-                className="w-full pl-9 pr-3 py-2 text-sm bg-card border border-border rounded-lg text-foreground"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
+              {/* Query */}
+              <div className="lg:col-span-4 relative flex items-center">
+                <Search className="h-4 w-4 text-[#696D76] absolute left-3.5 pointer-events-none" />
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={searchParams.q || ''}
+                  placeholder="Business name, product, service, or keyword..."
+                  className="input-enterprise pl-10"
+                />
+              </div>
+
+              {/* Category */}
+              <div className="lg:col-span-3">
+                <select
+                  name="category"
+                  aria-label="Filter by category"
+                  defaultValue={searchParams.category || ''}
+                  className="input-enterprise"
+                >
+                  <option value="">All Categories ({categories.length})</option>
+                  {categories.map((cat) => (
+                    <option key={cat.slug} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* City */}
+              <div className="lg:col-span-2">
+                <select
+                  name="city"
+                  aria-label="Filter by city"
+                  defaultValue={searchParams.city || ''}
+                  className="input-enterprise"
+                >
+                  <option value="">All Cities</option>
+                  {BRAND_CONFIG.initialCities.map((city) => (
+                    <option key={city} value={city}>
+                      {city}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Business Type */}
+              <div className="lg:col-span-2">
+                <select
+                  name="type"
+                  aria-label="Filter by business type"
+                  defaultValue={searchParams.type || ''}
+                  className="input-enterprise"
+                >
+                  <option value="">All Business Types</option>
+                  <option value="PRODUCT">Products / Manufacturing / Retail</option>
+                  <option value="SERVICE">Services / Consulting / Agency</option>
+                  <option value="HYBRID">Hybrid (Product + Service)</option>
+                </select>
+              </div>
+
+              {/* Submit */}
+              <div className="lg:col-span-1">
+                <button
+                  type="submit"
+                  className="w-full h-full min-h-[42px] rounded-[10px] bg-[#304FFE] hover:bg-[#243FE0] text-white font-semibold text-[14px] px-4 transition-colors"
+                >
+                  Filter
+                </button>
+              </div>
             </div>
 
-            <div className="lg:col-span-3">
-              <select
-                name="category"
-                defaultValue={searchParams.category || ''}
-                aria-label="Category"
-                className="w-full px-3 py-2 text-sm bg-card border border-border rounded-lg text-foreground"
-              >
-                <option value="">All Categories</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.slug}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Secondary Controls Bar: Verified Only + Sort + Reset */}
+            <div className="mt-3 pt-3 border-t border-[#E8E9ED] flex flex-wrap items-center justify-between gap-3 text-[13px]">
+              <div className="flex flex-wrap items-center gap-4">
+                <label className="inline-flex items-center gap-2 text-[#15171B] font-medium cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="verified"
+                    value="true"
+                    defaultChecked={searchParams.verified === 'true'}
+                    className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
+                  />
+                  <span>Verified businesses only</span>
+                </label>
 
-            <div className="lg:col-span-2">
-              <select
-                name="city"
-                defaultValue={searchParams.city || ''}
-                aria-label="City"
-                className="w-full px-3 py-2 text-sm bg-card border border-border rounded-lg text-foreground"
-              >
-                <option value="">All Cities</option>
-                {BRAND_CONFIG.initialCities.map((city) => (
-                  <option key={city} value={city}>
-                    {city}
-                  </option>
-                ))}
-              </select>
-            </div>
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-[#696D76]" />
+                  <span className="text-[#696D76]">Sort by:</span>
+                  <select
+                    name="sort"
+                    aria-label="Sort businesses"
+                    defaultValue={sortBy}
+                    className="rounded-[7px] border border-[#E8E9ED] bg-[#FFFFFF] px-2.5 py-1 text-[12px] font-medium text-[#15171B]"
+                  >
+                    <option value="relevance">Relevance &amp; Verified First</option>
+                    <option value="newest">Recently Listed</option>
+                    <option value="popular">Most Viewed</option>
+                    <option value="name">Alphabetical (A–Z)</option>
+                  </select>
+                </div>
+              </div>
 
-            <div className="lg:col-span-2">
-              <select
-                name="sort"
-                defaultValue={searchParams.sort || 'relevance'}
-                aria-label="Sort results"
-                className="w-full px-3 py-2 text-sm bg-card border border-border rounded-lg text-foreground"
-              >
-                <option value="relevance">Sort: Relevance</option>
-                <option value="newest">Sort: Newest</option>
-                <option value="popular">Sort: Most Viewed</option>
-                <option value="rating">Sort: Highest Rated</option>
-                <option value="name">Sort: Name (A-Z)</option>
-              </select>
-            </div>
-
-            <div className="lg:col-span-1">
-              <button
-                type="submit"
-                className="w-full h-full min-h-[38px] bg-foreground text-background text-sm font-medium rounded-lg hover:bg-foreground/90 transition-colors"
-              >
-                Apply
-              </button>
+              {hasFilters && (
+                <Link
+                  href="/businesses"
+                  className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#696D76] hover:text-[#15171B] transition-colors"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  <span>Reset all filters</span>
+                </Link>
+              )}
             </div>
           </form>
         </div>
       </section>
 
-      {/* Main Content Area */}
+      {/* =====================================================================
+          MAIN DIRECTORY BODY (Category Sidebar + Business Cards Grid)
+      ===================================================================== */}
       <div className="container-wide pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Sidebar Filters */}
-          <aside className="lg:col-span-3 space-y-6">
-            <div className="bg-card border border-border rounded-xl p-5">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Filter className="w-3.5 h-3.5" />
-                  Categories
-                </h2>
-                {searchParams.category && (
-                  <Link
-                    href="/businesses"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    Reset
-                  </Link>
-                )}
-              </div>
-              <ul className="space-y-1 max-h-96 overflow-y-auto pr-1">
-                <li>
-                  <Link
-                    href="/businesses"
-                    className={`block px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                      !searchParams.category
-                        ? 'bg-foreground text-background'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                    }`}
-                  >
-                    All Categories
-                  </Link>
-                </li>
-                {categories.map((cat) => (
-                  <li key={cat.id}>
+          {/* Left Sidebar: Industry Categories */}
+          <aside className="lg:col-span-3 space-y-5">
+            <div className="surface-card p-5">
+              <h2 className="text-[12px] font-semibold uppercase tracking-[0.08em] text-[#15171B] mb-3">
+                Industry Categories
+              </h2>
+              <div className="space-y-1 max-h-[480px] overflow-y-auto pr-1">
+                <Link
+                  href="/businesses"
+                  className={`block px-3 py-2 rounded-[8px] text-[13px] font-medium transition-colors ${
+                    !searchParams.category
+                      ? 'bg-[#15171B] text-white'
+                      : 'text-[#696D76] hover:bg-[#F2F3F6] hover:text-[#15171B]'
+                  }`}
+                >
+                  All Categories ({categories.length})
+                </Link>
+                {categories.map((cat) => {
+                  const isSelected = searchParams.category === cat.slug;
+                  return (
                     <Link
+                      key={cat.slug}
                       href={`/businesses?category=${cat.slug}${
-                        searchParams.city ? `&city=${encodeURIComponent(searchParams.city)}` : ''
+                        searchParams.city ? `&city=${searchParams.city}` : ''
                       }`}
-                      className={`flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                        searchParams.category === cat.slug
-                          ? 'bg-foreground text-background'
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                      className={`block px-3 py-2 rounded-[8px] text-[13px] font-medium transition-colors ${
+                        isSelected
+                          ? 'bg-[#304FFE] text-white'
+                          : 'text-[#696D76] hover:bg-[#F2F3F6] hover:text-[#15171B]'
                       }`}
                     >
-                      <span className="truncate">{cat.name}</span>
+                      {cat.name}
                     </Link>
-                  </li>
-                ))}
-              </ul>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="bg-card border border-border rounded-xl p-5">
-              <h3 className="font-display text-base font-bold text-foreground">
-                Need Custom Quotes?
+            {/* Sidebar Enquiry Prompt */}
+            <div className="rounded-[12px] bg-[#101319] p-5 text-white">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
+                Custom Requirement
+              </p>
+              <h3 className="mt-1.5 text-[16px] font-bold text-white">
+                Need quotes from multiple providers?
               </h3>
-              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-                Post your requirement once and receive structured quotations from
-                matched businesses in your category and city.
+              <p className="mt-1.5 text-[13px] text-[#9CA1AE] leading-relaxed">
+                Post your specification once and receive structured quotations from matching businesses.
               </p>
               <Link
-                href="/enquiries/new"
-                className="mt-4 w-full inline-flex items-center justify-center gap-1.5 text-xs font-semibold bg-primary text-primary-foreground px-4 py-2.5 rounded-lg hover:opacity-95 transition-opacity"
+                href={`/enquiries/new${
+                  searchParams.category ? `?category=${searchParams.category}` : ''
+                }`}
+                className="mt-4 w-full inline-flex items-center justify-center gap-1.5 rounded-[9px] bg-[#304FFE] hover:bg-[#243FE0] px-4 py-2.5 text-[13px] font-semibold text-white transition-colors"
               >
-                Post an Enquiry
-                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Post an Enquiry</span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </aside>
 
-          {/* Directory Results */}
-          <main className="lg:col-span-9">
-            <div className="flex items-center justify-between mb-4 text-xs text-muted-foreground">
-              <span>
-                Showing <strong className="text-foreground">{results.items.length}</strong> of{' '}
-                <strong className="text-foreground">{results.total}</strong> published
-                businesses
-              </span>
-              {(searchParams.q || searchParams.category || searchParams.city) && (
-                <Link
-                  href="/businesses"
-                  className="text-foreground font-medium hover:underline"
-                >
-                  Clear all filters
-                </Link>
-              )}
-            </div>
-
-            {results.items.length > 0 ? (
+          {/* Right Column: Business Results */}
+          <div className="lg:col-span-9">
+            {result.items.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {results.items.map((biz) => {
-                  const badge = VERIFICATION_BADGE_META[biz.verificationLevel];
+                {result.items.map((biz) => {
+                  const badgeMeta = VERIFICATION_BADGE_META[biz.verificationLevel];
+
                   return (
                     <div
                       key={biz.id}
-                      className="bg-card border border-border rounded-xl p-6 hover:border-foreground/40 hover:shadow-md transition-all flex flex-col justify-between"
+                      className="surface-card-interactive p-6 flex flex-col justify-between"
                     >
                       <div>
-                        <div className="flex items-center justify-between gap-2 mb-3">
-                          <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-secondary text-foreground">
-                            {biz.primaryCategory?.name || biz.businessType}
-                          </span>
-                          <span
-                            title={badge.description}
-                            className={`text-[11px] font-medium px-2.5 py-0.5 rounded-full border ${
-                              badge.isVerified
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                                : 'bg-secondary text-muted-foreground border-border'
-                            }`}
-                          >
-                            {badge.shortLabel}
-                          </span>
-                        </div>
-
-                        <Link
-                          href={`/business/${biz.slug}`}
-                          className="group block"
-                        >
-                          <h2 className="font-display text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                            {biz.name}
-                          </h2>
-                        </Link>
-
-                        {biz.tagline && (
-                          <p className="text-xs font-medium text-muted-foreground mt-0.5">
-                            {biz.tagline}
-                          </p>
-                        )}
-
-                        <p className="text-sm text-muted-foreground mt-2.5 line-clamp-2">
-                          {biz.shortDescription || biz.description}
-                        </p>
-
-                        {biz.tags && biz.tags.length > 0 && (
-                          <div className="mt-3 flex flex-wrap gap-1.5">
-                            {biz.tags.slice(0, 4).map((tag) => (
-                              <span
-                                key={tag}
-                                className="text-[11px] px-2 py-0.5 rounded bg-secondary/70 text-muted-foreground"
+                        {/* Card Top: Monogram + Verification Badge */}
+                        <div className="flex items-start justify-between gap-3 mb-4">
+                          <div className="flex items-center gap-3.5">
+                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[10px] border border-[#E8E9ED] bg-[#FAFAF8] text-[15px] font-bold text-[#15171B]">
+                              {biz.name.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                <span className="text-[12px] font-semibold text-[#304FFE]">
+                                  {biz.primaryCategory?.name || 'Business'}
+                                </span>
+                                <span className="text-[#D1D4DC]">•</span>
+                                <span className="text-[12px] text-[#696D76]">
+                                  {biz.businessType}
+                                </span>
+                              </div>
+                              <Link
+                                href={`/business/${biz.slug}`}
+                                className="text-[18px] font-bold text-[#15171B] hover:text-[#304FFE] transition-colors line-clamp-1"
                               >
-                                {tag}
-                              </span>
-                            ))}
+                                {biz.name}
+                              </Link>
+                            </div>
                           </div>
-                        )}
-                      </div>
 
-                      <div className="mt-5 pt-4 border-t border-border flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="w-3.5 h-3.5" />
-                            {biz.city}, {biz.state}
-                          </span>
-                          {biz.averageRating && (
-                            <span className="inline-flex items-center gap-1 font-medium text-foreground">
-                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                              {biz.averageRating} ({biz.reviewCount})
+                          {badgeMeta.isVerified ? (
+                            <span className="badge-verified shrink-0">
+                              <CheckCircle2 className="h-3.5 w-3.5" />
+                              {badgeMeta.shortLabel}
+                            </span>
+                          ) : (
+                            <span className="badge-neutral shrink-0">
+                              {badgeMeta.shortLabel}
                             </span>
                           )}
                         </div>
 
+                        {/* Tagline & Summary */}
+                        {biz.tagline && (
+                          <p className="text-[13px] font-medium text-[#15171B] mb-1.5 line-clamp-1">
+                            {biz.tagline}
+                          </p>
+                        )}
+                        <p className="text-[13px] text-[#696D76] line-clamp-2 leading-relaxed">
+                          {biz.shortDescription || biz.description}
+                        </p>
+
+                        {/* Offerings Preview */}
+                        {biz.listings && biz.listings.length > 0 && (
+                          <div className="mt-4 pt-3.5 border-t border-[#E8E9ED]">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[#696D76] mb-2">
+                              Featured Offerings ({biz.listings.length})
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {biz.listings.slice(0, 3).map((item) => (
+                                <span
+                                  key={item.id}
+                                  className="inline-flex items-center rounded-[6px] bg-[#FAFAF8] border border-[#E8E9ED] px-2.5 py-1 text-[12px] font-medium text-[#15171B]"
+                                >
+                                  {item.title}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="mt-5 pt-4 border-t border-[#E8E9ED] flex items-center justify-between gap-3">
+                        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#696D76]">
+                          <MapPin className="h-3.5 w-3.5 text-[#696D76]" />
+                          {biz.city}, {biz.state}
+                        </span>
+
                         <div className="flex items-center gap-2">
                           <Link
-                            href={`/enquiries/new?businessId=${biz.id}&category=${biz.primaryCategory?.slug || ''}`}
-                            className="text-xs font-medium px-3 py-1.5 rounded-md border border-border hover:bg-secondary transition-colors"
+                            href={`/enquiries/new?businessId=${biz.id}&category=${
+                              biz.primaryCategory?.slug || ''
+                            }`}
+                            className="rounded-[8px] border border-[#E8E9ED] bg-[#FAFAF8] hover:bg-[#F2F3F6] px-3 py-1.5 text-[12px] font-medium text-[#15171B] transition-colors"
                           >
-                            Send Enquiry
+                            Enquire
                           </Link>
                           <Link
                             href={`/business/${biz.slug}`}
-                            className="text-xs font-medium px-3 py-1.5 rounded-md bg-foreground text-background hover:bg-foreground/90 transition-colors"
+                            className="inline-flex items-center gap-1 rounded-[8px] bg-[#15171B] hover:bg-[#304FFE] px-3.5 py-1.5 text-[12px] font-semibold text-white transition-colors"
                           >
-                            Storefront
+                            <span>View Business</span>
+                            <ArrowRight className="h-3 w-3" />
                           </Link>
                         </div>
                       </div>
@@ -359,37 +415,39 @@ export default async function BusinessesDirectoryPage({
                 })}
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-2xl p-10 text-center">
-                <div className="w-12 h-12 rounded-xl bg-secondary border border-border flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="w-6 h-6 text-foreground" />
+              /* Polished Empty State */
+              <div className="surface-card p-10 sm:p-12 text-center">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-[10px] bg-[#F2F3F6] text-[#15171B]">
+                  <Building2 className="h-6 w-6" />
                 </div>
-                <h2 className="font-display text-2xl font-bold text-foreground">
-                  No Published Businesses Match Your Filter Yet
+                <h2 className="text-[22px] font-bold text-[#15171B]">
+                  No published businesses match this filter yet
                 </h2>
-                <p className="text-sm text-muted-foreground mt-2 max-w-lg mx-auto">
-                  Can&apos;t find the exact business you are looking for? Post a
-                  customer enquiry so newly onboarded businesses in this category can
-                  respond, or register your own business storefront.
+                <p className="mt-2 text-[14px] text-[#696D76] max-w-lg mx-auto leading-relaxed">
+                  PROVENTA displays only authentic registered businesses. You can post a customer enquiry for this category so businesses can respond with quotations, or register your own business storefront.
                 </p>
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
                   <Link
-                    href="/enquiries/new"
-                    className="inline-flex items-center gap-2 bg-foreground text-background text-sm font-medium px-5 py-2.5 rounded-lg"
+                    href={`/enquiries/new${
+                      searchParams.category ? `?category=${searchParams.category}` : ''
+                    }`}
+                    className="btn-accent"
                   >
-                    <PlusCircle className="w-4 h-4" />
-                    Post an Enquiry
+                    <span>Post a Customer Enquiry</span>
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
-                  <Link
-                    href="/business/register"
-                    className="inline-flex items-center gap-2 border border-border bg-background text-foreground text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-secondary"
-                  >
-                    <Building2 className="w-4 h-4" />
-                    Register Your Business
+                  <Link href="/business/register" className="btn-secondary">
+                    List Your Business in This Category
                   </Link>
+                  {hasFilters && (
+                    <Link href="/businesses" className="btn-secondary">
+                      Clear Filters
+                    </Link>
+                  )}
                 </div>
               </div>
             )}
-          </main>
+          </div>
         </div>
       </div>
     </div>

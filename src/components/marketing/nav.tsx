@@ -1,171 +1,163 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Building2, PlusCircle } from 'lucide-react';
+import { useState } from 'react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { BRAND_CONFIG } from '@/lib/brand';
 
 const navLinks = [
   { href: '/businesses', label: 'Explore Businesses' },
-  { href: '/listings', label: 'Products & Services' },
-  { href: '/enquiries/new', label: 'Post an Enquiry' },
+  { href: '/#categories', label: 'Categories' },
+  { href: '/how-it-works', label: 'How It Works' },
   { href: '/for-businesses', label: 'For Businesses' },
 ];
 
 export function MarketingNav() {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-200',
-        scrolled
-          ? 'bg-background/95 backdrop-blur-md border-b border-border shadow-sm'
-          : 'bg-background/85 backdrop-blur-sm border-b border-border/50',
-      )}
-    >
+    <header className="sticky top-0 z-50 border-b border-[#E8E9ED] bg-[#FAFAF8]/95 backdrop-blur-md">
       <div className="container-wide">
-        <nav
-          className="flex items-center justify-between h-16 md:h-20"
-          aria-label="Main navigation"
-        >
-          {/* Brand Logo */}
+        <div className="flex h-16 items-center justify-between gap-6">
+          {/* Brand Wordmark */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 group focus-visible:outline-none"
+            className="group flex items-center gap-2.5 focus-visible:outline-none"
           >
-            <div className="w-9 h-9 rounded-lg bg-foreground text-background flex items-center justify-center font-display font-bold text-lg tracking-tight">
+            <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-[#15171B] text-[13px] font-bold tracking-tight text-white transition-colors group-hover:bg-[#304FFE]">
               P
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display text-xl font-bold tracking-tight text-foreground leading-none">
-                {BRAND_CONFIG.name}
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[17px] font-bold tracking-[-0.03em] text-[#15171B]">
+                PROVENTA
               </span>
-              <span className="text-[10px] font-medium text-muted-foreground tracking-wider uppercase mt-0.5 hidden sm:inline">
-                {BRAND_CONFIG.tagline}
+              <span className="hidden xl:inline-block text-[11px] font-medium text-[#696D76] border-l border-[#E8E9ED] pl-2">
+                Every Business. One Place.
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-7">
+          <nav
+            className="hidden md:flex items-center gap-1"
+            aria-label="Primary Navigation"
+          >
             {navLinks.map((link) => {
               const isActive =
-                pathname === link.href || pathname.startsWith(`${link.href}/`);
+                link.href !== '/#categories' &&
+                (pathname === link.href || pathname.startsWith(`${link.href}/`));
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'text-sm font-medium transition-colors py-1',
+                    'px-3.5 py-2 rounded-[8px] text-[14px] font-medium transition-colors',
                     isActive
-                      ? 'text-foreground font-semibold border-b-2 border-foreground'
-                      : 'text-muted-foreground hover:text-foreground',
+                      ? 'text-[#15171B] bg-[#F2F3F6]'
+                      : 'text-[#696D76] hover:text-[#15171B] hover:bg-[#F2F3F6]/70',
                   )}
                 >
                   {link.label}
                 </Link>
               );
             })}
-          </div>
+          </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-3">
             <Link
               href="/sign-in"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2"
+              className="px-3.5 py-2 rounded-[8px] text-[14px] font-medium text-[#696D76] hover:text-[#15171B] hover:bg-[#F2F3F6]/70 transition-colors"
             >
               Sign In
             </Link>
             <Link
-              href="/sign-up"
-              className="text-sm font-medium text-foreground border border-border hover:bg-secondary/70 transition-colors px-4 py-2 rounded-md"
+              href="/enquiries/new"
+              className="hidden lg:inline-flex items-center justify-center rounded-[9px] border border-[#E8E9ED] bg-[#FFFFFF] px-3.5 py-2 text-[13px] font-medium text-[#15171B] hover:bg-[#F2F3F6] hover:border-[#D1D4DC] transition-colors"
             >
-              Register
+              Post Enquiry
             </Link>
             <Link
               href="/business/register"
-              className="inline-flex items-center gap-1.5 text-sm font-medium bg-foreground text-background px-4 py-2 rounded-md hover:bg-foreground/90 transition-colors shadow-sm"
+              className="inline-flex items-center gap-1.5 rounded-[9px] bg-[#15171B] px-4 py-2 text-[13px] font-semibold text-white shadow-card hover:bg-[#304FFE] transition-colors"
             >
-              <Building2 className="w-4 h-4" />
-              Register Your Business
+              <span>List Your Business</span>
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-80" />
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Trigger */}
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-[8px] border border-[#E8E9ED] bg-[#FFFFFF] text-[#15171B] hover:bg-[#F2F3F6] transition-colors"
+            aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
-        </nav>
+        </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Navigation Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden bg-background border-b border-border px-4 pb-6 pt-2 shadow-lg">
-          <div className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  'py-2.5 px-3 rounded-md text-sm font-medium transition-colors',
-                  pathname === link.href
-                    ? 'bg-secondary text-foreground font-semibold'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50',
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-            <div className="pt-4 mt-2 border-t border-border flex flex-col gap-2.5">
-              <Link
-                href="/business/register"
-                className="flex items-center justify-center gap-2 text-sm font-medium bg-foreground text-background px-4 py-2.5 rounded-md"
-              >
-                <Building2 className="w-4 h-4" />
-                Register Your Business
-              </Link>
+        <div className="md:hidden border-t border-[#E8E9ED] bg-[#FFFFFF] px-4 pt-3 pb-6 shadow-elevated animate-fade-in">
+          <nav className="flex flex-col space-y-1" aria-label="Mobile Navigation">
+            {navLinks.map((link) => {
+              const isActive =
+                link.href !== '/#categories' &&
+                (pathname === link.href || pathname.startsWith(`${link.href}/`));
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className={cn(
+                    'px-3.5 py-2.5 rounded-[8px] text-[15px] font-medium transition-colors',
+                    isActive
+                      ? 'bg-[#F2F3F6] text-[#15171B]'
+                      : 'text-[#696D76] hover:text-[#15171B] hover:bg-[#F2F3F6]',
+                  )}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+            <Link
+              href="/listings"
+              onClick={() => setMobileOpen(false)}
+              className="px-3.5 py-2.5 rounded-[8px] text-[15px] font-medium text-[#696D76] hover:text-[#15171B] hover:bg-[#F2F3F6] transition-colors"
+            >
+              Products & Services Catalog
+            </Link>
+          </nav>
+
+          <div className="mt-4 pt-4 border-t border-[#E8E9ED] flex flex-col gap-2.5">
+            <Link
+              href="/business/register"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-center gap-1.5 w-full py-2.5 px-4 rounded-[9px] bg-[#15171B] text-white text-[14px] font-semibold hover:bg-[#304FFE] transition-colors"
+            >
+              <span>List Your Business</span>
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+            <div className="grid grid-cols-2 gap-2.5">
               <Link
                 href="/enquiries/new"
-                className="flex items-center justify-center gap-2 text-sm font-medium border border-border text-foreground px-4 py-2.5 rounded-md hover:bg-secondary"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center py-2.5 px-3 rounded-[9px] border border-[#E8E9ED] bg-[#FAFAF8] text-[#15171B] text-[14px] font-medium hover:bg-[#F2F3F6] transition-colors"
               >
-                <PlusCircle className="w-4 h-4" />
-                Post an Enquiry
+                Post Enquiry
               </Link>
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <Link
-                  href="/sign-in"
-                  className="text-center text-sm font-medium text-muted-foreground hover:text-foreground py-2 border border-border rounded-md"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/sign-up"
-                  className="text-center text-sm font-medium text-foreground py-2 bg-secondary rounded-md"
-                >
-                  Register
-                </Link>
-              </div>
+              <Link
+                href="/sign-in"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center py-2.5 px-3 rounded-[9px] border border-[#E8E9ED] bg-[#FFFFFF] text-[#15171B] text-[14px] font-medium hover:bg-[#F2F3F6] transition-colors"
+              >
+                Sign In
+              </Link>
             </div>
           </div>
         </div>
@@ -174,5 +166,4 @@ export function MarketingNav() {
   );
 }
 
-export const PublicNav = MarketingNav;
-
+export { MarketingNav as PublicNav };

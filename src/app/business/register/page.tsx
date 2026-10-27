@@ -35,7 +35,7 @@ export default function BusinessRegisterPage() {
   const [servesPanIndia, setServesPanIndia] = useState(false);
   const [contactEmail, setContactEmail] = useState('');
   const [contactPhone, setContactPhone] = useState('');
-  const [whatsappNumber, setWhatsappNumber] = useState('');
+  const [whatsappNumber] = useState('');
   const [website, setWebsite] = useState('');
   const [gstNumber, setGstNumber] = useState('');
   const [yearEstablished, setYearEstablished] = useState('');
@@ -117,20 +117,20 @@ export default function BusinessRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-[#FAFAF8] text-[#15171B]">
       <MarketingNav />
 
-      <main className="flex-1 pt-24 pb-20">
+      <main className="flex-1 py-12 md:py-16">
         <div className="container-wide max-w-4xl">
           <div className="mb-8">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-[#304FFE]">
               <Building2 className="w-3.5 h-3.5" />
               Guided Storefront Onboarding
             </span>
-            <h1 className="font-display text-3xl sm:text-4xl font-bold text-foreground mt-1">
+            <h1 className="text-[28px] sm:text-[36px] font-bold tracking-[-0.03em] text-[#15171B] mt-1">
               Create Your Business Storefront on {BRAND_CONFIG.name}
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1.5">
+            <p className="text-[15px] text-[#696D76] mt-1.5">
               Set up your official digital storefront, select your industry
               categories and service areas, and start receiving matched customer
               enquiries.
@@ -139,10 +139,10 @@ export default function BusinessRegisterPage() {
 
           <form
             onSubmit={handleSubmit}
-            className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm space-y-8"
+            className="surface-card p-6 sm:p-8 space-y-8"
           >
             {error && (
-              <div className="p-4 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm flex items-start gap-2.5">
+              <div className="p-4 rounded-[10px] bg-[#FEF2F2] border border-[#C53B43]/30 text-[#C53B43] text-[13px] flex items-start gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -150,13 +150,13 @@ export default function BusinessRegisterPage() {
 
             {/* Section 1: Business Identity */}
             <div className="space-y-4">
-              <h2 className="font-display text-xl font-bold text-foreground border-b border-border pb-2">
+              <h2 className="text-[18px] font-bold text-[#15171B] border-b border-[#E8E9ED] pb-2.5">
                 1. Business Identity &amp; Category
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Business / Brand Name *
                   </label>
                   <input
@@ -167,12 +167,12 @@ export default function BusinessRegisterPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., Apex Industrial Engineering"
-                    className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Registered Legal Name (Optional)
                   </label>
                   <input
@@ -180,20 +180,20 @@ export default function BusinessRegisterPage() {
                     value={legalName}
                     onChange={(e) => setLegalName(e.target.value)}
                     placeholder="e.g., Apex Industrial Engineering Pvt. Ltd."
-                    className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Primary Category *
                   </label>
                   <select
                     value={primaryCategoryId}
                     onChange={(e) => setPrimaryCategoryId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   >
                     {INITIAL_MARKETPLACE_CATEGORIES.map((cat) => (
                       <option key={cat.slug} value={cat.slug}>
@@ -204,7 +204,7 @@ export default function BusinessRegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Business Type *
                   </label>
                   <select
@@ -214,7 +214,7 @@ export default function BusinessRegisterPage() {
                         e.target.value as 'PRODUCT' | 'SERVICE' | 'HYBRID',
                       )
                     }
-                    className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   >
                     <option value="HYBRID">Product + Service (Hybrid)</option>
                     <option value="PRODUCT">Product / Manufacturer / Trader</option>
@@ -223,7 +223,7 @@ export default function BusinessRegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Custom URL Slug (Optional)
                   </label>
                   <input
@@ -233,13 +233,13 @@ export default function BusinessRegisterPage() {
                       setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
                     }
                     placeholder="apex-industrial-ahmedabad"
-                    className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                   Tagline (Optional)
                 </label>
                 <input
@@ -248,12 +248,12 @@ export default function BusinessRegisterPage() {
                   value={tagline}
                   onChange={(e) => setTagline(e.target.value)}
                   placeholder="Precision fabrication & turnkey automation across Gujarat"
-                  className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                  className="input-enterprise"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                   Short Summary (15–300 chars) *
                 </label>
                 <input
@@ -264,12 +264,12 @@ export default function BusinessRegisterPage() {
                   value={shortDescription}
                   onChange={(e) => setShortDescription(e.target.value)}
                   placeholder="Brief summary displayed on directory search cards…"
-                  className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                  className="input-enterprise"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                   Full Business Description &amp; Capabilities (Min 30 chars) *
                 </label>
                 <textarea
@@ -280,26 +280,26 @@ export default function BusinessRegisterPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe your products, services, experience, industries served, and quality standards…"
-                  className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                  className="input-enterprise"
                 />
               </div>
             </div>
 
             {/* Section 2: Location & Service Areas */}
             <div className="space-y-4">
-              <h2 className="font-display text-xl font-bold text-foreground border-b border-border pb-2">
+              <h2 className="text-[18px] font-bold text-[#15171B] border-b border-[#E8E9ED] pb-2.5">
                 2. Location &amp; Service Coverage
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Primary City *
                   </label>
                   <select
                     value={city}
                     onChange={(e) => setCity(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   >
                     {BRAND_CONFIG.initialCities.map((c) => (
                       <option key={c} value={c}>
@@ -310,7 +310,7 @@ export default function BusinessRegisterPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Area / Locality
                   </label>
                   <input
@@ -318,12 +318,12 @@ export default function BusinessRegisterPage() {
                     value={area}
                     onChange={(e) => setArea(e.target.value)}
                     placeholder="e.g., Prahlad Nagar / GIDC Vatva"
-                    className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     State *
                   </label>
                   <input
@@ -331,12 +331,12 @@ export default function BusinessRegisterPage() {
                     required
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     PIN Code
                   </label>
                   <input
@@ -344,14 +344,14 @@ export default function BusinessRegisterPage() {
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
                     placeholder="380015"
-                    className="w-full px-3 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Cities / Regions Served (Comma separated)
                   </label>
                   <input
@@ -359,19 +359,19 @@ export default function BusinessRegisterPage() {
                     value={serviceAreasText}
                     onChange={(e) => setServiceAreasText(e.target.value)}
                     placeholder="Ahmedabad, Surat, Vadodara, Rajkot"
-                    className="w-full px-3.5 py-2.5 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div className="pt-4">
-                  <label className="inline-flex items-center gap-2 text-sm font-medium text-foreground cursor-pointer">
+                  <label className="inline-flex items-center gap-2 text-[13px] font-medium text-[#15171B] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={servesPanIndia}
                       onChange={(e) => setServesPanIndia(e.target.checked)}
-                      className="rounded border-border"
+                      className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
                     />
-                    We also serve customers Pan-India (Delivery or Remote)
+                    <span>We also serve customers Pan-India (Delivery or Remote)</span>
                   </label>
                 </div>
               </div>
@@ -379,13 +379,13 @@ export default function BusinessRegisterPage() {
 
             {/* Section 3: Contact, Credentials & Keywords */}
             <div className="space-y-4">
-              <h2 className="font-display text-xl font-bold text-foreground border-b border-border pb-2">
+              <h2 className="text-[18px] font-bold text-[#15171B] border-b border-[#E8E9ED] pb-2.5">
                 3. Contact Channels &amp; Business Details
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Business Email
                   </label>
                   <input
@@ -393,12 +393,12 @@ export default function BusinessRegisterPage() {
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
                     placeholder="contact@yourcompany.in"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Business Phone (10-digit)
                   </label>
                   <input
@@ -406,12 +406,12 @@ export default function BusinessRegisterPage() {
                     value={contactPhone}
                     onChange={(e) => setContactPhone(e.target.value)}
                     placeholder="9876543210"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Website URL
                   </label>
                   <input
@@ -419,14 +419,14 @@ export default function BusinessRegisterPage() {
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://yourcompany.in"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     GSTIN (Optional — 15 characters)
                   </label>
                   <input
@@ -434,12 +434,12 @@ export default function BusinessRegisterPage() {
                     value={gstNumber}
                     onChange={(e) => setGstNumber(e.target.value)}
                     placeholder="24AAAAA0000A1Z5"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground uppercase"
+                    className="input-enterprise uppercase"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Year Established (Optional)
                   </label>
                   <input
@@ -449,14 +449,14 @@ export default function BusinessRegisterPage() {
                     value={yearEstablished}
                     onChange={(e) => setYearEstablished(e.target.value)}
                     placeholder="2018"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Key Highlights (Comma separated)
                   </label>
                   <input
@@ -464,12 +464,12 @@ export default function BusinessRegisterPage() {
                     value={highlightsText}
                     onChange={(e) => setHighlightsText(e.target.value)}
                     placeholder="ISO 9001 Certified, On-time Delivery, Custom Fabrication"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                  <label className="block text-[12px] font-semibold uppercase tracking-[0.06em] text-[#15171B] mb-1.5">
                     Search Keywords / Tags (Comma separated)
                   </label>
                   <input
@@ -477,33 +477,34 @@ export default function BusinessRegisterPage() {
                     value={tagsText}
                     onChange={(e) => setTagsText(e.target.value)}
                     placeholder="cnc machining, steel fabrication, industrial automation"
-                    className="w-full px-3 py-2 text-sm bg-background border border-border rounded-lg text-foreground"
+                    className="input-enterprise"
                   />
                 </div>
               </div>
             </div>
 
             {/* Honest Verification & Publication Notice */}
-            <div className="p-4 rounded-xl bg-secondary/40 border border-border flex items-start gap-3 text-xs">
-              <ShieldCheck className="w-5 h-5 text-foreground shrink-0 mt-0.5" />
+            <div className="p-4 sm:p-5 rounded-[10px] bg-[#FAFAF8] border border-[#E8E9ED] flex items-start gap-3.5 text-[13px]">
+              <ShieldCheck className="w-5 h-5 text-[#304FFE] shrink-0 mt-0.5" />
               <div className="flex-1">
-                <div className="font-semibold text-foreground">
+                <div className="font-semibold text-[#15171B]">
                   Honest Verification &amp; Publication Policy
                 </div>
-                <p className="text-muted-foreground mt-0.5 leading-relaxed">
+                <p className="text-[#696D76] mt-0.5 leading-relaxed">
                   Newly registered storefronts are labeled{' '}
-                  <strong className="text-foreground">Self-Reported Profile</strong>{' '}
+                  <strong className="text-[#15171B]">Self-Reported Profile</strong>{' '}
                   until contact and business documents are independently reviewed.
                 </p>
-                <label className="inline-flex items-center gap-2 mt-2.5 font-medium text-foreground cursor-pointer">
+                <label className="inline-flex items-center gap-2 mt-3 font-medium text-[#15171B] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={publishImmediately}
                     onChange={(e) => setPublishImmediately(e.target.checked)}
-                    className="rounded border-border"
+                    className="rounded border-[#D1D4DC] text-[#304FFE] focus:ring-[#304FFE]"
                   />
-                  Publish my storefront immediately so customers can discover my
-                  business and send enquiries
+                  <span>
+                    Publish my storefront immediately so customers can discover my business and send enquiries
+                  </span>
                 </label>
               </div>
             </div>
@@ -511,7 +512,7 @@ export default function BusinessRegisterPage() {
             <div className="flex items-center justify-between pt-2">
               <Link
                 href="/for-businesses"
-                className="text-xs font-medium text-muted-foreground hover:text-foreground"
+                className="text-[13px] font-medium text-[#696D76] hover:text-[#15171B]"
               >
                 &larr; Back to For Businesses
               </Link>
@@ -519,17 +520,17 @@ export default function BusinessRegisterPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="inline-flex items-center gap-2 bg-foreground text-background font-semibold text-sm px-6 py-3 rounded-lg hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                className="btn-accent px-6 py-3"
               >
                 {submitting ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    Creating Storefront…
+                    <span>Creating Storefront…</span>
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    Create Business Storefront
+                    <span>Create Business Storefront</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

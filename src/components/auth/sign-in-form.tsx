@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
@@ -263,43 +264,43 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider">
+              <label htmlFor="password" className="block text-xs font-semibold text-[#15171B] uppercase tracking-wider">
                 Password
               </label>
-              <a href="/forgot-password" className="text-xs text-[#66717C] hover:text-[#1F2933] hover:underline">
+              <Link href="/forgot-password" className="text-xs text-[#696D76] hover:text-[#304FFE] hover:underline">
                 Forgot password?
-              </a>
+              </Link>
             </div>
             <input
               id="password"
               type="password"
               autoComplete="current-password"
-              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
+              className="input-enterprise"
               {...register('password')}
             />
-            {errors.password && <p className="mt-1 text-xs text-red-600">{errors.password.message}</p>}
+            {errors.password && <p className="mt-1 text-xs text-[#C53B43]">{errors.password.message}</p>}
           </div>
 
-          <div className="pt-2 border-t border-[#E1E5E8]">
+          <div className="pt-2 border-t border-[#E8E9ED]">
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="securityKey" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider flex items-center gap-1.5">
-                <KeyRound className="h-3.5 w-3.5 text-[#1F2933]" />
+              <label htmlFor="securityKey" className="block text-xs font-semibold text-[#15171B] uppercase tracking-wider flex items-center gap-1.5">
+                <KeyRound className="h-3.5 w-3.5 text-[#304FFE]" />
                 <span>Proventa Authentication Key</span>
               </label>
-              <a href="/forgot-auth-key" className="text-xs text-[#66717C] hover:text-[#1F2933] hover:underline">
+              <Link href="/forgot-auth-key" className="text-xs text-[#696D76] hover:text-[#304FFE] hover:underline">
                 Forgot your Key?
-              </a>
+              </Link>
             </div>
             <input
               id="securityKey"
               type="password"
               autoComplete="one-time-code"
-              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] focus:outline-none focus:border-[#1F2933] transition-all font-mono tracking-wider"
+              className="input-enterprise font-mono tracking-wider"
               placeholder="PV-XXXXXXXX-XXXXXXXX"
               {...register('securityKey')}
             />
-            {errors.securityKey && <p className="mt-1 text-xs text-red-600">{errors.securityKey.message}</p>}
-            <p className="text-[11px] text-[#66717C] mt-1.5">
+            {errors.securityKey && <p className="mt-1 text-xs text-[#C53B43]">{errors.securityKey.message}</p>}
+            <p className="text-[11px] text-[#696D76] mt-1.5">
               Enter your Proventa Authentication Key generated during signup.
             </p>
           </div>
@@ -307,7 +308,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 px-4 bg-[#15171B] hover:bg-[#304FFE] text-white rounded-[10px] text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
             <span>{loading ? 'Signing In...' : 'Sign In'}</span>

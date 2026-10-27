@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { registerSchema } from '@/lib/validation/schemas';
-import { Loader2, KeyRound, Copy, Check, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Loader2, KeyRound, Copy, Check, ArrowRight } from 'lucide-react';
 import type { z } from 'zod';
 
 type FormData = z.infer<typeof registerSchema>;
@@ -314,15 +315,17 @@ export function SignUpForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 bg-[#15171B] hover:bg-[#304FFE] text-white rounded-[10px] text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
           <span>{loading ? 'Creating Account & Generating Key...' : 'Create Account'}</span>
         </button>
 
-        <p className="text-[11px] text-[#66717C] text-center">
-          Proventa Private Beta · Sovereign Data Protection ·{' '}
-          <a href="/legal" className="underline text-[#1F2933]">Legal &amp; Trust Hub</a>
+        <p className="text-[11px] text-[#696D76] text-center">
+          PROVENTA Universal Business Platform ·{' '}
+          <Link href="/legal" className="underline text-[#15171B] hover:text-[#304FFE]">
+            Legal &amp; Trust Hub
+          </Link>
         </p>
       </form>
     </div>
