@@ -12,8 +12,22 @@ import type { z } from 'zod';
 
 type FormData = z.infer<typeof loginSchema>;
 
+function getSafeCallbackUrl(raw?: string): string {
+  if (!raw || typeof raw !== 'string') return '/dashboard';
+  const trimmed = raw.trim();
+  if (
+    trimmed.startsWith('/') &&
+    !trimmed.startsWith('//') &&
+    !trimmed.startsWith('/\\')
+  ) {
+    return trimmed;
+  }
+  return '/dashboard';
+}
+
 export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
+  const safeCallback = getSafeCallbackUrl(callbackUrl);
   const [method, setMethod] = useState<'email' | 'phone'>('email');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,11 +40,14 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
   const [phoneLoading, setPhoneLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  // Handle Email + Password + Security Key submit
   const onSubmit = async (data: FormData) => {
     setLoading(true);
     setError(null);
@@ -42,9 +59,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         redirect: false,
       });
       if (result?.error) {
-        setError('Invalid email, password, or authentication key.');
+        setError('Invalid email, password, or Proventa Authentication Key.');
       } else {
-        router.push(callbackUrl ?? '/dashboard');
+        router.push(safeCallback);
         router.refresh();
       }
     } catch {
@@ -54,21 +71,34 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     }
   };
 
-  // Handle OAuth provider sign-in (Google, Apple, Microsoft)
-  const handleOAuthSignIn = async (provider: 'google' | 'apple' | 'microsoft-entra-id') => {
-    setOauthLoading(provider);
+  const handleGoogleSignIn = async () => {
+    setOauthLoading('google');
     setError(null);
     try {
-      await signIn(provider, {
-        callbackUrl: callbackUrl ?? '/dashboard',
+      const statusRes = await fetch('/api/auth/oauth-status');
+      if (statusRes.ok) {
+        const statusData = await statusRes.json();
+        if (!statusData.google) {
+          setError(
+            'Google OAuth is not yet configured in this environment. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to enable Continue with Google.',
+          );
+          setOauthLoading(null);
+          return;
+        }
+      }
+      await signIn('google', {
+        callbackUrl: safeCallback,
       });
-    } catch (err: any) {
-      setError(err?.message || `Sign in with ${provider} failed. Please try again.`);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error
+          ? err.message
+          : 'Continue with Google failed. Please try again.';
+      setError(msg);
       setOauthLoading(null);
     }
   };
 
-  // Send Phone OTP
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber.trim()) {
@@ -92,14 +122,15 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           setDevOtpHint(data.devOtpHint);
         }
       }
-    } catch (err: any) {
-      setError(err?.message || 'Network error sending OTP.');
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : 'Network error sending OTP.',
+      );
     } finally {
       setPhoneLoading(false);
     }
   };
 
-  // Verify Phone OTP & Sign In via next-auth
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otpCode.trim()) {
@@ -117,11 +148,13 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       if (result?.error) {
         setError('Invalid or expired OTP code. Please try again.');
       } else {
-        router.push(callbackUrl ?? '/dashboard');
+        router.push(safeCallback);
         router.refresh();
       }
-    } catch (err: any) {
-      setError(err?.message || 'Sign in failed. Please try again.');
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : 'Sign in failed. Please try again.',
+      );
     } finally {
       setPhoneLoading(false);
     }
@@ -130,24 +163,26 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   return (
     <div className="space-y-6">
       {error && (
-        <div className="p-3.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700">
+        <div
+          role="alert"
+          className="p-3.5 bg-[#B94E2D]/10 border border-[#B94E2D] rounded-[2px] text-xs text-[#8E3519] font-medium"
+        >
           {error}
         </div>
       )}
 
-      {/* Social Login Provider Buttons (Google, Apple, Microsoft) */}
-      <div className="space-y-2">
-        {/* Google */}
+      {/* Primary OAuth Action: Continue with Google */}
+      <div>
         <button
           type="button"
-          onClick={() => handleOAuthSignIn('google')}
+          onClick={handleGoogleSignIn}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#E1E5E8] rounded-lg bg-white hover:bg-[#F7F8FA] text-xs font-semibold text-[#1F2933] transition-all shadow-xs disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#181914] rounded-[2px] bg-[#FBF8F1] hover:bg-[#E9DFCC] text-xs font-mono font-medium uppercase tracking-[0.14em] text-[#181914] transition-colors disabled:opacity-50"
         >
           {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#1F2933]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#181914]" />
           ) : (
-            <svg className="h-4 w-4" viewBox="0 0 24 24">
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -168,106 +203,85 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           )}
           <span>Continue with Google</span>
         </button>
-
-        {/* Apple */}
-        <button
-          type="button"
-          onClick={() => handleOAuthSignIn('apple')}
-          disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#1F2933] rounded-lg bg-[#1F2933] hover:bg-[#111820] text-xs font-semibold text-white transition-all shadow-xs disabled:opacity-50"
-        >
-          {oauthLoading === 'apple' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-white" />
-          ) : (
-            <svg className="h-4 w-4 fill-current" viewBox="0 0 170 170">
-              <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.69-3.04-7.69-7.8-12-14.28-5.87-8.7-10.45-18.49-13.75-29.35-3.3-10.86-4.95-21.36-4.95-31.5 0-14.34 3.75-26.08 11.26-35.2 7.51-9.13 16.73-13.82 27.67-14.07 4.58 0 9.87 1.25 15.89 3.76 6.01 2.5 9.77 3.76 11.26 3.76 1.12 0 5.08-1.34 11.89-4.02 6.81-2.68 12.35-3.88 16.63-3.6 12.39.63 22.37 5.12 29.93 13.48-10.87 6.54-16.19 15.65-15.96 27.34.23 9.4 3.86 17.27 10.9 23.6 7.04 6.33 15.42 10.02 25.13 11.08-2.23 6.96-5.02 14.54-8.37 22.75zm-33.84-118.73c0 6.54-2.39 12.71-7.17 18.52-4.78 5.8-10.59 9.5-17.43 11.08-.23-.87-.34-1.63-.34-2.28 0-6.33 2.54-12.63 7.62-18.9 5.08-6.28 11.13-10.02 18.15-11.23-.83 1.05-.83 1.98-.83 2.81z" />
-            </svg>
-          )}
-          <span>Continue with Apple</span>
-        </button>
-
-        {/* Microsoft */}
-        <button
-          type="button"
-          onClick={() => handleOAuthSignIn('microsoft-entra-id')}
-          disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#E1E5E8] rounded-lg bg-white hover:bg-[#F7F8FA] text-xs font-semibold text-[#1F2933] transition-all shadow-xs disabled:opacity-50"
-        >
-          {oauthLoading === 'microsoft-entra-id' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#1F2933]" />
-          ) : (
-            <svg className="h-4 w-4" viewBox="0 0 23 23">
-              <path fill="#f35325" d="M1 1h10v10H1z" />
-              <path fill="#81bc06" d="M12 1h10v10H12z" />
-              <path fill="#05a6f0" d="M1 12h10v10H1z" />
-              <path fill="#ffba08" d="M12 12h10v10H12z" />
-            </svg>
-          )}
-          <span>Continue with Microsoft</span>
-        </button>
       </div>
 
       {/* Divider */}
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#E1E5E8] w-full" />
-        <span className="bg-white px-3 text-[11px] uppercase tracking-wider text-[#66717C] font-medium absolute">
-          Or continue with
+        <div className="border-t border-[#D5CBB8] w-full" />
+        <span className="bg-[#F5F0E5] px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] absolute">
+          Or sign in with credentials
         </span>
       </div>
 
-      {/* Switcher Tab: Email or Mobile Phone */}
-      <div className="flex rounded-lg bg-[#F1F3F5] p-1 border border-[#E1E5E8]">
+      {/* Method Switcher: Email or Mobile Phone */}
+      <div className="grid grid-cols-2 rounded-[2px] bg-[#E9DFCC] p-1 border border-[#D5CBB8]">
         <button
           type="button"
-          onClick={() => { setMethod('email'); setError(null); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-md transition-all ${
+          onClick={() => {
+            setMethod('email');
+            setError(null);
+          }}
+          className={`flex items-center justify-center gap-2 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
             method === 'email'
-              ? 'bg-white text-[#1F2933] shadow-xs'
-              : 'text-[#66717C] hover:text-[#1F2933]'
+              ? 'bg-[#171A14] text-[#F6F0E4]'
+              : 'text-[#5C584F] hover:text-[#181914]'
           }`}
         >
           <Mail className="h-3.5 w-3.5" />
-          <span>Email Address</span>
+          <span>Email</span>
         </button>
 
         <button
           type="button"
-          onClick={() => { setMethod('phone'); setError(null); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-medium rounded-md transition-all ${
+          onClick={() => {
+            setMethod('phone');
+            setError(null);
+          }}
+          className={`flex items-center justify-center gap-2 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
             method === 'phone'
-              ? 'bg-white text-[#1F2933] shadow-xs'
-              : 'text-[#66717C] hover:text-[#1F2933]'
+              ? 'bg-[#171A14] text-[#F6F0E4]'
+              : 'text-[#5C584F] hover:text-[#181914]'
           }`}
         >
           <Phone className="h-3.5 w-3.5" />
-          <span>Mobile Number</span>
+          <span>Mobile OTP</span>
         </button>
       </div>
 
-      {/* Method 1: Email + Password */}
       {method === 'email' && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
+            <label
+              htmlFor="email"
+              className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5"
+            >
               Email Address
             </label>
             <input
               id="email"
               type="email"
               autoComplete="email"
-              className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
+              className="input-enterprise"
               placeholder="you@domain.com"
               {...register('email')}
             />
-            {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="mt-1 text-xs text-[#B94E2D]">{errors.email.message}</p>
+            )}
           </div>
 
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold text-[#15171B] uppercase tracking-wider">
+              <label
+                htmlFor="password"
+                className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914]"
+              >
                 Password
               </label>
-              <Link href="/forgot-password" className="text-xs text-[#696D76] hover:text-[#304FFE] hover:underline">
+              <Link
+                href="/forgot-password"
+                className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5C584F] hover:text-[#B94E2D] hover:underline"
+              >
                 Forgot password?
               </Link>
             </div>
@@ -278,17 +292,25 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               className="input-enterprise"
               {...register('password')}
             />
-            {errors.password && <p className="mt-1 text-xs text-[#C53B43]">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="mt-1 text-xs text-[#B94E2D]">{errors.password.message}</p>
+            )}
           </div>
 
-          <div className="pt-2 border-t border-[#E8E9ED]">
+          <div className="pt-3 border-t border-[#D5CBB8]">
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="securityKey" className="block text-xs font-semibold text-[#15171B] uppercase tracking-wider flex items-center gap-1.5">
-                <KeyRound className="h-3.5 w-3.5 text-[#304FFE]" />
+              <label
+                htmlFor="securityKey"
+                className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] flex items-center gap-1.5"
+              >
+                <KeyRound className="h-3.5 w-3.5 text-[#B94E2D]" />
                 <span>Proventa Authentication Key</span>
               </label>
-              <Link href="/forgot-auth-key" className="text-xs text-[#696D76] hover:text-[#304FFE] hover:underline">
-                Forgot your Key?
+              <Link
+                href="/forgot-auth-key"
+                className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5C584F] hover:text-[#B94E2D] hover:underline"
+              >
+                Recover key
               </Link>
             </div>
             <input
@@ -299,67 +321,68 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               placeholder="PV-XXXXXXXX-XXXXXXXX"
               {...register('securityKey')}
             />
-            {errors.securityKey && <p className="mt-1 text-xs text-[#C53B43]">{errors.securityKey.message}</p>}
-            <p className="text-[11px] text-[#696D76] mt-1.5">
-              Enter your Proventa Authentication Key generated during signup.
-            </p>
+            {errors.securityKey && (
+              <p className="mt-1 text-xs text-[#B94E2D]">{errors.securityKey.message}</p>
+            )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 px-4 bg-[#15171B] hover:bg-[#304FFE] text-white rounded-[10px] text-xs font-semibold uppercase tracking-wider transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+            className="btn-terracotta w-full mt-2"
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
+            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             <span>{loading ? 'Signing In...' : 'Sign In'}</span>
           </button>
         </form>
       )}
 
-      {/* Method 2: Mobile Phone OTP */}
       {method === 'phone' && (
         <div className="space-y-4">
           {!otpSent ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider mb-1.5">
+                <label className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5">
                   Mobile Number
                 </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    placeholder="+91 98765 43210"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-sm text-[#1F2933] placeholder:text-[#A7B0B8] focus:outline-none focus:border-[#1F2933] transition-all"
-                  />
-                </div>
-                <p className="mt-1.5 text-[11px] text-[#66717C]">
-                  We will dispatch a 6-digit OTP code to verify your mobile device.
+                <input
+                  type="tel"
+                  placeholder="+91 98765 43210"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="input-enterprise"
+                />
+                <p className="mt-1.5 text-[11px] text-[#5C584F]">
+                  We will send a 6-digit verification code to your phone.
                 </p>
               </div>
 
               <button
                 type="submit"
                 disabled={phoneLoading}
-                className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
+                className="btn-terracotta w-full"
               >
-                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
-                <span>{phoneLoading ? 'Sending OTP...' : 'Send Verification Code'}</span>
-                {!phoneLoading && <ArrowRight className="h-4 w-4 text-[#A7B0B8]" />}
+                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span>
+                  {phoneLoading ? 'Sending OTP...' : 'Send Verification Code'}
+                </span>
+                {!phoneLoading && <ArrowRight className="h-4 w-4" />}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-semibold text-[#1F2933] uppercase tracking-wider">
+                  <label className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914]">
                     Enter 6-Digit Code
                   </label>
                   <button
                     type="button"
-                    onClick={() => { setOtpSent(false); setOtpCode(''); }}
-                    className="text-xs text-[#66717C] hover:text-[#1F2933] hover:underline"
+                    onClick={() => {
+                      setOtpSent(false);
+                      setOtpCode('');
+                    }}
+                    className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5C584F] hover:text-[#B94E2D] hover:underline"
                   >
                     Change Number
                   </button>
@@ -371,10 +394,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
                   placeholder="123456"
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  className="w-full px-3.5 py-2.5 bg-white border border-[#E1E5E8] rounded-lg text-base text-center tracking-[0.3em] font-semibold text-[#1F2933] focus:outline-none focus:border-[#1F2933]"
+                  className="input-enterprise text-center font-mono text-base tracking-[0.3em]"
                 />
                 {devOtpHint && (
-                  <p className="mt-1.5 text-xs text-[#1F2933] bg-[#F1F3F5] p-2 rounded-md border border-[#E1E5E8]">
+                  <p className="mt-1.5 text-xs text-[#181914] bg-[#E9DFCC] p-2 border border-[#D5CBB8] font-mono">
                     Dev Code Preview: <strong>{devOtpHint}</strong>
                   </p>
                 )}
@@ -383,10 +406,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               <button
                 type="submit"
                 disabled={phoneLoading}
-                className="w-full py-3 px-4 bg-[#1F2933] hover:bg-[#111820] text-white rounded-lg text-xs font-semibold uppercase tracking-wider transition-all shadow-xs disabled:opacity-50 flex items-center justify-center gap-2"
+                className="btn-terracotta w-full"
               >
-                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin text-white" />}
-                <span>{phoneLoading ? 'Verifying...' : 'Verify & Enter'}</span>
+                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                <span>{phoneLoading ? 'Verifying...' : 'Verify & Sign In'}</span>
               </button>
             </form>
           )}

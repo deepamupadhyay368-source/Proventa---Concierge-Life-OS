@@ -91,7 +91,7 @@ export default function BusinessRegisterPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        setErrorMsg(data.error || 'Could not register business dossier.');
+        setErrorMsg(data.error || 'Could not register business profile.');
         setSubmitting(false);
         return;
       }
@@ -108,92 +108,99 @@ export default function BusinessRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#0D0E11]">
+    <div className="min-h-screen flex flex-col bg-[#F5F0E5] text-[#181914]">
       <MarketingNav />
 
-      <main className="flex-1 py-12 lg:py-16">
-        <div className="container-wide">
-          {createdBusiness ? (
-            <div className="max-w-3xl mx-auto border-2 border-[#0D0E11] bg-[#FAF8F3] p-8 sm:p-12">
-              <div className="inline-flex items-center gap-2 mb-4">
-                <span className="index-code-lime">STOREFRONT PUBLISHED</span>
-                <span className="font-mono text-xs font-bold text-[#0D0E11]">
-                  SLUG // /business/{createdBusiness.slug}
+      <main className="flex-1">
+        {createdBusiness ? (
+          <div className="container-wide py-16">
+            <div className="max-w-3xl mx-auto border border-[#D5CBB8] bg-[#FAF6EC] p-8 sm:p-12">
+              <div className="inline-flex items-center gap-2.5 mb-4">
+                <span className="badge-verified">Storefront Published</span>
+                <span className="font-mono text-xs text-[#6B675E]">
+                  /business/{createdBusiness.slug}
                 </span>
               </div>
-              <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-[-0.035em] text-[#0D0E11]">
-                {createdBusiness.name} IS NOW INDEXED ON PROVENTA.
+              <h1 className="font-display text-3xl sm:text-5xl font-normal tracking-[-0.02em] text-[#181914]">
+                {createdBusiness.name} is now live on PROVENTA.
               </h1>
-              <p className="mt-4 text-sm text-[#52514E] leading-relaxed">
-                Your commercial dossier is live. You can now inspect your public storefront, add
-                product and service listings, and respond to buyer enquiries from your vendor
-                console.
+              <p className="mt-4 text-sm sm:text-base text-[#5C584F] leading-relaxed">
+                Your digital storefront is published. You can now view your public business
+                page, add product and service listings, and respond to customer enquiries
+                from your business dashboard.
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                   href={`/business/${createdBusiness.slug}`}
-                  className="btn-accent"
+                  className="btn-terracotta"
                 >
-                  <span>VIEW PUBLIC STOREFRONT</span>
+                  <span>View Public Storefront</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
                 <Link href="/business/dashboard" className="btn-primary">
-                  <span>OPEN VENDOR CONSOLE</span>
+                  <span>Open Business Dashboard</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             </div>
-          ) : (
-            <>
-              <div className="pb-6 mb-8 border-b-2 border-[#0D0E11]">
+          </div>
+        ) : (
+          <>
+            <section className="bg-[#171A14] text-[#F6F0E4] border-b border-[#4C4A40]/70 py-12 lg:py-16">
+              <div className="container-wide">
                 <Link
                   href="/businesses"
-                  className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#0D0E11] hover:underline mb-4"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.14em] text-[#A7A194] hover:text-[#F6F0E4] mb-5"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
-                  <span>BACK TO THE BUSINESS INDEX</span>
+                  <span>Back to Business Directory</span>
                 </Link>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-end">
                   <div className="lg:col-span-8">
-                    <div className="inline-flex items-center gap-2 mb-3">
-                      <span className="index-code-lime">REGISTRY ONBOARDING // FORM-01</span>
-                      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
-                        COMMERCIAL ENTITY DOSSIER
+                    <div className="inline-flex items-center gap-2.5 mb-3">
+                      <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#B94E2D]">
+                        Business Onboarding
+                      </span>
+                      <span className="text-[#4C4A40]">·</span>
+                      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#A7A194]">
+                        Digital Storefront &amp; Lead Engine
                       </span>
                     </div>
-                    <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-[-0.04em] text-[#0D0E11] leading-[0.95]">
-                      PUBLISH YOUR BUSINESS IN THE INDEX.
+                    <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-normal tracking-[-0.02em] text-[#F6F0E4] leading-[1.02]">
+                      List your business on <span className="text-[#B94E2D]">PROVENTA.</span>
                     </h1>
                   </div>
-                  <div className="lg:col-span-4 font-mono text-xs text-[#52514E]">
-                    Complete your commercial dossier to establish a canonical storefront URL,
-                    publish offerings, and receive direct buyer enquiries.
+                  <div className="lg:col-span-4 text-sm text-[#A7A194] leading-relaxed">
+                    Create your business profile to establish a permanent storefront URL,
+                    publish products and services, and receive direct customer enquiries.
                   </div>
                 </div>
               </div>
+            </section>
 
+            <div className="container-wide py-12 lg:py-16">
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 <form
                   onSubmit={handleSubmit}
-                  className="lg:col-span-8 border-2 border-[#0D0E11] bg-[#FAF8F3] divide-y divide-[#0D0E11]"
+                  className="lg:col-span-8 border border-[#D5CBB8] bg-[#FAF6EC] divide-y divide-[#D5CBB8]"
                 >
                   {errorMsg && (
-                    <div className="p-4 bg-[#B8232A] text-[#FAF8F3] font-mono text-xs">
-                      ERROR // {errorMsg}
+                    <div className="p-4 bg-[#9E2A2B] text-[#F6F0E4] font-mono text-xs">
+                      {errorMsg}
                     </div>
                   )}
 
                   {/* Section 01: Entity Identity */}
                   <div className="p-6 sm:p-8 space-y-5">
-                    <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11]">
-                      01 // ENTITY IDENTITY &amp; SECTOR CLASSIFICATION
+                    <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A98253]">
+                      01 — Business Identity &amp; Industry Category
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          LEGAL OR TRADING BUSINESS NAME *
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Business / Brand Name *
                         </label>
                         <input
                           type="text"
@@ -206,17 +213,17 @@ export default function BusinessRegisterPage() {
                       </div>
 
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          PRIMARY SECTOR CODE *
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Primary Industry Category *
                         </label>
                         <select
                           value={primaryCategoryId}
                           onChange={(e) => setPrimaryCategoryId(e.target.value)}
-                          className="input-enterprise font-mono text-xs"
+                          className="input-enterprise"
                         >
                           {categories.map((cat, idx) => (
                             <option key={cat.id} value={cat.id}>
-                              [{String(idx + 1).padStart(2, '0')}] {cat.name}
+                              {String(idx + 1).padStart(2, '0')} — {cat.name}
                             </option>
                           ))}
                         </select>
@@ -224,8 +231,8 @@ export default function BusinessRegisterPage() {
                     </div>
 
                     <div>
-                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                        ONE-LINE COMMERCIAL POSITIONING / TAGLINE *
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                        Short Tagline / Value Proposition *
                       </label>
                       <input
                         type="text"
@@ -238,8 +245,8 @@ export default function BusinessRegisterPage() {
                     </div>
 
                     <div>
-                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                        OPERATING MODEL *
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                        Offering Type *
                       </label>
                       <div className="grid grid-cols-3 gap-3">
                         {(['PRODUCT', 'SERVICE', 'HYBRID'] as const).map((t) => (
@@ -247,10 +254,10 @@ export default function BusinessRegisterPage() {
                             key={t}
                             type="button"
                             onClick={() => setBusinessType(t)}
-                            className={`py-3 px-4 font-mono text-xs font-bold uppercase tracking-[0.12em] border border-[#0D0E11] transition-colors ${
+                            className={`py-3 px-4 font-mono text-xs font-medium uppercase tracking-[0.14em] border transition-colors ${
                               businessType === t
-                                ? 'bg-[#0D0E11] text-[#C8F904]'
-                                : 'bg-[#F4F1EA] text-[#0D0E11] hover:bg-[#EAE5DA]'
+                                ? 'bg-[#171A14] text-[#F6F0E4] border-[#171A14]'
+                                : 'bg-[#F5F0E5] text-[#181914] border-[#D5CBB8] hover:bg-[#E9DFCC]'
                             }`}
                           >
                             {t}
@@ -260,8 +267,8 @@ export default function BusinessRegisterPage() {
                     </div>
 
                     <div>
-                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                        CAPABILITIES, PRODUCTS &amp; SERVICES OVERVIEW *
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                        Business Overview, Products &amp; Services *
                       </label>
                       <textarea
                         rows={4}
@@ -276,19 +283,19 @@ export default function BusinessRegisterPage() {
 
                   {/* Section 02: Jurisdiction & Coordinates */}
                   <div className="p-6 sm:p-8 space-y-5">
-                    <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#0D0E11]">
-                      02 // JURISDICTION &amp; COMMERCIAL CONTACT LEDGER
+                    <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A98253]">
+                      02 — Location &amp; Business Contact Information
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          HEADQUARTERS CITY *
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Primary City *
                         </label>
                         <select
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          className="input-enterprise font-mono text-xs"
+                          className="input-enterprise"
                         >
                           {BRAND_CONFIG.initialCities.map((c) => (
                             <option key={c} value={c}>
@@ -298,8 +305,8 @@ export default function BusinessRegisterPage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          STATE / REGION
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          State / Region
                         </label>
                         <input
                           type="text"
@@ -309,8 +316,8 @@ export default function BusinessRegisterPage() {
                         />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          ESTABLISHED YEAR
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Year Established
                         </label>
                         <input
                           type="number"
@@ -322,8 +329,8 @@ export default function BusinessRegisterPage() {
                     </div>
 
                     <div>
-                      <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                        SERVICE / DELIVERY COVERAGE AREAS (COMMA-SEPARATED)
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                        Service / Delivery Areas (Comma-Separated)
                       </label>
                       <input
                         type="text"
@@ -336,8 +343,8 @@ export default function BusinessRegisterPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          BUSINESS EMAIL *
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Business Email *
                         </label>
                         <input
                           type="email"
@@ -349,8 +356,8 @@ export default function BusinessRegisterPage() {
                         />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          PRIMARY PHONE *
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Primary Phone *
                         </label>
                         <input
                           type="tel"
@@ -362,8 +369,8 @@ export default function BusinessRegisterPage() {
                         />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          WEBSITE URL
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Website URL
                         </label>
                         <input
                           type="url"
@@ -377,8 +384,8 @@ export default function BusinessRegisterPage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          SEARCH INDEX KEYWORDS (COMMA-SEPARATED)
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Search Keywords / Tags (Comma-Separated)
                         </label>
                         <input
                           type="text"
@@ -389,8 +396,8 @@ export default function BusinessRegisterPage() {
                         />
                       </div>
                       <div>
-                        <label className="block font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] mb-1.5">
-                          KEY CREDENTIALS / HIGHLIGHTS
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] text-[#181914] mb-1.5">
+                          Key Credentials / Highlights
                         </label>
                         <input
                           type="text"
@@ -407,75 +414,86 @@ export default function BusinessRegisterPage() {
                         type="checkbox"
                         checked={publishImmediately}
                         onChange={(e) => setPublishImmediately(e.target.checked)}
-                        className="h-4 w-4 accent-[#0D0E11]"
+                        className="h-4 w-4 accent-[#B94E2D]"
                       />
-                      <span className="font-mono text-xs text-[#0D0E11]">
-                        PUBLISH IMMEDIATELY TO THE PUBLIC BUSINESS INDEX
+                      <span className="text-xs font-medium text-[#181914]">
+                        Publish immediately to the PROVENTA business directory
                       </span>
                     </label>
                   </div>
 
-                  <div className="p-6 bg-[#EAE5DA] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <span className="font-mono text-[11px] text-[#52514E]">
-                      INSTANT STOREFRONT DOSSIER + CATALOG ACCESS
+                  <div className="p-6 bg-[#E9DFCC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-[#5C584F]">
+                      Instant Digital Storefront + Catalog Access
                     </span>
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="btn-accent w-full sm:w-auto"
+                      className="btn-terracotta w-full sm:w-auto"
                     >
                       <span>
-                        {submitting ? 'PUBLISHING DOSSIER...' : 'PUBLISH BUSINESS STOREFRONT →'}
+                        {submitting
+                          ? 'Publishing Storefront...'
+                          : 'Publish Business Storefront'}
                       </span>
+                      <ArrowRight className="h-4 w-4" />
                     </button>
                   </div>
                 </form>
 
                 {/* Right Column: Specification Sheet */}
-                <aside className="lg:col-span-4 border border-[#0D0E11] bg-[#0D0E11] text-[#F4F1EA] p-6 sm:p-8 space-y-6">
-                  <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#C8F904] pb-3 border-b border-[#2B2D33]">
-                    INCLUDED WITH YOUR ENTRY
+                <aside className="lg:col-span-4 border border-[#4C4A40]/70 bg-[#171A14] text-[#F6F0E4] p-6 sm:p-8 space-y-6">
+                  <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A98253] pb-3 border-b border-[#4C4A40]/70">
+                    Included With Your Storefront
                   </div>
-                  <ul className="space-y-4 text-xs text-[#CFCAC0]">
+                  <ul className="space-y-5 text-sm">
                     <li className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] text-[#0D0E11]">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center bg-[#B94E2D] text-[#F6F0E4]">
                         <Check className="h-3 w-3" />
                       </span>
                       <span>
-                        <strong className="text-[#F4F1EA] block font-mono uppercase">
+                        <strong className="text-[#F6F0E4] block font-medium">
                           Permanent Storefront URL
                         </strong>
-                        Dedicated publication page indexed by sector and city.
+                        <span className="text-xs text-[#A7A194] block mt-0.5">
+                          Dedicated business page indexed by industry category and city.
+                        </span>
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] text-[#0D0E11]">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center bg-[#B94E2D] text-[#F6F0E4]">
                         <Check className="h-3 w-3" />
                       </span>
                       <span>
-                        <strong className="text-[#F4F1EA] block font-mono uppercase">
-                          Structured Offerings Catalog
+                        <strong className="text-[#F6F0E4] block font-medium">
+                          Product &amp; Service Catalog
                         </strong>
-                        Publish products, service packages, pricing tiers, and turnaround specs.
+                        <span className="text-xs text-[#A7A194] block mt-0.5">
+                          Publish products, service packages, pricing tiers, and turnaround
+                          times.
+                        </span>
                       </span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center bg-[#C8F904] text-[#0D0E11]">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center bg-[#B94E2D] text-[#F6F0E4]">
                         <Check className="h-3 w-3" />
                       </span>
                       <span>
-                        <strong className="text-[#F4F1EA] block font-mono uppercase">
-                          Quotation Dispatch Console
+                        <strong className="text-[#F6F0E4] block font-medium">
+                          Quotation &amp; Lead Desk
                         </strong>
-                        Receive targeted buyer RFQs and issue formal quotations directly.
+                        <span className="text-xs text-[#A7A194] block mt-0.5">
+                          Receive targeted customer enquiries and submit formal quotations
+                          directly.
+                        </span>
                       </span>
                     </li>
                   </ul>
                 </aside>
               </div>
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </main>
 
       <MarketingFooter />

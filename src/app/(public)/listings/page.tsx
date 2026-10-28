@@ -52,22 +52,22 @@ export default function ListingsCatalogPage({
   const hasFilters = Boolean(query || selectedCategorySlug || selectedCity || selectedType);
 
   return (
-    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11]">
+    <div className="min-h-screen bg-[#F5F0E5] text-[#181914]">
       {/* =====================================================================
-          OFFERINGS CATALOG MASTHEAD & QUERY BAR
+          DARK ARCHITECTURAL CATALOG HEADER & WARM IVORY SEARCH BAR
       ===================================================================== */}
-      <section className="border-b-2 border-[#0D0E11] bg-[#FAF8F3]">
-        <div className="container-wide py-10 lg:py-14">
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-[#CFCAC0] font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
-            <div className="flex items-center gap-2">
-              <span className="index-code-lime">CATALOG // 02</span>
+      <section className="bg-[#171A14] text-[#F6F0E4] border-b border-[#4C4A40]">
+        <div className="container-wide py-12 lg:py-16">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-[#4C4A40] font-mono text-[11px] uppercase tracking-[0.18em] text-[#A7A194]">
+            <div className="flex items-center gap-3">
+              <span className="index-code-terracotta">CATALOG</span>
               <span>PRODUCTS, SERVICES &amp; COMMERCIAL PACKAGES</span>
             </div>
             <div>
               <span>
-                INDEXED OFFERINGS:{' '}
-                <strong className="text-[#0D0E11]">
-                  {String(listingsResult.total).padStart(3, '0')}
+                PUBLISHED OFFERINGS:{' '}
+                <strong className="text-[#F6F0E4]">
+                  {String(listingsResult.total).padStart(2, '0')}
                 </strong>
               </span>
             </div>
@@ -75,110 +75,126 @@ export default function ListingsCatalogPage({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
             <div className="lg:col-span-8">
-              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.04em] text-[#0D0E11] uppercase leading-[0.94]">
-                {activeCategory
-                  ? `${activeCategory.name} — CATALOG.`
-                  : 'PRODUCTS & SERVICES CATALOG.'}
+              <h1 className="font-display text-4xl sm:text-6xl text-[#F6F0E4] leading-[0.95]">
+                {activeCategory ? (
+                  `${activeCategory.name} — Offerings`
+                ) : selectedType === 'PRODUCT' ? (
+                  <>
+                    Products{' '}
+                    <span className="italic text-[#B94E2D]">without limits.</span>
+                  </>
+                ) : selectedType === 'SERVICE' ? (
+                  <>
+                    Services{' '}
+                    <span className="italic text-[#B94E2D]">without limits.</span>
+                  </>
+                ) : (
+                  <>
+                    Products &amp; Services{' '}
+                    <span className="italic text-[#B94E2D]">Catalog.</span>
+                  </>
+                )}
               </h1>
-              <p className="mt-4 text-sm sm:text-base text-[#52514E] max-w-2xl leading-relaxed">
-                Inspect structured commercial offerings with transparent pricing models, technical
-                specifications, turnaround timeframes, and direct RFQ dispatch.
+              <p className="mt-4 text-sm sm:text-base text-[#A7A194] max-w-2xl leading-relaxed">
+                Explore structured commercial offerings with transparent pricing, technical
+                specifications, turnaround times, and direct quotation requests.
               </p>
             </div>
-            <div className="lg:col-span-4 flex flex-wrap lg:justify-end gap-2.5">
-              <Link href="/enquiries/new" className="btn-primary">
-                <span>POST CUSTOM RFQ</span>
+            <div className="lg:col-span-4 flex flex-wrap lg:justify-end gap-3">
+              <Link href="/enquiries/new" className="btn-ivory">
+                <span>Post Enquiry</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <Link href="/businesses" className="btn-secondary">
-                <span>ENTITY DIRECTORY</span>
+              <Link href="/businesses" className="btn-terracotta">
+                <span>Browse Businesses</span>
+                <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
 
-          {/* Search & Classification Filter Bar */}
+          {/* Warm Ivory Filter Bar */}
           <form
             action="/listings"
             method="GET"
-            className="mt-8 grid grid-cols-1 md:grid-cols-12 border-2 border-[#0D0E11] bg-[#F4F1EA]"
+            className="mt-8 grid grid-cols-1 md:grid-cols-12 rounded-[2px] border border-[#E9DFCC] bg-[#F5F0E5] text-[#181914] p-2 divide-y md:divide-y-0 md:divide-x divide-[#D5CBB8]"
           >
-            <div className="md:col-span-4 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+            <div className="md:col-span-4 px-3.5 py-2.5">
               <label
                 htmlFor="cat-q"
-                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+                className="block font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] mb-1"
               >
-                01 // OFFERING KEYWORD OR SKU
+                Product or Service Keyword
               </label>
               <div className="flex items-center">
-                <Search className="h-4 w-4 text-[#52514E] mr-2 shrink-0" />
+                <Search className="h-4 w-4 text-[#B94E2D] mr-2 shrink-0" />
                 <input
                   id="cat-q"
                   type="text"
                   name="q"
                   defaultValue={query}
-                  placeholder="Search product name, service scope, specification..."
-                  className="w-full bg-transparent text-sm text-[#0D0E11] placeholder:text-[#78756F] focus:outline-none"
+                  placeholder="Search product, service, specification..."
+                  className="w-full bg-transparent text-sm text-[#181914] placeholder:text-[#7D786C] focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="md:col-span-3 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+            <div className="md:col-span-3 px-3.5 py-2.5">
               <label
                 htmlFor="cat-sector"
-                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+                className="block font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] mb-1"
               >
-                02 // SECTOR CLASSIFICATION
+                Industry
               </label>
               <select
                 id="cat-sector"
                 name="category"
                 defaultValue={selectedCategorySlug}
-                className="w-full bg-transparent font-mono text-xs text-[#0D0E11] focus:outline-none"
+                className="w-full bg-transparent font-mono text-xs text-[#181914] focus:outline-none"
               >
-                <option value="">ALL 18 SECTORS</option>
+                <option value="">All 18 Industries</option>
                 {categories.map((cat, idx) => (
                   <option key={cat.id} value={cat.slug}>
-                    [{String(idx + 1).padStart(2, '0')}] {cat.name}
+                    {String(idx + 1).padStart(2, '0')} — {cat.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="md:col-span-2 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+            <div className="md:col-span-2 px-3.5 py-2.5">
               <label
                 htmlFor="cat-type"
-                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+                className="block font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] mb-1"
               >
-                03 // CLASSIFICATION
+                Offering Type
               </label>
               <select
                 id="cat-type"
                 name="type"
                 defaultValue={selectedType}
-                className="w-full bg-transparent font-mono text-xs text-[#0D0E11] focus:outline-none"
+                className="w-full bg-transparent font-mono text-xs text-[#181914] focus:outline-none"
               >
-                <option value="">ALL TYPES</option>
-                <option value="PRODUCT">PRODUCT</option>
-                <option value="SERVICE">SERVICE</option>
-                <option value="PACKAGE">PACKAGE</option>
-                <option value="CUSTOM_SOLUTION">CUSTOM SOLUTION</option>
+                <option value="">All Offerings</option>
+                <option value="PRODUCT">Products</option>
+                <option value="SERVICE">Services</option>
+                <option value="PACKAGE">Packages</option>
+                <option value="CUSTOM_SOLUTION">Custom Solutions</option>
               </select>
             </div>
 
-            <div className="md:col-span-1 p-3.5 border-b md:border-b-0 md:border-r border-[#0D0E11]">
+            <div className="md:col-span-1 px-3.5 py-2.5">
               <label
                 htmlFor="cat-city"
-                className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#52514E] mb-1"
+                className="block font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] mb-1"
               >
-                04 // CITY
+                City
               </label>
               <select
                 id="cat-city"
                 name="city"
                 defaultValue={selectedCity}
-                className="w-full bg-transparent font-mono text-xs text-[#0D0E11] focus:outline-none"
+                className="w-full bg-transparent font-mono text-xs text-[#181914] focus:outline-none"
               >
-                <option value="">ALL</option>
+                <option value="">All</option>
                 {BRAND_CONFIG.initialCities.map((city) => (
                   <option key={city} value={city}>
                     {city}
@@ -187,12 +203,12 @@ export default function ListingsCatalogPage({
               </select>
             </div>
 
-            <div className="md:col-span-2 flex">
+            <div className="md:col-span-2 pt-2 md:pt-0 md:pl-2 flex">
               <button
                 type="submit"
-                className="w-full bg-[#0D0E11] text-[#F4F1EA] font-mono text-xs font-bold uppercase tracking-[0.14em] px-4 py-3 hover:bg-[#C8F904] hover:text-[#0D0E11] transition-colors flex items-center justify-center gap-2"
+                className="w-full rounded-[2px] bg-[#B94E2D] text-[#F6F0E4] font-mono text-xs font-medium uppercase tracking-[0.16em] px-4 py-3 hover:bg-[#A14122] transition-colors flex items-center justify-center gap-2"
               >
-                <span>QUERY CATALOG</span>
+                <span>Search</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -201,12 +217,12 @@ export default function ListingsCatalogPage({
       </section>
 
       {/* =====================================================================
-          CATALOG SPECIFICATION LEDGER
+          CATALOG RESULTS
       ===================================================================== */}
       <section className="py-12 lg:py-16">
         <div className="container-wide">
           {listingsResult.items.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-[#0D0E11]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {listingsResult.items.map((item, idx) => {
                 const formattedPrice = item.priceAmount
                   ? `₹${item.priceAmount.toLocaleString('en-IN')}${
@@ -216,53 +232,56 @@ export default function ListingsCatalogPage({
                 return (
                   <article
                     key={item.id}
-                    className="flex flex-col justify-between border-r border-b border-[#0D0E11] bg-[#FAF8F3] p-6 hover:bg-[#EAE5DA]/60 transition-colors"
+                    className="flex flex-col justify-between rounded-[2px] border border-[#D5CBB8] bg-[#FBF8F1] p-6 hover:border-[#B94E2D] transition-colors"
                   >
                     <div>
-                      <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#CFCAC0] font-mono text-[10px] uppercase tracking-[0.12em]">
-                        <span className="bg-[#0D0E11] text-[#F4F1EA] px-1.5 py-0.5 font-bold">
-                          ITEM // {String(idx + 1).padStart(3, '0')} · {item.listingType}
+                      <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#E9DFCC] font-mono text-[10px] uppercase tracking-[0.16em]">
+                        <span className="text-[#B94E2D] font-medium">
+                          {String(idx + 1).padStart(2, '0')} // {item.listingType}
                         </span>
-                        <span className="text-[#52514E]">{item.categoryName}</span>
+                        <span className="text-[#5C584F]">{item.categoryName}</span>
                       </div>
 
-                      <h2 className="font-display text-xl font-bold tracking-[-0.02em] text-[#0D0E11]">
+                      <h2 className="font-display text-2xl text-[#181914]">
                         {item.title}
                       </h2>
 
-                      <p className="mt-2 text-xs text-[#52514E] leading-relaxed line-clamp-3">
+                      <p className="mt-2 text-xs text-[#5C584F] leading-relaxed line-clamp-3">
                         {item.shortSummary || item.description}
                       </p>
 
                       {item.tags.length > 0 && (
-                        <ul className="mt-4 space-y-1 border-t border-[#CFCAC0] pt-3 font-mono text-[11px] text-[#0D0E11]">
+                        <div className="mt-4 flex flex-wrap gap-1.5 pt-3 border-t border-[#E9DFCC]">
                           {item.tags.slice(0, 3).map((tag: string) => (
-                            <li key={tag} className="truncate">
-                              + {tag}
-                            </li>
+                            <span
+                              key={tag}
+                              className="font-mono text-[10px] uppercase tracking-[0.08em] px-2 py-0.5 bg-[#E9DFCC] text-[#181914]"
+                            >
+                              {tag}
+                            </span>
                           ))}
-                        </ul>
+                        </div>
                       )}
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-[#0D0E11]">
+                    <div className="mt-6 pt-4 border-t border-[#D5CBB8]">
                       <div className="flex items-baseline justify-between mb-3 font-mono">
-                        <span className="text-[10px] uppercase tracking-[0.12em] text-[#52514E]">
-                          COMMERCIAL TERMS
+                        <span className="text-[10px] uppercase tracking-[0.14em] text-[#5C584F]">
+                          PRICING
                         </span>
-                        <span className="text-sm font-bold text-[#0D0E11]">
+                        <span className="text-sm font-semibold text-[#181914]">
                           {formattedPrice}
                         </span>
                       </div>
 
                       {item.businessName && item.businessSlug && (
-                        <div className="mb-4 flex items-center justify-between text-xs border-y border-[#CFCAC0] py-2">
-                          <span className="font-mono text-[10px] uppercase text-[#52514E]">
-                            VENDOR:
+                        <div className="mb-4 flex items-center justify-between text-xs border-y border-[#E9DFCC] py-2">
+                          <span className="font-mono text-[10px] uppercase text-[#5C584F]">
+                            BUSINESS:
                           </span>
                           <Link
                             href={`/business/${item.businessSlug}`}
-                            className="font-semibold text-[#0D0E11] underline truncate max-w-[200px]"
+                            className="font-medium text-[#181914] hover:text-[#B94E2D] underline truncate max-w-[200px]"
                           >
                             {item.businessName}
                             {item.businessCity ? ` (${item.businessCity})` : ''}
@@ -274,9 +293,9 @@ export default function ListingsCatalogPage({
                         {item.businessSlug ? (
                           <Link
                             href={`/business/${item.businessSlug}`}
-                            className="inline-flex items-center justify-center gap-1 border border-[#0D0E11] bg-[#FAF8F3] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] hover:bg-[#0D0E11] hover:text-[#F4F1EA]"
+                            className="btn-secondary py-2 px-3 text-[10px]"
                           >
-                            <span>STOREFRONT</span>
+                            <span>Storefront</span>
                             <ArrowUpRight className="h-3 w-3" />
                           </Link>
                         ) : (
@@ -284,9 +303,9 @@ export default function ListingsCatalogPage({
                         )}
                         <Link
                           href={`/enquiries/new?listingId=${item.id}&businessId=${item.businessId}`}
-                          className="inline-flex items-center justify-center gap-1 border border-[#0D0E11] bg-[#C8F904] px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] hover:bg-[#0D0E11] hover:text-[#C8F904]"
+                          className="btn-terracotta py-2 px-3 text-[10px]"
                         >
-                          <span>REQUEST QUOTE</span>
+                          <span>Request Quote</span>
                           <ArrowRight className="h-3 w-3" />
                         </Link>
                       </div>
@@ -296,30 +315,30 @@ export default function ListingsCatalogPage({
               })}
             </div>
           ) : (
-            <div className="border-2 border-[#0D0E11] bg-[#FAF8F3] p-8 sm:p-12">
-              <span className="index-code-lime mb-4">CATALOG STATUS // 0 MATCHING ITEMS</span>
-              <h2 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
+            <div className="rounded-[2px] border border-[#D5CBB8] bg-[#FBF8F1] p-8 sm:p-12">
+              <span className="index-code-terracotta mb-4">CATALOG // 0 MATCHING ITEMS</span>
+              <h2 className="font-display text-3xl sm:text-4xl text-[#181914]">
                 {hasFilters
-                  ? 'NO CATALOG LISTINGS MATCH YOUR FILTER PARAMETERS.'
-                  : 'PUBLISH PRODUCTS & SERVICES OR SUBMIT A CUSTOM BUYER ENQUIRY.'}
+                  ? 'No product or service listings match your current filters.'
+                  : 'Publish products & services or submit a custom buyer enquiry.'}
               </h2>
-              <p className="mt-3 text-sm text-[#52514E] max-w-2xl leading-relaxed">
+              <p className="mt-3 text-sm text-[#5C584F] max-w-2xl leading-relaxed">
                 {hasFilters
-                  ? 'Reset your search filters or post a direct buyer enquiry so verified vendors can respond with custom quotations.'
-                  : 'Businesses can publish unlimited structured product and service listings from their vendor console. Buyers can immediately submit an enquiry for any requirement.'}
+                  ? 'Reset your filter parameters or post a customer enquiry so matched businesses can send you tailored quotations.'
+                  : 'Business owners can add products, services, and packages from their console. Customers can post an enquiry for any requirement immediately.'}
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 {hasFilters && (
                   <Link href="/listings" className="btn-secondary">
-                    RESET FILTERS
+                    Reset Filters
                   </Link>
                 )}
-                <Link href="/enquiries/new" className="btn-primary">
-                  <span>POST BUYER ENQUIRY</span>
+                <Link href="/enquiries/new" className="btn-dark">
+                  <span>Post Customer Enquiry</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
-                <Link href="/business/register" className="btn-accent">
-                  <span>REGISTER BUSINESS &amp; PUBLISH CATALOG</span>
+                <Link href="/business/register" className="btn-terracotta">
+                  <span>List Your Business</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               </div>

@@ -3,78 +3,106 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA — The Business Index',
+  title: 'Sign In | PROVENTA — Business without limits.',
   description:
-    'Sign in to PROVENTA — The Business Index to manage your buyer enquiries, quotations, or business storefront dossier.',
+    'Sign in to PROVENTA to manage your customer enquiries, quotations, or business storefront.',
 };
+
+function getAuthErrorMessage(errorCode?: string): string | null {
+  if (!errorCode) return null;
+  switch (errorCode) {
+    case 'AccessDenied':
+      return 'Google sign-in was cancelled or access was denied.';
+    case 'OAuthAccountNotLinked':
+      return 'This email is already registered under an existing account that cannot be automatically linked. Please sign in with your email, password, and Authentication Key.';
+    case 'unverified_oauth_email':
+      return 'Your Google account email address must be verified before signing in.';
+    case 'account_suspended':
+      return 'This account has been suspended. Please contact support@proventa.in.';
+    case 'OAuthSignin':
+    case 'OAuthCallback':
+    case 'Callback':
+      return 'Google authentication could not be completed. Please try again.';
+    case 'invalid_token':
+    case 'invalid_or_expired_token':
+      return 'This verification link is invalid or has expired.';
+    default:
+      return 'Authentication was not completed. Please try again.';
+  }
+}
 
 export default async function SignInPage({
   searchParams,
 }: {
-  searchParams:
-    | Promise<{ error?: string; verified?: string; registered?: string; callbackUrl?: string }>
-    | { error?: string; verified?: string; registered?: string; callbackUrl?: string };
+  searchParams: Promise<{
+    error?: string;
+    verified?: string;
+    registered?: string;
+    callbackUrl?: string;
+  }>;
 }) {
-  const params = await Promise.resolve(searchParams);
+  const params = await searchParams;
+  const errorMessage = getAuthErrorMessage(params.error);
+
   return (
-    <div className="min-h-screen bg-[#F4F1EA] text-[#0D0E11] flex items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-[#171A14] text-[#F6F0E4] flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-md">
-        {/* Brand Masthead */}
-        <div className="mb-6 flex items-center justify-between border-b-2 border-[#0D0E11] pb-4">
-          <Link href="/" className="inline-flex items-center gap-3 group">
-            <span className="flex h-10 w-10 items-center justify-center bg-[#0D0E11] text-[#C8F904] font-mono text-xs font-bold group-hover:bg-[#C8F904] group-hover:text-[#0D0E11] border border-[#0D0E11] transition-colors">
-              PV/I
+        {/* Architectural Header */}
+        <div className="mb-8 text-center">
+          <Link href="/" className="inline-block">
+            <span className="font-serif text-3xl tracking-[0.18em] uppercase text-[#F6F0E4] hover:text-[#B94E2D] transition-colors">
+              PROVENTA
             </span>
-            <div>
-              <span className="font-display text-xl font-bold tracking-[-0.04em] text-[#0D0E11] block leading-none">
-                PROVENTA
-              </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#52514E]">
-                THE BUSINESS INDEX
-              </span>
-            </div>
           </Link>
-          <span className="index-code-lime">AUTH // 01</span>
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#A98253]">
+            Business without limits. · Every Business. One Place.
+          </p>
         </div>
 
         {(params.verified || params.registered) && (
-          <div className="mb-6 p-4 bg-[#C8F904] border border-[#0D0E11] font-mono text-xs font-bold text-[#0D0E11]">
-            ✓ CREDENTIALS CONFIGURED. YOU CAN NOW SIGN IN BELOW.
+          <div className="mb-6 p-4 bg-[#20211C] border border-[#A98253] rounded-[2px] text-xs text-[#E9DFCC] font-mono">
+            Account activated. You can now sign in with Google or your credentials.
           </div>
         )}
 
-        {params.error && (
-          <div className="mb-6 p-4 bg-[#B8232A] border border-[#0D0E11] font-mono text-xs text-[#FAF8F3]">
-            {params.error === 'invalid_token'
-              ? 'INVALID OR EXPIRED VERIFICATION LINK.'
-              : params.error === 'invalid_or_expired_token'
-                ? 'THIS VERIFICATION LINK HAS EXPIRED. PLEASE REQUEST A NEW ONE.'
-                : 'AUTHENTICATION FAILED. PLEASE VERIFY YOUR CREDENTIALS.'}
+        {errorMessage && (
+          <div
+            role="alert"
+            className="mb-6 p-4 bg-[#B94E2D]/20 border border-[#B94E2D] rounded-[2px] text-xs text-[#F6F0E4]"
+          >
+            {errorMessage}
           </div>
         )}
 
-        <div className="border-2 border-[#0D0E11] bg-[#FAF8F3] p-8">
-          <div className="mb-6 pb-4 border-b border-[#CFCAC0]">
-            <h1 className="font-display text-2xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
-              SIGN IN TO THE REGISTRY
+        {/* Warm Ivory Auth Card */}
+        <div className="rounded-[2px] border border-[#D5CBB8] bg-[#F5F0E5] text-[#181914] p-8 shadow-elevated">
+          <div className="mb-6 pb-4 border-b border-[#D5CBB8]">
+            <h1 className="font-display text-3xl text-[#181914]">
+              Sign In to PROVENTA
             </h1>
-            <p className="text-xs text-[#52514E] mt-1 font-mono">
-              ACCESS YOUR BUYER LEDGER OR VENDOR STOREFRONT CONSOLE
+            <p className="text-xs text-[#5C584F] mt-1">
+              Access your customer enquiry workspace or business storefront console.
             </p>
           </div>
           <SignInForm callbackUrl={params.callbackUrl} />
         </div>
 
-        <div className="mt-6 border border-[#0D0E11] bg-[#EAE5DA] p-4 font-mono text-xs text-[#0D0E11] space-y-2">
+        <div className="mt-6 rounded-[2px] border border-[#4C4A40] bg-[#20211C] p-4 font-mono text-xs text-[#E9DFCC] space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[#52514E]">NEW TO PROVENTA?</span>
-            <Link href="/sign-up" className="font-bold underline">
+            <span className="text-[#A7A194]">NEW TO PROVENTA?</span>
+            <Link
+              href="/sign-up"
+              className="text-[#B94E2D] hover:underline font-medium"
+            >
               CREATE ACCOUNT →
             </Link>
           </div>
-          <div className="flex items-center justify-between pt-2 border-t border-[#CFCAC0]">
-            <span className="text-[#52514E]">PUBLISHING AN ENTITY?</span>
-            <Link href="/business/register" className="font-bold underline">
+          <div className="flex items-center justify-between pt-2 border-t border-[#4C4A40]">
+            <span className="text-[#A7A194]">LISTING A BUSINESS?</span>
+            <Link
+              href="/business/register"
+              className="text-[#F6F0E4] hover:text-[#B94E2D] hover:underline font-medium"
+            >
               REGISTER STOREFRONT →
             </Link>
           </div>

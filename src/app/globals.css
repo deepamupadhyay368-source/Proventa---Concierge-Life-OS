@@ -4,78 +4,77 @@
 
 @layer base {
   :root {
-    /* THE BUSINESS INDEX — Swiss Modernist Editorial Palette */
-    /* Warm Paper-Ivory (#F4F1EA) & Ink-Black (#0D0E11) & Acid-Lime (#C8F904) */
-    --background: 42 27% 94%;
-    --foreground: 225 13% 6%;
+    /* PROVENTA Architectural Editorial Design System */
+    /* Warm Ivory (#F5F0E5), Soft Cream (#E9DFCC), Deep Architectural (#171A14), Terracotta (#B94E2D) */
+    --background: 41 42% 93%;
+    --foreground: 72 11% 9%;
 
-    --card: 43 33% 97%;
-    --card-foreground: 225 13% 6%;
+    --card: 41 42% 93%;
+    --card-foreground: 72 11% 9%;
 
-    --popover: 43 33% 97%;
-    --popover-foreground: 225 13% 6%;
+    --popover: 41 42% 93%;
+    --popover-foreground: 72 11% 9%;
 
-    /* Primary: Deep Printing-Press Ink-Black (#0D0E11) */
-    --primary: 225 13% 6%;
-    --primary-foreground: 42 27% 94%;
+    /* Primary: Terracotta Accent (#B94E2D) */
+    --primary: 14 61% 45%;
+    --primary-foreground: 40 47% 93%;
 
-    /* Secondary / Muted: Recessed Ledger Ivory (#EAE5DA) */
-    --secondary: 40 24% 89%;
-    --secondary-foreground: 225 13% 6%;
+    /* Secondary: Soft Cream (#E9DFCC) */
+    --secondary: 39 40% 86%;
+    --secondary-foreground: 72 11% 9%;
 
-    --muted: 40 24% 89%;
-    --muted-foreground: 45 3% 31%;
+    --muted: 39 40% 86%;
+    --muted-foreground: 41 9% 36%;
 
-    /* Accent: High-Visibility Acid-Lime Signal (#C8F904) */
-    --accent: 72 97% 50%;
-    --accent-foreground: 225 13% 6%;
+    /* Accent: Muted Bronze (#A98253) */
+    --accent: 33 34% 49%;
+    --accent-foreground: 40 47% 93%;
 
-    /* Destructive: Editorial Crimson (#B8232A) */
-    --destructive: 357 68% 43%;
-    --destructive-foreground: 43 33% 97%;
+    --destructive: 8 68% 42%;
+    --destructive-foreground: 40 47% 93%;
 
-    /* Structural Hairlines (#CFCAC0) */
-    --border: 39 15% 78%;
-    --input: 225 13% 6%;
-    --ring: 225 13% 6%;
+    /* Subtle Border (#D5CBB8 on light / #4C4A40 on dark) */
+    --border: 39 26% 78%;
+    --input: 48 9% 27%;
+    --ring: 14 61% 45%;
 
-    /* Architectural 0px Swiss Grid Corners */
-    --radius: 0rem;
+    /* Restrained architectural radius */
+    --radius: 0.25rem;
 
     /* Typography */
     --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-display: 'Instrument Serif', Georgia, Cambria, 'Times New Roman', serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
   }
 
   .dark {
-    --background: 225 13% 6%;
-    --foreground: 42 27% 94%;
+    --background: 90 14% 9%;
+    --foreground: 40 47% 93%;
 
-    --card: 225 12% 9%;
-    --card-foreground: 42 27% 94%;
+    --card: 72 8% 12%;
+    --card-foreground: 40 47% 93%;
 
-    --popover: 225 12% 9%;
-    --popover-foreground: 42 27% 94%;
+    --popover: 72 8% 12%;
+    --popover-foreground: 40 47% 93%;
 
-    --primary: 72 97% 50%;
-    --primary-foreground: 225 13% 6%;
+    --primary: 14 61% 45%;
+    --primary-foreground: 40 47% 93%;
 
-    --secondary: 225 10% 14%;
-    --secondary-foreground: 42 27% 94%;
+    --secondary: 72 8% 15%;
+    --secondary-foreground: 40 47% 93%;
 
-    --muted: 225 10% 14%;
-    --muted-foreground: 40 12% 68%;
+    --muted: 72 8% 15%;
+    --muted-foreground: 41 11% 62%;
 
-    --accent: 72 97% 50%;
-    --accent-foreground: 225 13% 6%;
+    --accent: 33 34% 49%;
+    --accent-foreground: 40 47% 93%;
 
-    --destructive: 357 68% 50%;
-    --destructive-foreground: 42 27% 94%;
+    --destructive: 8 68% 46%;
+    --destructive-foreground: 40 47% 93%;
 
-    --border: 225 10% 20%;
-    --input: 225 10% 24%;
-    --ring: 72 97% 50%;
+    --border: 50 9% 27%;
+    --input: 50 9% 27%;
+    --ring: 14 61% 45%;
   }
 }
 
@@ -86,19 +85,18 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #F4F1EA;
-    color: #0D0E11;
+    background-color: #171A14;
+    color: #181914;
   }
 
   body {
-    @apply bg-[#F4F1EA] text-[#0D0E11] antialiased selection:bg-[#C8F904] selection:text-[#0D0E11];
+    @apply bg-[#F5F0E5] text-[#181914] antialiased selection:bg-[#B94E2D] selection:text-[#F6F0E4];
     font-family: var(--font-inter);
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'ss01';
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
-  h1, h2, h3, h4, .font-display {
+  h1, h2, .font-serif-display {
     font-family: var(--font-display);
-    letter-spacing: -0.03em;
   }
 }
 
@@ -113,7 +111,7 @@
 
   .font-mono-tech {
     font-family: var(--font-mono);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.14em;
   }
 
   .container-narrow {
@@ -121,75 +119,92 @@
   }
 
   .container-wide {
-    @apply max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-10;
+    @apply max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-10;
   }
 
-  /* THE BUSINESS INDEX — Structural Surfaces & Ledger Sheets */
+  /* Architectural Editorial Surfaces */
+  .surface-dark {
+    @apply bg-[#171A14] text-[#F6F0E4] border border-[#4C4A40];
+  }
+
+  .surface-charcoal {
+    @apply bg-[#20211C] text-[#F6F0E4] border border-[#4C4A40];
+  }
+
   .surface-card,
   .card-premium,
   .index-sheet {
-    @apply bg-[#FAF8F3] border border-[#0D0E11] rounded-none;
+    @apply bg-[#F5F0E5] text-[#181914] border border-[#D5CBB8] rounded-[2px];
   }
 
-  .surface-card-interactive {
-    @apply bg-[#FAF8F3] border border-[#0D0E11] rounded-none transition-colors duration-150 hover:bg-[#EAE5DA];
-  }
-
+  .surface-cream,
   .surface-muted,
   .index-cell {
-    @apply bg-[#EAE5DA] border border-[#CFCAC0] rounded-none;
+    @apply bg-[#E9DFCC] text-[#181914] border border-[#D5CBB8] rounded-[2px];
   }
 
-  /* Technical Labels & Index Numerals */
-  .index-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E] font-medium;
+  /* Micro-Labels & Index Tags */
+  .arch-label {
+    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-[#A7A194];
+  }
+
+  .arch-label-light {
+    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-[#5C584F];
   }
 
   .index-code {
-    @apply inline-flex items-center font-mono text-[11px] font-semibold uppercase tracking-[0.1em] px-1.5 py-0.5 bg-[#0D0E11] text-[#F4F1EA];
+    @apply inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-[0.16em] px-2 py-0.5 bg-[#20211C] text-[#F6F0E4] border border-[#4C4A40];
   }
 
+  .index-code-terracotta,
   .index-code-lime {
-    @apply inline-flex items-center font-mono text-[11px] font-bold uppercase tracking-[0.1em] px-1.5 py-0.5 bg-[#C8F904] text-[#0D0E11] border border-[#0D0E11];
+    @apply inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-[0.16em] px-2 py-0.5 bg-[#B94E2D] text-[#F6F0E4] border border-[#B94E2D];
   }
 
-  /* THE BUSINESS INDEX — Primary & Secondary Action Triggers */
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-none bg-[#0D0E11] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#F4F1EA] border border-[#0D0E11] transition-colors duration-150 hover:bg-[#C8F904] hover:text-[#0D0E11] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D0E11] disabled:opacity-50 disabled:pointer-events-none;
-  }
-
+  /* Primary & Secondary Architectural Triggers */
+  .btn-primary,
+  .btn-terracotta,
   .btn-accent {
-    @apply inline-flex items-center justify-center gap-2 rounded-none bg-[#C8F904] px-5 py-3 font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#0D0E11] border border-[#0D0E11] transition-colors duration-150 hover:bg-[#0D0E11] hover:text-[#C8F904] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D0E11] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] bg-[#B94E2D] px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#F6F0E4] border border-[#B94E2D] transition-all duration-200 hover:bg-[#A14122] hover:border-[#A14122] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] bg-[#171A14] px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#F6F0E4] border border-[#4C4A40] transition-all duration-200 hover:bg-[#B94E2D] hover:border-[#B94E2D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-none border border-[#0D0E11] bg-[#FAF8F3] px-5 py-3 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#0D0E11] transition-colors duration-150 hover:bg-[#0D0E11] hover:text-[#F4F1EA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0D0E11] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] border border-[#4C4A40] bg-transparent px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#181914] transition-all duration-200 hover:bg-[#171A14] hover:text-[#F6F0E4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .btn-ivory {
+    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] border border-[#F5F0E5] bg-[#F5F0E5] px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#181914] transition-all duration-200 hover:bg-[#E9DFCC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
   }
 
   /* Editorial Form Controls */
   .input-enterprise {
-    @apply w-full rounded-none border border-[#0D0E11] bg-[#FAF8F3] px-3.5 py-2.5 text-sm text-[#0D0E11] placeholder:text-[#78756F] transition-colors focus:border-[#0D0E11] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#C8F904];
+    @apply w-full rounded-[2px] border border-[#CFC5B2] bg-[#FBF8F1] px-3.5 py-2.5 text-sm text-[#181914] placeholder:text-[#7D786C] transition-colors focus:border-[#B94E2D] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#B94E2D];
   }
 
-  /* Classification Badges & Verification Stamps */
+  /* Trust & Verification Badges */
   .badge-verified {
-    @apply inline-flex items-center gap-1.5 rounded-none bg-[#C8F904] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.1em] text-[#0D0E11] border border-[#0D0E11];
+    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-[#B94E2D]/15 px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#B94E2D] border border-[#B94E2D]/40;
   }
 
   .badge-neutral {
-    @apply inline-flex items-center gap-1.5 rounded-none bg-[#EAE5DA] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#0D0E11] border border-[#CFCAC0];
+    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-[#E9DFCC] px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#181914] border border-[#CFC5B2];
   }
 
-  .badge-accent {
-    @apply inline-flex items-center gap-1.5 rounded-none bg-[#0D0E11] px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-[#C8F904] border border-[#0D0E11];
+  .badge-bronze {
+    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-[#A98253]/20 px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#A98253] border border-[#A98253]/40;
   }
+}
 
-  .divider {
-    @apply border-t border-[#CFCAC0];
-  }
-
-  .divider-heavy {
-    @apply border-t-2 border-[#0D0E11];
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
@@ -200,17 +215,17 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #EAE5DA;
+  background: #171A14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0D0E11;
+  background: #4C4A40;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #52514E;
+  background: #B94E2D;
 }
 
 :focus-visible {
-  @apply outline-none ring-2 ring-[#0D0E11] ring-offset-2 ring-offset-[#F4F1EA];
+  @apply outline-none ring-2 ring-[#B94E2D] ring-offset-2 ring-offset-[#171A14];
 }

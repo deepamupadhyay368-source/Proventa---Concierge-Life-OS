@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { Inter, Instrument_Serif, IBM_Plex_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -11,36 +11,37 @@ const inter = Inter({
   display: 'swap',
 });
 
-const spaceGrotesk = Space_Grotesk({
+const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   variable: '--font-display',
-  weight: ['500', '600', '700'],
+  weight: '400',
+  style: ['normal', 'italic'],
   display: 'swap',
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600'],
   display: 'swap',
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — The Business Index | Every Business. One Place.',
-    template: '%s | PROVENTA — The Business Index',
+    default: 'PROVENTA — Business without limits. | Complete Business Discovery Platform',
+    template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA is The Business Index — a universal trade and commerce registry where businesses publish verified storefronts, buyers search across 18 sectors, and structured enquiries convert into direct quotations.',
+    'PROVENTA — Business without limits. The complete business discovery and opportunity platform. Discover. Connect. Collaborate. Grow. Every Business. One Place.',
   keywords: [
-    'The Business Index',
-    'business discovery platform',
-    'B2B and B2C directory India',
-    'verified business storefronts',
-    'product and service catalog',
-    'request quotations',
     'PROVENTA',
+    'Business without limits',
+    'business discovery platform',
+    'B2B and B2C marketplace India',
+    'verified business storefronts',
+    'products and services directory',
+    'request quotations',
   ],
   authors: [{ name: 'PROVENTA' }],
   creator: 'PROVENTA',
@@ -49,24 +50,24 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_IN',
     url: 'https://proventa.in',
-    siteName: 'PROVENTA — The Business Index',
-    title: 'PROVENTA — Every Business. One Place.',
+    siteName: 'PROVENTA',
+    title: 'PROVENTA — Business without limits.',
     description:
-      'The Business Index. Discover verified businesses, inspect structured product & service catalogs, and dispatch enquiries for competitive quotations.',
+      'The complete business discovery and opportunity platform. Discover businesses, products, services, industries, and commercial opportunities.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'PROVENTA — The Business Index | Every Business. One Place.',
+        alt: 'PROVENTA — Business without limits.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PROVENTA — The Business Index',
+    title: 'PROVENTA — Business without limits.',
     description:
-      'Every Business. One Place. Search verified storefronts, products, services, and trade quotations.',
+      'The complete business discovery and opportunity platform. Discover. Connect. Collaborate. Grow.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -93,8 +94,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F4F1EA' },
-    { media: '(prefers-color-scheme: dark)', color: '#0D0E11' },
+    { media: '(prefers-color-scheme: light)', color: '#171A14' },
+    { media: '(prefers-color-scheme: dark)', color: '#171A14' },
   ],
 };
 
@@ -107,9 +108,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable}`}
     >
-      <body className="min-h-screen bg-[#F4F1EA] text-[#0D0E11] antialiased">
+      <body className="min-h-screen bg-[#F5F0E5] text-[#181914] antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

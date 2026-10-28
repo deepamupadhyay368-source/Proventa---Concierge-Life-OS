@@ -99,7 +99,7 @@ export default function BusinessDashboardPage() {
       setListingTitle('');
       setListingSummary('');
       setPriceAmount('');
-      setListingNotice('OFFERING PUBLISHED TO STOREFRONT LEDGER.');
+      setListingNotice('Offering published to your business storefront.');
       await loadWorkspace();
     }
   }
@@ -128,28 +128,31 @@ export default function BusinessDashboardPage() {
       setQuoteSummary('');
       setQuoteAmount('');
       setQuoteProposal('');
-      setQuoteNotice('QUOTATION DISPATCHED TO BUYER.');
+      setQuoteNotice('Quotation submitted to customer.');
       await loadWorkspace();
     }
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F4F1EA] text-[#0D0E11]">
+    <div className="min-h-screen flex flex-col bg-[#F5F0E5] text-[#181914]">
       <MarketingNav />
 
-      <main className="flex-1 py-10 lg:py-14">
-        <div className="container-wide">
-          {/* Console Header */}
-          <div className="border-b-2 border-[#0D0E11] pb-6 mb-8 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      <main className="flex-1">
+        {/* Console Header */}
+        <section className="bg-[#171A14] text-[#F6F0E4] border-b border-[#4C4A40]/70 py-10 lg:py-14">
+          <div className="container-wide flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 mb-2">
-                <span className="index-code-lime">VENDOR CONSOLE // LEDGER</span>
-                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#52514E]">
-                  STOREFRONT, CATALOG &amp; QUOTATION OPERATIONS
+              <div className="inline-flex items-center gap-2.5 mb-2">
+                <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-[#B94E2D]">
+                  Business Operations Dashboard
+                </span>
+                <span className="text-[#4C4A40]">·</span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-[#A7A194]">
+                  Storefront, Offerings &amp; Quotations
                 </span>
               </div>
-              <h1 className="font-display text-3xl sm:text-5xl font-bold uppercase tracking-[-0.04em] text-[#0D0E11]">
-                {activeBusiness ? activeBusiness.name : 'BUSINESS OPERATIONS CONSOLE'}
+              <h1 className="font-display text-3xl sm:text-5xl font-normal tracking-[-0.02em] text-[#F6F0E4]">
+                {activeBusiness ? activeBusiness.name : 'Business Workspace'}
               </h1>
             </div>
 
@@ -158,11 +161,11 @@ export default function BusinessDashboardPage() {
                 <select
                   value={activeBusiness?.id || ''}
                   onChange={(e) => setSelectedBusinessId(e.target.value)}
-                  className="border border-[#0D0E11] bg-[#FAF8F3] px-3 py-2.5 font-mono text-xs text-[#0D0E11]"
+                  className="border border-[#4C4A40] bg-[#20211C] px-3.5 py-2.5 font-mono text-xs text-[#F6F0E4]"
                 >
                   {businesses.map((b) => (
                     <option key={b.id} value={b.id}>
-                      ENTITY: {b.name}
+                      Business: {b.name}
                     </option>
                   ))}
                 </select>
@@ -170,36 +173,40 @@ export default function BusinessDashboardPage() {
               {activeBusiness && (
                 <Link
                   href={`/business/${activeBusiness.slug}`}
-                  className="btn-secondary"
+                  className="inline-flex items-center gap-2 border border-[#4C4A40] bg-[#20211C] px-4 py-2.5 text-xs font-medium uppercase tracking-[0.12em] text-[#F6F0E4] hover:border-[#A98253] transition-colors"
                 >
-                  <span>PUBLIC DOSSIER</span>
+                  <span>Public Storefront</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
               )}
-              <Link href="/business/register" className="btn-accent">
+              <Link href="/business/register" className="btn-terracotta">
                 <Plus className="h-4 w-4" />
-                <span>REGISTER NEW ENTITY</span>
+                <span>Register New Business</span>
               </Link>
             </div>
           </div>
+        </section>
 
+        <div className="container-wide py-10 lg:py-14">
           {loading ? (
-            <div className="border border-[#0D0E11] bg-[#FAF8F3] p-12 font-mono text-xs uppercase tracking-[0.14em]">
-              LOADING VENDOR LEDGER...
+            <div className="border border-[#D5CBB8] bg-[#FAF6EC] p-12 font-mono text-xs uppercase tracking-[0.14em] text-[#6B675E]">
+              Loading business workspace...
             </div>
           ) : !activeBusiness ? (
-            <div className="border-2 border-[#0D0E11] bg-[#FAF8F3] p-8 sm:p-12">
-              <span className="index-code-lime mb-3">NO REGISTERED ENTITY FOUND</span>
-              <h2 className="font-display text-2xl sm:text-4xl font-bold uppercase tracking-[-0.03em] text-[#0D0E11]">
-                PUBLISH YOUR FIRST BUSINESS STOREFRONT TO ACTIVATE THIS CONSOLE.
+            <div className="border border-[#D5CBB8] bg-[#FAF6EC] p-8 sm:p-12">
+              <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#B94E2D] block mb-3">
+                No Business Profile Registered Yet
+              </span>
+              <h2 className="font-display text-3xl sm:text-4xl font-normal text-[#181914]">
+                Publish your first business storefront to activate this console.
               </h2>
-              <p className="mt-3 text-sm text-[#52514E] max-w-2xl">
-                Register your company in The Business Index to manage product &amp; service
-                listings, inspect buyer enquiries, and issue formal quotations.
+              <p className="mt-3 text-sm text-[#5C584F] max-w-2xl">
+                Register your company on PROVENTA to manage product and service listings,
+                inspect incoming customer enquiries, and send quotations.
               </p>
               <div className="mt-6">
-                <Link href="/business/register" className="btn-primary">
-                  <span>PUBLISH BUSINESS STOREFRONT</span>
+                <Link href="/business/register" className="btn-terracotta">
+                  <span>List Your Business</span>
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
@@ -207,73 +214,73 @@ export default function BusinessDashboardPage() {
           ) : (
             <>
               {/* Telemetry Strip */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 border border-[#0D0E11] bg-[#FAF8F3] divide-y lg:divide-y-0 divide-x divide-[#0D0E11] mb-8 font-mono">
+              <div className="grid grid-cols-2 lg:grid-cols-4 border border-[#D5CBB8] bg-[#FAF6EC] divide-y lg:divide-y-0 divide-x divide-[#D5CBB8] mb-8">
                 <div className="p-5">
-                  <div className="text-[10px] uppercase tracking-[0.14em] text-[#52514E]">
-                    STOREFRONT STATUS
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B675E]">
+                    Storefront Status
                   </div>
-                  <div className="mt-2 text-lg font-bold text-[#0D0E11]">
+                  <div className="mt-2 font-display text-2xl text-[#181914]">
                     {activeBusiness.status}
                   </div>
                 </div>
                 <div className="p-5">
-                  <div className="text-[10px] uppercase tracking-[0.14em] text-[#52514E]">
-                    VERIFICATION TIER
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B675E]">
+                    Verification Tier
                   </div>
-                  <div className="mt-2 text-lg font-bold text-[#0D0E11] flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4" />
+                  <div className="mt-2 font-display text-2xl text-[#181914] flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-[#B94E2D]" />
                     {VERIFICATION_BADGE_META[activeBusiness.verificationLevel].shortLabel}
                   </div>
                 </div>
                 <div className="p-5">
-                  <div className="text-[10px] uppercase tracking-[0.14em] text-[#52514E]">
-                    PUBLISHED CATALOG ITEMS
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B675E]">
+                    Published Offerings
                   </div>
-                  <div className="mt-2 text-lg font-bold text-[#0D0E11]">
-                    {activeListings.length} ITEMS
+                  <div className="mt-2 font-display text-2xl text-[#181914]">
+                    {activeListings.length} Listings
                   </div>
                 </div>
                 <div className="p-5">
-                  <div className="text-[10px] uppercase tracking-[0.14em] text-[#52514E]">
-                    INCOMING BUYER RFQS
+                  <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6B675E]">
+                    Customer Enquiries
                   </div>
-                  <div className="mt-2 text-lg font-bold text-[#0D0E11]">
-                    {enquiries.length} ENQUIRIES
+                  <div className="mt-2 font-display text-2xl text-[#181914]">
+                    {enquiries.length} Enquiries
                   </div>
                 </div>
               </div>
 
               {/* Tab Navigation */}
-              <div className="flex flex-wrap border-b-2 border-[#0D0E11] mb-8 font-mono text-xs font-bold uppercase tracking-[0.12em]">
+              <div className="flex flex-wrap border-b border-[#D5CBB8] mb-8 font-mono text-xs uppercase tracking-[0.14em]">
                 {(['enquiries', 'catalog', 'profile'] as const).map((tab, i) => (
                   <button
                     key={tab}
                     type="button"
                     onClick={() => setActiveTab(tab)}
-                    className={`px-6 py-3.5 border-t border-r first:border-l border-[#0D0E11] transition-colors ${
+                    className={`px-6 py-3.5 border-t border-r first:border-l border-[#D5CBB8] transition-colors ${
                       activeTab === tab
-                        ? 'bg-[#0D0E11] text-[#C8F904]'
-                        : 'bg-[#FAF8F3] text-[#0D0E11] hover:bg-[#EAE5DA]'
+                        ? 'bg-[#171A14] text-[#F6F0E4] font-semibold'
+                        : 'bg-[#FAF6EC] text-[#5C584F] hover:bg-[#E9DFCC] hover:text-[#181914]'
                     }`}
                   >
-                    0{i + 1} //{' '}
+                    0{i + 1} —{' '}
                     {tab === 'enquiries'
-                      ? `BUYER ENQUIRIES (${enquiries.length})`
+                      ? `Customer Enquiries (${enquiries.length})`
                       : tab === 'catalog'
-                        ? `CATALOG LEDGER (${activeListings.length})`
-                        : 'STOREFRONT DOSSIER'}
+                        ? `Products & Services (${activeListings.length})`
+                        : 'Business Profile'}
                   </button>
                 ))}
               </div>
 
               {quoteNotice && (
-                <div className="mb-6 p-4 border border-[#0D0E11] bg-[#C8F904] font-mono text-xs font-bold text-[#0D0E11]">
+                <div className="mb-6 p-4 border border-[#B94E2D] bg-[#B94E2D]/10 font-mono text-xs font-medium text-[#181914]">
                   ✓ {quoteNotice}
                 </div>
               )}
 
               {listingNotice && (
-                <div className="mb-6 p-4 border border-[#0D0E11] bg-[#C8F904] font-mono text-xs font-bold text-[#0D0E11]">
+                <div className="mb-6 p-4 border border-[#B94E2D] bg-[#B94E2D]/10 font-mono text-xs font-medium text-[#181914]">
                   ✓ {listingNotice}
                 </div>
               )}
@@ -290,49 +297,55 @@ export default function BusinessDashboardPage() {
                       return (
                         <div
                           key={enq.id}
-                          className="border border-[#0D0E11] bg-[#FAF8F3] p-6"
+                          className="border border-[#D5CBB8] bg-[#FAF6EC] p-6"
                         >
-                          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#CFCAC0] font-mono text-xs">
+                          <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#D5CBB8] font-mono text-xs">
                             <div className="flex items-center gap-2">
-                              <span className="index-code">{enq.referenceCode}</span>
-                              <span className="text-[#52514E] uppercase">
+                              <span className="badge-neutral">{enq.referenceCode}</span>
+                              <span className="text-[#6B675E] uppercase">
                                 {enq.categoryName} · {enq.city}
                               </span>
                             </div>
-                            <span className="index-code-lime">{enq.status}</span>
+                            <span className="badge-verified">{enq.status}</span>
                           </div>
 
-                          <h3 className="font-display text-xl font-bold text-[#0D0E11]">
+                          <h3 className="font-display text-2xl font-normal text-[#181914]">
                             {enq.title}
                           </h3>
-                          <p className="mt-2 text-sm text-[#52514E]">{enq.description}</p>
+                          <p className="mt-2 text-sm text-[#5C584F] leading-relaxed">
+                            {enq.description}
+                          </p>
 
-                          <dl className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-[#CFCAC0] pt-3 font-mono text-xs">
+                          <dl className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-[#D5CBB8] pt-3 font-mono text-xs">
                             <div>
-                              <dt className="text-[#52514E]">QUANTITY / SCOPE</dt>
-                              <dd className="font-bold text-[#0D0E11]">
+                              <dt className="text-[#6B675E]">QUANTITY / SCOPE</dt>
+                              <dd className="font-semibold text-[#181914] mt-0.5">
                                 {enq.quantity || 'Standard'}
                               </dd>
                             </div>
                             <div>
-                              <dt className="text-[#52514E]">BUDGET</dt>
-                              <dd className="font-bold text-[#0D0E11]">{budgetLabel}</dd>
+                              <dt className="text-[#6B675E]">BUDGET</dt>
+                              <dd className="font-semibold text-[#181914] mt-0.5">
+                                {budgetLabel}
+                              </dd>
                             </div>
                             <div>
-                              <dt className="text-[#52514E]">TIMELINE</dt>
-                              <dd className="font-bold text-[#0D0E11]">
+                              <dt className="text-[#6B675E]">TIMELINE</dt>
+                              <dd className="font-semibold text-[#181914] mt-0.5">
                                 {enq.timeline || 'Flexible'}
                               </dd>
                             </div>
                             <div>
-                              <dt className="text-[#52514E]">QUOTES ISSUED</dt>
-                              <dd className="font-bold text-[#0D0E11]">{quotesCount}</dd>
+                              <dt className="text-[#6B675E]">QUOTES SUBMITTED</dt>
+                              <dd className="font-semibold text-[#181914] mt-0.5">
+                                {quotesCount}
+                              </dd>
                             </div>
                           </dl>
 
-                          <div className="mt-5 pt-4 border-t border-[#0D0E11] flex items-center justify-between">
-                            <span className="font-mono text-xs text-[#52514E]">
-                              BUYER: {enq.customerName || 'Verified Buyer'}
+                          <div className="mt-5 pt-4 border-t border-[#D5CBB8] flex items-center justify-between">
+                            <span className="font-mono text-xs text-[#6B675E]">
+                              Customer: {enq.customerName || 'Verified Buyer'}
                             </span>
                             <button
                               type="button"
@@ -341,12 +354,12 @@ export default function BusinessDashboardPage() {
                                   quotingEnquiryId === enq.id ? null : enq.id,
                                 )
                               }
-                              className="btn-accent py-2 px-4"
+                              className="btn-terracotta py-2.5 px-4"
                             >
                               <span>
                                 {quotingEnquiryId === enq.id
-                                  ? 'CLOSE QUOTATION FORM'
-                                  : 'ISSUE QUOTATION →'}
+                                  ? 'Close Quotation Form'
+                                  : 'Send Quotation'}
                               </span>
                             </button>
                           </div>
@@ -354,15 +367,15 @@ export default function BusinessDashboardPage() {
                           {quotingEnquiryId === enq.id && (
                             <form
                               onSubmit={(e) => handleSendQuotation(e, enq.id)}
-                              className="mt-5 border-t-2 border-[#0D0E11] pt-5 space-y-4 bg-[#EAE5DA] p-5"
+                              className="mt-5 border-t border-[#D5CBB8] pt-5 space-y-4 bg-[#E9DFCC]/60 p-5"
                             >
-                              <div className="font-mono text-xs font-bold uppercase">
-                                DISPATCH COMMERCIAL QUOTATION FOR {enq.referenceCode}
+                              <div className="font-mono text-xs uppercase tracking-[0.14em] text-[#A98253]">
+                                Submit Quotation for {enq.referenceCode}
                               </div>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                  <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                                    QUOTATION HEADLINE / SUMMARY *
+                                  <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                                    Quotation Headline / Summary *
                                   </label>
                                   <input
                                     type="text"
@@ -375,8 +388,8 @@ export default function BusinessDashboardPage() {
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   <div>
-                                    <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                                      PRICE (INR)
+                                    <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                                      Price (INR)
                                     </label>
                                     <input
                                       type="number"
@@ -387,8 +400,8 @@ export default function BusinessDashboardPage() {
                                     />
                                   </div>
                                   <div>
-                                    <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                                      DELIVERY TIMELINE
+                                    <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                                      Delivery Timeline
                                     </label>
                                     <input
                                       type="text"
@@ -400,8 +413,8 @@ export default function BusinessDashboardPage() {
                                 </div>
                               </div>
                               <div>
-                                <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                                  COMMERCIAL TERMS &amp; INCLUSIONS *
+                                <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                                  Detailed Proposal &amp; Inclusions *
                                 </label>
                                 <textarea
                                   rows={3}
@@ -414,7 +427,7 @@ export default function BusinessDashboardPage() {
                               </div>
                               <button type="submit" className="btn-primary">
                                 <Check className="h-4 w-4" />
-                                <span>SUBMIT QUOTATION TO BUYER LEDGER</span>
+                                <span>Submit Quotation</span>
                               </button>
                             </form>
                           )}
@@ -422,9 +435,9 @@ export default function BusinessDashboardPage() {
                       );
                     })
                   ) : (
-                    <div className="border border-[#0D0E11] bg-[#FAF8F3] p-8 font-mono text-xs text-[#52514E]">
-                      NO BUYER ENQUIRIES CURRENTLY IN QUEUE. NEW SECTOR AND DIRECT RFQS APPEAR HERE
-                      AUTOMATICALLY.
+                    <div className="border border-[#D5CBB8] bg-[#FAF6EC] p-8 font-mono text-xs text-[#6B675E]">
+                      No customer enquiries in queue yet. Direct and category-matched
+                      enquiries appear here automatically.
                     </div>
                   )}
                 </div>
@@ -435,14 +448,14 @@ export default function BusinessDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                   <form
                     onSubmit={handleAddListing}
-                    className="lg:col-span-5 border-2 border-[#0D0E11] bg-[#FAF8F3] p-6 space-y-4"
+                    className="lg:col-span-5 border border-[#D5CBB8] bg-[#FAF6EC] p-6 space-y-4"
                   >
-                    <div className="font-mono text-xs font-bold uppercase tracking-[0.14em] pb-3 border-b border-[#0D0E11]">
-                      ADD NEW OFFERING TO CATALOG
+                    <div className="font-mono text-xs uppercase tracking-[0.16em] text-[#A98253] pb-3 border-b border-[#D5CBB8]">
+                      Add Product or Service Listing
                     </div>
                     <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                        OFFERING TITLE *
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                        Listing Title *
                       </label>
                       <input
                         type="text"
@@ -455,8 +468,8 @@ export default function BusinessDashboardPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                          TYPE
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                          Type
                         </label>
                         <select
                           value={listingType}
@@ -465,16 +478,16 @@ export default function BusinessDashboardPage() {
                               e.target.value as 'PRODUCT' | 'SERVICE' | 'PACKAGE',
                             )
                           }
-                          className="input-enterprise font-mono text-xs"
+                          className="input-enterprise"
                         >
-                          <option value="PRODUCT">PRODUCT</option>
-                          <option value="SERVICE">SERVICE</option>
-                          <option value="PACKAGE">PACKAGE</option>
+                          <option value="PRODUCT">Product</option>
+                          <option value="SERVICE">Service</option>
+                          <option value="PACKAGE">Package</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                          PRICING MODEL
+                        <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                          Pricing Model
                         </label>
                         <select
                           value={priceDisplayType}
@@ -487,18 +500,18 @@ export default function BusinessDashboardPage() {
                                 | 'QUOTE_REQUIRED',
                             )
                           }
-                          className="input-enterprise font-mono text-xs"
+                          className="input-enterprise"
                         >
-                          <option value="INDICATIVE_PRICE">INDICATIVE PRICE</option>
-                          <option value="FIXED_PRICE">FIXED PRICE</option>
-                          <option value="PRICE_ON_REQUEST">PRICE ON REQUEST</option>
-                          <option value="QUOTE_REQUIRED">QUOTE REQUIRED</option>
+                          <option value="INDICATIVE_PRICE">Starting From</option>
+                          <option value="FIXED_PRICE">Fixed Price</option>
+                          <option value="PRICE_ON_REQUEST">Price on Request</option>
+                          <option value="QUOTE_REQUIRED">Custom Quotation</option>
                         </select>
                       </div>
                     </div>
                     <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                        PRICE AMOUNT (INR, OPTIONAL)
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                        Price Amount (INR, Optional)
                       </label>
                       <input
                         type="number"
@@ -509,8 +522,8 @@ export default function BusinessDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="block font-mono text-[10px] font-bold uppercase mb-1">
-                        SPECIFICATION SUMMARY *
+                      <label className="block text-xs font-medium uppercase tracking-[0.08em] mb-1">
+                        Description &amp; Specifications *
                       </label>
                       <textarea
                         rows={3}
@@ -521,9 +534,9 @@ export default function BusinessDashboardPage() {
                         className="input-enterprise"
                       />
                     </div>
-                    <button type="submit" className="btn-accent w-full">
+                    <button type="submit" className="btn-terracotta w-full">
                       <Plus className="h-4 w-4" />
-                      <span>PUBLISH OFFERING</span>
+                      <span>Publish Offering</span>
                     </button>
                   </form>
 
@@ -531,20 +544,20 @@ export default function BusinessDashboardPage() {
                     {activeListings.map((item, idx) => (
                       <div
                         key={item.id}
-                        className="border border-[#0D0E11] bg-[#FAF8F3] p-5 flex items-start justify-between gap-4"
+                        className="border border-[#D5CBB8] bg-[#FAF6EC] p-5 flex items-start justify-between gap-4"
                       >
                         <div>
-                          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#52514E]">
+                          <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#A98253]">
                             #{String(idx + 1).padStart(2, '0')} · {item.listingType}
                           </span>
-                          <h3 className="font-display text-lg font-bold text-[#0D0E11]">
+                          <h3 className="font-display text-2xl font-normal text-[#181914] mt-0.5">
                             {item.title}
                           </h3>
-                          <p className="mt-1 text-xs text-[#52514E]">
+                          <p className="mt-1 text-xs text-[#5C584F]">
                             {item.shortSummary || item.description}
                           </p>
                         </div>
-                        <div className="font-mono text-xs font-bold text-[#0D0E11] shrink-0">
+                        <div className="font-mono text-xs font-semibold text-[#181914] shrink-0">
                           {item.priceAmount
                             ? `₹${item.priceAmount.toLocaleString('en-IN')}`
                             : PRICE_DISPLAY_LABELS[item.priceDisplayType]}
@@ -557,41 +570,42 @@ export default function BusinessDashboardPage() {
 
               {/* TAB 03: STOREFRONT DOSSIER */}
               {activeTab === 'profile' && (
-                <div className="border border-[#0D0E11] bg-[#FAF8F3] p-6 sm:p-8">
-                  <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#0D0E11]">
-                    <span className="font-mono text-xs font-bold uppercase tracking-[0.14em]">
-                      REGISTERED ENTITY DOSSIER
+                <div className="border border-[#D5CBB8] bg-[#FAF6EC] p-6 sm:p-8">
+                  <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#D5CBB8]">
+                    <span className="font-mono text-xs uppercase tracking-[0.16em] text-[#A98253]">
+                      Registered Business Profile
                     </span>
                     <Link
                       href={`/business/${activeBusiness.slug}`}
                       className="btn-secondary py-2 px-3"
                     >
-                      <span>OPEN PUBLIC PAGE</span>
+                      <span>View Public Page</span>
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </Link>
                   </div>
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
-                    <div className="p-4 border border-[#CFCAC0] bg-[#F4F1EA]">
-                      <dt className="text-[#52514E]">ENTITY NAME</dt>
-                      <dd className="mt-1 font-bold text-sm text-[#0D0E11]">
+                    <div className="p-4 border border-[#D5CBB8] bg-[#F5F0E5]">
+                      <dt className="text-[#6B675E]">BUSINESS NAME</dt>
+                      <dd className="mt-1 font-semibold text-sm text-[#181914]">
                         {activeBusiness.name}
                       </dd>
                     </div>
-                    <div className="p-4 border border-[#CFCAC0] bg-[#F4F1EA]">
-                      <dt className="text-[#52514E]">PRIMARY SECTOR</dt>
-                      <dd className="mt-1 font-bold text-sm text-[#0D0E11]">
-                        {activeBusiness.primaryCategory?.name || activeBusiness.primaryCategoryId}
+                    <div className="p-4 border border-[#D5CBB8] bg-[#F5F0E5]">
+                      <dt className="text-[#6B675E]">PRIMARY INDUSTRY</dt>
+                      <dd className="mt-1 font-semibold text-sm text-[#181914]">
+                        {activeBusiness.primaryCategory?.name ||
+                          activeBusiness.primaryCategoryId}
                       </dd>
                     </div>
-                    <div className="p-4 border border-[#CFCAC0] bg-[#F4F1EA]">
-                      <dt className="text-[#52514E]">HEADQUARTERS</dt>
-                      <dd className="mt-1 font-bold text-sm text-[#0D0E11]">
+                    <div className="p-4 border border-[#D5CBB8] bg-[#F5F0E5]">
+                      <dt className="text-[#6B675E]">LOCATION</dt>
+                      <dd className="mt-1 font-semibold text-sm text-[#181914]">
                         {activeBusiness.city}, {activeBusiness.state}
                       </dd>
                     </div>
-                    <div className="p-4 border border-[#CFCAC0] bg-[#F4F1EA]">
-                      <dt className="text-[#52514E]">PUBLIC SLUG</dt>
-                      <dd className="mt-1 font-bold text-sm text-[#0D0E11]">
+                    <div className="p-4 border border-[#D5CBB8] bg-[#F5F0E5]">
+                      <dt className="text-[#6B675E]">PUBLIC STOREFRONT URL</dt>
+                      <dd className="mt-1 font-semibold text-sm text-[#181914]">
                         /business/{activeBusiness.slug}
                       </dd>
                     </div>

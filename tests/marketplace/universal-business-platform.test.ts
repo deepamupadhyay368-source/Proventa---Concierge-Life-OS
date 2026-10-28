@@ -39,6 +39,7 @@ import {
 } from '@/lib/marketplace/notifications';
 import { verifyRazorpayPaymentSignature } from '@/lib/marketplace/entitlements';
 import { VERIFICATION_BADGE_META } from '@/lib/marketplace/types';
+import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
 
 describe('PROVENTA — Universal Business Discovery, Storefront & Enquiry Marketplace', () => {
   beforeEach(() => {
@@ -658,6 +659,28 @@ describe('PROVENTA — Universal Business Discovery, Storefront & Enquiry Market
 
       const afterSuspendSearch = searchBusinesses({ query: 'Surat Packaging' });
       expect(afterSuspendSearch.total).toBe(0);
+    });
+  });
+
+  // ============================================================
+  // 8. GOOGLE OAUTH & CALLBACK OPEN-REDIRECT SECURITY
+  // ============================================================
+  describe('8. Google OAuth & Callback URL Sanitization Security', () => {
+    it('allows internal relative paths and blocks external/protocol-relative open redirects', () => {
+      expect(sanitizeCallbackPath('/dashboard')).toBe('/dashboard');
+      expect(sanitizeCallbackPath('/business/dashboard?tab=enquiries')).toBe(
+        '/business/dashboard?tab=enquiries',
+      );
+      expect(sanitizeCallbackPath(null)).toBe('/dashboard');
+      expect(sanitizeCallbackPath(undefined)).toBe('/dashboard');
+      expect(sanitizeCallbackPath('https://evil.example.com/phish')).toBe(
+        '/dashboard',
+      );
+      expect(sanitizeCallbackPath('//evil.example.com/phish')).toBe(
+        '/dashboard',
+      );
+      expect(sanitizeCallbackPath('/\\evil.example.com')).toBe('/dashboard');
+      expect(sanitizeCallbackPath('javascript:alert(1)')).toBe('/dashboard');
     });
   });
 });
