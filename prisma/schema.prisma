@@ -1821,6 +1821,19 @@ enum EnquiryStatus {
   FLAGGED_FOR_REVIEW
 }
 
+enum MissionStage {
+  DRAFT
+  MATCHING
+  RFQ_PENDING_APPROVAL
+  RFQ_DISPATCHED
+  QUOTATIONS_RECEIVED
+  IN_REVIEW
+  OFFER_ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 enum MatchStatus {
   MATCHED
   NOTIFIED
@@ -2117,6 +2130,13 @@ model CustomerEnquiry {
   preferredContactMethod  String        @default("PLATFORM") // PLATFORM | EMAIL | PHONE | WHATSAPP
   shareContactWithShortlistedOnly Boolean @default(true)
   status                  EnquiryStatus @default(OPEN)
+  isMission               Boolean       @default(false)
+  missionStage            MissionStage  @default(DRAFT)
+  aiBrief                 Json?
+  approvedSupplierIds     String[]
+  conciergeFallback       Boolean       @default(false)
+  completionNote          String?
+  acceptedQuotationId     String?
   matchedCount            Int           @default(0)
   responsesCount          Int           @default(0)
   expiresAt               DateTime?
@@ -2131,13 +2151,32 @@ model CustomerEnquiry {
   targetListing           BusinessListing?     @relation("TargetListingEnquiry", fields: [targetListingId], references: [id])
   matches                 EnquiryMatch[]
   quotations              BusinessQuotation[]
+  activities              MissionActivity[]
 
   @@index([customerId, status])
   @@index([categoryId, status])
   @@index([city, state, status])
   @@index([status, createdAt])
   @@index([referenceCode])
+  @@index([isMission, missionStage])
   @@map("customer_enquiries")
+}
+
+model MissionActivity {
+  id          String   @id @default(cuid())
+  enquiryId   String
+  actorId     String
+  actorRole   String   // CUSTOMER | BUSINESS | CONCIERGE | SYSTEM
+  type        String
+  title       String
+  description String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  enquiry     CustomerEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+
+  @@index([enquiryId, createdAt])
+  @@map("mission_activities")
 }
 
 model EnquiryMatch {

@@ -302,6 +302,9 @@ export default function BusinessDashboardPage() {
                           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#D5CBB8] font-mono text-xs">
                             <div className="flex items-center gap-2">
                               <span className="badge-neutral">{enq.referenceCode}</span>
+                              {enq.referenceCode.includes('MSN') && (
+                                <span className="badge-verified">MISSION RFQ</span>
+                              )}
                               <span className="text-[#6B675E] uppercase">
                                 {enq.categoryName} · {enq.city}
                               </span>

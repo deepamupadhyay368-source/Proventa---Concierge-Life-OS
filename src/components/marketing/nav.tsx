@@ -8,6 +8,7 @@ import { BRAND_CONFIG } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 const PRIMARY_NAV_ITEMS = [
+  { label: 'Missions', href: '/missions' },
   { label: 'Businesses', href: '/businesses' },
   { label: 'Products', href: '/listings?type=PRODUCT' },
   { label: 'Services', href: '/listings?type=SERVICE' },

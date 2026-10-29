@@ -23,8 +23,14 @@ export default function CustomerLayout({
 
             <nav className="hidden md:flex items-center gap-1 font-mono text-xs uppercase tracking-[0.12em]">
               <Link
-                href="/dashboard"
+                href="/missions"
                 className="px-3.5 py-2 text-[#F6F0E4] hover:text-[#B94E2D] transition-colors"
+              >
+                Missions
+              </Link>
+              <Link
+                href="/dashboard"
+                className="px-3.5 py-2 text-[#A7A194] hover:text-[#F6F0E4] transition-colors"
               >
                 My Enquiries
               </Link>
@@ -51,10 +57,10 @@ export default function CustomerLayout({
 
           <div className="flex items-center gap-2.5">
             <Link
-              href="/enquiries/new"
+              href="/missions/new"
               className="inline-flex items-center gap-1.5 bg-[#B94E2D] text-[#F6F0E4] px-4 py-2 text-xs font-medium uppercase tracking-[0.12em] hover:bg-[#9E3F22] transition-colors"
             >
-              <span>Post Enquiry</span>
+              <span>New Mission</span>
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
