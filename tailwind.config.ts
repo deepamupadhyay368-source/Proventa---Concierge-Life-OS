@@ -16,6 +16,32 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        // PROVENTA Family Wealth OS — Enterprise Fintech Design Tokens
+        wealth: {
+          navy: '#0B0F19',
+          'navy-dark': '#070A12',
+          'navy-surface': '#111827',
+          'navy-elevated': '#1F293D',
+          'navy-border': '#1E293B',
+          purple: '#1E1035',
+          'purple-dark': '#130A24',
+          'purple-surface': '#2A164D',
+          'purple-border': '#3E236E',
+          'purple-hover': '#361D63',
+          lavender: '#E8E0F8',
+          'lavender-muted': '#9D8BC9',
+          'lavender-subtle': '#F5F2FC',
+          'lavender-text': '#DDD0F7',
+          violet: '#7C3AED',
+          'violet-hover': '#6D28D9',
+          'violet-light': '#8B5CF6',
+          emerald: '#10B981',
+          'emerald-bg': '#064E3B',
+          rose: '#F43F5E',
+          'rose-bg': '#4C0519',
+          amber: '#F59E0B',
+          'amber-bg': '#451A03',
+        },
         // PROVENTA Architectural Editorial Design Tokens
         arch: {
           bg: '#171A14',

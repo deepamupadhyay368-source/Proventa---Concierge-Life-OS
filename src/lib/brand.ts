@@ -1,53 +1,56 @@
 /**
  * PROVENTA — Single Source of Truth for Brand & Platform Configuration
- * Product Category: Universal Business Discovery & Growth Platform
+ * Product Category: Family Financial Infrastructure / Family Wealth OS
+ * Tagline: YOUR WEALTH. ONE LIVING SYSTEM.
  */
 
 export const BRAND_CONFIG = {
   name: 'PROVENTA',
   displayName: 'Proventa',
-  tagline: 'Every Business. One Place.',
-  supportingStatement: 'Discover businesses. Showcase products. Post enquiries. Connect and grow.',
-  valueProposition: 'Businesses get discovered. Customers find solutions. Opportunities become connections.',
-  centralValueProposition: 'Businesses get discovered. Customers find solutions. Opportunities become connections.',
+  tagline: 'YOUR WEALTH. ONE LIVING SYSTEM.',
+  supportingStatement: 'The unified financial operating system for individuals and multi-generational families.',
+  valueProposition: 'One individual identity. Multiple family relationships. One connected financial universe.',
+  centralValueProposition: 'Organise, understand, monitor, manage and preserve your complete financial universe in one living system.',
   description:
-    'PROVENTA is a universal business discovery and growth platform that helps businesses showcase their offerings, connect with potential customers, and receive relevant enquiries through one accessible digital marketplace.',
+    'PROVENTA is an intelligent digital platform that brings together an individual\'s and family\'s entire financial life into one secure, connected living system with granular privacy controls.',
   shortDescription:
-    'Discover businesses, explore products and services, and connect with the right providers across industries.',
-  category: 'Universal Business Discovery & Growth Platform',
+    'Family financial infrastructure for consolidated net worth, multi-generational wealth preservation, and private intelligence.',
+  category: 'Family Financial Infrastructure',
   domain: process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in',
   supportEmail: process.env.SUPPORT_EMAIL || 'support@proventa.in',
+  currency: 'INR',
+  currencySymbol: '₹',
   initialCities: [
+    'Mumbai',
+    'Delhi NCR',
+    'Bengaluru',
     'Ahmedabad',
     'Surat',
     'Vadodara',
     'Rajkot',
     'Gandhinagar',
-    'Mumbai',
-    'Bengaluru',
-    'Delhi NCR',
     'Pune',
     'Hyderabad',
   ],
-  initialMarket: {
-    country: 'India',
-    countryCode: 'IN',
-    primaryState: 'Gujarat',
-    featuredCities: [
-      'Ahmedabad',
-      'Surat',
-      'Vadodara',
-      'Rajkot',
-      'Gandhinagar',
-      'Mumbai',
-      'Bengaluru',
-      'Delhi NCR',
-      'Pune',
-      'Hyderabad',
-    ],
-  },
   urls: {
     base: process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in',
+    overview: '/overview',
+    dashboard: '/dashboard',
+    wealth: '/wealth',
+    family: '/family',
+    assets: '/assets',
+    liabilities: '/liabilities',
+    cashflow: '/cashflow',
+    vault: '/vault',
+    protection: '/protection',
+    goals: '/goals',
+    businessOwnership: '/business-ownership',
+    intelligence: '/intelligence',
+    reports: '/reports',
+    settings: '/settings',
+    onboarding: '/onboarding',
+    pricing: '/pricing',
+    adminPortal: '/admin',
     exploreBusinesses: '/businesses',
     productsAndServices: '/listings',
     postEnquiry: '/enquiries/new',
@@ -55,29 +58,206 @@ export const BRAND_CONFIG = {
     registerBusiness: '/business/register',
     businessDashboard: '/business/dashboard',
     customerDashboard: '/dashboard',
-    adminPortal: '/admin',
   },
   contact: {
     supportEmail: process.env.SUPPORT_EMAIL || 'support@proventa.in',
     privacyEmail: 'privacy@proventa.in',
   },
   seo: {
-    defaultTitle: 'PROVENTA — Every Business. One Place.',
+    defaultTitle: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     titleTemplate: '%s | PROVENTA',
     keywords: [
       'PROVENTA',
-      'business discovery platform',
-      'digital storefront India',
-      'customer enquiry marketplace',
-      'B2B and B2C marketplace',
-      'find suppliers and service providers',
-      'Gujarat business directory',
-      'India business network',
-      'request quotations',
-      'showcase products and services',
+      'family wealth OS',
+      'family financial infrastructure',
+      'consolidated net worth India',
+      'multi-generational wealth management',
+      'joint asset ownership',
+      'family document vault',
+      'cashflow intelligence',
+      'succession and continuity planning',
+      'family office software India',
     ],
   },
 } as const;
+
+export interface FamilyNavItem {
+  id: string;
+  name: string;
+  href: string;
+  icon: string;
+  description: string;
+  badge?: string;
+  requiredTier?: 'FREE' | 'FAMILY' | 'FAMILY_PLUS' | 'FAMILY_OFFICE';
+}
+
+export const FAMILY_NAV_ITEMS: FamilyNavItem[] = [
+  { id: 'overview', name: 'Overview', href: '/dashboard', icon: 'LayoutDashboard', description: 'Consolidated family net worth & living telemetry' },
+  { id: 'wealth', name: 'My Wealth', href: '/wealth', icon: 'PieChart', description: 'Individual & ownership-adjusted net worth views' },
+  { id: 'family', name: 'My Family', href: '/family', icon: 'Users', description: 'Workspaces, members, roles & permissions' },
+  { id: 'assets', name: 'Assets', href: '/assets', icon: 'Coins', description: 'Financial, physical & business asset registers' },
+  { id: 'liabilities', name: 'Liabilities', href: '/liabilities', icon: 'CreditCard', description: 'Loans, mortgages, credit cards & obligations' },
+  { id: 'cashflow', name: 'Cashflow', href: '/cashflow', icon: 'ArrowLeftRight', description: 'Income, expenditure & recurring cashflow tracking' },
+  { id: 'vault', name: 'Family Vault', href: '/vault', icon: 'Lock', description: 'Encrypted document repository & AI extraction' },
+  { id: 'protection', name: 'Protection', href: '/protection', icon: 'ShieldCheck', description: 'Insurance coverage, renewals & policy records' },
+  { id: 'goals', name: 'Goals', href: '/goals', icon: 'Target', description: 'Family milestone targets & scenario modeling' },
+  { id: 'business', name: 'Business & Ownership', href: '/business-ownership', icon: 'Network', description: 'Corporate shareholdings & visual ownership map' },
+  { id: 'intelligence', name: 'Intelligence', href: '/intelligence', icon: 'BrainCircuit', description: 'Multi-agent financial analysis & private assistant' },
+  { id: 'reports', name: 'Reports', href: '/reports', icon: 'FileSpreadsheet', description: 'Deterministic net worth & audit statements' },
+  { id: 'settings', name: 'Settings', href: '/settings', icon: 'Settings', description: 'Profile, security keys, DPDP privacy & subscriptions' },
+];
+
+export type WealthPlanTier = 'FREE' | 'FAMILY' | 'FAMILY_PLUS' | 'FAMILY_OFFICE';
+
+export interface FamilyWealthPlan {
+  tier: WealthPlanTier;
+  name: string;
+  tagline: string;
+  description: string;
+  priceInrAnnual: number;
+  pricePaiseAnnual: number;
+  formattedPrice: string;
+  cadence: string;
+  recommended?: boolean;
+  limits: {
+    maxFamilyMembers: number;
+    maxWorkspaces: number;
+    maxAssets: number;
+    storageMb: number;
+    aiRequestsPerMonth: number;
+    canAccessCashflow: boolean;
+    canAccessBusinessOwnership: boolean;
+    canAccessScenarioSimulations: boolean;
+    canAccessDocumentIntelligence: boolean;
+  };
+  features: string[];
+}
+
+export const FAMILY_WEALTH_SUBSCRIPTION_PLANS: Record<WealthPlanTier, FamilyWealthPlan> = {
+  FREE: {
+    tier: 'FREE',
+    name: 'Free Plan',
+    tagline: 'Individual financial foundation.',
+    description: 'Essential net-worth tracking and recordkeeping for individual wealth organization.',
+    priceInrAnnual: 0,
+    pricePaiseAnnual: 0,
+    formattedPrice: '₹0',
+    cadence: 'forever',
+    limits: {
+      maxFamilyMembers: 1,
+      maxWorkspaces: 1,
+      maxAssets: 15,
+      storageMb: 250,
+      aiRequestsPerMonth: 20,
+      canAccessCashflow: false,
+      canAccessBusinessOwnership: false,
+      canAccessScenarioSimulations: false,
+      canAccessDocumentIntelligence: false,
+    },
+    features: [
+      'One personal workspace',
+      'Track up to 15 assets & liabilities',
+      'Individual net-worth dashboard',
+      '250 MB encrypted Family Vault storage',
+      'Basic financial records & valuation history',
+      'Deterministic net worth calculation engine',
+    ],
+  },
+  FAMILY: {
+    tier: 'FAMILY',
+    name: 'Family Plan',
+    tagline: 'Connected family wealth management.',
+    description: 'Brings immediate family members into one synchronized, permission-controlled workspace.',
+    priceInrAnnual: 1999,
+    pricePaiseAnnual: 199900,
+    formattedPrice: '₹1,999',
+    cadence: '/year',
+    recommended: true,
+    limits: {
+      maxFamilyMembers: 4,
+      maxWorkspaces: 2,
+      maxAssets: 75,
+      storageMb: 2048,
+      aiRequestsPerMonth: 100,
+      canAccessCashflow: true,
+      canAccessBusinessOwnership: false,
+      canAccessScenarioSimulations: true,
+      canAccessDocumentIntelligence: false,
+    },
+    features: [
+      'Everything in Free',
+      'Up to 4 family members with granular role permissions',
+      'Consolidated family net-worth dashboard with joint ownership',
+      '2 GB encrypted Family Vault storage',
+      'Cashflow & recurring obligation tracking',
+      'Family protection & insurance renewal reminders',
+      'Basic AI Family Wealth Analyst',
+      'Printable & exportable family net-worth statements',
+    ],
+  },
+  FAMILY_PLUS: {
+    tier: 'FAMILY_PLUS',
+    name: 'Family Plus',
+    tagline: 'Complete financial intelligence for extended families.',
+    description: 'Advanced document intelligence, scenario planning, and expanded storage for growing families.',
+    priceInrAnnual: 4999,
+    pricePaiseAnnual: 499900,
+    formattedPrice: '₹4,999',
+    cadence: '/year',
+    limits: {
+      maxFamilyMembers: 8,
+      maxWorkspaces: 5,
+      maxAssets: 250,
+      storageMb: 10240,
+      aiRequestsPerMonth: 500,
+      canAccessCashflow: true,
+      canAccessBusinessOwnership: true,
+      canAccessScenarioSimulations: true,
+      canAccessDocumentIntelligence: true,
+    },
+    features: [
+      'Everything in Family Plan',
+      'Up to 8 family members across multiple family relationships',
+      '10 GB encrypted Family Vault storage',
+      'AI Document Intelligence & automatic statement extraction',
+      'Hypothetical financial scenario modeling (savings, education, loan prepayments)',
+      'Family goal planning & contributor tracking',
+      '500 monthly queries across 6 specialized AI agents',
+      'Comprehensive audit trails & privacy consent controls',
+    ],
+  },
+  FAMILY_OFFICE: {
+    tier: 'FAMILY_OFFICE',
+    name: 'Family Office',
+    tagline: 'Enterprise-grade infrastructure for complex family holdings.',
+    description: 'Designed for business families, multiple holding entities, and multi-generational succession.',
+    priceInrAnnual: 14999,
+    pricePaiseAnnual: 1499900,
+    formattedPrice: '₹14,999',
+    cadence: '/year',
+    limits: {
+      maxFamilyMembers: 25,
+      maxWorkspaces: 20,
+      maxAssets: 2000,
+      storageMb: 51200,
+      aiRequestsPerMonth: 2500,
+      canAccessCashflow: true,
+      canAccessBusinessOwnership: true,
+      canAccessScenarioSimulations: true,
+      canAccessDocumentIntelligence: true,
+    },
+    features: [
+      'Everything in Family Plus',
+      'Up to 25 members across multi-tier family structures',
+      '50 GB encrypted document storage',
+      'Multi-tier corporate shareholding & visual business ownership maps',
+      'Full continuity & succession directory (nominees, wills, emergency directives)',
+      'Professional advisor collaboration with read-only viewer roles',
+      'Priority AI engine with dedicated family wealth telemetry',
+      'Custom accounting year & historical multi-year snapshots',
+    ],
+  },
+};
 
 export interface InitialCategoryDef {
   id: string;

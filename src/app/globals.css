@@ -4,42 +4,42 @@
 
 @layer base {
   :root {
-    /* PROVENTA Architectural Editorial Design System */
-    /* Warm Ivory (#F5F0E5), Soft Cream (#E9DFCC), Deep Architectural (#171A14), Terracotta (#B94E2D) */
-    --background: 41 42% 93%;
-    --foreground: 72 11% 9%;
+    /* PROVENTA Family Wealth OS — Premium Fintech Design Tokens */
+    /* Midnight Navy (#0B0F19), Deep Purple (#1E1035), Soft Lavender (#E8E0F8), Electric Violet (#7C3AED) */
+    --background: 224 71% 4%;
+    --foreground: 260 60% 97%;
 
-    --card: 41 42% 93%;
-    --card-foreground: 72 11% 9%;
+    --card: 260 50% 8%;
+    --card-foreground: 260 60% 97%;
 
-    --popover: 41 42% 93%;
-    --popover-foreground: 72 11% 9%;
+    --popover: 260 50% 8%;
+    --popover-foreground: 260 60% 97%;
 
-    /* Primary: Terracotta Accent (#B94E2D) */
-    --primary: 14 61% 45%;
-    --primary-foreground: 40 47% 93%;
+    /* Primary: Electric Violet Accent (#7C3AED) */
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Soft Cream (#E9DFCC) */
-    --secondary: 39 40% 86%;
-    --secondary-foreground: 72 11% 9%;
+    /* Secondary: Deep Purple (#1E1035) */
+    --secondary: 265 54% 14%;
+    --secondary-foreground: 260 60% 97%;
 
-    --muted: 39 40% 86%;
-    --muted-foreground: 41 9% 36%;
+    --muted: 265 40% 16%;
+    --muted-foreground: 257 26% 68%;
 
-    /* Accent: Muted Bronze (#A98253) */
-    --accent: 33 34% 49%;
-    --accent-foreground: 40 47% 93%;
+    /* Accent: Soft Lavender (#E8E0F8) */
+    --accent: 265 65% 93%;
+    --accent-foreground: 265 54% 14%;
 
-    --destructive: 8 68% 42%;
-    --destructive-foreground: 40 47% 93%;
+    --destructive: 347 77% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    /* Subtle Border (#D5CBB8 on light / #4C4A40 on dark) */
-    --border: 39 26% 78%;
-    --input: 48 9% 27%;
-    --ring: 14 61% 45%;
+    /* Subtle Border (#2E1B54) */
+    --border: 265 38% 22%;
+    --input: 265 38% 22%;
+    --ring: 262 83% 58%;
 
-    /* Restrained architectural radius */
-    --radius: 0.25rem;
+    /* Modern fintech radius */
+    --radius: 0.5rem;
 
     /* Typography */
     --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -48,33 +48,33 @@
   }
 
   .dark {
-    --background: 90 14% 9%;
-    --foreground: 40 47% 93%;
+    --background: 224 71% 4%;
+    --foreground: 260 60% 97%;
 
-    --card: 72 8% 12%;
-    --card-foreground: 40 47% 93%;
+    --card: 260 50% 8%;
+    --card-foreground: 260 60% 97%;
 
-    --popover: 72 8% 12%;
-    --popover-foreground: 40 47% 93%;
+    --popover: 260 50% 8%;
+    --popover-foreground: 260 60% 97%;
 
-    --primary: 14 61% 45%;
-    --primary-foreground: 40 47% 93%;
+    --primary: 262 83% 58%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 72 8% 15%;
-    --secondary-foreground: 40 47% 93%;
+    --secondary: 265 54% 14%;
+    --secondary-foreground: 260 60% 97%;
 
-    --muted: 72 8% 15%;
-    --muted-foreground: 41 11% 62%;
+    --muted: 265 40% 16%;
+    --muted-foreground: 257 26% 68%;
 
-    --accent: 33 34% 49%;
-    --accent-foreground: 40 47% 93%;
+    --accent: 265 65% 93%;
+    --accent-foreground: 265 54% 14%;
 
-    --destructive: 8 68% 46%;
-    --destructive-foreground: 40 47% 93%;
+    --destructive: 347 77% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 50 9% 27%;
-    --input: 50 9% 27%;
-    --ring: 14 61% 45%;
+    --border: 265 38% 22%;
+    --input: 265 38% 22%;
+    --ring: 262 83% 58%;
   }
 }
 
@@ -85,14 +85,15 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #171A14;
-    color: #181914;
+    background-color: #0B0F19;
+    color: #F8F9FD;
   }
 
   body {
-    @apply bg-[#F5F0E5] text-[#181914] antialiased selection:bg-[#B94E2D] selection:text-[#F6F0E4];
+    @apply bg-[#0B0F19] text-[#F8F9FD] antialiased selection:bg-[#7C3AED] selection:text-[#FFFFFF];
     font-family: var(--font-inter);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    min-height: 100vh;
   }
 
   h1, h2, .font-serif-display {
