@@ -99,24 +99,25 @@ export default function LiabilitiesPage() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* 1. INSTITUTIONAL HEADER & DEBT REGISTER BANNER */}
-      <div className="border border-[#101010] bg-[#FAF9F6]">
-        <div className="p-6 sm:p-8 border-b border-[#101010] flex flex-col md:flex-row md:items-end justify-between gap-6">
+      {/* 1. TITANIUM COBALT HEADER & DEBT REGISTER BANNER */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="p-6 sm:p-8 border-b border-[#252C38] flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
-              04 // LIABILITIES &amp; OBLIGATIONS REGISTER
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7595FF] font-semibold flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#2457FF]" />
+              <span>04 // LIABILITIES &amp; OBLIGATIONS REGISTER</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            <h1 className="font-display font-bold text-3xl sm:text-5xl text-[#F4F6FA] tracking-tight mt-1">
               Debt &amp; Credit Facilities
             </h1>
-            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            <p className="font-sans text-xs text-[#C5CAD3] mt-2 max-w-xl">
               Real estate mortgages, commercial lines, automobile loans, and personal credit facilities with exact amortisation schedules and co-borrower equity mapping.
             </p>
           </div>
 
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="px-5 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+            className="px-5 py-3 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_15px_rgba(36,87,255,0.3)] transition-all flex items-center gap-2"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Log Liability</span>
@@ -124,84 +125,84 @@ export default function LiabilitiesPage() {
         </div>
 
         {/* Aggregate Debt Stats Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#F0EDE5]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#252C38] bg-[#090B10]">
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               TOTAL OUTSTANDING PRINCIPAL
             </div>
-            <div className="font-serif text-2xl text-[#A63B32]">
+            <div className="font-display font-bold text-2xl text-[#FF7A70]">
               ₹{(totalOutstandingPaise / 1000000000).toFixed(2)} Crore
             </div>
           </div>
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               MONTHLY DEBT SERVICE (EMI)
             </div>
-            <div className="font-serif text-2xl text-[#101010]">
+            <div className="font-display font-bold text-2xl text-[#F4F6FA]">
               ₹{(totalEmiPaise / 100000).toFixed(2)} Lakh / Month
             </div>
           </div>
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               AVERAGE WEIGHTED RATE
             </div>
-            <div className="font-serif text-2xl text-[#101010]">
+            <div className="font-display font-bold text-2xl text-[#7595FF]">
               8.65% p.a.
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. ARCHITECTURAL DEBT TABLE */}
-      <div className="border border-[#101010] bg-[#FAF9F6] overflow-x-auto">
+      {/* 2. TITANIUM DEBT DATA TABLE */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] overflow-x-auto shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider">
+          <thead className="bg-[#090B10] text-[#7595FF] font-mono text-[10px] uppercase tracking-wider">
             <tr>
-              <th className="py-3 px-4 border-b border-[#101010]">Facility &amp; Lender</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Category</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Primary Obligor &amp; Share</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Outstanding Principal</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Monthly Debt Service</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Rate &amp; Maturity</th>
-              <th className="py-3 px-4 border-b border-[#101010] text-right">Actions</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Facility &amp; Lender</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Category</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Primary Obligor &amp; Share</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Outstanding Principal</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Monthly Debt Service</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Rate &amp; Maturity</th>
+              <th className="py-3 px-4 border-b border-[#252C38] text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#101010] text-[#101010]">
+          <tbody className="divide-y divide-[#252C38] text-[#F4F6FA]">
             {liabilities.map((l, idx) => (
-              <tr key={l.id} className="hover:bg-[#F0EDE5] transition-colors">
+              <tr key={l.id} className="hover:bg-[#1C2230] transition-colors">
                 <td className="py-4 px-4">
-                  <div className="font-mono text-[10px] text-[#85827B]">LIA-0{idx + 1}</div>
-                  <div className="font-serif text-base text-[#101010] font-normal mt-0.5">{l.name}</div>
-                  <div className="font-mono text-[10px] text-[#85827B] mt-0.5">{l.lenderName}</div>
+                  <div className="font-mono text-[10px] text-[#7595FF] font-semibold">LIA-0{idx + 1}</div>
+                  <div className="font-display text-base text-[#F4F6FA] font-bold mt-0.5">{l.name}</div>
+                  <div className="font-mono text-[10px] text-[#858D9B] mt-0.5">{l.lenderName}</div>
                 </td>
                 <td className="py-4 px-4 font-mono text-xs">
-                  <span className="px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase text-[10px]">
+                  <span className="px-2 py-0.5 border border-[#252C38] bg-[#090B10] rounded-[2px] uppercase text-[10px] text-[#C5CAD3]">
                     {l.liabilityType.replace('_', ' ')}
                   </span>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="font-mono text-xs font-semibold">{l.primaryBorrowerName}</div>
-                  <div className="font-mono text-[10px] text-[#85827B]">
+                  <div className="font-mono text-xs font-semibold text-[#F4F6FA]">{l.primaryBorrowerName}</div>
+                  <div className="font-mono text-[10px] text-[#858D9B]">
                     {l.borrowerOwnershipPercentage}% liability obligation
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="font-serif text-base text-[#A63B32] font-normal">
+                  <div className="font-display text-base text-[#FF7A70] font-bold">
                     {l.formattedOutstandingBalance}
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="font-mono text-xs font-semibold">{l.formattedEmi || '—'}</div>
-                  <div className="font-mono text-[10px] text-[#85827B]">{l.repaymentFrequency}</div>
+                  <div className="font-mono text-xs font-semibold text-[#F4F6FA]">{l.formattedEmi || '—'}</div>
+                  <div className="font-mono text-[10px] text-[#858D9B]">{l.repaymentFrequency}</div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="font-mono text-xs font-semibold">{l.interestRateAnnual}% p.a.</div>
-                  <div className="font-mono text-[10px] text-[#85827B]">Matures: {l.maturityDate || 'N/A'}</div>
+                  <div className="font-mono text-xs font-semibold text-[#7595FF]">{l.interestRateAnnual}% p.a.</div>
+                  <div className="font-mono text-[10px] text-[#858D9B]">Matures: {l.maturityDate || 'N/A'}</div>
                 </td>
                 <td className="py-4 px-4 text-right">
                   <button
                     onClick={() => handleDelete(l.id)}
-                    className="p-1 border border-[#101010] text-[#85827B] hover:text-[#A63B32] hover:border-[#A63B32] transition-colors"
+                    className="p-1 border border-[#252C38] bg-[#090B10] text-[#858D9B] hover:text-[#FF7A70] hover:border-[#FF7A70]/50 transition-colors rounded-[2px]"
                     title="Remove Record"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -215,18 +216,18 @@ export default function LiabilitiesPage() {
 
       {/* 3. RECORD LIABILITY MODAL */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/70">
-          <div className="w-full max-w-lg bg-[#FAF9F6] border border-[#101010] p-6 space-y-5 shadow-[8px_8px_0px_0px_#101010]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
-              <h3 className="font-serif text-xl text-[#101010]">Record Credit Facility / Liability</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/80 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-[#171C26] border border-[#252C38] p-6 space-y-5 rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
+              <h3 className="font-display font-bold text-xl text-[#F4F6FA]">Record Credit Facility / Liability</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1 border border-[#252C38] rounded-[2px]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreateLiability} className="space-y-4">
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                   Facility Description
                 </label>
                 <input
@@ -235,13 +236,13 @@ export default function LiabilitiesPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. SBI Housing Loan (Penthouse)"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Lending Financial Institution
                   </label>
                   <input
@@ -250,18 +251,18 @@ export default function LiabilitiesPage() {
                     value={lenderName}
                     onChange={(e) => setLenderName(e.target.value)}
                     placeholder="e.g. State Bank of India"
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Liability Type
                   </label>
                   <select
                     value={liabilityType}
                     onChange={(e) => setLiabilityType(e.target.value as LiabilityType)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   >
                     <option value="HOME_LOAN">Home Mortgage</option>
                     <option value="VEHICLE_LOAN">Auto / Vehicle Loan</option>
@@ -275,7 +276,7 @@ export default function LiabilitiesPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Outstanding Principal (₹)
                   </label>
                   <input
@@ -284,11 +285,11 @@ export default function LiabilitiesPage() {
                     value={balanceRupees}
                     onChange={(e) => setBalanceRupees(e.target.value)}
                     placeholder="e.g. 18500000"
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Monthly EMI (₹)
                   </label>
                   <input
@@ -296,14 +297,14 @@ export default function LiabilitiesPage() {
                     value={emiRupees}
                     onChange={(e) => setEmiRupees(e.target.value)}
                     placeholder="e.g. 350000"
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Interest Rate (% p.a.)
                   </label>
                   <input
@@ -311,33 +312,33 @@ export default function LiabilitiesPage() {
                     step="0.1"
                     value={interestRate}
                     onChange={(e) => setInterestRate(e.target.value)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Maturity Date
                   </label>
                   <input
                     type="date"
                     value={maturityDate}
                     onChange={(e) => setMaturityDate(e.target.value)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#252C38] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
+                  className="px-4 py-2 border border-[#252C38] font-mono text-xs uppercase text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] rounded-[2px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
+                  className="px-5 py-2 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)]"
                 >
                   Record Liability in Ledger
                 </button>

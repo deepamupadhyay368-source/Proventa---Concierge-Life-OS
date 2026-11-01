@@ -4,78 +4,78 @@
 
 @layer base {
   :root {
-    /* PROVENTA Neo-Institutional Brutalism — The Wealth Institution */
-    /* Warm Ivory (#F0EDE5), Obsidian (#101010), Deep Black (#070707), Paper White (#FAF9F6) */
-    --background: 42 24% 92%; /* #F0EDE5 Warm Ivory */
-    --foreground: 0 0% 6%;    /* #101010 Obsidian */
+    /* PROVENTA TITANIUM COBALT DESIGN SYSTEM */
+    /* Obsidian (#090B10), Graphite (#171C26), Dark Steel (#252C38), Titanium Silver (#C5CAD3), Ice White (#F4F6FA), Digital Cobalt (#2457FF), Electric Blue (#7595FF), Muted Grey (#858D9B) */
+    --background: 223 28% 5%;    /* #090B10 Obsidian Black */
+    --foreground: 220 27% 97%;   /* #F4F6FA Ice White */
 
-    --card: 45 25% 97%;       /* #FAF9F6 Paper White */
-    --card-foreground: 0 0% 6%;
+    --card: 220 25% 12%;         /* #171C26 Graphite */
+    --card-foreground: 220 27% 97%;
 
-    --popover: 45 25% 97%;
-    --popover-foreground: 0 0% 6%;
+    --popover: 220 25% 12%;
+    --popover-foreground: 220 27% 97%;
 
-    /* Primary: Deep Obsidian (#101010) */
-    --primary: 0 0% 6%;
-    --primary-foreground: 42 24% 92%;
+    /* Primary: Digital Cobalt (#2457FF) */
+    --primary: 226 100% 57%;
+    --primary-foreground: 220 27% 97%;
 
-    /* Secondary: Architectural Forest (#263B35) */
-    --secondary: 164 22% 19%;
-    --secondary-foreground: 45 25% 97%;
+    /* Secondary: Dark Steel (#252C38) */
+    --secondary: 219 20% 18%;
+    --secondary-foreground: 218 14% 80%; /* #C5CAD3 Titanium */
 
-    --muted: 42 16% 85%;
-    --muted-foreground: 38 4% 50%; /* #85827B Muted Grey */
+    --muted: 219 20% 18%;
+    --muted-foreground: 218 9% 56%;      /* #858D9B Muted Grey */
 
-    /* Accent: Stone Tan (#B6A68A) */
-    --accent: 38 23% 63%;
-    --accent-foreground: 0 0% 6%;
+    /* Accent: Electric Blue (#7595FF) */
+    --accent: 227 100% 73%;
+    --accent-foreground: 223 28% 5%;
 
-    /* Destructive / Liability: Oxide Red (#A63B32) */
-    --destructive: 5 54% 43%;
-    --destructive-foreground: 45 25% 97%;
+    /* Destructive / Liability */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 27% 97%;
 
-    /* Crisp Architectural Rules */
-    --border: 0 0% 6%;
-    --input: 42 16% 82%;
-    --ring: 0 0% 6%;
+    /* Precision Borders */
+    --border: 219 20% 18%;       /* #252C38 Dark Steel */
+    --input: 219 20% 18%;
+    --ring: 226 100% 57%;
 
-    /* Neo-Brutalist Square Geometry (0 - 2px) */
-    --radius: 0px;
+    /* Sharp 0-4px Titanium Precision */
+    --radius: 2px;
 
     /* Typography */
-    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
-    --font-display: 'Instrument Serif', Georgia, serif;
-    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+    --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'Geist Mono', 'IBM Plex Mono', 'SFMono-Regular', monospace;
   }
 
   .dark {
-    --background: 0 0% 6%;    /* #101010 */
-    --foreground: 42 24% 92%; /* #F0EDE5 */
+    --background: 223 28% 5%;    /* #090B10 */
+    --foreground: 220 27% 97%;   /* #F4F6FA */
 
-    --card: 0 0% 4%;          /* #070707 */
-    --card-foreground: 42 24% 92%;
+    --card: 220 25% 12%;         /* #171C26 */
+    --card-foreground: 220 27% 97%;
 
-    --popover: 0 0% 4%;
-    --popover-foreground: 42 24% 92%;
+    --popover: 220 25% 12%;
+    --popover-foreground: 220 27% 97%;
 
-    --primary: 42 24% 92%;
-    --primary-foreground: 0 0% 6%;
+    --primary: 226 100% 57%;     /* #2457FF */
+    --primary-foreground: 220 27% 97%;
 
-    --secondary: 164 22% 19%;
-    --secondary-foreground: 45 25% 97%;
+    --secondary: 219 20% 18%;    /* #252C38 */
+    --secondary-foreground: 218 14% 80%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 38 4% 60%;
+    --muted: 219 20% 18%;
+    --muted-foreground: 218 9% 56%;
 
-    --accent: 38 23% 63%;
-    --accent-foreground: 0 0% 6%;
+    --accent: 227 100% 73%;
+    --accent-foreground: 223 28% 5%;
 
-    --destructive: 5 54% 43%;
-    --destructive-foreground: 45 25% 97%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 220 27% 97%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 42 24% 92%;
+    --border: 219 20% 18%;
+    --input: 219 20% 18%;
+    --ring: 226 100% 57%;
   }
 }
 
@@ -86,27 +86,26 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #F0EDE5;
-    color: #101010;
+    background-color: #090B10;
+    color: #F4F6FA;
   }
 
   body {
-    background-color: #F0EDE5;
-    color: #101010;
-    font-family: var(--font-inter);
+    background-color: #090B10;
+    color: #F4F6FA;
+    font-family: var(--font-sans);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     min-height: 100vh;
     letter-spacing: -0.01em;
   }
 
   ::selection {
-    background-color: #101010;
-    color: #F0EDE5;
+    background-color: #2457FF;
+    color: #F4F6FA;
   }
 
-  h1, h2, h3, .font-serif-display {
+  h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    font-weight: 400;
     letter-spacing: -0.02em;
   }
 }
@@ -125,8 +124,8 @@
     letter-spacing: 0.12em;
   }
 
-  /* Neo-Institutional Brutalism Grids & Containers */
-  .container-institutional {
+  /* Titanium Cobalt Grids & Containers */
+  .tc-container {
     @apply max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8;
   }
 
@@ -135,73 +134,131 @@
     grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
-  /* Architectural Institutional Panels */
-  .inst-panel {
-    @apply bg-[#FAF9F6] border border-[#101010] rounded-none;
+  /* Precision Metallic Panels */
+  .tc-panel {
+    @apply bg-[#171C26] border border-[#252C38] rounded-[2px];
   }
 
-  .inst-panel-ivory {
-    @apply bg-[#F0EDE5] border border-[#101010] rounded-none;
+  .tc-panel-obsidian {
+    @apply bg-[#090B10] border border-[#252C38] rounded-[2px];
   }
 
-  .inst-panel-dark {
-    @apply bg-[#101010] text-[#F0EDE5] border border-[#101010] rounded-none;
+  .tc-panel-elevated {
+    @apply bg-[#1C2230] border border-[#252C38] rounded-[2px];
   }
 
-  .inst-panel-subtle {
-    @apply bg-[#FAF9F6] border border-[#D9D4C7] rounded-none;
+  .tc-panel-active {
+    @apply bg-[#171C26] border border-[#2457FF] rounded-[2px];
+  }
+
+  .tc-panel-steel {
+    @apply bg-[#252C38] border border-[#364052] rounded-[2px];
   }
 
   /* Technical Labels & Numbering */
-  .inst-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.16em] text-[#85827B];
+  .tc-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#858D9B];
   }
 
-  .inst-label-dark {
-    @apply font-mono text-[11px] uppercase tracking-[0.16em] text-[#B6A68A];
+  .tc-label-titanium {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#C5CAD3];
   }
 
-  .inst-number {
+  .tc-label-cobalt {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#7595FF];
+  }
+
+  .tc-number {
     @apply font-mono font-medium tracking-tight tabular-nums;
   }
 
   /* Stamp Badges */
+  .tc-badge-cobalt {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+  }
+
+  .tc-badge-titanium {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#252C38] text-[#C5CAD3] border border-[#364052] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+  }
+
+  .tc-badge-ice {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#F4F6FA] text-[#090B10] font-mono text-[10px] uppercase tracking-wider font-semibold rounded-[2px];
+  }
+
+  .tc-badge-oxide {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#A63B32]/20 text-[#FF7A70] border border-[#A63B32]/50 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+  }
+
+  /* Titanium Cobalt Action Triggers */
+  .tc-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2457FF] text-[#F4F6FA] border border-[#2457FF] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#1B46D9] rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .tc-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#171C26] text-[#C5CAD3] border border-[#252C38] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#252C38] hover:text-[#F4F6FA] hover:border-[#7595FF]/40 rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .tc-btn-cobalt-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-[#2457FF]/10 text-[#7595FF] border border-[#2457FF]/30 font-mono text-xs uppercase tracking-wider hover:bg-[#2457FF]/20 rounded-[2px];
+  }
+
+  .tc-btn-steel {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#252C38] text-[#C5CAD3] border border-[#364052] font-mono text-xs uppercase tracking-wider hover:bg-[#364052] hover:text-[#F4F6FA] rounded-[2px];
+  }
+
+  /* Precision Inputs */
+  .tc-input {
+    @apply w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-xs font-mono placeholder:text-[#858D9B] rounded-[2px] focus:outline-none focus:border-[#2457FF] transition-colors;
+  }
+
+  /* Neo-institutional compatibility aliases */
+  .inst-panel {
+    @apply bg-[#171C26] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+  }
+  .inst-panel-ivory {
+    @apply bg-[#1C2230] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+  }
+  .inst-panel-dark {
+    @apply bg-[#090B10] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+  }
+  .inst-panel-subtle {
+    @apply bg-[#171C26] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+  }
+  .inst-label {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#858D9B];
+  }
+  .inst-label-dark {
+    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#C5CAD3];
+  }
+  .inst-number {
+    @apply font-mono font-medium tracking-tight tabular-nums;
+  }
   .badge-forest {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#263B35] text-[#FAF9F6] font-mono text-[10px] uppercase tracking-wider rounded-none;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-
   .badge-oxide {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#A63B32] text-[#FAF9F6] font-mono text-[10px] uppercase tracking-wider rounded-none;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#A63B32]/20 text-[#FF7A70] border border-[#A63B32]/50 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-
   .badge-stone {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#B6A68A]/20 text-[#101010] border border-[#B6A68A] font-mono text-[10px] uppercase tracking-wider rounded-none;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#252C38] text-[#C5CAD3] border border-[#364052] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-
   .badge-obsidian {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider rounded-none;
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#090B10] text-[#F4F6FA] border border-[#252C38] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-
-  /* Institutional Action Triggers */
   .btn-inst-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#101010] text-[#F0EDE5] border border-[#101010] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#263B35] hover:border-[#263B35] disabled:opacity-50 disabled:pointer-events-none rounded-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2457FF] text-[#F4F6FA] border border-[#2457FF] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#1B46D9] rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
   }
-
   .btn-inst-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-transparent text-[#101010] border border-[#101010] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#101010] hover:text-[#F0EDE5] disabled:opacity-50 disabled:pointer-events-none rounded-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#171C26] text-[#C5CAD3] border border-[#252C38] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#252C38] hover:text-[#F4F6FA] hover:border-[#7595FF]/40 rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
   }
-
   .btn-inst-forest {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#263B35] text-[#FAF9F6] border border-[#263B35] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#314C44] disabled:opacity-50 disabled:pointer-events-none rounded-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2457FF] text-[#F4F6FA] border border-[#2457FF] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#1B46D9] rounded-[2px];
   }
-
   .btn-inst-oxide {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#A63B32] text-[#FAF9F6] border border-[#A63B32] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#8B2E26] disabled:opacity-50 disabled:pointer-events-none rounded-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#A63B32] text-[#F4F6FA] border border-[#A63B32] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#8B2E26] rounded-[2px];
   }
-
-  /* Inputs */
   .input-inst {
-    @apply w-full bg-[#FAF9F6] border border-[#101010] text-[#101010] px-3.5 py-2.5 text-sm placeholder:text-[#85827B] rounded-none focus:outline-none focus:ring-1 focus:ring-[#101010] focus:border-[#101010];
+    @apply w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-xs font-mono placeholder:text-[#858D9B] rounded-[2px] focus:outline-none focus:border-[#2457FF] transition-colors;
   }
 }
 
@@ -214,20 +271,20 @@
   }
 }
 
-/* Institutional Sharp Scrollbar */
+/* Precision Metallic Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F0EDE5;
+  background: #090B10;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #B6A68A;
+  background: #252C38;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #101010;
+  background: #2457FF;
 }

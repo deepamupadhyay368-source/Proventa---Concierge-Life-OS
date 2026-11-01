@@ -144,17 +144,18 @@ export default function AssetsPage() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* 1. INSTITUTIONAL HEADER & PORTFOLIO BANNER */}
-      <div className="border border-[#101010] bg-[#FAF9F6]">
-        <div className="p-6 sm:p-8 border-b border-[#101010] flex flex-col md:flex-row md:items-end justify-between gap-6">
+      {/* 1. TITANIUM COBALT HEADER & INVENTORY BANNER */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="p-6 sm:p-8 border-b border-[#252C38] flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
-              03 // ASSET MANAGEMENT REGISTER
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7595FF] font-semibold flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#2457FF]" />
+              <span>03 // ASSET MANAGEMENT REGISTER</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            <h1 className="font-display font-bold text-3xl sm:text-5xl text-[#F4F6FA] tracking-tight mt-1">
               Family Capital Inventory
             </h1>
-            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            <p className="font-sans text-xs text-[#C5CAD3] mt-2 max-w-xl">
               Consolidated register of financial securities, physical real estate, precious metals, and corporate equity holdings with certified valuation histories.
             </p>
           </div>
@@ -162,7 +163,7 @@ export default function AssetsPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="px-5 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+              className="px-5 py-3 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_15px_rgba(36,87,255,0.3)] transition-all flex items-center gap-2"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>+ Record Asset</span>
@@ -171,28 +172,28 @@ export default function AssetsPage() {
         </div>
 
         {/* Aggregate Inventory Stats Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#F0EDE5]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#252C38] bg-[#090B10]">
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               FILTERED REGISTER VALUE
             </div>
-            <div className="font-serif text-2xl text-[#101010]">
+            <div className="font-display font-bold text-2xl text-[#F4F6FA]">
               ₹{(totalValuePaise / 1000000000).toFixed(2)} Crore
             </div>
           </div>
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               REGISTERED INSTRUMENTS
             </div>
-            <div className="font-serif text-2xl text-[#101010]">
+            <div className="font-display font-bold text-2xl text-[#F4F6FA]">
               {filteredAssets.length} Holdings Documented
             </div>
           </div>
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               TITLE AUDIT STATUS
             </div>
-            <div className="font-serif text-2xl text-[#263B35]">
+            <div className="font-display font-bold text-2xl text-[#7595FF]">
               100% Encrypted &amp; Registered
             </div>
           </div>
@@ -201,15 +202,15 @@ export default function AssetsPage() {
 
       {/* 2. RECTANGULAR CATEGORY FILTER TABS & SEARCH */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-1 border border-[#101010] p-1 bg-[#FAF9F6]">
+        <div className="flex flex-wrap items-center gap-1 border border-[#252C38] p-1 bg-[#171C26] rounded-[2px]">
           {['ALL', 'FINANCIAL', 'PHYSICAL', 'BUSINESS'].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors ${
+              className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-all rounded-[2px] ${
                 selectedCategory === cat
-                  ? 'bg-[#101010] text-[#F0EDE5] font-semibold'
-                  : 'text-[#101010] hover:bg-[#F0EDE5]'
+                  ? 'bg-[#2457FF] text-[#F4F6FA] font-semibold shadow-[0_0_12px_rgba(36,87,255,0.3)]'
+                  : 'text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38]'
               }`}
             >
               {cat === 'ALL' ? 'All Holdings' : cat.charAt(0) + cat.slice(1).toLowerCase()}
@@ -218,75 +219,75 @@ export default function AssetsPage() {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-[#85827B]" />
+          <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-[#858D9B]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search instruments, folios, or titles..."
-            className="w-full bg-[#FAF9F6] border border-[#101010] pl-9 pr-3 py-2 font-mono text-xs text-[#101010] placeholder-[#85827B] focus:outline-none focus:ring-1 focus:ring-[#101010]"
+            className="w-full bg-[#171C26] border border-[#252C38] pl-9 pr-3 py-2 font-mono text-xs text-[#F4F6FA] placeholder-[#858D9B] focus:outline-none focus:border-[#2457FF] rounded-[2px] transition-colors"
           />
         </div>
       </div>
 
-      {/* 3. ARCHITECTURAL DATA TABLE */}
-      <div className="border border-[#101010] bg-[#FAF9F6] overflow-x-auto">
+      {/* 3. TITANIUM DATA TABLE */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] overflow-x-auto shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider">
+          <thead className="bg-[#090B10] text-[#7595FF] font-mono text-[10px] uppercase tracking-wider">
             <tr>
-              <th className="py-3 px-4 border-b border-[#101010]">Code &amp; Instrument Name</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Category</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Primary Legal Title</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Current Valuation</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Audit Status</th>
-              <th className="py-3 px-4 border-b border-[#101010] text-right">Actions</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Code &amp; Instrument Name</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Category</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Primary Legal Title</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Current Valuation</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Audit Status</th>
+              <th className="py-3 px-4 border-b border-[#252C38] text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#101010] text-[#101010]">
+          <tbody className="divide-y divide-[#252C38] text-[#F4F6FA]">
             {filteredAssets.map((asset, idx) => (
-              <tr key={asset.id} className="hover:bg-[#F0EDE5] transition-colors">
+              <tr key={asset.id} className="hover:bg-[#1C2230] transition-colors">
                 <td className="py-4 px-4">
-                  <div className="font-mono text-[10px] text-[#85827B]">
+                  <div className="font-mono text-[10px] text-[#7595FF] font-semibold">
                     AST-0{idx + 1}
                   </div>
-                  <div className="font-serif text-base text-[#101010] font-normal mt-0.5">
+                  <div className="font-display text-base text-[#F4F6FA] font-bold mt-0.5">
                     {asset.name}
                   </div>
                   {asset.description && (
-                    <div className="font-mono text-[10px] text-[#85827B] mt-0.5">
+                    <div className="font-mono text-[10px] text-[#858D9B] mt-0.5">
                       {asset.description}
                     </div>
                   )}
                 </td>
                 <td className="py-4 px-4 font-mono text-xs">
-                  <span className="px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase text-[10px]">
+                  <span className="px-2 py-0.5 border border-[#252C38] bg-[#090B10] rounded-[2px] uppercase text-[10px] text-[#C5CAD3]">
                     {asset.subcategory.replace('_', ' ')}
                   </span>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="font-mono text-xs font-semibold">{asset.legalOwnerName}</div>
-                  <div className="font-mono text-[10px] text-[#85827B]">
+                  <div className="font-mono text-xs font-semibold text-[#F4F6FA]">{asset.legalOwnerName}</div>
+                  <div className="font-mono text-[10px] text-[#858D9B]">
                     {asset.ownershipPercentage}% legal equity
                     {asset.coOwners?.length > 0 &&
                       ` + ${asset.coOwners.map((co) => `${co.name} (${co.ownershipPercentage}%)`).join(', ')}`}
                   </div>
                 </td>
                 <td className="py-4 px-4">
-                  <div className="font-serif text-base text-[#101010] font-normal">
+                  <div className="font-display text-base text-[#F4F6FA] font-bold">
                     {asset.formattedCurrentValue}
                   </div>
-                  <div className="font-mono text-[10px] text-[#85827B]">
+                  <div className="font-mono text-[10px] text-[#858D9B]">
                     Recorded: {asset.lastValuationDate}
                   </div>
                 </td>
                 <td className="py-4 px-4">
                   {asset.valuationStatus === 'DOCUMENT_VERIFIED' ? (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#263B35] text-[#FAF9F6] font-mono text-[10px] uppercase tracking-wider">
-                      <CheckCircle2 className="w-3 h-3" />
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px]">
+                      <CheckCircle2 className="w-3 h-3 text-[#7595FF]" />
                       Document Verified
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FAF9F6] text-[#A63B32] border border-[#A63B32] font-mono text-[10px] uppercase tracking-wider">
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#FF7A70]/15 text-[#FF7A70] border border-[#FF7A70]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px]">
                       <AlertCircle className="w-3 h-3" />
                       Estimate
                     </span>
@@ -299,14 +300,14 @@ export default function AssetsPage() {
                         setActiveAsset(asset);
                         setIsValuationModalOpen(true);
                       }}
-                      className="px-2.5 py-1 border border-[#101010] font-mono text-[10px] uppercase text-[#101010] hover:bg-[#101010] hover:text-[#F0EDE5] transition-colors"
+                      className="px-2.5 py-1 border border-[#252C38] bg-[#090B10] font-mono text-[10px] uppercase text-[#C5CAD3] hover:text-[#F4F6FA] hover:border-[#7595FF]/50 transition-colors rounded-[2px]"
                       title="Update Certified Valuation"
                     >
                       Update Valuation
                     </button>
                     <button
                       onClick={() => handleDeleteAsset(asset.id)}
-                      className="p-1 border border-[#101010] text-[#85827B] hover:text-[#A63B32] hover:border-[#A63B32] transition-colors"
+                      className="p-1 border border-[#252C38] bg-[#090B10] text-[#858D9B] hover:text-[#FF7A70] hover:border-[#FF7A70]/50 transition-colors rounded-[2px]"
                       title="Remove Record"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -321,18 +322,18 @@ export default function AssetsPage() {
 
       {/* 4. RECORD ASSET MODAL */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/70">
-          <div className="w-full max-w-lg bg-[#FAF9F6] border border-[#101010] p-6 space-y-5 shadow-[8px_8px_0px_0px_#101010]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
-              <h3 className="font-serif text-xl text-[#101010]">Record New Capital Instrument</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/80 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-[#171C26] border border-[#252C38] p-6 space-y-5 rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
+              <h3 className="font-display font-bold text-xl text-[#F4F6FA]">Record New Capital Instrument</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1 border border-[#252C38] rounded-[2px]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreateAsset} className="space-y-4">
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                   Instrument Name / Description
                 </label>
                 <input
@@ -341,19 +342,19 @@ export default function AssetsPage() {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="e.g. Parag Parikh Flexi Cap Fund or Worli Seaface Flat"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Asset Class
                   </label>
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value as AssetCategoryType)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   >
                     <option value="FINANCIAL">Financial Securities</option>
                     <option value="PHYSICAL">Physical Property / Gold</option>
@@ -362,7 +363,7 @@ export default function AssetsPage() {
                 </div>
 
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Certified Valuation (₹)
                   </label>
                   <input
@@ -371,25 +372,25 @@ export default function AssetsPage() {
                     value={newValueRupees}
                     onChange={(e) => setNewValueRupees(e.target.value)}
                     placeholder="e.g. 5000000"
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Legal Primary Title
                   </label>
                   <input
                     type="text"
                     value={newOwnerName}
                     onChange={(e) => setNewOwnerName(e.target.value)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Primary Equity Share (%)
                   </label>
                   <input
@@ -398,13 +399,13 @@ export default function AssetsPage() {
                     max="100"
                     value={newOwnershipPct}
                     onChange={(e) => setNewOwnershipPct(e.target.value)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                   Registration Notes / Folio / Deed Number
                 </label>
                 <textarea
@@ -412,21 +413,21 @@ export default function AssetsPage() {
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                   placeholder="Key folio numbers, property address, registry date..."
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#252C38] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
+                  className="px-4 py-2 border border-[#252C38] font-mono text-xs uppercase text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] rounded-[2px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
+                  className="px-5 py-2 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)]"
                 >
                   Commit Instrument to Register
                 </button>
@@ -438,23 +439,23 @@ export default function AssetsPage() {
 
       {/* 5. UPDATE VALUATION MODAL */}
       {isValuationModalOpen && activeAsset && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/70">
-          <div className="w-full max-w-md bg-[#FAF9F6] border border-[#101010] p-6 space-y-4 shadow-[8px_8px_0px_0px_#101010]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
-              <h3 className="font-serif text-xl text-[#101010]">Record Certified Valuation</h3>
-              <button onClick={() => setIsValuationModalOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/80 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#171C26] border border-[#252C38] p-6 space-y-4 rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
+              <h3 className="font-display font-bold text-xl text-[#F4F6FA]">Record Certified Valuation</h3>
+              <button onClick={() => setIsValuationModalOpen(false)} className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1 border border-[#252C38] rounded-[2px]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="font-mono text-xs text-[#85827B]">
-              Instrument: <strong className="text-[#101010]">{activeAsset.name}</strong>
+            <div className="font-mono text-xs text-[#858D9B]">
+              Instrument: <strong className="text-[#F4F6FA]">{activeAsset.name}</strong>
               <div className="mt-0.5">Recorded: {activeAsset.formattedCurrentValue}</div>
             </div>
 
             <form onSubmit={handleUpdateValuation} className="space-y-4">
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                   New Certified Valuation (₹)
                 </label>
                 <input
@@ -463,12 +464,12 @@ export default function AssetsPage() {
                   value={updatedValueRupees}
                   onChange={(e) => setUpdatedValueRupees(e.target.value)}
                   placeholder="e.g. 135000000"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                   Valuation Source / Certificate Reference
                 </label>
                 <input
@@ -476,21 +477,21 @@ export default function AssetsPage() {
                   value={valuationNote}
                   onChange={(e) => setValuationNote(e.target.value)}
                   placeholder="e.g. Q4 2025 Chartered Valuer Report No. 441"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#252C38] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsValuationModalOpen(false)}
-                  className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
+                  className="px-4 py-2 border border-[#252C38] font-mono text-xs uppercase text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] rounded-[2px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
+                  className="px-5 py-2 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)]"
                 >
                   Record New Valuation
                 </button>

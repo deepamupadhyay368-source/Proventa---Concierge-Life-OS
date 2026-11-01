@@ -10,12 +10,34 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['var(--font-display)', 'Georgia', ' Cambria', 'serif'],
+        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
         serif: ['var(--font-display)', 'Georgia', 'Cambria', 'serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        // PROVENTA Titanium Cobalt Design System Tokens
+        tc: {
+          obsidian: '#090B10',
+          graphite: '#171C26',
+          'graphite-surface': '#1C2230',
+          'graphite-elevated': '#222A3A',
+          steel: '#252C38',
+          'steel-light': '#364052',
+          titanium: '#C5CAD3',
+          'titanium-light': '#E2E5EC',
+          'titanium-dark': '#8E95A2',
+          ice: '#F4F6FA',
+          cobalt: '#2457FF',
+          'cobalt-hover': '#1B46D9',
+          'cobalt-glow': 'rgba(36, 87, 255, 0.15)',
+          electric: '#7595FF',
+          'electric-subtle': 'rgba(117, 149, 255, 0.12)',
+          muted: '#858D9B',
+          border: '#252C38',
+          'border-light': '#364052',
+          'border-cobalt': '#2457FF',
+        },
         // PROVENTA Neo-Institutional Brutalism Tokens
         inst: {
           obsidian: '#101010',

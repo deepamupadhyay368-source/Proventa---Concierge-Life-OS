@@ -74,7 +74,7 @@ export default function ProtectionPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] border border-[#101010] bg-[#FAF9F6] p-8 font-mono text-xs uppercase tracking-widest text-[#101010]">
+      <div className="flex items-center justify-center min-h-[400px] border border-[#252C38] bg-[#171C26] p-8 font-mono text-xs uppercase tracking-widest text-[#7595FF] rounded-[2px]">
         Loading Protection &amp; Coverage Registers...
       </div>
     );
@@ -82,24 +82,25 @@ export default function ProtectionPage() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* 1. INSTITUTIONAL HEADER & PROTECTION BANNER */}
-      <div className="border border-[#101010] bg-[#FAF9F6]">
-        <div className="p-6 sm:p-8 border-b border-[#101010] flex flex-col md:flex-row md:items-end justify-between gap-6">
+      {/* 1. TITANIUM COBALT HEADER & PROTECTION BANNER */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="p-6 sm:p-8 border-b border-[#252C38] flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
-              08 // FAMILY PROTECTION &amp; RISK MANAGEMENT
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7595FF] font-semibold flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#2457FF]" />
+              <span>08 // FAMILY PROTECTION &amp; RISK MANAGEMENT</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            <h1 className="font-display font-bold text-3xl sm:text-5xl text-[#F4F6FA] tracking-tight mt-1">
               Coverage &amp; Policy Register
             </h1>
-            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            <p className="font-sans text-xs text-[#C5CAD3] mt-2 max-w-xl">
               Centralized record of pure term life protection, comprehensive family health floaters, physical property coverage, and automobile policies with exact renewal countdown schedules.
             </p>
           </div>
 
           <button
             onClick={() => setIsAddOpen(true)}
-            className="px-5 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+            className="px-5 py-3 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_15px_rgba(36,87,255,0.3)] transition-all flex items-center gap-2"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>+ Record Insurance Policy</span>
@@ -107,48 +108,48 @@ export default function ProtectionPage() {
         </div>
 
         {/* Regulatory Disclaimer Banner */}
-        <div className="p-4 bg-[#F0EDE5] border-b border-[#101010] flex items-center gap-3 font-mono text-xs text-[#101010]">
-          <ShieldCheck className="w-4 h-4 text-[#263B35] shrink-0" />
+        <div className="p-4 bg-[#090B10] border-b border-[#252C38] flex items-center gap-3 font-mono text-xs text-[#C5CAD3]">
+          <ShieldCheck className="w-4 h-4 text-[#7595FF] shrink-0" />
           <span>
-            <strong>INFORMATIONAL RECORDKEEPING STANDARD:</strong> PROVENTA provides digital recordkeeping, nominee tracking, and renewal alerts. We do not sell insurance, solicit policies, or provide regulated distribution.
+            <strong className="text-[#F4F6FA]">INFORMATIONAL RECORDKEEPING STANDARD:</strong> PROVENTA provides digital recordkeeping, nominee tracking, and renewal alerts. We do not sell insurance, solicit policies, or provide regulated distribution.
           </span>
         </div>
 
         {/* Coverage Metrics Strip */}
         {summary && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#FAF9F6]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#252C38] bg-[#090B10]">
             <div className="p-5 space-y-1">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
                 TOTAL PURE TERM LIFE SUM ASSURED
               </div>
-              <div className="font-serif text-2xl text-[#263B35]">
+              <div className="font-display font-bold text-2xl text-[#7595FF]">
                 {summary.formattedLifeCover}
               </div>
-              <div className="font-mono text-[10px] text-[#85827B]">
+              <div className="font-mono text-[10px] text-[#C5CAD3]">
                 Protection against primary earner mortality
               </div>
             </div>
 
             <div className="p-5 space-y-1">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
                 FAMILY HEALTH FLOATER BUFFER
               </div>
-              <div className="font-serif text-2xl text-[#101010]">
+              <div className="font-display font-bold text-2xl text-[#F4F6FA]">
                 {summary.formattedHealthCover}
               </div>
-              <div className="font-mono text-[10px] text-[#85827B]">
+              <div className="font-mono text-[10px] text-[#C5CAD3]">
                 Critical illness &amp; inpatient hospitalisation
               </div>
             </div>
 
             <div className="p-5 space-y-1">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
                 ANNUAL PREMIUM COMMITMENT
               </div>
-              <div className="font-serif text-2xl text-[#101010]">
+              <div className="font-display font-bold text-2xl text-[#F4F6FA]">
                 {summary.formattedAnnualPremiums}
               </div>
-              <div className="font-mono text-[10px] text-[#85827B]">
+              <div className="font-mono text-[10px] text-[#C5CAD3]">
                 Across all active family policy instruments
               </div>
             </div>
@@ -156,43 +157,43 @@ export default function ProtectionPage() {
         )}
       </div>
 
-      {/* 2. ARCHITECTURAL POLICY TABLE */}
-      <div className="border border-[#101010] bg-[#FAF9F6] overflow-x-auto">
+      {/* 2. TITANIUM POLICY TABLE */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] overflow-x-auto shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
         <table className="w-full text-left text-xs border-collapse">
-          <thead className="bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider">
+          <thead className="bg-[#090B10] text-[#7595FF] font-mono text-[10px] uppercase tracking-wider">
             <tr>
-              <th className="py-3 px-4 border-b border-[#101010]">Policy &amp; Underwriting Carrier</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Category</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Insured Life / Asset</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Sum Assured</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Annual Premium</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Next Renewal</th>
-              <th className="py-3 px-4 border-b border-[#101010]">Nominee Allocation</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Policy &amp; Underwriting Carrier</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Category</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Insured Life / Asset</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Sum Assured</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Annual Premium</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Next Renewal</th>
+              <th className="py-3 px-4 border-b border-[#252C38]">Nominee Allocation</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#101010] text-[#101010]">
+          <tbody className="divide-y divide-[#252C38] text-[#F4F6FA]">
             {policies.map((p, idx) => (
-              <tr key={p.id} className="hover:bg-[#F0EDE5] transition-colors">
+              <tr key={p.id} className="hover:bg-[#1C2230] transition-colors">
                 <td className="py-4 px-4 font-mono">
-                  <div className="text-[10px] text-[#85827B]">POL-0{idx + 1}</div>
-                  <div className="font-serif text-base text-[#101010] font-normal">{p.insurerName}</div>
-                  <div className="font-mono text-[10px] text-[#85827B] mt-0.5">{p.policyNumberMasked}</div>
+                  <div className="text-[10px] text-[#7595FF] font-semibold">POL-0{idx + 1}</div>
+                  <div className="font-display font-bold text-base text-[#F4F6FA]">{p.insurerName}</div>
+                  <div className="font-mono text-[10px] text-[#858D9B] mt-0.5">{p.policyNumberMasked}</div>
                 </td>
                 <td className="py-4 px-4 font-mono text-xs">
-                  <span className="px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase text-[10px]">
+                  <span className="px-2 py-0.5 border border-[#252C38] bg-[#090B10] text-[#C5CAD3] rounded-[2px] uppercase text-[10px]">
                     {p.policyType.replace('_', ' ')}
                   </span>
                 </td>
-                <td className="py-4 px-4 font-mono text-xs font-semibold">{p.policyholderName}</td>
-                <td className="py-4 px-4 font-serif text-base text-[#263B35] font-normal">
+                <td className="py-4 px-4 font-mono text-xs font-semibold text-[#F4F6FA]">{p.policyholderName}</td>
+                <td className="py-4 px-4 font-display font-bold text-base text-[#7595FF]">
                   {p.formattedSumAssured}
                 </td>
-                <td className="py-4 px-4 font-mono text-xs">{p.formattedPremium}</td>
+                <td className="py-4 px-4 font-mono text-xs text-[#F4F6FA]">{p.formattedPremium}</td>
                 <td className="py-4 px-4 font-mono text-xs">
-                  <div>{p.renewalDate}</div>
-                  <span className="text-[9px] uppercase tracking-widest text-[#263B35] font-semibold">Active // In Force</span>
+                  <div className="text-[#F4F6FA]">{p.renewalDate}</div>
+                  <span className="text-[9px] uppercase tracking-widest text-[#7595FF] font-semibold">Active // In Force</span>
                 </td>
-                <td className="py-4 px-4 font-mono text-xs text-[#85827B]">
+                <td className="py-4 px-4 font-mono text-xs text-[#C5CAD3]">
                   {p.nominees.map((n) => `${n.name} (${n.sharePercentage}%)`).join(', ') || 'Direct Nominee'}
                 </td>
               </tr>
@@ -203,18 +204,18 @@ export default function ProtectionPage() {
 
       {/* 3. RECORD POLICY MODAL */}
       {isAddOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/75">
-          <div className="w-full max-w-md bg-[#FAF9F6] border border-[#101010] p-6 space-y-4 shadow-[8px_8px_0px_0px_#101010]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
-              <h3 className="font-serif text-xl text-[#101010]">Record Insurance Policy</h3>
-              <button onClick={() => setIsAddOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/80 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#171C26] border border-[#252C38] p-6 space-y-4 rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
+              <h3 className="font-display font-bold text-xl text-[#F4F6FA]">Record Insurance Policy</h3>
+              <button onClick={() => setIsAddOpen(false)} className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1 border border-[#252C38] rounded-[2px]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreatePolicy} className="space-y-4">
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                   Insurer / Underwriter Name
                 </label>
                 <input
@@ -223,43 +224,31 @@ export default function ProtectionPage() {
                   value={insurerName}
                   onChange={(e) => setInsurerName(e.target.value)}
                   placeholder="e.g. HDFC Life or ICICI Lombard"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
-                    Coverage Type
-                  </label>
-                  <select
-                    value={policyType}
-                    onChange={(e) => setPolicyType(e.target.value as InsuranceType)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
-                  >
-                    <option value="LIFE_TERM">Term Life</option>
-                    <option value="HEALTH_FAMILY_FLOATER">Health Family Floater</option>
-                    <option value="VEHICLE_MOTOR">Motor Vehicle</option>
-                    <option value="PROPERTY_HOME">Home / Property</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
-                    Insured Life / Titleholder
-                  </label>
-                  <input
-                    type="text"
-                    value={policyholderName}
-                    onChange={(e) => setPolicyholderName(e.target.value)}
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
-                  />
-                </div>
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
+                  Policy Category
+                </label>
+                <select
+                  value={policyType}
+                  onChange={(e) => setPolicyType(e.target.value as InsuranceType)}
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
+                >
+                  <option value="LIFE_TERM">Pure Term Life Protection</option>
+                  <option value="HEALTH_INDIVIDUAL">Individual Health Insurance</option>
+                  <option value="HEALTH_FLOATER">Family Health Floater</option>
+                  <option value="PROPERTY">Residential / Commercial Property</option>
+                  <option value="MOTOR">Motor / Automobile</option>
+                  <option value="LIABILITY">Professional / Director Liability</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Sum Assured (₹)
                   </label>
                   <input
@@ -267,47 +256,60 @@ export default function ProtectionPage() {
                     required
                     value={sumAssuredRupees}
                     onChange={(e) => setSumAssuredRupees(e.target.value)}
-                    placeholder="e.g. 100000000"
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    placeholder="e.g. 50000000"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
                     Annual Premium (₹)
                   </label>
                   <input
                     type="number"
                     value={premiumRupees}
                     onChange={(e) => setPremiumRupees(e.target.value)}
-                    placeholder="e.g. 145000"
-                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                    placeholder="e.g. 85000"
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
-                  Next Renewal Date
-                </label>
-                <input
-                  type="date"
-                  value={renewalDate}
-                  onChange={(e) => setRenewalDate(e.target.value)}
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
+                    Policyholder Name
+                  </label>
+                  <input
+                    type="text"
+                    value={policyholderName}
+                    onChange={(e) => setPolicyholderName(e.target.value)}
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
+                    Next Renewal Date
+                  </label>
+                  <input
+                    type="date"
+                    value={renewalDate}
+                    onChange={(e) => setRenewalDate(e.target.value)}
+                    className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
+                  />
+                </div>
               </div>
 
-              <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#252C38] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
+                  className="px-4 py-2 border border-[#252C38] font-mono text-xs uppercase text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] rounded-[2px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
+                  className="px-5 py-2 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)]"
                 >
                   Commit Policy to Register
                 </button>

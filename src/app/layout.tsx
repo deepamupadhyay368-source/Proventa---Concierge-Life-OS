@@ -1,43 +1,41 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Instrument_Serif, IBM_Plex_Mono } from 'next/font/google';
+import { Space_Grotesk, Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
-const inter = Inter({
+const geist = Geist({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-sans',
   display: 'swap',
 });
 
-const instrumentSerif = Instrument_Serif({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-display',
-  weight: '400',
-  style: ['normal', 'italic'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
+const geistMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-mono',
-  weight: ['400', '500', '600'],
   display: 'swap',
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | The Wealth Institution',
+    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | Titanium Cobalt Family Wealth OS',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. The independent family financial infrastructure and private wealth operating system. Consolidated net worth, asset registers, encrypted family vault, and private wealth intelligence.',
+    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence. Consolidated net worth, asset registers, encrypted family vault, and private wealth telemetry.',
   keywords: [
     'PROVENTA',
     'Family Wealth OS',
-    'The Wealth Institution',
+    'Titanium Cobalt',
     'Family Financial Infrastructure',
     'Consolidated Net Worth India',
     'Private Wealth Intelligence',
@@ -53,7 +51,7 @@ export const metadata: Metadata = {
     siteName: 'PROVENTA',
     title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     description:
-      'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. The independent family financial infrastructure and private wealth operating system.',
+      'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence.',
     images: [
       {
         url: '/og-image.jpg',
@@ -67,7 +65,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     description:
-      'The independent family financial infrastructure and private wealth operating system.',
+      'Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -108,12 +106,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${instrumentSerif.variable} ${ibmPlexMono.variable}`}
+      className={`${geist.variable} ${spaceGrotesk.variable} ${geistMono.variable} dark`}
     >
-      <body className="min-h-screen bg-[#F5F0E5] text-[#181914] antialiased">
+      <body className="min-h-screen bg-[#090B10] text-[#F4F6FA] antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

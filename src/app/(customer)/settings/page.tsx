@@ -52,48 +52,49 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* 1. INSTITUTIONAL HEADER */}
-      <div className="border border-[#101010] bg-[#FAF9F6]">
-        <div className="p-6 sm:p-8 border-b border-[#101010]">
-          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
-            14 // INSTITUTIONAL GOVERNANCE &amp; DPDP PRIVACY
+      {/* 1. TITANIUM COBALT HEADER */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="p-6 sm:p-8 border-b border-[#252C38]">
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7595FF] font-semibold flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#2457FF]" />
+            <span>14 // INSTITUTIONAL GOVERNANCE &amp; DPDP PRIVACY</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+          <h1 className="font-display font-bold text-3xl sm:text-5xl text-[#F4F6FA] tracking-tight mt-1">
             Governance &amp; Statutory Data Rights
           </h1>
-          <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+          <p className="font-sans text-xs text-[#C5CAD3] mt-2 max-w-xl">
             Identity credentials, Digital Personal Data Protection Act compliance protocols, raw machine-readable data portability, and institutional subscription entitlements.
           </p>
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-1 p-2 bg-[#F0EDE5]">
+        <div className="flex flex-wrap items-center gap-1 p-2 bg-[#090B10]">
           <button
             onClick={() => setActiveTab('PROFILE')}
-            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors border ${
+            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-all rounded-[2px] border ${
               activeTab === 'PROFILE'
-                ? 'bg-[#101010] text-[#F0EDE5] border-[#101010] font-semibold'
-                : 'border-transparent text-[#101010] hover:bg-[#FAF9F6]'
+                ? 'bg-[#2457FF] text-[#F4F6FA] border-[#2457FF] font-semibold shadow-[0_0_12px_rgba(36,87,255,0.3)]'
+                : 'border-transparent text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#171C26]'
             }`}
           >
             Profile &amp; Credentials
           </button>
           <button
             onClick={() => setActiveTab('DPDP')}
-            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors border ${
+            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-all rounded-[2px] border ${
               activeTab === 'DPDP'
-                ? 'bg-[#101010] text-[#F0EDE5] border-[#101010] font-semibold'
-                : 'border-transparent text-[#101010] hover:bg-[#FAF9F6]'
+                ? 'bg-[#2457FF] text-[#F4F6FA] border-[#2457FF] font-semibold shadow-[0_0_12px_rgba(36,87,255,0.3)]'
+                : 'border-transparent text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#171C26]'
             }`}
           >
             DPDP Privacy &amp; Data Rights
           </button>
           <button
             onClick={() => setActiveTab('BILLING')}
-            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors border ${
+            className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-all rounded-[2px] border ${
               activeTab === 'BILLING'
-                ? 'bg-[#101010] text-[#F0EDE5] border-[#101010] font-semibold'
-                : 'border-transparent text-[#101010] hover:bg-[#FAF9F6]'
+                ? 'bg-[#2457FF] text-[#F4F6FA] border-[#2457FF] font-semibold shadow-[0_0_12px_rgba(36,87,255,0.3)]'
+                : 'border-transparent text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#171C26]'
             }`}
           >
             Institutional Subscription
@@ -103,32 +104,32 @@ export default function SettingsPage() {
 
       {/* Tab 1: Profile */}
       {activeTab === 'PROFILE' && (
-        <div className="border border-[#101010] bg-[#FAF9F6] p-8 max-w-2xl space-y-6">
-          <div className="font-serif text-2xl text-[#101010]">Identity Credentials</div>
+        <div className="border border-[#252C38] bg-[#171C26] p-8 max-w-2xl space-y-6 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+          <div className="font-display font-bold text-2xl text-[#F4F6FA]">Identity Credentials</div>
           <div className="space-y-4 font-mono text-xs">
             <div>
-              <label className="block text-[#85827B] uppercase text-[10px] mb-1">Full Legal Name</label>
+              <label className="block text-[#858D9B] uppercase text-[10px] mb-1">Full Legal Name</label>
               <input
                 type="text"
                 disabled
                 value="Rajesh Sharma"
-                className="w-full bg-[#F0EDE5] border border-[#101010] px-3.5 py-2.5 text-[#101010]"
+                className="w-full bg-[#090B10] border border-[#252C38] px-3.5 py-2.5 text-[#F4F6FA] rounded-[2px]"
               />
             </div>
             <div>
-              <label className="block text-[#85827B] uppercase text-[10px] mb-1">Registered Institutional Email</label>
+              <label className="block text-[#858D9B] uppercase text-[10px] mb-1">Registered Institutional Email</label>
               <input
                 type="email"
                 disabled
                 value="rajesh.sharma@proventa.internal"
-                className="w-full bg-[#F0EDE5] border border-[#101010] px-3.5 py-2.5 text-[#101010]"
+                className="w-full bg-[#090B10] border border-[#252C38] px-3.5 py-2.5 text-[#F4F6FA] rounded-[2px]"
               />
             </div>
             <div>
-              <label className="block text-[#85827B] uppercase text-[10px] mb-1">Trusteeship Role</label>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#101010] text-[#F0EDE5] font-mono text-xs uppercase tracking-wider">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#B6A68A]" />
-                <span>PRIMARY TRUSTEE &amp; ADMINISTRATOR</span>
+              <label className="block text-[#858D9B] uppercase text-[10px] mb-1">Trusteeship Role</label>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#2457FF]/15 border border-[#2457FF]/40 text-[#7595FF] font-mono text-xs uppercase tracking-wider rounded-[2px]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#7595FF]" />
+                <span className="font-semibold">PRIMARY TRUSTEE &amp; ADMINISTRATOR</span>
               </div>
             </div>
           </div>
@@ -138,38 +139,38 @@ export default function SettingsPage() {
       {/* Tab 2: DPDP Privacy & Rights */}
       {activeTab === 'DPDP' && (
         <div className="space-y-6 max-w-3xl">
-          <div className="border border-[#101010] bg-[#FAF9F6] p-8 space-y-4">
+          <div className="border border-[#252C38] bg-[#171C26] p-8 space-y-4 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
             <div className="flex items-center gap-2">
-              <Download className="w-4 h-4 text-[#101010]" />
-              <h3 className="font-serif text-2xl text-[#101010]">Right to Data Portability (Machine-Readable Export)</h3>
+              <Download className="w-4 h-4 text-[#7595FF]" />
+              <h3 className="font-display font-bold text-2xl text-[#F4F6FA]">Right to Data Portability (Machine-Readable Export)</h3>
             </div>
-            <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+            <p className="font-sans text-xs text-[#C5CAD3] leading-relaxed">
               Export all your recorded assets, liabilities, valuation audit histories, cashflow ledgers, and document metadata in an open, machine-readable JSON format under section 12 of the DPDP Act 2023.
             </p>
             <button
               onClick={handleDataExport}
-              className="px-5 py-2.5 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors"
+              className="px-5 py-2.5 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)] transition-all"
             >
               Generate Raw JSON Archive
             </button>
             {exportStatus && (
-              <div className="font-mono text-xs text-[#263B35] pt-1">
+              <div className="font-mono text-xs text-[#7595FF] pt-1">
                 {exportStatus}
               </div>
             )}
           </div>
 
-          <div className="border border-[#A63B32] bg-[#FAF9F6] p-8 space-y-4">
-            <div className="flex items-center gap-2 text-[#A63B32]">
+          <div className="border border-[#FF7A70]/50 bg-[#171C26] p-8 space-y-4 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center gap-2 text-[#FF7A70]">
               <Trash2 className="w-4 h-4" />
-              <h3 className="font-serif text-2xl">Right to Erasure (Complete Account Deletion)</h3>
+              <h3 className="font-display font-bold text-2xl">Right to Erasure (Complete Account Deletion)</h3>
             </div>
-            <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+            <p className="font-sans text-xs text-[#C5CAD3] leading-relaxed">
               Under India&apos;s Digital Personal Data Protection Act, you may request permanent erasure of your personal records and vault documents.
             </p>
             <button
               onClick={handleDataErasure}
-              className="px-5 py-2.5 bg-[#A63B32] text-[#FAF9F6] hover:bg-[#8B2E26] font-mono text-xs uppercase tracking-wider font-semibold border border-[#A63B32] transition-colors"
+              className="px-5 py-2.5 bg-[#FF7A70]/20 text-[#FF7A70] hover:bg-[#FF7A70]/30 font-mono text-xs uppercase tracking-wider font-semibold border border-[#FF7A70]/50 rounded-[2px] transition-colors"
             >
               Initiate Irreversible Data Erasure
             </button>
@@ -179,35 +180,35 @@ export default function SettingsPage() {
 
       {/* Tab 3: Billing & Subscription */}
       {activeTab === 'BILLING' && subData && (
-        <div className="border border-[#101010] bg-[#FAF9F6] p-8 max-w-2xl space-y-6">
-          <div className="flex items-center justify-between border-b border-[#101010] pb-4">
+        <div className="border border-[#252C38] bg-[#171C26] p-8 max-w-2xl space-y-6 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+          <div className="flex items-center justify-between border-b border-[#252C38] pb-4">
             <div>
-              <span className="font-mono text-[10px] text-[#85827B] uppercase">Institutional Tier</span>
-              <h3 className="font-serif text-2xl text-[#101010] mt-0.5">
+              <span className="font-mono text-[10px] text-[#858D9B] uppercase">Institutional Tier</span>
+              <h3 className="font-display font-bold text-2xl text-[#F4F6FA] mt-0.5">
                 {subData.currentSubscription?.details?.name || 'Family Office Plan'}
               </h3>
             </div>
-            <span className="px-3 py-1 bg-[#263B35] text-[#FAF9F6] font-mono text-xs uppercase font-semibold">
+            <span className="px-3 py-1 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 font-mono text-xs uppercase font-semibold rounded-[2px]">
               Active Institutional License
             </span>
           </div>
 
-          <div className="space-y-3 font-mono text-xs text-[#101010]">
-            <div className="flex justify-between border-b border-[#101010]/15 pb-2">
-              <span className="text-[#85827B]">Annual Investment:</span>
-              <span className="font-bold">{subData.currentSubscription?.details?.formattedPrice || '₹14,999'} / year</span>
+          <div className="space-y-3 font-mono text-xs text-[#F4F6FA]">
+            <div className="flex justify-between border-b border-[#252C38] pb-2">
+              <span className="text-[#858D9B]">Annual Investment:</span>
+              <span className="font-bold text-[#F4F6FA]">{subData.currentSubscription?.details?.formattedPrice || '₹14,999'} / year</span>
             </div>
-            <div className="flex justify-between border-b border-[#101010]/15 pb-2">
-              <span className="text-[#85827B]">Included Family Seats:</span>
-              <span>Up to 25 Members &amp; Professional Advisors</span>
+            <div className="flex justify-between border-b border-[#252C38] pb-2">
+              <span className="text-[#858D9B]">Included Family Seats:</span>
+              <span className="text-[#C5CAD3]">Up to 25 Members &amp; Professional Advisors</span>
             </div>
-            <div className="flex justify-between border-b border-[#101010]/15 pb-2">
-              <span className="text-[#85827B]">Encrypted Archival Quota:</span>
-              <span>50 GB AES-GCM-256 Storage</span>
+            <div className="flex justify-between border-b border-[#252C38] pb-2">
+              <span className="text-[#858D9B]">Encrypted Archival Quota:</span>
+              <span className="text-[#C5CAD3]">50 GB AES-GCM-256 Storage</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#85827B]">Calculation Engine:</span>
-              <span className="text-[#263B35] font-semibold">Integer Paise (Zero Drift)</span>
+              <span className="text-[#858D9B]">Calculation Engine:</span>
+              <span className="text-[#7595FF] font-semibold">Integer Paise (Zero Drift)</span>
             </div>
           </div>
         </div>

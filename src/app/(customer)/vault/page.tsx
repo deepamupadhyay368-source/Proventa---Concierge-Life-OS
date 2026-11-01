@@ -123,24 +123,25 @@ export default function FamilyVaultPage() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* 1. INSTITUTIONAL HEADER & ARCHIVE BANNER */}
-      <div className="border border-[#101010] bg-[#FAF9F6]">
-        <div className="p-6 sm:p-8 border-b border-[#101010] flex flex-col md:flex-row md:items-end justify-between gap-6">
+      {/* 1. TITANIUM COBALT HEADER & ARCHIVE BANNER */}
+      <div className="border border-[#252C38] bg-[#171C26] rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+        <div className="p-6 sm:p-8 border-b border-[#252C38] flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
-              06 // ENCRYPTED ARCHIVAL VAULT
+            <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#7595FF] font-semibold flex items-center gap-2">
+              <span className="w-1.5 h-1.5 bg-[#2457FF]" />
+              <span>06 // ENCRYPTED ARCHIVAL VAULT</span>
             </div>
-            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            <h1 className="font-display font-bold text-3xl sm:text-5xl text-[#F4F6FA] tracking-tight mt-1">
               Title Deeds &amp; Archival Records
             </h1>
-            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            <p className="font-sans text-xs text-[#C5CAD3] mt-2 max-w-xl">
               Zero-knowledge client-side encrypted repository for registered sale deeds, Demat CAMS statements, ITR returns, and testamentary succession trusts.
             </p>
           </div>
 
           <button
             onClick={() => setIsUploadOpen(true)}
-            className="px-5 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+            className="px-5 py-3 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_15px_rgba(36,87,255,0.3)] transition-all flex items-center gap-2"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>+ Encrypt &amp; Archive Deed</span>
@@ -148,36 +149,36 @@ export default function FamilyVaultPage() {
         </div>
 
         {/* Human Confirmation Protocol Standard Banner */}
-        <div className="p-4 bg-[#F0EDE5] border-b border-[#101010] flex items-center gap-3 font-mono text-xs text-[#101010]">
-          <Shield className="w-4 h-4 text-[#263B35] shrink-0" />
+        <div className="p-4 bg-[#090B10] border-b border-[#252C38] flex items-center gap-3 font-mono text-xs text-[#C5CAD3]">
+          <Shield className="w-4 h-4 text-[#7595FF] shrink-0" />
           <span>
-            <strong>HUMAN CONFIRMATION PROTOCOL:</strong> AI extraction parses financial figures, folios, and titleholders, but never promotes extracted data to verified fact without explicit trustee confirmation.
+            <strong className="text-[#F4F6FA]">HUMAN CONFIRMATION PROTOCOL:</strong> AI extraction parses financial figures, folios, and titleholders, but never promotes extracted data to verified fact without explicit trustee confirmation.
           </span>
         </div>
 
         {/* Archive Metrics Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#F0EDE5]">
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#252C38] bg-[#090B10]">
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               ARCHIVED INSTRUMENTS
             </div>
-            <div className="font-serif text-2xl text-[#101010]">
+            <div className="font-display font-bold text-2xl text-[#F4F6FA]">
               {documents.length} Encrypted Documents
             </div>
           </div>
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               EXTRACTION VERIFICATION
             </div>
-            <div className="font-serif text-2xl text-[#263B35]">
+            <div className="font-display font-bold text-2xl text-[#7595FF]">
               {documents.filter((d) => d.extraction?.userConfirmed).length} Approved / {documents.length} Total
             </div>
           </div>
           <div className="p-5 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
               CRYPTOGRAPHIC CIPHER
             </div>
-            <div className="font-serif text-2xl text-[#101010]">
+            <div className="font-display font-bold text-2xl text-[#F4F6FA]">
               AES-GCM-256 / SHA-256
             </div>
           </div>
@@ -186,15 +187,15 @@ export default function FamilyVaultPage() {
 
       {/* 2. RECTANGULAR CATEGORY TABS & SEARCH */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-1 border border-[#101010] p-1 bg-[#FAF9F6]">
+        <div className="flex flex-wrap items-center gap-1 border border-[#252C38] p-1 bg-[#171C26] rounded-[2px]">
           {['ALL', 'SALE_DEED', 'INVESTMENT_STATEMENT', 'TAX_DOCUMENT', 'INSURANCE_POLICY', 'WILL_SUCCESSION'].map((cat) => (
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors ${
+              className={`px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-all rounded-[2px] ${
                 selectedCategory === cat
-                  ? 'bg-[#101010] text-[#F0EDE5] font-semibold'
-                  : 'text-[#101010] hover:bg-[#F0EDE5]'
+                  ? 'bg-[#2457FF] text-[#F4F6FA] font-semibold shadow-[0_0_12px_rgba(36,87,255,0.3)]'
+                  : 'text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38]'
               }`}
             >
               {cat === 'ALL' ? 'All Archives' : cat.replace('_', ' ')}
@@ -203,13 +204,13 @@ export default function FamilyVaultPage() {
         </div>
 
         <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-[#85827B]" />
+          <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-[#858D9B]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search archival index..."
-            className="w-full bg-[#FAF9F6] border border-[#101010] pl-9 pr-3 py-2 font-mono text-xs text-[#101010] placeholder-[#85827B] focus:outline-none focus:ring-1 focus:ring-[#101010]"
+            className="w-full bg-[#171C26] border border-[#252C38] pl-9 pr-3 py-2 font-mono text-xs text-[#F4F6FA] placeholder-[#858D9B] focus:outline-none focus:border-[#2457FF] rounded-[2px] transition-colors"
           />
         </div>
       </div>
@@ -222,21 +223,21 @@ export default function FamilyVaultPage() {
           return (
             <div
               key={doc.id}
-              className="border border-[#101010] bg-[#FAF9F6] flex flex-col justify-between p-6 space-y-4 hover:bg-[#F0EDE5] transition-colors"
+              className="border border-[#252C38] bg-[#171C26] rounded-[2px] flex flex-col justify-between p-6 space-y-4 hover:border-[#7595FF]/50 transition-colors shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between font-mono text-[10px]">
-                  <span className="px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase">
+                  <span className="px-2 py-0.5 border border-[#252C38] bg-[#090B10] text-[#C5CAD3] rounded-[2px] uppercase">
                     {doc.category.replace('_', ' ')}
                   </span>
                   {doc.extraction ? (
                     isConfirmed ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#263B35] text-[#FAF9F6] uppercase">
-                        <CheckCircle2 className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 rounded-[2px] uppercase font-semibold">
+                        <CheckCircle2 className="w-3 h-3 text-[#7595FF]" />
                         Audit Sealed
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#A63B32] text-[#FAF9F6] uppercase animate-pulse">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#FF7A70]/15 text-[#FF7A70] border border-[#FF7A70]/40 rounded-[2px] uppercase font-semibold animate-pulse">
                         <AlertCircle className="w-3 h-3" />
                         Confirmation Pending
                       </span>
@@ -245,32 +246,32 @@ export default function FamilyVaultPage() {
                 </div>
 
                 <div>
-                  <div className="font-mono text-[10px] text-[#85827B]">DOC-0{idx + 1}</div>
-                  <h3 className="font-serif text-lg text-[#101010] mt-0.5 leading-snug">{doc.title}</h3>
-                  <div className="font-mono text-[10px] text-[#85827B] mt-0.5">{doc.fileName}</div>
+                  <div className="font-mono text-[10px] text-[#7595FF] font-semibold">DOC-0{idx + 1}</div>
+                  <h3 className="font-display font-bold text-lg text-[#F4F6FA] mt-0.5 leading-snug">{doc.title}</h3>
+                  <div className="font-mono text-[10px] text-[#858D9B] mt-0.5">{doc.fileName}</div>
                 </div>
 
                 {/* AI Extracted Highlights */}
                 {doc.extraction && (
-                  <div className="p-3 border border-[#101010]/30 bg-[#FAF9F6] space-y-1.5 font-mono text-xs">
-                    <div className="text-[9px] uppercase tracking-widest text-[#85827B]">
+                  <div className="p-3 border border-[#252C38] bg-[#090B10] rounded-[2px] space-y-1.5 font-mono text-xs">
+                    <div className="text-[9px] uppercase tracking-widest text-[#7595FF] font-semibold">
                       EXTRACTED FINANCIAL DATA
                     </div>
                     {doc.extraction.institutionName && (
-                      <div className="text-[#101010] font-semibold text-[11px]">
+                      <div className="text-[#F4F6FA] font-semibold text-[11px]">
                         {doc.extraction.institutionName}
                       </div>
                     )}
                     {doc.extraction.extractedAmounts.map((amt, aIdx) => (
-                      <div key={aIdx} className="flex justify-between text-[11px] text-[#85827B]">
+                      <div key={aIdx} className="flex justify-between text-[11px] text-[#858D9B]">
                         <span>{amt.label}:</span>
-                        <strong className="text-[#101010]">{amt.formattedAmount}</strong>
+                        <strong className="text-[#F4F6FA]">{amt.formattedAmount}</strong>
                       </div>
                     ))}
                     {doc.extraction.maskedIdentifiers.map((idnt, iIdx) => (
-                      <div key={iIdx} className="flex justify-between text-[10px] text-[#85827B]">
+                      <div key={iIdx} className="flex justify-between text-[10px] text-[#858D9B]">
                         <span>{idnt.label}:</span>
-                        <span>{idnt.maskedValue}</span>
+                        <span className="text-[#C5CAD3]">{idnt.maskedValue}</span>
                       </div>
                     ))}
                   </div>
@@ -278,18 +279,18 @@ export default function FamilyVaultPage() {
               </div>
 
               {/* Bottom Actions */}
-              <div className="pt-4 border-t border-[#101010]/15 flex items-center justify-between font-mono text-xs">
+              <div className="pt-4 border-t border-[#252C38] flex items-center justify-between font-mono text-xs">
                 {doc.extraction && !isConfirmed ? (
                   <button
                     onClick={() => setActiveReviewDoc(doc)}
-                    className="px-3 py-1.5 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] uppercase text-[10px] tracking-wider font-semibold border border-[#101010]"
+                    className="px-3 py-1.5 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] uppercase text-[10px] tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_10px_rgba(36,87,255,0.3)] transition-all"
                   >
                     Review &amp; Verify Metadata →
                   </button>
                 ) : (
                   <button
                     onClick={() => setActiveReviewDoc(doc)}
-                    className="text-[#101010] hover:underline flex items-center gap-1.5 uppercase text-[10px] tracking-wider"
+                    className="text-[#C5CAD3] hover:text-[#7595FF] flex items-center gap-1.5 uppercase text-[10px] tracking-wider"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     <span>Inspect Record</span>
@@ -298,7 +299,7 @@ export default function FamilyVaultPage() {
 
                 <button
                   onClick={() => handleDelete(doc.id)}
-                  className="p-1 border border-[#101010] text-[#85827B] hover:text-[#A63B32] hover:border-[#A63B32] transition-colors"
+                  className="p-1 border border-[#252C38] bg-[#090B10] text-[#858D9B] hover:text-[#FF7A70] hover:border-[#FF7A70]/50 transition-colors rounded-[2px]"
                   title="Purge Record"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -311,50 +312,50 @@ export default function FamilyVaultPage() {
 
       {/* 4. HUMAN VERIFICATION REVIEW MODAL */}
       {activeReviewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/75">
-          <div className="w-full max-w-lg bg-[#FAF9F6] border border-[#101010] p-6 space-y-5 shadow-[8px_8px_0px_0px_#101010]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/80 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-[#171C26] border border-[#252C38] p-6 space-y-5 rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
               <div>
-                <h3 className="font-serif text-xl text-[#101010]">Document Intelligence Verification</h3>
-                <p className="font-mono text-[10px] text-[#85827B] uppercase tracking-wider">
+                <h3 className="font-display font-bold text-xl text-[#F4F6FA]">Document Intelligence Verification</h3>
+                <p className="font-mono text-[10px] text-[#7595FF] uppercase tracking-wider font-semibold">
                   Human-in-the-Loop Confirmation Protocol
                 </p>
               </div>
-              <button onClick={() => setActiveReviewDoc(null)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+              <button onClick={() => setActiveReviewDoc(null)} className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1 border border-[#252C38] rounded-[2px]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <div className="font-mono text-[10px] uppercase text-[#85827B]">Archived Instrument</div>
-                <div className="font-serif text-lg text-[#101010] mt-0.5">{activeReviewDoc.title}</div>
-                <div className="font-mono text-[10px] text-[#85827B]">{activeReviewDoc.fileName}</div>
+                <div className="font-mono text-[10px] uppercase text-[#858D9B]">Archived Instrument</div>
+                <div className="font-display font-bold text-lg text-[#F4F6FA] mt-0.5">{activeReviewDoc.title}</div>
+                <div className="font-mono text-[10px] text-[#858D9B]">{activeReviewDoc.fileName}</div>
               </div>
 
               {activeReviewDoc.extraction && (
-                <div className="space-y-3 p-4 border border-[#101010] bg-[#F0EDE5] font-mono text-xs">
+                <div className="space-y-3 p-4 border border-[#252C38] bg-[#090B10] rounded-[2px] font-mono text-xs">
                   <div className="flex justify-between items-center">
                     <span className="text-[#85827B]">Detected Counterparty:</span>
-                    <span className="text-[#101010] font-semibold">{activeReviewDoc.extraction.institutionName || 'N/A'}</span>
+                    <span className="text-[#F4F6FA] font-semibold">{activeReviewDoc.extraction.institutionName || 'N/A'}</span>
                   </div>
 
-                  <div className="space-y-1.5 pt-2 border-t border-[#101010]/15">
-                    <div className="text-[9px] uppercase tracking-widest text-[#85827B]">Extracted Financial Balances</div>
+                  <div className="space-y-1.5 pt-2 border-t border-[#252C38]">
+                    <div className="text-[9px] uppercase tracking-widest text-[#7595FF] font-semibold">Extracted Financial Balances</div>
                     {activeReviewDoc.extraction.extractedAmounts.map((amt, idx) => (
                       <div key={idx} className="flex justify-between items-center">
                         <span className="text-[#85827B]">{amt.label}</span>
-                        <span className="font-serif text-base text-[#101010] font-bold">{amt.formattedAmount}</span>
+                        <span className="font-display text-base text-[#F4F6FA] font-bold">{amt.formattedAmount}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="space-y-1.5 pt-2 border-t border-[#101010]/15">
-                    <div className="text-[9px] uppercase tracking-widest text-[#85827B]">Masked Accounts &amp; Identifiers</div>
+                  <div className="space-y-1.5 pt-2 border-t border-[#252C38]">
+                    <div className="text-[9px] uppercase tracking-widest text-[#7595FF] font-semibold">Masked Accounts &amp; Identifiers</div>
                     {activeReviewDoc.extraction.maskedIdentifiers.map((idnt, idx) => (
                       <div key={idx} className="flex justify-between items-center text-[11px]">
                         <span className="text-[#85827B]">{idnt.label}</span>
-                        <span className="text-[#101010] font-semibold">{idnt.maskedValue}</span>
+                        <span className="text-[#C5CAD3] font-semibold">{idnt.maskedValue}</span>
                       </div>
                     ))}
                   </div>
@@ -362,20 +363,20 @@ export default function FamilyVaultPage() {
               )}
             </div>
 
-            <div className="pt-3 border-t border-[#101010] flex items-center justify-between font-mono text-xs">
+            <div className="pt-3 border-t border-[#252C38] flex items-center justify-between font-mono text-xs">
               <span className="text-[10px] text-[#85827B]">AI Confidence: {activeReviewDoc.extraction?.confidenceScore || 95}%</span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveReviewDoc(null)}
-                  className="px-4 py-2 border border-[#101010] uppercase text-xs text-[#101010] hover:bg-[#F0EDE5]"
+                  className="px-4 py-2 border border-[#252C38] uppercase text-xs text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] rounded-[2px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={() => handleConfirmExtraction(activeReviewDoc.id, true)}
-                  className="px-5 py-2 bg-[#263B35] text-[#FAF9F6] hover:bg-[#101010] uppercase text-xs tracking-wider font-semibold border border-[#263B35]"
+                  className="px-5 py-2 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] uppercase text-xs tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)] transition-all"
                 >
                   Confirm as Verified Truth
                 </button>
@@ -387,18 +388,18 @@ export default function FamilyVaultPage() {
 
       {/* 5. UPLOAD TO VAULT MODAL */}
       {isUploadOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/75">
-          <div className="w-full max-w-md bg-[#FAF9F6] border border-[#101010] p-6 space-y-4 shadow-[8px_8px_0px_0px_#101010]">
-            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
-              <h3 className="font-serif text-xl text-[#101010]">Archive Document to Vault</h3>
-              <button onClick={() => setIsUploadOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/80 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#171C26] border border-[#252C38] p-6 space-y-4 rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.8)]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
+              <h3 className="font-display font-bold text-xl text-[#F4F6FA]">Archive Document to Vault</h3>
+              <button onClick={() => setIsUploadOpen(false)} className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1 border border-[#252C38] rounded-[2px]">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleUpload} className="space-y-4">
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#85827B] mb-1">
                   Document Title
                 </label>
                 <input
@@ -407,18 +408,18 @@ export default function FamilyVaultPage() {
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="e.g. Registered Sale Deed 2023 or CAMS Portfolio"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#85827B] mb-1">
                   Archive Classification
                 </label>
                 <select
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value as DocumentCategory)}
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 >
                   <option value="SALE_DEED">Sale Deed / Property Title</option>
                   <option value="INVESTMENT_STATEMENT">Investment / Mutual Fund Statement</option>
@@ -431,7 +432,7 @@ export default function FamilyVaultPage() {
               </div>
 
               <div>
-                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#85827B] mb-1">
                   File Attachment Reference
                 </label>
                 <input
@@ -439,21 +440,21 @@ export default function FamilyVaultPage() {
                   value={fileName}
                   onChange={(e) => setFileName(e.target.value)}
                   placeholder="Deed_Scan_Worli_2023.pdf"
-                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
+                  className="w-full bg-[#090B10] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#252C38] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsUploadOpen(false)}
-                  className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
+                  className="px-4 py-2 border border-[#252C38] font-mono text-xs uppercase text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] rounded-[2px]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
+                  className="px-5 py-2 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] font-mono text-xs uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_12px_rgba(36,87,255,0.3)]"
                 >
                   Encrypt &amp; Seal Document
                 </button>
