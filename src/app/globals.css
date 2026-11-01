@@ -4,77 +4,78 @@
 
 @layer base {
   :root {
-    /* PROVENTA Family Wealth OS — Premium Fintech Design Tokens */
-    /* Midnight Navy (#0B0F19), Deep Purple (#1E1035), Soft Lavender (#E8E0F8), Electric Violet (#7C3AED) */
-    --background: 224 71% 4%;
-    --foreground: 260 60% 97%;
+    /* PROVENTA Neo-Institutional Brutalism — The Wealth Institution */
+    /* Warm Ivory (#F0EDE5), Obsidian (#101010), Deep Black (#070707), Paper White (#FAF9F6) */
+    --background: 42 24% 92%; /* #F0EDE5 Warm Ivory */
+    --foreground: 0 0% 6%;    /* #101010 Obsidian */
 
-    --card: 260 50% 8%;
-    --card-foreground: 260 60% 97%;
+    --card: 45 25% 97%;       /* #FAF9F6 Paper White */
+    --card-foreground: 0 0% 6%;
 
-    --popover: 260 50% 8%;
-    --popover-foreground: 260 60% 97%;
+    --popover: 45 25% 97%;
+    --popover-foreground: 0 0% 6%;
 
-    /* Primary: Electric Violet Accent (#7C3AED) */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary: Deep Obsidian (#101010) */
+    --primary: 0 0% 6%;
+    --primary-foreground: 42 24% 92%;
 
-    /* Secondary: Deep Purple (#1E1035) */
-    --secondary: 265 54% 14%;
-    --secondary-foreground: 260 60% 97%;
+    /* Secondary: Architectural Forest (#263B35) */
+    --secondary: 164 22% 19%;
+    --secondary-foreground: 45 25% 97%;
 
-    --muted: 265 40% 16%;
-    --muted-foreground: 257 26% 68%;
+    --muted: 42 16% 85%;
+    --muted-foreground: 38 4% 50%; /* #85827B Muted Grey */
 
-    /* Accent: Soft Lavender (#E8E0F8) */
-    --accent: 265 65% 93%;
-    --accent-foreground: 265 54% 14%;
+    /* Accent: Stone Tan (#B6A68A) */
+    --accent: 38 23% 63%;
+    --accent-foreground: 0 0% 6%;
 
-    --destructive: 347 77% 50%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive / Liability: Oxide Red (#A63B32) */
+    --destructive: 5 54% 43%;
+    --destructive-foreground: 45 25% 97%;
 
-    /* Subtle Border (#2E1B54) */
-    --border: 265 38% 22%;
-    --input: 265 38% 22%;
-    --ring: 262 83% 58%;
+    /* Crisp Architectural Rules */
+    --border: 0 0% 6%;
+    --input: 42 16% 82%;
+    --ring: 0 0% 6%;
 
-    /* Modern fintech radius */
-    --radius: 0.5rem;
+    /* Neo-Brutalist Square Geometry (0 - 2px) */
+    --radius: 0px;
 
     /* Typography */
-    --font-inter: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --font-display: 'Instrument Serif', Georgia, Cambria, 'Times New Roman', serif;
-    --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-inter: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Instrument Serif', Georgia, serif;
+    --font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
   }
 
   .dark {
-    --background: 224 71% 4%;
-    --foreground: 260 60% 97%;
+    --background: 0 0% 6%;    /* #101010 */
+    --foreground: 42 24% 92%; /* #F0EDE5 */
 
-    --card: 260 50% 8%;
-    --card-foreground: 260 60% 97%;
+    --card: 0 0% 4%;          /* #070707 */
+    --card-foreground: 42 24% 92%;
 
-    --popover: 260 50% 8%;
-    --popover-foreground: 260 60% 97%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 42 24% 92%;
 
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 42 24% 92%;
+    --primary-foreground: 0 0% 6%;
 
-    --secondary: 265 54% 14%;
-    --secondary-foreground: 260 60% 97%;
+    --secondary: 164 22% 19%;
+    --secondary-foreground: 45 25% 97%;
 
-    --muted: 265 40% 16%;
-    --muted-foreground: 257 26% 68%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 38 4% 60%;
 
-    --accent: 265 65% 93%;
-    --accent-foreground: 265 54% 14%;
+    --accent: 38 23% 63%;
+    --accent-foreground: 0 0% 6%;
 
-    --destructive: 347 77% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 5 54% 43%;
+    --destructive-foreground: 45 25% 97%;
 
-    --border: 265 38% 22%;
-    --input: 265 38% 22%;
-    --ring: 262 83% 58%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 42 24% 92%;
   }
 }
 
@@ -85,19 +86,28 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #0B0F19;
-    color: #F8F9FD;
+    background-color: #F0EDE5;
+    color: #101010;
   }
 
   body {
-    @apply bg-[#0B0F19] text-[#F8F9FD] antialiased selection:bg-[#7C3AED] selection:text-[#FFFFFF];
+    background-color: #F0EDE5;
+    color: #101010;
     font-family: var(--font-inter);
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     min-height: 100vh;
+    letter-spacing: -0.01em;
   }
 
-  h1, h2, .font-serif-display {
+  ::selection {
+    background-color: #101010;
+    color: #F0EDE5;
+  }
+
+  h1, h2, h3, .font-serif-display {
     font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -112,91 +122,86 @@
 
   .font-mono-tech {
     font-family: var(--font-mono);
-    letter-spacing: 0.14em;
+    letter-spacing: 0.12em;
   }
 
-  .container-narrow {
-    @apply max-w-3xl mx-auto px-4 sm:px-6;
+  /* Neo-Institutional Brutalism Grids & Containers */
+  .container-institutional {
+    @apply max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8;
   }
 
-  .container-wide {
-    @apply max-w-[1420px] mx-auto px-4 sm:px-6 lg:px-10;
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
-  /* Architectural Editorial Surfaces */
-  .surface-dark {
-    @apply bg-[#171A14] text-[#F6F0E4] border border-[#4C4A40];
+  /* Architectural Institutional Panels */
+  .inst-panel {
+    @apply bg-[#FAF9F6] border border-[#101010] rounded-none;
   }
 
-  .surface-charcoal {
-    @apply bg-[#20211C] text-[#F6F0E4] border border-[#4C4A40];
+  .inst-panel-ivory {
+    @apply bg-[#F0EDE5] border border-[#101010] rounded-none;
   }
 
-  .surface-card,
-  .card-premium,
-  .index-sheet {
-    @apply bg-[#F5F0E5] text-[#181914] border border-[#D5CBB8] rounded-[2px];
+  .inst-panel-dark {
+    @apply bg-[#101010] text-[#F0EDE5] border border-[#101010] rounded-none;
   }
 
-  .surface-cream,
-  .surface-muted,
-  .index-cell {
-    @apply bg-[#E9DFCC] text-[#181914] border border-[#D5CBB8] rounded-[2px];
+  .inst-panel-subtle {
+    @apply bg-[#FAF9F6] border border-[#D9D4C7] rounded-none;
   }
 
-  /* Micro-Labels & Index Tags */
-  .arch-label {
-    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-[#A7A194];
+  /* Technical Labels & Numbering */
+  .inst-label {
+    @apply font-mono text-[11px] uppercase tracking-[0.16em] text-[#85827B];
   }
 
-  .arch-label-light {
-    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-[#5C584F];
+  .inst-label-dark {
+    @apply font-mono text-[11px] uppercase tracking-[0.16em] text-[#B6A68A];
   }
 
-  .index-code {
-    @apply inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-[0.16em] px-2 py-0.5 bg-[#20211C] text-[#F6F0E4] border border-[#4C4A40];
+  .inst-number {
+    @apply font-mono font-medium tracking-tight tabular-nums;
   }
 
-  .index-code-terracotta,
-  .index-code-lime {
-    @apply inline-flex items-center font-mono text-[10px] font-medium uppercase tracking-[0.16em] px-2 py-0.5 bg-[#B94E2D] text-[#F6F0E4] border border-[#B94E2D];
+  /* Stamp Badges */
+  .badge-forest {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#263B35] text-[#FAF9F6] font-mono text-[10px] uppercase tracking-wider rounded-none;
   }
 
-  /* Primary & Secondary Architectural Triggers */
-  .btn-primary,
-  .btn-terracotta,
-  .btn-accent {
-    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] bg-[#B94E2D] px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#F6F0E4] border border-[#B94E2D] transition-all duration-200 hover:bg-[#A14122] hover:border-[#A14122] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
+  .badge-oxide {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#A63B32] text-[#FAF9F6] font-mono text-[10px] uppercase tracking-wider rounded-none;
   }
 
-  .btn-dark {
-    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] bg-[#171A14] px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#F6F0E4] border border-[#4C4A40] transition-all duration-200 hover:bg-[#B94E2D] hover:border-[#B94E2D] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
+  .badge-stone {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#B6A68A]/20 text-[#101010] border border-[#B6A68A] font-mono text-[10px] uppercase tracking-wider rounded-none;
   }
 
-  .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] border border-[#4C4A40] bg-transparent px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#181914] transition-all duration-200 hover:bg-[#171A14] hover:text-[#F6F0E4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
+  .badge-obsidian {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider rounded-none;
   }
 
-  .btn-ivory {
-    @apply inline-flex items-center justify-center gap-2.5 rounded-[2px] border border-[#F5F0E5] bg-[#F5F0E5] px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[#181914] transition-all duration-200 hover:bg-[#E9DFCC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B94E2D] disabled:opacity-50 disabled:pointer-events-none;
+  /* Institutional Action Triggers */
+  .btn-inst-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#101010] text-[#F0EDE5] border border-[#101010] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#263B35] hover:border-[#263B35] disabled:opacity-50 disabled:pointer-events-none rounded-none;
   }
 
-  /* Editorial Form Controls */
-  .input-enterprise {
-    @apply w-full rounded-[2px] border border-[#CFC5B2] bg-[#FBF8F1] px-3.5 py-2.5 text-sm text-[#181914] placeholder:text-[#7D786C] transition-colors focus:border-[#B94E2D] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#B94E2D];
+  .btn-inst-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-transparent text-[#101010] border border-[#101010] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#101010] hover:text-[#F0EDE5] disabled:opacity-50 disabled:pointer-events-none rounded-none;
   }
 
-  /* Trust & Verification Badges */
-  .badge-verified {
-    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-[#B94E2D]/15 px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#B94E2D] border border-[#B94E2D]/40;
+  .btn-inst-forest {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#263B35] text-[#FAF9F6] border border-[#263B35] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#314C44] disabled:opacity-50 disabled:pointer-events-none rounded-none;
   }
 
-  .badge-neutral {
-    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-[#E9DFCC] px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#181914] border border-[#CFC5B2];
+  .btn-inst-oxide {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#A63B32] text-[#FAF9F6] border border-[#A63B32] font-mono text-[11px] uppercase tracking-[0.14em] font-medium transition-colors duration-150 hover:bg-[#8B2E26] disabled:opacity-50 disabled:pointer-events-none rounded-none;
   }
 
-  .badge-bronze {
-    @apply inline-flex items-center gap-1.5 rounded-[2px] bg-[#A98253]/20 px-2.5 py-0.5 font-mono text-[10px] font-medium uppercase tracking-[0.14em] text-[#A98253] border border-[#A98253]/40;
+  /* Inputs */
+  .input-inst {
+    @apply w-full bg-[#FAF9F6] border border-[#101010] text-[#101010] px-3.5 py-2.5 text-sm placeholder:text-[#85827B] rounded-none focus:outline-none focus:ring-1 focus:ring-[#101010] focus:border-[#101010];
   }
 }
 
@@ -209,24 +214,20 @@
   }
 }
 
-/* Custom scrollbar */
+/* Institutional Sharp Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #171A14;
+  background: #F0EDE5;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4C4A40;
+  background: #B6A68A;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #B94E2D;
-}
-
-:focus-visible {
-  @apply outline-none ring-2 ring-[#B94E2D] ring-offset-2 ring-offset-[#171A14];
+  background: #101010;
 }

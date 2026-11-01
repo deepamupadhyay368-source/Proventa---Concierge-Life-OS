@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import {
-  BrainCircuit,
-  Sparkles,
   Send,
   PieChart,
   Coins,
@@ -12,17 +10,18 @@ import {
   Target,
   Users,
   CheckCircle2,
-  Clock,
+  Terminal,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { AIAgentRole, AIAssistantMessage, AIInsightObservation } from '@/lib/wealth/types';
 
-const AGENT_TABS: Array<{ role: AIAgentRole; label: string; icon: any; promptHint: string }> = [
-  { role: 'FAMILY_ASSISTANT', label: 'Family Assistant', icon: Users, promptHint: 'Ask any question about your family financial universe...' },
-  { role: 'WEALTH_ANALYST', label: 'Wealth Analyst', icon: PieChart, promptHint: 'Analyze asset concentration, trailing growth, or category allocation...' },
-  { role: 'ASSET_INTELLIGENCE', label: 'Asset Intelligence', icon: Coins, promptHint: 'Audit missing documents, outdated valuations, or unverified holdings...' },
-  { role: 'CASHFLOW_ANALYST', label: 'Cashflow Analyst', icon: ArrowLeftRight, promptHint: 'Summarize monthly inflows, recurring EMIs, and savings rate...' },
-  { role: 'DOCUMENT_INTELLIGENCE', label: 'Vault Intelligence', icon: Lock, promptHint: 'Review extracted deed numbers, dates, or unconfirmed uploads...' },
-  { role: 'GOAL_SCENARIO', label: 'Goals & Scenarios', icon: Target, promptHint: 'Query Stanford Masters fund or simulate future savings models...' },
+const AGENT_TABS: Array<{ role: AIAgentRole; label: string; code: string; icon: any; promptHint: string }> = [
+  { role: 'FAMILY_ASSISTANT', label: 'Family Assistant', code: 'AGT-01', icon: Users, promptHint: 'Query consolidated positions, member access, or portfolio overviews...' },
+  { role: 'WEALTH_ANALYST', label: 'Wealth Analyst', code: 'AGT-02', icon: PieChart, promptHint: 'Analyze asset concentration, trailing CAGR, or allocation drift...' },
+  { role: 'ASSET_INTELLIGENCE', label: 'Asset Intelligence', code: 'AGT-03', icon: Coins, promptHint: 'Audit missing title deeds, outdated valuations, or unverified holdings...' },
+  { role: 'CASHFLOW_ANALYST', label: 'Cashflow Analyst', code: 'AGT-04', icon: ArrowLeftRight, promptHint: 'Audit monthly inflows, recurring EMIs, and savings rates...' },
+  { role: 'DOCUMENT_INTELLIGENCE', code: 'AGT-05', label: 'Vault Intelligence', icon: Lock, promptHint: 'Review extracted deed numbers, dates, or unconfirmed uploads...' },
+  { role: 'GOAL_SCENARIO', code: 'AGT-06', label: 'Goals & Scenarios', icon: Target, promptHint: 'Model capital milestone targets or run mathematical compound simulations...' },
 ];
 
 export default function IntelligencePage() {
@@ -34,10 +33,10 @@ export default function IntelligencePage() {
       role: 'assistant',
       agentRole: 'FAMILY_ASSISTANT',
       content:
-        'Hello! I am your PROVENTA Family Intelligence Assistant.\n\nAll my responses are generated using permission-scoped context from your secure family workspace. Every monetary value is calculated deterministically with paise-level precision.\n\nHow can I help you today?',
-      dataSourcesCited: ['PROVENTA Deterministic Calculation Engine', 'Sharma Family Trust Holdings'],
+        'MEMORANDUM // PROVENTA RESEARCH CONSOLE INITIALIZED\n\nTo: Sharma Family Trust & Holdings [FWS-001]\nFrom: Lead Family Intelligence Analyst\nClassification: RESTRICTED // PRIVILEGED\n\nAll subsequent analytical research notes are generated strictly from verified workspace database records. Mathematical calculations are deterministically computed in integer paise without estimation drift.\n\nSpecify your inquiry below to commence portfolio analysis.',
+      dataSourcesCited: ['PROVENTA Integer Paise Calculation Engine', 'Sharma Family Trust Holdings Registry', 'Family Vault Encrypted Archive'],
       dataDate: new Date().toISOString().split('T')[0],
-      timestamp: 'Just now',
+      timestamp: '09:00 IST',
     },
   ]);
   const [query, setQuery] = useState('');
@@ -94,7 +93,7 @@ export default function IntelligencePage() {
           {
             id: `err_${Date.now()}`,
             role: 'assistant',
-            content: 'Unable to process query. Please check your prompt and try again.',
+            content: 'RESEARCH NOTE: Unable to synthesize response from current active portfolio indices.',
             timestamp: 'Just now',
           },
         ]);
@@ -105,7 +104,7 @@ export default function IntelligencePage() {
         {
           id: `err_${Date.now()}`,
           role: 'assistant',
-          content: 'Network connection error.',
+          content: 'SYSTEM NOTICE: Network connection fault to multi-agent orchestrator.',
           timestamp: 'Just now',
         },
       ]);
@@ -117,44 +116,46 @@ export default function IntelligencePage() {
   const currentTab = AGENT_TABS.find((t) => t.role === activeAgent) || AGENT_TABS[0];
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#A78BFA] mb-1">
-            FAMILY WEALTH OS // MULTI-AGENT ORCHESTRATOR
+    <div className="space-y-8 font-sans">
+      {/* 1. INSTITUTIONAL HEADER */}
+      <div className="border border-[#101010] bg-[#FAF9F6]">
+        <div className="p-6 sm:p-8 border-b border-[#101010]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
+            12 // PROVENTA INTELLIGENCE // INSTITUTIONAL RESEARCH WORKSPACE
           </div>
-          <h1 className="font-serif text-3xl text-white">Family Intelligence &amp; Multi-Agent Engine</h1>
-          <p className="text-xs text-[#9D8BC9] font-light mt-1">
-            Permission-scoped context retrieval, prompt injection defense, and deterministic calculation citations.
+          <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            Financial Research Console
+          </h1>
+          <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            Analytical workspace powered by 6 specialized financial intelligence agents with permission-scoped retrieval, formula citations, and strict zero-hallucination controls.
           </p>
         </div>
+
+        {/* Observations Strip */}
+        {observations.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#101010] bg-[#F0EDE5]">
+            {observations.map((obs) => (
+              <div key={obs.id} className="p-5 space-y-2">
+                <div className="flex items-center justify-between font-mono text-[10px]">
+                  <span className="px-2 py-0.5 bg-[#101010] text-[#F0EDE5] uppercase">
+                    {obs.agentRole.replace('_', ' ')}
+                  </span>
+                  <span className={`font-semibold uppercase ${obs.severity === 'ALERT' ? 'text-[#A63B32]' : 'text-[#263B35]'}`}>
+                    {obs.severity}
+                  </span>
+                </div>
+                <h4 className="font-serif text-base text-[#101010]">{obs.title}</h4>
+                <p className="font-sans text-xs text-[#85827B] leading-relaxed">{obs.observation}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Proactive Observations Strip */}
-      {observations.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {observations.map((obs) => (
-            <div
-              key={obs.id}
-              className="p-4 rounded-xl bg-[#0E1322] border border-[#2D1854] space-y-1.5"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1E1035] text-[#A78BFA]">
-                  {obs.agentRole.replace('_', ' ')}
-                </span>
-                <span className="text-[10px] text-[#10B981] font-mono">{obs.severity}</span>
-              </div>
-              <h4 className="text-xs font-semibold text-white">{obs.title}</h4>
-              <p className="text-[11px] text-[#9D8BC9] font-light leading-relaxed">{obs.observation}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Main Agent Interface */}
-      <div className="rounded-2xl bg-[#0E1322] border border-[#1E293B] overflow-hidden flex flex-col h-[650px]">
-        {/* Agent Switcher Bar */}
-        <div className="p-3 bg-[#070A12] border-b border-[#1E293B] flex flex-wrap items-center gap-1.5 overflow-x-auto">
+      {/* 2. RESEARCH WORKSPACE CONSOLE */}
+      <div className="border border-[#101010] bg-[#FAF9F6] flex flex-col h-[700px]">
+        {/* Agent Selector Bar */}
+        <div className="p-3 bg-[#101010] text-[#F0EDE5] border-b border-[#101010] flex flex-wrap items-center gap-1.5 overflow-x-auto">
           {AGENT_TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeAgent === tab.role;
@@ -162,76 +163,83 @@ export default function IntelligencePage() {
               <button
                 key={tab.role}
                 onClick={() => setActiveAgent(tab.role)}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`flex items-center gap-2 px-3 py-1.5 font-mono text-xs uppercase tracking-wider transition-colors border ${
                   isActive
-                    ? 'bg-[#1E1035] text-white border border-[#3E236E]'
-                    : 'text-[#9D8BC9] hover:text-white hover:bg-[#1E1035]/40'
+                    ? 'bg-[#FAF9F6] text-[#101010] border-[#FAF9F6] font-semibold'
+                    : 'border-transparent text-[#B6A68A] hover:text-[#F0EDE5] hover:bg-[#2A2925]'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#A78BFA]' : 'text-[#64748B]'}`} />
+                <span className="text-[10px] text-[#85827B]">{tab.code}</span>
+                <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Chat History Area */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        {/* Research Notes Thread */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAF9F6]">
           {messages.map((msg) => (
             <div
               key={msg.id}
               className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
             >
+              {msg.role === 'assistant' && (
+                <div className="font-mono text-[10px] uppercase tracking-widest text-[#85827B] mb-1 flex items-center gap-2">
+                  <Terminal className="w-3.5 h-3.5 text-[#263B35]" />
+                  <span>RESEARCH MEMORANDUM // {msg.agentRole || currentTab.label}</span>
+                </div>
+              )}
               <div
-                className={`max-w-[85%] p-4 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
+                className={`max-w-[90%] p-5 text-xs leading-relaxed border ${
                   msg.role === 'user'
-                    ? 'bg-[#7C3AED] text-white rounded-br-none'
-                    : 'bg-[#0B0F19] text-[#F8F9FD] border border-[#1E293B] rounded-bl-none space-y-3'
+                    ? 'bg-[#101010] text-[#F0EDE5] border-[#101010] font-mono'
+                    : 'bg-[#F0EDE5] text-[#101010] border-[#101010] space-y-4'
                 }`}
               >
-                <div>{msg.content}</div>
+                <div className="whitespace-pre-wrap">{msg.content}</div>
 
                 {msg.dataSourcesCited && msg.dataSourcesCited.length > 0 && (
-                  <div className="pt-3 border-t border-[#1E293B] text-[10px] text-[#A78BFA] font-mono space-y-0.5">
-                    <div className="text-[9px] uppercase tracking-wider text-[#64748B]">
-                      CITED RECORD SOURCES &amp; ENGINE AUDIT:
+                  <div className="pt-3 border-t border-[#101010]/20 font-mono text-[10px] space-y-1">
+                    <div className="uppercase tracking-widest text-[#85827B]">
+                      CITED DATA SOURCES &amp; ENGINE EVIDENCE:
                     </div>
                     {msg.dataSourcesCited.map((src, i) => (
-                      <div key={i} className="flex items-center gap-1.5 text-[#9D8BC9]">
-                        <CheckCircle2 className="w-3 h-3 text-[#10B981] shrink-0" />
+                      <div key={i} className="flex items-center gap-2 text-[#101010]">
+                        <CheckCircle2 className="w-3 h-3 text-[#263B35] shrink-0" />
                         <span>{src}</span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-              <span className="text-[9px] text-[#64748B] mt-1 px-1 font-mono">{msg.timestamp}</span>
+              <span className="font-mono text-[9px] text-[#85827B] mt-1">{msg.timestamp}</span>
             </div>
           ))}
 
           {loading && (
-            <div className="flex items-center gap-2 text-xs text-[#A78BFA] p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#A78BFA] animate-ping" />
-              <span>Consulting {currentTab.label} with permission-scoped context...</span>
+            <div className="p-4 border border-[#101010] bg-[#F0EDE5] flex items-center gap-3 font-mono text-xs text-[#101010]">
+              <span className="w-2.5 h-2.5 bg-[#101010] animate-ping" />
+              <span>CONSULTING {currentTab.label.toUpperCase()} ENGINE // CORRELATING ASSET REGISTERS...</span>
             </div>
           )}
         </div>
 
-        {/* Input Bar */}
-        <form onSubmit={handleSend} className="p-4 bg-[#070A12] border-t border-[#1E293B] flex gap-3">
+        {/* Query Input Bar */}
+        <form onSubmit={handleSend} className="p-4 bg-[#F0EDE5] border-t border-[#101010] flex gap-3">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder={currentTab.promptHint}
-            className="flex-1 bg-[#0E1322] border border-[#1E293B] rounded-xl px-4 py-3 text-xs text-white placeholder-[#64748B] focus:outline-none focus:border-[#7C3AED]"
+            className="flex-1 bg-[#FAF9F6] border border-[#101010] px-4 py-3 font-mono text-xs text-[#101010] placeholder-[#85827B] focus:outline-none focus:ring-1 focus:ring-[#101010]"
           />
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="px-5 py-3 rounded-xl bg-[#7C3AED] hover:bg-[#8B5CF6] text-white disabled:opacity-50 transition-all text-xs font-semibold uppercase tracking-wider flex items-center gap-2"
+            className="px-6 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors disabled:opacity-50 flex items-center gap-2"
           >
-            <span>Send</span>
+            <span>Dispatch Inquiry</span>
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>

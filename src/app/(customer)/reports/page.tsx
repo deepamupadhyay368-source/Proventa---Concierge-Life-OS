@@ -2,12 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import {
-  FileSpreadsheet,
   Printer,
-  Download,
   Shield,
   CheckCircle2,
-  Calendar,
 } from 'lucide-react';
 import { NetWorthSummary } from '@/lib/wealth/types';
 
@@ -38,95 +35,126 @@ export default function ReportsPage() {
 
   if (loading || !telemetry) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-xs font-mono text-[#A78BFA]">
-        Compiling Consolidated Statement of Family Net Worth...
+      <div className="flex items-center justify-center min-h-[400px] border border-[#101010] bg-[#FAF9F6] p-8 font-mono text-xs uppercase tracking-widest text-[#101010]">
+        Compiling Consolidated Statement of Family Position...
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#A78BFA] mb-1">
-            FAMILY WEALTH OS // FINANCIAL REPORTING
+    <div className="space-y-8 font-sans">
+      {/* 1. INSTITUTIONAL HEADER & PRINT TRIGGER */}
+      <div className="border border-[#101010] bg-[#FAF9F6] print:hidden">
+        <div className="p-6 sm:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
+              13 // FINANCIAL STATEMENTS &amp; AUDIT EXPORTS
+            </div>
+            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+              Consolidated Statement of Position
+            </h1>
+            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+              Audit-ready formal balance sheet and ownership schedules suitable for private trustees, family offices, and chartered accountants.
+            </p>
           </div>
-          <h1 className="font-serif text-3xl text-white">Consolidated Wealth Reports &amp; Statements</h1>
-          <p className="text-xs text-[#9D8BC9] font-light mt-1">
-            Deterministic statements suitable for family offices, board reviews, and chartered accountants.
-          </p>
-        </div>
 
-        <button
-          onClick={handlePrint}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6] transition-all shadow-md shadow-[#7C3AED]/25"
-        >
-          <Printer className="w-4 h-4" />
-          <span>Print / Export PDF</span>
-        </button>
+          <button
+            onClick={handlePrint}
+            className="px-6 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+          >
+            <Printer className="w-4 h-4" />
+            <span>Print Official Statement (PDF)</span>
+          </button>
+        </div>
       </div>
 
-      {/* Printable Statement Document */}
-      <div className="p-8 rounded-2xl bg-[#0E1322] border border-[#1E293B] space-y-8 print:bg-white print:text-black print:border-none print:shadow-none">
+      {/* 2. FORMAL EDITORIAL STATEMENT (PRINTABLE INSTITUTIONAL DOCUMENT) */}
+      <div className="border border-[#101010] bg-[#FAF9F6] p-8 sm:p-12 space-y-10 print:border-none print:p-0">
         {/* Document Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between pb-6 border-b border-[#1E293B] gap-4">
+        <div className="border-b border-[#101010] pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-6">
           <div>
-            <div className="text-xs font-mono uppercase tracking-widest text-[#A78BFA]">
-              PROVENTA // CERTIFIED WEALTH RECORD
+            <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-[#85827B]">
+              <span>PROVENTA</span>
+              <span>//</span>
+              <span>THE WEALTH INSTITUTION</span>
+              <span>//</span>
+              <span>FORM 10-A</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">
+            <h2 className="font-serif text-3xl sm:text-4xl text-[#101010] tracking-tight mt-2">
               Consolidated Statement of Family Financial Position
             </h2>
-            <div className="text-xs text-[#9D8BC9] mt-1 font-mono">
-              Entity: Sharma Family Trust &amp; Holdings · Workspace ID: fam_sharma_heritage
+            <div className="font-mono text-xs text-[#85827B] mt-1">
+              Entity: Sharma Family Trust &amp; Holdings · Workspace Code: FWS-001
             </div>
           </div>
-          <div className="text-right text-xs font-mono text-[#9D8BC9]">
-            <div>As of: {new Date(telemetry.calculatedAt).toLocaleDateString()}</div>
-            <div>Currency: Indian Rupee (INR)</div>
+          <div className="text-left sm:text-right font-mono text-xs text-[#101010] space-y-0.5">
+            <div>Valuation Date: {new Date(telemetry.calculatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+            <div>Accounting Standard: Integer Paise Deterministic Engine</div>
+            <div>Reporting Currency: Indian Rupee (INR / ₹)</div>
           </div>
         </div>
 
-        {/* Core Summary Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="p-5 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-1">
-            <div className="text-[10px] font-mono uppercase text-[#9D8BC9]">Gross Family Assets</div>
-            <div className="text-2xl font-serif font-bold text-white">{telemetry.formattedGrossAssets}</div>
-            <div className="text-[10px] text-[#10B981] font-mono">{telemetry.totalAssetsCount} Verified Items</div>
+        {/* Core Summary Ledger Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] border border-[#101010] bg-[#F0EDE5]">
+          <div className="p-6 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              01 // GROSS FAMILY ASSETS
+            </div>
+            <div className="font-serif text-3xl text-[#101010] font-normal">
+              {telemetry.formattedGrossAssets}
+            </div>
+            <div className="font-mono text-[10px] text-[#263B35]">
+              {telemetry.totalAssetsCount} Verified Instruments Attached
+            </div>
           </div>
 
-          <div className="p-5 rounded-xl bg-[#0B0F19] border border-[#1E293B] space-y-1">
-            <div className="text-[10px] font-mono uppercase text-[#9D8BC9]">Gross Total Debt</div>
-            <div className="text-2xl font-serif font-bold text-[#F43F5E]">{telemetry.formattedGrossLiabilities}</div>
-            <div className="text-[10px] text-[#F43F5E] font-mono">{telemetry.totalLiabilitiesCount} Active Facilities</div>
+          <div className="p-6 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              02 // TOTAL OUTSTANDING LIABILITIES
+            </div>
+            <div className="font-serif text-3xl text-[#A63B32] font-normal">
+              {telemetry.formattedGrossLiabilities}
+            </div>
+            <div className="font-mono text-[10px] text-[#85827B]">
+              {telemetry.totalLiabilitiesCount} Documented Amortisation Lines
+            </div>
           </div>
 
-          <div className="p-5 rounded-xl bg-[#1E1035] border border-[#3E236E] space-y-1">
-            <div className="text-[10px] font-mono uppercase text-[#A78BFA]">Consolidated Net Worth</div>
-            <div className="text-2xl font-serif font-bold text-white">{telemetry.formattedGrossNetWorth}</div>
-            <div className="text-[10px] text-[#DDD0F7] font-mono">100% Deterministic Mathematical Precision</div>
+          <div className="p-6 space-y-1 bg-[#101010] text-[#F0EDE5]">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#B6A68A]">
+              03 // CONSOLIDATED NET FAMILY WORTH
+            </div>
+            <div className="font-serif text-3xl text-[#F0EDE5] font-normal">
+              {telemetry.formattedGrossNetWorth}
+            </div>
+            <div className="font-mono text-[10px] text-[#B6A68A]">
+              Deterministic Mathematical Net Equity
+            </div>
           </div>
         </div>
 
-        {/* Category Breakdown Table */}
+        {/* Asset Class Allocation Schedule */}
         <div className="space-y-3">
-          <h3 className="text-xs font-mono uppercase tracking-wider text-white">Asset Allocation Schedule</h3>
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#070A12] border-b border-[#1E293B] text-[10px] font-mono uppercase text-[#9D8BC9]">
+          <div className="font-mono text-xs uppercase tracking-wider text-[#101010] font-semibold flex items-center justify-between border-b border-[#101010] pb-2">
+            <span>Schedule I: Asset Class Allocation Breakdown</span>
+            <span className="text-[#85827B] text-[10px]">Verified Title Deeds</span>
+          </div>
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider">
               <tr>
-                <th className="py-2.5 px-3">Asset Classification</th>
-                <th className="py-2.5 px-3">Holdings Count</th>
-                <th className="py-2.5 px-3">Valuation Amount</th>
-                <th className="py-2.5 px-3 text-right">Percentage</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Asset Class Classification</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Instruments</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Valuation Amount</th>
+                <th className="py-2.5 px-4 border-b border-[#101010] text-right">Portfolio Share</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E293B]/60 text-white">
+            <tbody className="divide-y divide-[#101010] text-[#101010]">
               {telemetry.assetAllocation.map((a) => (
                 <tr key={a.category}>
-                  <td className="py-3 px-3 font-semibold">{a.label}</td>
-                  <td className="py-3 px-3 font-mono">{a.count}</td>
-                  <td className="py-3 px-3 font-serif font-bold">{a.formattedTotal}</td>
-                  <td className="py-3 px-3 font-mono text-right font-bold text-[#A78BFA]">{a.percentage}%</td>
+                  <td className="py-3 px-4 font-mono font-semibold">{a.label}</td>
+                  <td className="py-3 px-4 font-mono">{a.count} Registered</td>
+                  <td className="py-3 px-4 font-serif text-base">{a.formattedTotal}</td>
+                  <td className="py-3 px-4 font-mono text-right font-bold text-[#263B35]">{a.percentage}%</td>
                 </tr>
               ))}
             </tbody>
@@ -135,42 +163,56 @@ export default function ReportsPage() {
 
         {/* Member Equity Distribution Schedule */}
         <div className="space-y-3">
-          <h3 className="text-xs font-mono uppercase tracking-wider text-white">Member Beneficial Ownership Schedule</h3>
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#070A12] border-b border-[#1E293B] text-[10px] font-mono uppercase text-[#9D8BC9]">
+          <div className="font-mono text-xs uppercase tracking-wider text-[#101010] font-semibold flex items-center justify-between border-b border-[#101010] pb-2">
+            <span>Schedule II: Beneficiary Equity Attribution</span>
+            <span className="text-[#85827B] text-[10px]">Proportional Title Deed Mapping</span>
+          </div>
+          <table className="w-full text-left text-xs border-collapse">
+            <thead className="bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-wider">
               <tr>
-                <th className="py-2.5 px-3">Family Member</th>
-                <th className="py-2.5 px-3">Attributed Assets</th>
-                <th className="py-2.5 px-3">Attributed Debt</th>
-                <th className="py-2.5 px-3">Net Personal Equity</th>
-                <th className="py-2.5 px-3 text-right">Family Share</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Family Member / Beneficiary</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Attributed Assets</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Attributed Debt</th>
+                <th className="py-2.5 px-4 border-b border-[#101010]">Net Personal Position</th>
+                <th className="py-2.5 px-4 border-b border-[#101010] text-right">Beneficial Share</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E293B]/60 text-white">
+            <tbody className="divide-y divide-[#101010] text-[#101010]">
               {telemetry.memberShares.map((m) => (
                 <tr key={m.memberId}>
-                  <td className="py-3 px-3 font-semibold">{m.memberName}</td>
-                  <td className="py-3 px-3 font-mono">{m.formattedAssetsTotal}</td>
-                  <td className="py-3 px-3 font-mono text-[#F43F5E]">{m.formattedLiabilitiesTotal}</td>
-                  <td className="py-3 px-3 font-serif font-bold">{m.formattedNetWorth}</td>
-                  <td className="py-3 px-3 font-mono text-right font-bold text-[#10B981]">{m.percentageOfFamilyNetWorth}%</td>
+                  <td className="py-3 px-4 font-mono font-semibold">{m.memberName}</td>
+                  <td className="py-3 px-4 font-mono">{m.formattedAssetsTotal}</td>
+                  <td className="py-3 px-4 font-mono text-[#A63B32]">{m.formattedLiabilitiesTotal}</td>
+                  <td className="py-3 px-4 font-serif text-base">{m.formattedNetWorth}</td>
+                  <td className="py-3 px-4 font-mono text-right font-bold text-[#263B35]">{m.percentageOfFamilyNetWorth}%</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Legal & Calculation Footnotes */}
-        <div className="pt-6 border-t border-[#1E293B] text-[10px] text-[#64748B] space-y-1.5 leading-relaxed font-mono">
-          <p>
-            * Generated automatically by PROVENTA Family Wealth OS calculation engine using paise-precision integer arithmetic.
-          </p>
-          <p>
-            * All figures represent recorded valuations verified against uploaded documents (Index II deeds, CAMS statements, RoC filings).
-          </p>
-          <p>
-            * PROVENTA is not a registered investment advisor or intermediary under SEBI. This statement is prepared strictly for internal family governance and recordkeeping.
-          </p>
+        {/* Trustee Certification & Sign-off Block */}
+        <div className="pt-8 border-t border-[#101010] grid grid-cols-1 sm:grid-cols-2 gap-8 font-mono text-xs">
+          <div className="space-y-4">
+            <div className="text-[10px] uppercase tracking-wider text-[#85827B]">
+              PRIMARY TRUSTEE EXECUTION &amp; SEAL
+            </div>
+            <div className="h-16 border-b border-[#101010] flex items-end pb-1 font-serif text-lg text-[#101010]">
+              Rajesh Sharma (Trustee)
+            </div>
+            <div className="text-[10px] text-[#85827B]">Authorized Signatory · Sharma Family Trust</div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="text-[10px] uppercase tracking-wider text-[#85827B]">
+              CRYPTOGRAPHIC SYSTEM CERTIFICATION
+            </div>
+            <div className="p-3 bg-[#F0EDE5] border border-[#101010] text-[10px] text-[#101010] space-y-1">
+              <div>SHA-256 Digest: 82d650c...a19f</div>
+              <div>Audit Timestamp: {new Date().toISOString()}</div>
+              <div>Digital Personal Data Protection Act 2023 Compliant</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

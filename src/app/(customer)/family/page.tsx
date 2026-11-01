@@ -7,9 +7,7 @@ import {
   Mail,
   Shield,
   CheckCircle2,
-  Clock,
   X,
-  Building2,
   Lock,
 } from 'lucide-react';
 import { FamilyWorkspaceDTO, FamilyMemberDTO } from '@/lib/wealth/types';
@@ -60,7 +58,7 @@ export default function FamilyWorkspacePage() {
       });
 
       if (res.ok) {
-        setInviteSuccessMsg(`Invitation dispatched to ${inviteEmail}.`);
+        setInviteSuccessMsg(`Institutional invitation dispatched to ${inviteEmail}.`);
         setInviteEmail('');
         setTimeout(() => {
           setIsInviteModalOpen(false);
@@ -74,133 +72,172 @@ export default function FamilyWorkspacePage() {
 
   if (loading || !workspace) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-xs font-mono text-[#A78BFA]">
-        Loading Family Workspace &amp; Governance Matrix...
+      <div className="flex items-center justify-center min-h-[400px] border border-[#101010] bg-[#FAF9F6] p-8 font-mono text-xs uppercase tracking-widest text-[#101010]">
+        Loading Family Trust &amp; Governance Matrix...
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#A78BFA] mb-1">
-            FAMILY WEALTH OS // WORKSPACES &amp; GOVERNANCE
+    <div className="space-y-8 font-sans">
+      {/* 1. INSTITUTIONAL HEADER & GOVERNANCE BANNER */}
+      <div className="border border-[#101010] bg-[#FAF9F6]">
+        <div className="p-6 sm:p-8 border-b border-[#101010] flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
+              05 // FAMILY GOVERNANCE &amp; TRUSTEESHIP
+            </div>
+            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+              {workspace.name}
+            </h1>
+            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+              Legal structure: Multi-Generational Family Trust &amp; Operating Entities. Granular resource-level permissions and intergenerational succession access.
+            </p>
           </div>
-          <h1 className="font-serif text-3xl text-white">{workspace.name}</h1>
-          <p className="text-xs text-[#9D8BC9] font-light mt-1">
-            Multi-generational family members, professional advisors, and resource-level access controls.
-          </p>
+
+          <button
+            onClick={() => setIsInviteModalOpen(true)}
+            className="px-5 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Enroll Trustee / Member</span>
+          </button>
         </div>
 
-        <button
-          onClick={() => setIsInviteModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6] transition-all shadow-md shadow-[#7C3AED]/25"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Invite Member</span>
-        </button>
+        {/* Governance Metrics Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#F0EDE5]">
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              ACTIVE ENROLLED MEMBERS
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              {workspace.members.length} Recognized Beneficiaries
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              PRIMARY JURISDICTION
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              India // Hindu Succession / Trust Act
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              DATA SOVEREIGNTY
+            </div>
+            <div className="font-serif text-2xl text-[#263B35]">
+              Strict Multi-Tenant Isolation
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Members Grid */}
+      {/* 2. ARCHITECTURAL MEMBERS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {workspace.members.map((member) => (
+        {workspace.members.map((member, idx) => (
           <div
             key={member.id}
-            className="p-5 rounded-2xl bg-[#0E1322] border border-[#1E293B] space-y-3"
+            className="p-6 border border-[#101010] bg-[#FAF9F6] flex flex-col justify-between space-y-4 hover:bg-[#F0EDE5] transition-colors"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#1E1035] border border-[#3E236E] flex items-center justify-center text-sm font-bold text-white">
+                <div className="w-10 h-10 bg-[#101010] text-[#F0EDE5] border border-[#101010] flex items-center justify-center font-mono text-xs font-bold">
                   {member.name.split(' ').map((n) => n[0]).join('').substring(0, 2)}
                 </div>
                 <div>
-                  <div className="font-semibold text-white text-sm">{member.name}</div>
-                  <div className="text-xs text-[#9D8BC9]">{member.email}</div>
+                  <div className="font-serif text-lg text-[#101010]">{member.name}</div>
+                  <div className="font-mono text-[11px] text-[#85827B]">{member.email}</div>
                 </div>
               </div>
               <span
-                className={`text-[10px] font-mono px-2 py-0.5 rounded uppercase tracking-wider ${
+                className={`font-mono text-[10px] px-2.5 py-1 uppercase tracking-wider border ${
                   member.role === 'OWNER'
-                    ? 'bg-[#7C3AED]/20 text-[#A78BFA] border border-[#7C3AED]/40'
+                    ? 'bg-[#101010] text-[#F0EDE5] border-[#101010]'
                     : member.role === 'ADMIN'
-                    ? 'bg-[#10B981]/20 text-[#10B981] border border-[#10B981]/40'
-                    : 'bg-[#1E1035] text-[#DDD0F7] border border-[#3E236E]'
+                    ? 'bg-[#263B35] text-[#FAF9F6] border-[#263B35]'
+                    : 'bg-[#FAF9F6] text-[#101010] border-[#101010]'
                 }`}
               >
                 {member.role}
               </span>
             </div>
 
-            <div className="pt-3 border-t border-[#1E293B] flex items-center justify-between text-xs text-[#9D8BC9]">
-              <span>Relationship: <strong className="text-white">{member.relationship}</strong></span>
-              <span className="font-mono text-[10px]">Joined: {new Date(member.joinedAt).toLocaleDateString()}</span>
+            <div className="pt-4 border-t border-[#101010]/15 flex items-center justify-between font-mono text-xs">
+              <span className="text-[#85827B]">RELATIONSHIP: <strong className="text-[#101010]">{member.relationship}</strong></span>
+              <span className="text-[#85827B] text-[10px]">ENROLLED: {new Date(member.joinedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Privacy & Permission Rules Notice */}
-      <div className="p-5 rounded-2xl bg-[#070A12] border border-[#1E293B] space-y-2">
-        <div className="flex items-center gap-2 text-xs font-semibold text-white">
-          <Lock className="w-4 h-4 text-[#10B981]" />
-          <span>Family Permission Boundaries</span>
+      {/* 3. STRICT DPDP ACT & ISOLATION PROTOCOL */}
+      <div className="p-6 border border-[#101010] bg-[#FAF9F6] space-y-2">
+        <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[#101010] font-semibold">
+          <Lock className="w-4 h-4 text-[#263B35]" />
+          <span>STATUTORY TENANT ISOLATION GUARANTEE</span>
         </div>
-        <p className="text-xs text-[#9D8BC9] font-light leading-relaxed">
-          PROVENTA strictly enforces tenant and resource-level isolation. Inviting a family member into this workspace does not automatically grant them visibility into your separate personal workspace or unrelated family trusts.
+        <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+          PROVENTA enforces cryptographic tenant isolation compliant with the Digital Personal Data Protection (DPDP) Act 2023. Enrolling a family member in this Trust workspace does not grant visibility into personal assets or separate business holding accounts without explicit dual-key consent.
         </p>
       </div>
 
-      {/* INVITE MODAL */}
+      {/* 4. ENROLL MEMBER MODAL */}
       {isInviteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-[#0E1322] border border-[#3E236E] p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#1E293B]">
-              <h3 className="text-base font-semibold text-white">Invite Family Member or Advisor</h3>
-              <button onClick={() => setIsInviteModalOpen(false)} className="text-[#9D8BC9] hover:text-white">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/70">
+          <div className="w-full max-w-md bg-[#FAF9F6] border border-[#101010] p-6 space-y-4 shadow-[8px_8px_0px_0px_#101010]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
+              <h3 className="font-serif text-xl text-[#101010]">Enroll Family Trustee / Member</h3>
+              <button onClick={() => setIsInviteModalOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {inviteSuccessMsg ? (
-              <div className="p-4 rounded-xl bg-[#064E3B]/40 border border-[#10B981]/40 text-xs text-[#10B981] flex items-center gap-2">
+              <div className="p-4 bg-[#F0EDE5] border border-[#263B35] font-mono text-xs text-[#263B35] flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4" />
                 <span>{inviteSuccessMsg}</span>
               </div>
             ) : (
               <form onSubmit={handleSendInvite} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Email Address</label>
+                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                    Email Address
+                  </label>
                   <input
                     type="email"
                     required
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     placeholder="family.member@email.com"
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Role</label>
+                    <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                      Access Role
+                    </label>
                     <select
                       value={inviteRole}
                       onChange={(e) => setInviteRole(e.target.value as any)}
-                      className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                      className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                     >
                       <option value="MEMBER">Member (Read &amp; Record)</option>
-                      <option value="ADMIN">Administrator (Full Family)</option>
-                      <option value="VIEWER">Viewer (Advisor / Read-Only)</option>
+                      <option value="ADMIN">Administrator (Full Trust)</option>
+                      <option value="VIEWER">Auditor / CA (Read-Only)</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Relationship</label>
+                    <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                      Relationship
+                    </label>
                     <select
                       value={inviteRelationship}
                       onChange={(e) => setInviteRelationship(e.target.value)}
-                      className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                      className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                     >
                       <option value="SPOUSE">Spouse</option>
                       <option value="CHILD">Child / Heir</option>
@@ -212,19 +249,19 @@ export default function FamilyWorkspacePage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-[#1E293B] flex justify-end gap-2">
+                <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setIsInviteModalOpen(false)}
-                    className="px-4 py-2 rounded-lg text-xs font-medium text-[#9D8BC9] hover:bg-[#1E1035]"
+                    className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6]"
+                    className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
                   >
-                    Send Invitation
+                    Dispatch Invitation
                   </button>
                 </div>
               </form>

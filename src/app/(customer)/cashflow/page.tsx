@@ -6,13 +6,9 @@ import {
   TrendingUp,
   TrendingDown,
   Plus,
-  Filter,
   CheckCircle2,
-  Calendar,
-  AlertCircle,
   X,
   CreditCard,
-  Banknote,
 } from 'lucide-react';
 import { CashflowTransactionDTO, CashflowSummaryDTO, CashflowType, CashflowCategory } from '@/lib/wealth/types';
 
@@ -82,208 +78,224 @@ export default function CashflowPage() {
 
   if (loading || !summary) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-xs font-mono text-[#A78BFA]">
-        Loading Cashflow Intelligence Engine...
+      <div className="flex items-center justify-center min-h-[400px] border border-[#101010] bg-[#FAF9F6] p-8 font-mono text-xs uppercase tracking-widest text-[#101010]">
+        Loading Treasury Cashflow Engine...
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#A78BFA] mb-1">
-            FAMILY WEALTH OS // CASHFLOW INTELLIGENCE
+    <div className="space-y-8 font-sans">
+      {/* 1. INSTITUTIONAL HEADER & LEDGER BANNER */}
+      <div className="border border-[#101010] bg-[#FAF9F6]">
+        <div className="p-6 sm:p-8 border-b border-[#101010] flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
+              07 // CASHFLOW INTELLIGENCE &amp; TREASURY
+            </div>
+            <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+              Operating Inflows &amp; Obligations
+            </h1>
+            <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+              Deterministic double-entry cashflow ledger tracking executive salaries, rental yields, committed amortisation EMIs, and living expenditure with strict internal transfer filtering.
+            </p>
           </div>
-          <h1 className="font-serif text-3xl text-white">Income &amp; Expenditure Intelligence</h1>
-          <p className="text-xs text-[#9D8BC9] font-light mt-1">
-            Monthly inflows, household expenses, and recurring EMI obligations with internal transfer filtering.
-          </p>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-5 py-3 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Record Cashflow Entry</span>
+          </button>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6] transition-all shadow-md shadow-[#7C3AED]/25"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Record Inflow / Outflow</span>
-        </button>
-      </div>
-
-      {/* Protocol Banner */}
-      <div className="p-4 rounded-xl bg-[#0E1322] border border-[#1E293B] flex items-center justify-between text-xs text-[#9D8BC9]">
-        <div className="flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[#10B981]" />
+        {/* Internal Transfer Isolation Guarantee */}
+        <div className="p-4 bg-[#F0EDE5] border-b border-[#101010] flex items-center gap-3 font-mono text-xs text-[#101010]">
+          <CheckCircle2 className="w-4 h-4 text-[#263B35] shrink-0" />
           <span>
-            <strong>Internal Transfer Isolation Guarantee:</strong> Transfers between a family member&apos;s own accounts (e.g., salary to Demat account) are never counted as new income or expenses.
+            <strong>INTERNAL TRANSFER ISOLATION:</strong> Capital movements between your own domestic accounts (e.g., Salary to Demat) are strictly isolated from operational revenue and expense totals.
           </span>
         </div>
+
+        {/* 4-Part Metric Ledger Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#FAF9F6]">
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B] flex items-center justify-between">
+              <span>01 // MONTHLY INFLOWS</span>
+              <TrendingUp className="w-3.5 h-3.5 text-[#263B35]" />
+            </div>
+            <div className="font-serif text-2xl text-[#263B35]">
+              {summary.formattedTotalIncome}
+            </div>
+            <div className="font-mono text-[10px] text-[#85827B]">
+              Executive salaries &amp; business dividends
+            </div>
+          </div>
+
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B] flex items-center justify-between">
+              <span>02 // MONTHLY OUTFLOWS</span>
+              <TrendingDown className="w-3.5 h-3.5 text-[#A63B32]" />
+            </div>
+            <div className="font-serif text-2xl text-[#A63B32]">
+              {summary.formattedTotalExpenses}
+            </div>
+            <div className="font-mono text-[10px] text-[#85827B]">
+              Household expenditure &amp; lifestyle
+            </div>
+          </div>
+
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B] flex items-center justify-between">
+              <span>03 // NET CASHFLOW</span>
+              <ArrowLeftRight className="w-3.5 h-3.5 text-[#101010]" />
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              {summary.formattedNetCashflow}
+            </div>
+            <div className="font-mono text-[10px] text-[#263B35] font-semibold">
+              {summary.savingsRatePercentage}% Monthly Savings Ratio
+            </div>
+          </div>
+
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B] flex items-center justify-between">
+              <span>04 // RECURRING DEBT SERVICE</span>
+              <CreditCard className="w-3.5 h-3.5 text-[#101010]" />
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              {summary.formattedRecurringObligations}
+            </div>
+            <div className="font-mono text-[10px] text-[#85827B]">
+              Fixed committed monthly loan EMIs
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="p-5 rounded-2xl bg-[#0E1322] border border-[#1E293B]">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#9D8BC9]">
-            <span>Monthly Inflows</span>
-            <TrendingUp className="w-4 h-4 text-[#10B981]" />
-          </div>
-          <div className="text-2xl font-serif text-white font-bold mt-2">
-            {summary.formattedTotalIncome}
-          </div>
-          <div className="text-xs text-[#9D8BC9] mt-2">Executive salaries &amp; dividends</div>
+      {/* 2. ARCHITECTURAL TRANSACTIONS LEDGER */}
+      <div className="border border-[#101010] bg-[#FAF9F6] overflow-x-auto">
+        <div className="p-4 bg-[#101010] text-[#F0EDE5] font-mono text-xs uppercase tracking-wider font-semibold">
+          Treasury Activity Ledger &amp; Cash Movements
         </div>
-
-        <div className="p-5 rounded-2xl bg-[#0E1322] border border-[#1E293B]">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#9D8BC9]">
-            <span>Monthly Outflows</span>
-            <TrendingDown className="w-4 h-4 text-[#F43F5E]" />
-          </div>
-          <div className="text-2xl font-serif text-[#F43F5E] font-bold mt-2">
-            {summary.formattedTotalExpenses}
-          </div>
-          <div className="text-xs text-[#9D8BC9] mt-2">Household bills &amp; living costs</div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-[#0E1322] border border-[#2D1854]">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#A78BFA]">
-            <span>Net Monthly Cashflow</span>
-            <ArrowLeftRight className="w-4 h-4 text-[#A78BFA]" />
-          </div>
-          <div className="text-2xl font-serif text-white font-bold mt-2">
-            {summary.formattedNetCashflow}
-          </div>
-          <div className="text-xs text-[#10B981] mt-2 font-mono">
-            {summary.savingsRatePercentage}% Savings Rate
-          </div>
-        </div>
-
-        <div className="p-5 rounded-2xl bg-[#0E1322] border border-[#1E293B]">
-          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-wider text-[#9D8BC9]">
-            <span>Recurring Obligations</span>
-            <CreditCard className="w-4 h-4 text-[#F59E0B]" />
-          </div>
-          <div className="text-2xl font-serif text-white font-bold mt-2">
-            {summary.formattedRecurringObligations}
-          </div>
-          <div className="text-xs text-[#9D8BC9] mt-2">Committed monthly debt service</div>
-        </div>
-      </div>
-
-      {/* Transactions Ledger */}
-      <div className="rounded-2xl bg-[#0E1322] border border-[#1E293B] overflow-hidden">
-        <div className="p-4 border-b border-[#1E293B] font-semibold text-sm text-white">
-          Cashflow Activity Ledger
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#070A12] border-b border-[#1E293B] text-[10px] font-mono uppercase tracking-wider text-[#9D8BC9]">
-              <tr>
-                <th className="py-3 px-4">Description</th>
-                <th className="py-3 px-4">Member</th>
-                <th className="py-3 px-4">Category</th>
-                <th className="py-3 px-4">Type</th>
-                <th className="py-3 px-4">Amount</th>
-                <th className="py-3 px-4">Classification</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1E293B]/60 text-white">
-              {transactions.map((tx) => (
-                <tr key={tx.id} className="hover:bg-[#1E1035]/30 transition-colors">
-                  <td className="py-4 px-4 font-medium text-white">{tx.title}</td>
-                  <td className="py-4 px-4 text-[#9D8BC9]">{tx.userName}</td>
-                  <td className="py-4 px-4">
-                    <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-[#1E1035] text-[#DDD0F7] border border-[#3E236E]">
-                      {tx.category.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span
-                      className={`text-[10px] font-mono font-semibold ${
-                        tx.type === 'INCOME' ? 'text-[#10B981]' : 'text-[#F43F5E]'
-                      }`}
-                    >
-                      {tx.type}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4 font-serif text-sm font-bold text-white">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead className="bg-[#FAF9F6] border-b border-[#101010] text-[#85827B] font-mono text-[10px] uppercase tracking-wider">
+            <tr>
+              <th className="py-3 px-4 border-b border-[#101010]">Transaction Narration</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Member</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Classification</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Direction</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Amount</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Audit Rule</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#101010] text-[#101010]">
+            {transactions.map((tx, idx) => (
+              <tr key={tx.id} className="hover:bg-[#F0EDE5] transition-colors">
+                <td className="py-4 px-4 font-mono">
+                  <div className="text-[10px] text-[#85827B]">TXN-0{idx + 1}</div>
+                  <div className="font-serif text-base text-[#101010] font-normal">{tx.title}</div>
+                </td>
+                <td className="py-4 px-4 font-mono text-xs text-[#85827B]">{tx.userName}</td>
+                <td className="py-4 px-4 font-mono text-xs">
+                  <span className="px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase text-[10px]">
+                    {tx.category.replace('_', ' ')}
+                  </span>
+                </td>
+                <td className="py-4 px-4 font-mono text-xs font-semibold">
+                  <span className={tx.type === 'INCOME' ? 'text-[#263B35]' : 'text-[#A63B32]'}>
+                    {tx.type === 'INCOME' ? 'CREDIT // INFLOW' : 'DEBIT // OUTFLOW'}
+                  </span>
+                </td>
+                <td className="py-4 px-4 font-serif text-base font-normal">
+                  <span className={tx.type === 'INCOME' ? 'text-[#263B35]' : 'text-[#A63B32]'}>
                     {tx.type === 'INCOME' ? '+' : '-'}{tx.formattedAmount}
-                  </td>
-                  <td className="py-4 px-4">
-                    {tx.isInternalTransfer ? (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1E293B] text-[#94A3B8]">
-                        Internal Transfer (Filtered)
-                      </span>
-                    ) : tx.isRecurring ? (
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1E1035] text-[#A78BFA]">
-                        Recurring Schedule
-                      </span>
-                    ) : (
-                      <span className="text-[10px] text-[#64748B]">Ad-hoc</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </span>
+                </td>
+                <td className="py-4 px-4 font-mono text-xs">
+                  {tx.isInternalTransfer ? (
+                    <span className="px-2 py-0.5 bg-[#F0EDE5] border border-[#101010]/30 text-[#85827B] text-[10px] uppercase">
+                      Internal Transfer (Filtered)
+                    </span>
+                  ) : tx.isRecurring ? (
+                    <span className="px-2 py-0.5 bg-[#FAF9F6] border border-[#101010] text-[#101010] text-[10px] uppercase font-semibold">
+                      Committed Recurring
+                    </span>
+                  ) : (
+                    <span className="text-[10px] text-[#85827B] uppercase">Discretionary</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* ADD CASHFLOW MODAL */}
+      {/* 3. RECORD CASHFLOW ENTRY MODAL */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl bg-[#0E1322] border border-[#3E236E] p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-3 border-b border-[#1E293B]">
-              <h3 className="text-base font-semibold text-white">Record Cashflow Transaction</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-[#9D8BC9] hover:text-white">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#101010]/75">
+          <div className="w-full max-w-md bg-[#FAF9F6] border border-[#101010] p-6 space-y-4 shadow-[8px_8px_0px_0px_#101010]">
+            <div className="flex items-center justify-between pb-3 border-b border-[#101010]">
+              <h3 className="font-serif text-xl text-[#101010]">Record Treasury Movement</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-[#101010] hover:bg-[#F0EDE5] p-1 border border-[#101010]">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleCreateCashflow} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Title / Narration</label>
+                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  Narration / Description
+                </label>
                 <input
                   type="text"
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Salary Inflow or Maintenance Bill"
-                  className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                  placeholder="e.g. Dividend Distribution or Property Tax"
+                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Type</label>
+                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                    Direction
+                  </label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as CashflowType)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                   >
-                    <option value="INCOME">Income / Inflow (+)</option>
-                    <option value="EXPENSE">Expense / Outflow (-)</option>
+                    <option value="INCOME">Inflow / Revenue (+)</option>
+                    <option value="EXPENSE">Outflow / Expenditure (-)</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Amount (₹)</label>
+                  <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                    Amount (₹)
+                  </label>
                   <input
                     type="number"
                     required
                     value={amountRupees}
                     onChange={(e) => setAmountRupees(e.target.value)}
                     placeholder="e.g. 850000"
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Category</label>
+                <label className="block font-mono text-[11px] uppercase tracking-wider text-[#85827B] mb-1">
+                  Category
+                </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as CashflowCategory)}
-                  className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3 py-2 font-mono text-xs text-[#101010] focus:outline-none"
                 >
                   <option value="SALARY">Salary / Professional Income</option>
                   <option value="BUSINESS_INCOME">Business / Dividend Income</option>
@@ -296,41 +308,41 @@ export default function CashflowPage() {
                 </select>
               </div>
 
-              <div className="space-y-2 pt-2 border-t border-[#1E293B]">
-                <label className="flex items-center gap-2 text-xs text-white cursor-pointer">
+              <div className="space-y-2 pt-2 border-t border-[#101010]/15 font-mono text-xs">
+                <label className="flex items-center gap-2 text-[#101010] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isRecurring}
                     onChange={(e) => setIsRecurring(e.target.checked)}
-                    className="rounded text-[#7C3AED]"
+                    className="accent-[#101010]"
                   />
-                  <span>Recurring monthly schedule</span>
+                  <span>Committed monthly recurring schedule</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-xs text-white cursor-pointer">
+                <label className="flex items-center gap-2 text-[#101010] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isInternalTransfer}
                     onChange={(e) => setIsInternalTransfer(e.target.checked)}
-                    className="rounded text-[#7C3AED]"
+                    className="accent-[#101010]"
                   />
                   <span>Internal transfer between own accounts (filter from totals)</span>
                 </label>
               </div>
 
-              <div className="pt-3 border-t border-[#1E293B] flex justify-end gap-2">
+              <div className="pt-3 border-t border-[#101010] flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-medium text-[#9D8BC9] hover:bg-[#1E1035]"
+                  className="px-4 py-2 border border-[#101010] font-mono text-xs uppercase text-[#101010] hover:bg-[#F0EDE5]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6]"
+                  className="px-5 py-2 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] font-mono text-xs uppercase tracking-wider font-semibold border border-[#101010]"
                 >
-                  Save Transaction
+                  Commit Entry to Ledger
                 </button>
               </div>
             </form>

@@ -16,6 +16,25 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        // PROVENTA Neo-Institutional Brutalism Tokens
+        inst: {
+          obsidian: '#101010',
+          black: '#070707',
+          ivory: '#F0EDE5',
+          paper: '#FAF9F6',
+          forest: '#263B35',
+          'forest-light': '#314C44',
+          'forest-subtle': '#E7EBE9',
+          stone: '#B6A68A',
+          'stone-light': '#D8CEBD',
+          'stone-subtle': '#ECE7DE',
+          oxide: '#A63B32',
+          'oxide-subtle': '#F7ECEB',
+          muted: '#85827B',
+          border: '#101010',
+          'border-subtle': '#D9D4C7',
+          'border-dark': '#2A2925',
+        },
         // PROVENTA Family Wealth OS — Enterprise Fintech Design Tokens
         wealth: {
           navy: '#0B0F19',

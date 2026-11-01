@@ -6,14 +6,12 @@ import {
   Phone,
   Mail,
   Shield,
-  Plus,
-  AlertTriangle,
   Lock,
   Edit2,
   CheckCircle2,
   UserCheck,
 } from 'lucide-react';
-import { FamilyContinuityDTO, EmergencyContact } from '@/lib/wealth/types';
+import { FamilyContinuityDTO } from '@/lib/wealth/types';
 
 export default function ContinuityPage() {
   const [continuity, setContinuity] = useState<FamilyContinuityDTO | null>(null);
@@ -63,61 +61,93 @@ export default function ContinuityPage() {
 
   if (loading || !continuity) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-xs font-mono text-[#A78BFA]">
-        Loading Family Continuity &amp; Nominee Directory...
+      <div className="flex items-center justify-center min-h-[400px] border border-[#101010] bg-[#FAF9F6] p-8 font-mono text-xs uppercase tracking-widest text-[#101010]">
+        Loading Succession &amp; Continuity Protocol...
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#A78BFA] mb-1">
-            FAMILY WEALTH OS // SUCCESSION &amp; CONTINUITY
+    <div className="space-y-8 font-sans">
+      {/* 1. INSTITUTIONAL HEADER & BANNER */}
+      <div className="border border-[#101010] bg-[#FAF9F6]">
+        <div className="p-6 sm:p-8 border-b border-[#101010]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
+            11 // SUCCESSION &amp; FAMILY CONTINUITY
           </div>
-          <h1 className="font-serif text-3xl text-white">Family Continuity &amp; Emergency Directives</h1>
-          <p className="text-xs text-[#9D8BC9] font-light mt-1">
-            Centralized nominee records, registered wills, emergency medical directives, and key professional advisors.
+          <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            Intergenerational Continuity Archive
+          </h1>
+          <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            Asset-by-asset nominee records, registered wills, emergency medical protocols, and directory of chartered accountants and estate attorneys.
           </p>
+        </div>
+
+        {/* Disclaimer */}
+        <div className="p-4 bg-[#F0EDE5] border-b border-[#101010] flex items-center gap-3 font-mono text-xs text-[#101010]">
+          <Shield className="w-4 h-4 text-[#263B35] shrink-0" />
+          <span>
+            <strong>STATUTORY SUCCESSION NOTICE:</strong> Digital nominee records serve administrative facilitation. Official probate, will execution, and testamentary rights require registered execution under the Indian Succession Act.
+          </span>
+        </div>
+
+        {/* Continuity Metrics Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#FAF9F6]">
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              REGISTERED NOMINEE ENTRIES
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              {continuity.nomineeRecords.length} Instruments Mapped
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              PRIMARY SUCCESSION COUNSEL
+            </div>
+            <div className="font-serif text-2xl text-[#263B35]">
+              Senior Advocate Verified
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              EMERGENCY PROTOCOL STATUS
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              Active &amp; Sealed
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Statutory Disclaimer */}
-      <div className="p-4 rounded-xl bg-[#0E1322] border border-[#1E293B] text-xs text-[#9D8BC9] flex items-center gap-2.5">
-        <Shield className="w-4 h-4 text-[#10B981] shrink-0" />
-        <span>
-          <strong>Administrative Recordkeeping:</strong> PROVENTA does not provide legal opinions on succession, probate, or inheritance rights. Always consult your High Court advocate or legal counsel for registered will execution.
-        </span>
-      </div>
-
-      {/* 1. EMERGENCY MEDICAL & FINANCIAL DIRECTIVES */}
-      <div className="p-6 rounded-2xl bg-[#0E1322] border border-[#2D1854] space-y-4">
-        <div className="flex items-center justify-between">
+      {/* 2. EMERGENCY MEDICAL & FINANCIAL DIRECTIVES */}
+      <div className="border border-[#101010] bg-[#FAF9F6] p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-[#101010] pb-3">
           <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-[#A78BFA]" />
-            <h3 className="text-sm font-semibold text-white">Emergency Directives &amp; Safe Locker Access</h3>
+            <Lock className="w-4 h-4 text-[#101010]" />
+            <h3 className="font-mono text-xs uppercase tracking-wider text-[#101010] font-semibold">
+              Emergency Directives &amp; Safe Locker Access Protocol
+            </h3>
           </div>
           {!isEditingInstructions ? (
             <button
               onClick={() => setIsEditingInstructions(true)}
-              className="text-xs text-[#A78BFA] hover:text-white flex items-center gap-1"
+              className="font-mono text-xs uppercase tracking-wider text-[#101010] underline flex items-center gap-1.5"
             >
               <Edit2 className="w-3.5 h-3.5" />
-              <span>Edit Directives</span>
+              <span>Edit Protocol Directives</span>
             </button>
           ) : (
             <div className="flex gap-2">
               <button
                 onClick={() => setIsEditingInstructions(false)}
-                className="text-xs text-[#9D8BC9] hover:text-white"
+                className="px-3 py-1 border border-[#101010] font-mono text-xs uppercase text-[#101010]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveInstructions}
-                className="px-3 py-1 rounded bg-[#7C3AED] text-xs font-semibold text-white"
+                className="px-4 py-1 bg-[#101010] text-[#F0EDE5] font-mono text-xs uppercase font-semibold"
               >
                 Save
               </button>
@@ -130,53 +160,53 @@ export default function ContinuityPage() {
             rows={4}
             value={instructionsText}
             onChange={(e) => setInstructionsText(e.target.value)}
-            className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+            className="w-full bg-[#FAF9F6] border border-[#101010] p-3 font-mono text-xs text-[#101010] focus:outline-none"
           />
         ) : (
-          <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs text-[#DDD0F7] font-light leading-relaxed">
+          <div className="p-4 bg-[#F0EDE5] border border-[#101010] font-mono text-xs text-[#101010] leading-relaxed">
             {continuity.emergencyInstructions}
           </div>
         )}
       </div>
 
-      {/* 2. ESSENTIAL PROFESSIONAL ADVISORS DIRECTORY */}
+      {/* 3. ESSENTIAL PROFESSIONAL ADVISORS DIRECTORY */}
       <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-          Trusted Family Professional Advisors
-        </h3>
+        <div className="font-mono text-xs uppercase tracking-wider text-[#101010] font-semibold">
+          Primary Institutional Advisors &amp; Advocates
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {continuity.importantContacts.map((contact) => (
+          {continuity.importantContacts.map((contact, idx) => (
             <div
               key={contact.id}
-              className="p-5 rounded-2xl bg-[#0E1322] border border-[#1E293B] space-y-3"
+              className="p-6 border border-[#101010] bg-[#FAF9F6] space-y-3 hover:bg-[#F0EDE5] transition-colors"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1E1035] text-[#A78BFA] border border-[#3E236E]">
+              <div className="flex items-center justify-between font-mono text-[10px]">
+                <span className="px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase">
                   {contact.role.replace('_', ' ')}
                 </span>
-                <UserCheck className="w-4 h-4 text-[#10B981]" />
+                <span className="text-[#85827B]">ADV-0{idx + 1}</span>
               </div>
 
               <div>
-                <h4 className="text-sm font-semibold text-white">{contact.name}</h4>
+                <h4 className="font-serif text-lg text-[#101010]">{contact.name}</h4>
                 {contact.organization && (
-                  <div className="text-xs text-[#9D8BC9] mt-0.5">{contact.organization}</div>
+                  <div className="font-mono text-xs text-[#85827B] mt-0.5">{contact.organization}</div>
                 )}
               </div>
 
-              <div className="space-y-1.5 pt-3 border-t border-[#1E293B] text-xs">
-                <div className="flex items-center gap-2 text-white font-mono">
-                  <Phone className="w-3.5 h-3.5 text-[#64748B]" />
+              <div className="space-y-1.5 pt-3 border-t border-[#101010]/15 font-mono text-xs">
+                <div className="flex items-center gap-2 text-[#101010]">
+                  <Phone className="w-3.5 h-3.5 text-[#85827B]" />
                   <span>{contact.phone}</span>
                 </div>
-                <div className="flex items-center gap-2 text-white font-mono">
-                  <Mail className="w-3.5 h-3.5 text-[#64748B]" />
+                <div className="flex items-center gap-2 text-[#101010]">
+                  <Mail className="w-3.5 h-3.5 text-[#85827B]" />
                   <span>{contact.email}</span>
                 </div>
               </div>
 
               {contact.notes && (
-                <div className="pt-2 text-[11px] text-[#64748B] font-light">
+                <div className="pt-2 font-mono text-[10px] text-[#85827B]">
                   {contact.notes}
                 </div>
               )}
@@ -185,33 +215,31 @@ export default function ContinuityPage() {
         </div>
       </div>
 
-      {/* 3. NOMINEE REGISTER */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-          Consolidated Nominee Register
-        </h3>
-        <div className="rounded-2xl bg-[#0E1322] border border-[#1E293B] overflow-hidden">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#070A12] border-b border-[#1E293B] text-[10px] font-mono uppercase tracking-wider text-[#9D8BC9]">
-              <tr>
-                <th className="py-3 px-4">Asset / Insurance Policy</th>
-                <th className="py-3 px-4">Designated Nominee</th>
-                <th className="py-3 px-4">Relationship</th>
-                <th className="py-3 px-4">Share (%)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1E293B]/60 text-white">
-              {continuity.nomineeRecords.map((nom, i) => (
-                <tr key={i} className="hover:bg-[#1E1035]/30 transition-colors">
-                  <td className="py-4 px-4 font-medium text-white">{nom.assetOrPolicyName}</td>
-                  <td className="py-4 px-4 text-white font-semibold">{nom.nomineeName}</td>
-                  <td className="py-4 px-4 text-[#9D8BC9]">{nom.relationship}</td>
-                  <td className="py-4 px-4 font-mono font-bold text-[#10B981]">{nom.sharePercentage}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* 4. ASSET-BY-ASSET NOMINEE REGISTER */}
+      <div className="border border-[#101010] bg-[#FAF9F6] overflow-x-auto">
+        <div className="p-4 bg-[#101010] text-[#F0EDE5] font-mono text-xs uppercase tracking-wider font-semibold">
+          Consolidated Nominee Allocation Register
         </div>
+        <table className="w-full text-left text-xs border-collapse">
+          <thead className="bg-[#FAF9F6] border-b border-[#101010] text-[#85827B] font-mono text-[10px] uppercase tracking-wider">
+            <tr>
+              <th className="py-3 px-4 border-b border-[#101010]">Asset Instrument or Policy</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Designated Nominee</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Relationship</th>
+              <th className="py-3 px-4 border-b border-[#101010]">Nominated Share (%)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#101010] text-[#101010]">
+            {continuity.nomineeRecords.map((nom, i) => (
+              <tr key={i} className="hover:bg-[#F0EDE5] transition-colors">
+                <td className="py-4 px-4 font-serif text-base text-[#101010] font-normal">{nom.assetOrPolicyName}</td>
+                <td className="py-4 px-4 font-mono text-xs font-semibold">{nom.nomineeName}</td>
+                <td className="py-4 px-4 font-mono text-xs text-[#85827B]">{nom.relationship}</td>
+                <td className="py-4 px-4 font-mono text-xs font-bold text-[#263B35]">{nom.sharePercentage}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

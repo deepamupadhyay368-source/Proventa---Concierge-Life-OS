@@ -3,15 +3,12 @@
 import { useEffect, useState } from 'react';
 import {
   Target,
-  Sparkles,
-  TrendingUp,
-  Plus,
   Play,
   Calendar,
   CheckCircle2,
   DollarSign,
   AlertCircle,
-  X,
+  Terminal,
 } from 'lucide-react';
 import { FinancialGoalDTO, ScenarioSimulationResult } from '@/lib/wealth/types';
 
@@ -77,65 +74,96 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#1E293B]">
-        <div>
-          <div className="text-[10px] font-mono uppercase tracking-widest text-[#A78BFA] mb-1">
-            FAMILY WEALTH OS // GOALS &amp; SCENARIOS
+    <div className="space-y-8 font-sans">
+      {/* 1. INSTITUTIONAL HEADER */}
+      <div className="border border-[#101010] bg-[#FAF9F6]">
+        <div className="p-6 sm:p-8 border-b border-[#101010]">
+          <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#85827B]">
+            09 // CAPITAL TARGETS &amp; DETERMINISTIC SCENARIOS
           </div>
-          <h1 className="font-serif text-3xl text-white">Family Goals &amp; Scenarios</h1>
-          <p className="text-xs text-[#9D8BC9] font-light mt-1">
-            Milestone tracking and deterministic mathematical forward simulations with inflation adjustment.
+          <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-1">
+            Family Milestones &amp; Scenarios
+          </h1>
+          <p className="font-sans text-xs text-[#85827B] mt-2 max-w-xl">
+            Target progression tracking and deterministic forward compound projections with inflation-discounted purchasing power modeling.
           </p>
+        </div>
+
+        {/* Milestone Summary Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#101010] bg-[#F0EDE5]">
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              ACTIVE CAPITAL MILESTONES
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              {goals.length} Goals Registered
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              AVERAGE PROGRESS
+            </div>
+            <div className="font-serif text-2xl text-[#263B35]">
+              {goals.length > 0 ? Math.round(goals.reduce((acc, g) => acc + g.progressPercentage, 0) / goals.length) : 0}% Achieved
+            </div>
+          </div>
+          <div className="p-5 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-wider text-[#85827B]">
+              SIMULATION METHODOLOGY
+            </div>
+            <div className="font-serif text-2xl text-[#101010]">
+              Continuous Compound Math
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 1. ACTIVE GOALS PROGRESS */}
+      {/* 2. ACTIVE GOALS MATRIX */}
       <div className="space-y-4">
-        <h2 className="text-sm font-semibold text-white uppercase tracking-wider font-mono">
-          Active Family Milestones
-        </h2>
+        <div className="font-mono text-xs uppercase tracking-wider text-[#101010] font-semibold">
+          Active Family Capital Milestones
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {goals.map((g) => (
+          {goals.map((g, idx) => (
             <div
               key={g.id}
-              className="p-6 rounded-2xl bg-[#0E1322] border border-[#1E293B] space-y-4"
+              className="p-6 border border-[#101010] bg-[#FAF9F6] space-y-4 hover:bg-[#F0EDE5] transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1E1035] text-[#DDD0F7] border border-[#3E236E]">
+                  <div className="font-mono text-[10px] text-[#85827B]">GOAL-0{idx + 1}</div>
+                  <span className="font-mono text-[10px] px-2 py-0.5 border border-[#101010] bg-[#FAF9F6] uppercase mt-1 inline-block">
                     {g.category.replace('_', ' ')}
                   </span>
-                  <h3 className="font-semibold text-white text-base mt-2">{g.title}</h3>
+                  <h3 className="font-serif text-xl text-[#101010] mt-1">{g.title}</h3>
                 </div>
-                <span className="text-xs font-mono text-[#10B981] font-bold px-2 py-0.5 rounded bg-[#064E3B]/40 border border-[#10B981]/30">
+                <span className="font-mono text-[10px] px-2.5 py-1 bg-[#263B35] text-[#FAF9F6] uppercase tracking-wider font-semibold">
                   {g.status}
                 </span>
               </div>
 
               {/* Progress bar */}
               <div className="space-y-1.5">
-                <div className="flex justify-between text-xs font-mono">
-                  <span className="text-[#9D8BC9]">{g.formattedCurrentAmount} achieved</span>
-                  <span className="text-white font-bold">{g.progressPercentage}%</span>
+                <div className="flex justify-between font-mono text-xs">
+                  <span className="text-[#85827B]">{g.formattedCurrentAmount} achieved</span>
+                  <span className="text-[#101010] font-bold">{g.progressPercentage}%</span>
                 </div>
-                <div className="h-3 w-full rounded-full bg-[#1E293B] overflow-hidden">
+                <div className="h-4 w-full border border-[#101010] bg-[#FAF9F6] overflow-hidden">
                   <div
                     style={{ width: `${g.progressPercentage}%` }}
-                    className="h-full bg-gradient-to-r from-[#7C3AED] to-[#10B981] rounded-full"
+                    className="h-full bg-[#101010]"
                   />
                 </div>
-                <div className="flex justify-between text-[11px] text-[#64748B] font-mono pt-1">
+                <div className="flex justify-between font-mono text-[10px] text-[#85827B] pt-1">
                   <span>Target: {g.formattedTargetAmount}</span>
                   <span>Target Date: {g.targetDate}</span>
                 </div>
               </div>
 
               {/* Contributors */}
-              <div className="pt-3 border-t border-[#1E293B] text-xs text-[#9D8BC9]">
-                <span>Contributors: </span>
-                <span className="text-white">
+              <div className="pt-3 border-t border-[#101010]/15 font-mono text-xs text-[#85827B]">
+                <span>CONTRIBUTORS: </span>
+                <span className="text-[#101010] font-semibold">
                   {g.contributors.map((c) => `${c.memberName} (${c.formattedContributed})`).join(', ')}
                 </span>
               </div>
@@ -144,14 +172,16 @@ export default function GoalsPage() {
         </div>
       </div>
 
-      {/* 2. DETERMINISTIC SCENARIO SIMULATOR */}
-      <div className="p-6 rounded-2xl bg-[#0E1322] border border-[#2D1854] space-y-6">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-[#A78BFA]" />
+      {/* 3. DETERMINISTIC SCENARIO SIMULATOR (DARK RECTANGULAR TERMINAL) */}
+      <div className="border border-[#101010] bg-[#101010] text-[#F0EDE5] p-6 sm:p-8 space-y-6">
+        <div className="flex items-center gap-3 border-b border-[#2A2925] pb-4">
+          <Terminal className="w-5 h-5 text-[#B6A68A]" />
           <div>
-            <h3 className="text-base font-semibold text-white">Hypothetical Scenario Simulator</h3>
-            <p className="text-xs text-[#9D8BC9] font-light">
-              Deterministic compound calculation with inflation adjustments. Purely mathematical; not investment advice.
+            <h3 className="font-mono text-sm uppercase tracking-wider text-[#F0EDE5] font-semibold">
+              SCENARIO SIMULATION TERMINAL // DETERMINISTIC COMPOUND ENGINE
+            </h3>
+            <p className="font-mono text-[11px] text-[#B6A68A] mt-0.5">
+              Pure mathematical simulation modeling nominal growth and inflation-discounted real wealth. Informational only.
             </p>
           </div>
         </div>
@@ -159,44 +189,44 @@ export default function GoalsPage() {
         {/* Inputs Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <div>
-            <label className="block text-[11px] font-medium text-[#9D8BC9] mb-1 font-mono">
-              Baseline Wealth (₹)
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-[#B6A68A] mb-1">
+              Baseline Capital (₹)
             </label>
             <input
               type="number"
               value={startingWealthRupees}
               onChange={(e) => setStartingWealthRupees(e.target.value)}
-              className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[#070707] border border-[#2A2925] px-3 py-2 font-mono text-xs text-[#F0EDE5] focus:outline-none focus:border-[#B6A68A]"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#9D8BC9] mb-1 font-mono">
-              Monthly Savings (₹)
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-[#B6A68A] mb-1">
+              Monthly Inflow (₹)
             </label>
             <input
               type="number"
               value={monthlySavingsRupees}
               onChange={(e) => setMonthlySavingsRupees(e.target.value)}
-              className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[#070707] border border-[#2A2925] px-3 py-2 font-mono text-xs text-[#F0EDE5] focus:outline-none focus:border-[#B6A68A]"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#9D8BC9] mb-1 font-mono">
-              Hypothetical Return (% p.a.)
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-[#B6A68A] mb-1">
+              Expected Return (% p.a.)
             </label>
             <input
               type="number"
               step="0.5"
               value={expectedReturnRate}
               onChange={(e) => setExpectedReturnRate(e.target.value)}
-              className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[#070707] border border-[#2A2925] px-3 py-2 font-mono text-xs text-[#F0EDE5] focus:outline-none focus:border-[#B6A68A]"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#9D8BC9] mb-1 font-mono">
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-[#B6A68A] mb-1">
               Inflation Rate (% p.a.)
             </label>
             <input
@@ -204,18 +234,18 @@ export default function GoalsPage() {
               step="0.5"
               value={inflationRate}
               onChange={(e) => setInflationRate(e.target.value)}
-              className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[#070707] border border-[#2A2925] px-3 py-2 font-mono text-xs text-[#F0EDE5] focus:outline-none focus:border-[#B6A68A]"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#9D8BC9] mb-1 font-mono">
-              Projection Horizon
+            <label className="block font-mono text-[10px] uppercase tracking-wider text-[#B6A68A] mb-1">
+              Time Horizon
             </label>
             <select
               value={projectionYears}
               onChange={(e) => setProjectionYears(e.target.value)}
-              className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+              className="w-full bg-[#070707] border border-[#2A2925] px-3 py-2 font-mono text-xs text-[#F0EDE5] focus:outline-none focus:border-[#B6A68A]"
             >
               <option value="5">5 Years</option>
               <option value="10">10 Years</option>
@@ -228,53 +258,59 @@ export default function GoalsPage() {
         <button
           onClick={runSimulation}
           disabled={isSimulating}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6] transition-all shadow-md shadow-[#7C3AED]/25"
+          className="px-6 py-3 bg-[#263B35] text-[#FAF9F6] hover:bg-[#314C44] font-mono text-xs uppercase tracking-wider font-semibold border border-[#263B35] transition-colors flex items-center gap-2"
         >
-          <Play className="w-3.5 h-3.5 fill-white" />
-          <span>{isSimulating ? 'Computing...' : 'Recalculate Scenario'}</span>
+          <Play className="w-3.5 h-3.5 fill-current" />
+          <span>{isSimulating ? 'Computing Model...' : 'Execute Simulation Model'}</span>
         </button>
 
-        {/* Output Presentation */}
+        {/* Simulation Output Presentation */}
         {simResult && (
-          <div className="pt-6 border-t border-[#1E293B] space-y-6">
+          <div className="pt-6 border-t border-[#2A2925] space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-                <div className="text-[10px] text-[#9D8BC9] uppercase font-mono">Projected Nominal Wealth</div>
-                <div className="text-2xl font-serif font-bold text-white mt-1">
+              <div className="p-5 bg-[#070707] border border-[#2A2925] space-y-1">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#B6A68A]">
+                  NOMINAL PROJECTED CAPITAL
+                </div>
+                <div className="font-serif text-3xl font-normal text-[#F0EDE5]">
                   {simResult.formattedProjectedNetWorth}
                 </div>
-                <div className="text-xs text-[#10B981] mt-1 font-mono">
+                <div className="font-mono text-xs text-[#263B35]">
                   +{simResult.formattedNetGain} cumulative gain
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-                <div className="text-[10px] text-[#9D8BC9] uppercase font-mono">Inflation-Adjusted Purchasing Power</div>
-                <div className="text-2xl font-serif font-bold text-[#DDD0F7] mt-1">
+              <div className="p-5 bg-[#070707] border border-[#2A2925] space-y-1">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#B6A68A]">
+                  REAL PURCHASING POWER (INFLATION DISCOUNTED)
+                </div>
+                <div className="font-serif text-3xl font-normal text-[#B6A68A]">
                   {simResult.formattedInflationAdjusted}
                 </div>
-                <div className="text-xs text-[#9D8BC9] mt-1 font-mono">
-                  At {inflationRate}% compounding annual inflation
+                <div className="font-mono text-xs text-[#85827B]">
+                  At {inflationRate}% annual compounding inflation
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-                <div className="text-[10px] text-[#9D8BC9] uppercase font-mono">Simulation Horizon</div>
-                <div className="text-2xl font-serif font-bold text-white mt-1">
+              <div className="p-5 bg-[#070707] border border-[#2A2925] space-y-1">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#B6A68A]">
+                  COMPOUNDING HORIZON
+                </div>
+                <div className="font-serif text-3xl font-normal text-[#F0EDE5]">
                   {simResult.projectionYears} Years
                 </div>
-                <div className="text-xs text-[#A78BFA] mt-1 font-mono">
-                  Deterministic compound schedule
+                <div className="font-mono text-xs text-[#85827B]">
+                  Formula: P(1+r)^t + PMT[((1+r)^t - 1)/r]
                 </div>
               </div>
             </div>
 
             {/* Assumptions explicitly stated */}
-            <div className="p-4 rounded-xl bg-[#070A12] border border-[#1E293B] space-y-1.5 text-xs text-[#9D8BC9]">
-              <div className="text-[10px] font-mono uppercase tracking-wider text-white">Stated Mathematical Assumptions:</div>
+            <div className="p-4 bg-[#070707] border border-[#2A2925] space-y-1.5 font-mono text-xs text-[#85827B]">
+              <div className="text-[10px] uppercase tracking-wider text-[#F0EDE5]">Stated Model Assumptions:</div>
               {simResult.assumptionsStated.map((assump, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" />
+                  <span className="w-1.5 h-1.5 bg-[#B6A68A]" />
                   <span>{assump}</span>
                 </div>
               ))}

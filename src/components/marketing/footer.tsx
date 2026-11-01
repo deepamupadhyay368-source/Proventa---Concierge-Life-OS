@@ -4,105 +4,101 @@ import { BRAND_CONFIG } from '@/lib/brand';
 
 const FOOTER_SECTIONS = [
   {
-    code: '01 // WEALTH OS',
+    code: '01 // WEALTH REGISTERS',
     title: 'Platform Modules',
     links: [
-      { label: 'Family Wealth Dashboard', href: '/dashboard' },
-      { label: 'Asset Management', href: '/assets' },
-      { label: 'Liability & Debt Register', href: '/liabilities' },
-      { label: 'Family Vault & Documents', href: '/vault' },
-      { label: 'Cashflow Intelligence', href: '/cashflow' },
-      { label: 'Multi-Agent Intelligence', href: '/intelligence' },
+      { label: 'Family Wealth Cockpit', href: '/dashboard' },
+      { label: 'Capital Asset Inventory', href: '/assets' },
+      { label: 'Debt & Facility Register', href: '/liabilities' },
+      { label: 'Encrypted Family Vault', href: '/vault' },
+      { label: 'Treasury & Cashflow', href: '/cashflow' },
+      { label: 'Analytical Research Console', href: '/intelligence' },
     ],
   },
   {
-    code: '02 // PLANNING',
-    title: 'Continuity & Scenarios',
+    code: '02 // CONTINUITY & GRAPH',
+    title: 'Succession Architecture',
     links: [
-      { label: 'Family Milestones & Goals', href: '/goals' },
-      { label: 'Corporate Ownership Map', href: '/business-ownership' },
-      { label: 'Insurance & Protection', href: '/protection' },
-      { label: 'Continuity & Nominees', href: '/continuity' },
-      { label: 'Reports & Statements', href: '/reports' },
+      { label: 'Capital Milestone Goals', href: '/goals' },
+      { label: 'Corporate Cap-Table Map', href: '/business-ownership' },
+      { label: 'Protection & Policy Records', href: '/protection' },
+      { label: 'Intergenerational Directives', href: '/continuity' },
+      { label: 'Audited Financial Statements', href: '/reports' },
     ],
   },
   {
-    code: '03 // ACCOUNTS',
-    title: 'Workspaces & Access',
+    code: '03 // ENTITLEMENTS',
+    title: 'Institutional Licenses',
     links: [
-      { label: 'Sign In', href: '/sign-in' },
-      { label: 'Begin Onboarding', href: '/onboarding' },
-      { label: 'Family Subscriptions', href: '/pricing' },
-      { label: 'Help & Operations', href: '/support' },
+      { label: 'Institutional Tiers', href: '/pricing' },
+      { label: 'Commence Intake Journey', href: '/onboarding' },
+      { label: 'Family Trust Workspaces', href: '/family' },
+      { label: 'Multi-Agent Orchestrator', href: '/intelligence' },
     ],
   },
   {
-    code: '04 // GOVERNANCE',
-    title: 'Trust & DPDP Privacy',
+    code: '04 // STATUTORY GOVERNANCE',
+    title: 'DPDP Act Compliance',
     links: [
-      { label: 'DPDP Privacy Notice', href: '/privacy' },
-      { label: 'Terms of Service', href: '/terms' },
-      { label: 'Security Architecture', href: '/trust' },
-      { label: 'Data Rights & Export', href: '/data-rights' },
-      { label: 'Grievance Officer', href: '/contact' },
+      { label: 'DPDP Privacy Notice', href: '/settings' },
+      { label: 'Data Portability Export', href: '/settings' },
+      { label: 'Right to Erasure Protocol', href: '/settings' },
+      { label: 'Cryptographic Architecture', href: '/vault' },
     ],
   },
 ];
 
 export function MarketingFooter() {
   return (
-    <footer className="bg-[#070A12] text-[#F8F9FD] border-t border-[#1E293B]">
-      {/* Banner */}
-      <div className="border-b border-[#1E293B]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+    <footer className="bg-[#101010] text-[#F0EDE5] border-t border-[#101010] font-sans">
+      {/* Monumental Banner */}
+      <div className="border-b border-[#2A2925]">
+        <div className="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
-            <div className="lg:col-span-8">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1E1035] border border-[#3E236E] text-[11px] font-mono uppercase tracking-[0.2em] text-[#DDD0F7] mb-4">
-                PROVENTA // FAMILY FINANCIAL INFRASTRUCTURE
+            <div className="lg:col-span-8 space-y-4">
+              <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#B6A68A]">
+                PROVENTA // THE WEALTH INSTITUTION
               </div>
-              <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.05]">
+              <h2 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-normal tracking-tight text-[#F0EDE5] leading-none">
                 Your wealth. One living system.
               </h2>
-              <p className="mt-4 text-base sm:text-lg text-[#9D8BC9] max-w-2xl font-light">
-                Bring together individual accounts, joint family holdings, encrypted documents, and future generational continuity in one secure digital ecosystem.
+              <p className="font-sans text-sm sm:text-base text-[#85827B] max-w-2xl leading-relaxed">
+                Independent family financial infrastructure designed for multi-generational wealth preservation, deterministic accounting, and private intelligence.
               </p>
             </div>
-            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
+            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 font-mono text-xs">
               <Link
                 href="/onboarding"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg text-sm font-semibold uppercase tracking-wider text-white bg-gradient-to-r from-[#7C3AED] to-[#6D28D9] hover:from-[#8B5CF6] hover:to-[#7C3AED] transition-all shadow-lg shadow-[#7C3AED]/25"
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-[#F0EDE5] text-[#101010] hover:bg-[#263B35] hover:text-[#FAF9F6] uppercase tracking-wider font-semibold border border-[#F0EDE5] transition-colors"
               >
-                Set Up Family Workspace
+                <span>Commence Institutional Intake</span>
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg text-sm font-semibold uppercase tracking-wider text-[#DDD0F7] bg-[#1E1035] hover:bg-[#2A164D] border border-[#3E236E] transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-transparent text-[#F0EDE5] hover:bg-[#2A2925] uppercase tracking-wider font-semibold border border-[#2A2925] transition-colors"
               >
-                View Plans & Entitlements
+                Inspect Institutional Tiers
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Matrix */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10">
+      {/* Directory Grid */}
+      <div className="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {FOOTER_SECTIONS.map((section) => (
-            <div key={section.code} className="space-y-4">
-              <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#A78BFA]">
+            <div key={section.code} className="space-y-4 font-mono">
+              <div className="text-[10px] uppercase tracking-[0.2em] text-[#B6A68A]">
                 {section.code}
               </div>
-              <div className="text-sm font-semibold text-white tracking-wide">
-                {section.title}
-              </div>
-              <ul className="space-y-2.5">
+              <ul className="space-y-2.5 text-xs text-[#85827B]">
                 {section.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-xs text-[#9D8BC9] hover:text-white transition-colors"
+                      className="hover:text-[#F0EDE5] transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -113,18 +109,19 @@ export function MarketingFooter() {
           ))}
         </div>
 
-        {/* Regulatory Boundaries & Disclaimer */}
-        <div className="mt-14 pt-8 border-t border-[#1E293B]/60 text-[11px] text-[#64748B] leading-relaxed space-y-3">
+        {/* Regulatory Disclaimers & DPDP Notice */}
+        <div className="mt-16 pt-8 border-t border-[#2A2925] font-mono text-[10px] text-[#85827B] space-y-2 leading-relaxed">
           <p>
-            <strong className="text-[#94A3B8]">Regulatory Notice & Product Scope:</strong> PROVENTA is an independent software-based family financial recordkeeping and wealth organization platform. PROVENTA is not an RBI-registered Account Aggregator, a SEBI-registered investment adviser, broker, portfolio manager, or regulated depository. The platform does not hold custody of funds or securities, execute financial transactions, sell insurance policies, or provide personalized securities investment advice or buy/sell signals. All valuations and compound scenario simulations are deterministic mathematical projections based on user-supplied parameters and verified documents.
+            STATUTORY INDEPENDENCE NOTICE: PROVENTA is an independent digital family financial infrastructure and software platform. PROVENTA is not a registered investment advisor, stock broker, depository participant, or merchant banker under the Securities and Exchange Board of India (SEBI), nor an insurance repository or intermediary under IRDAI.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#1E293B]/40">
-            <div className="flex items-center gap-2 text-xs text-[#94A3B8]">
-              <Lock className="w-3.5 h-3.5 text-[#10B981]" />
-              <span>AES-256 Encryption at Rest & TLS 1.3 in Transit · DPDP Act Compliant Architecture</span>
-            </div>
-            <div className="text-xs text-[#64748B]">
-              © {new Date().getFullYear()} PROVENTA Technology Technologies Pvt. Ltd. All rights reserved.
+          <p>
+            DATA PRIVACY &amp; DPDP ACT 2023: All family documents, cap-table maps, and personal ledgers are processed under strict client-side encryption and tenant-level database separation in compliance with the Digital Personal Data Protection Act 2023.
+          </p>
+          <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[#85827B]">
+            <div>© {new Date().getFullYear()} PROVENTA TECHNOLOGIES PRIVATE LIMITED. ALL RIGHTS RESERVED.</div>
+            <div className="flex items-center gap-4">
+              <span>JURISDICTION: INDIA</span>
+              <span>ENGINE: DETERMINISTIC PAISE PRECISION</span>
             </div>
           </div>
         </div>
@@ -133,5 +130,5 @@ export function MarketingFooter() {
   );
 }
 
-export const PublicFooter = MarketingFooter;
 export default MarketingFooter;
+export const PublicFooter = MarketingFooter;

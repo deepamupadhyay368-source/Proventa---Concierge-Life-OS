@@ -8,26 +8,23 @@ import {
   ArrowRight,
   ArrowLeft,
   Building2,
-  Users,
   Coins,
   CreditCard,
   Lock,
   PieChart,
-  ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 
 const STEPS = [
-  { id: 1, label: 'Identity', desc: 'Account & Credentials' },
-  { id: 2, label: 'Verification', desc: 'Secure Authentication' },
-  { id: 3, label: 'Individual Workspace', desc: 'Personal Sovereignty' },
-  { id: 4, label: 'Profile', desc: 'Financial Jurisdiction' },
-  { id: 5, label: 'Family Trust', desc: 'Multi-Generational Entity' },
-  { id: 6, label: 'Invite Members', desc: 'Spouse, Children, Advisors' },
-  { id: 7, label: 'First Asset', desc: 'Property, MF, or Equity' },
-  { id: 8, label: 'Liabilities', desc: 'Mortgages & Facilities' },
-  { id: 9, label: 'Vault Upload', desc: 'Encrypted Documents' },
-  { id: 10, label: 'Living Dashboard', desc: 'Deterministic Synthesis' },
+  { id: 1, label: 'Identity', desc: 'Sovereign Credentials' },
+  { id: 2, label: 'Verification', desc: 'Secure Key Protocol' },
+  { id: 3, label: 'Workspace', desc: 'Personal Sovereignty' },
+  { id: 4, label: 'Jurisdiction', desc: 'Statutory DPDP Standards' },
+  { id: 5, label: 'Family Trust', desc: 'Trust Holding Entity' },
+  { id: 6, label: 'Enrollment', desc: 'Trustees & Beneficiaries' },
+  { id: 7, label: 'First Asset', desc: 'Capital Inventory Initial' },
+  { id: 8, label: 'Liabilities', desc: 'Debt Facilities' },
+  { id: 9, label: 'Vault Archive', desc: 'AES-256 Provisioning' },
+  { id: 10, label: 'Synthesis', desc: 'Deterministic Terminal' },
 ];
 
 export default function OnboardingPage() {
@@ -60,63 +57,64 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-[#F8F9FD] flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#F0EDE5] text-[#101010] flex flex-col justify-between py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="max-w-3xl mx-auto w-full space-y-8">
-        {/* Header */}
+        {/* Institutional Stepper Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1E1035] border border-[#3E236E] text-[10px] font-mono uppercase tracking-widest text-[#A78BFA]">
-            <Sparkles className="w-3.5 h-3.5" />
-            10-STEP WEALTH ONBOARDING JOURNEY
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#101010] text-[#F0EDE5] font-mono text-[10px] uppercase tracking-[0.2em]">
+            <span>PROVENTA // INSTITUTIONAL INTAKE</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl text-white">
-            Set Up Your Living Financial System
+          <h1 className="font-serif text-3xl sm:text-5xl text-[#101010] tracking-tight mt-2">
+            Establish Your Wealth Institution
           </h1>
-          <p className="text-xs text-[#9D8BC9]">
-            Step {currentStep} of 10: <strong className="text-white">{STEPS[currentStep - 1].desc}</strong>
+          <p className="font-mono text-xs text-[#85827B] uppercase tracking-wider">
+            Protocol Phase {String(currentStep).padStart(2, '0')} of 10: <strong className="text-[#101010]">{STEPS[currentStep - 1].desc}</strong>
           </p>
         </div>
 
-        {/* Stepper Progress bar */}
-        <div className="grid grid-cols-10 gap-1.5">
+        {/* Stepper Progress Bar (Neo-Brutalist Grid) */}
+        <div className="grid grid-cols-10 gap-1 border border-[#101010] p-1 bg-[#FAF9F6]">
           {STEPS.map((s) => (
             <div
               key={s.id}
-              className={`h-2 rounded-full transition-all ${
+              className={`h-3 transition-colors ${
                 s.id < currentStep
-                  ? 'bg-[#10B981]'
+                  ? 'bg-[#263B35]'
                   : s.id === currentStep
-                  ? 'bg-[#7C3AED] shadow-sm shadow-[#7C3AED]'
-                  : 'bg-[#1E293B]'
+                  ? 'bg-[#101010]'
+                  : 'bg-[#F0EDE5]'
               }`}
+              title={`Phase ${s.id}: ${s.label}`}
             />
           ))}
         </div>
 
-        {/* Dynamic Step Content Box */}
-        <div className="p-8 rounded-3xl bg-[#0E1322] border border-[#2D1854] shadow-2xl space-y-6">
+        {/* Step Content Box */}
+        <div className="border border-[#101010] bg-[#FAF9F6] p-8 sm:p-10 shadow-[8px_8px_0px_0px_#101010] space-y-6">
           {currentStep === 1 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 1: Create Sovereign Account</h2>
-              <p className="text-xs text-[#9D8BC9] font-light">
-                Your individual account establishes your master identity. You retain 100% data sovereignty across all future family relationships.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 01 // IDENTITY</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Master Identity Establishment</h2>
+              <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+                Your individual account establishes sovereign master credentials. You retain absolute legal data isolation across all family trusts.
               </p>
-              <div className="space-y-3 pt-2">
+              <div className="space-y-4 pt-2 font-mono text-xs">
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Full Legal Name</label>
+                  <label className="block text-[#85827B] uppercase text-[10px] mb-1">Full Legal Name</label>
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Email Address</label>
+                  <label className="block text-[#85827B] uppercase text-[10px] mb-1">Primary Email Address</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                   />
                 </div>
               </div>
@@ -124,41 +122,44 @@ export default function OnboardingPage() {
           )}
 
           {currentStep === 2 && (
-            <div className="space-y-4 text-center py-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#064E3B]/40 border border-[#10B981]/40 flex items-center justify-center text-[#10B981] mx-auto">
+            <div className="space-y-4 text-center py-6">
+              <div className="w-12 h-12 bg-[#263B35] text-[#FAF9F6] border border-[#101010] flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h2 className="text-lg font-semibold text-white">Step 2: Authentication Key Verified</h2>
-              <p className="text-xs text-[#9D8BC9] max-w-md mx-auto font-light leading-relaxed">
-                Your email ({email}) has been cryptographically confirmed. Your session is protected by TLS 1.3 and hardware-backed session revocation.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 02 // CIPHER</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Authentication Keys Initialized</h2>
+              <p className="font-sans text-xs text-[#85827B] max-w-md mx-auto leading-relaxed">
+                Credentials for {email} verified. Session secured under TLS 1.3 with AES-GCM-256 envelope encryption.
               </p>
             </div>
           )}
 
           {currentStep === 3 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 3: Initializing Individual Workspace</h2>
-              <p className="text-xs text-[#9D8BC9] font-light">
-                Your Personal Workspace is isolated from all family members by default. Nothing added here will ever leak into a family workspace unless explicitly shared.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 03 // SOVEREIGNTY</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Personal Sovereign Workspace</h2>
+              <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+                Your individual universe is strictly segregated. Private holdings logged here will never appear in family viewports without explicit conveyance.
               </p>
-              <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B] text-xs space-y-1">
-                <div className="text-white font-medium">Personal Workspace: {fullName}</div>
-                <div className="text-[10px] text-[#10B981] font-mono">Status: Private Sovereignty Active</div>
+              <div className="p-4 border border-[#101010] bg-[#F0EDE5] font-mono text-xs space-y-1">
+                <div className="font-semibold text-[#101010]">Personal Universe: {fullName}</div>
+                <div className="text-[10px] text-[#263B35]">Status: Private Isolation Active</div>
               </div>
             </div>
           )}
 
           {currentStep === 4 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 4: Financial Profile &amp; Jurisdiction</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-                  <div className="text-[10px] text-[#9D8BC9] font-mono">Primary Currency</div>
-                  <div className="text-sm font-semibold text-white mt-1">Indian Rupee (INR ₹)</div>
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 04 // JURISDICTION</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Financial Jurisdiction &amp; Standards</h2>
+              <div className="grid grid-cols-2 gap-4 font-mono text-xs">
+                <div className="p-4 border border-[#101010] bg-[#F0EDE5]">
+                  <div className="text-[10px] text-[#85827B] uppercase">Reporting Currency</div>
+                  <div className="text-sm font-semibold text-[#101010] mt-1">Indian Rupee (INR ₹)</div>
                 </div>
-                <div className="p-4 rounded-xl bg-[#0B0F19] border border-[#1E293B]">
-                  <div className="text-[10px] text-[#9D8BC9] font-mono">Tax Jurisdiction</div>
-                  <div className="text-sm font-semibold text-white mt-1">India (DPDP Compliant)</div>
+                <div className="p-4 border border-[#101010] bg-[#F0EDE5]">
+                  <div className="text-[10px] text-[#85827B] uppercase">Statutory Standard</div>
+                  <div className="text-sm font-semibold text-[#101010] mt-1">India (DPDP Compliant)</div>
                 </div>
               </div>
             </div>
@@ -166,17 +167,18 @@ export default function OnboardingPage() {
 
           {currentStep === 5 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 5: Create Family Trust Workspace</h2>
-              <p className="text-xs text-[#9D8BC9] font-light">
-                Enter the name of your family holdings or trust entity to invite members and manage joint holdings.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 05 // FAMILY TRUST</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Register Family Trust Entity</h2>
+              <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+                Designate the legal name of your family trust, holding company, or multi-generational estate.
               </p>
-              <div>
-                <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Family Workspace Title</label>
+              <div className="font-mono text-xs">
+                <label className="block text-[#85827B] uppercase text-[10px] mb-1">Entity / Trust Title</label>
                 <input
                   type="text"
                   value={familyName}
                   onChange={(e) => setFamilyName(e.target.value)}
-                  className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                 />
               </div>
             </div>
@@ -184,17 +186,18 @@ export default function OnboardingPage() {
 
           {currentStep === 6 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 6: Invite Family Members</h2>
-              <p className="text-xs text-[#9D8BC9] font-light">
-                Optionally invite your spouse, children, or trusted CA. You can assign them Member or Advisor roles.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 06 // ENROLLMENT</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Enroll Trustees &amp; Beneficiaries</h2>
+              <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+                Optionally enroll your spouse, adult heirs, or chartered accountant with specific access roles.
               </p>
-              <div>
-                <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Spouse or Member Email</label>
+              <div className="font-mono text-xs">
+                <label className="block text-[#85827B] uppercase text-[10px] mb-1">Beneficiary Email Address</label>
                 <input
                   type="email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                  className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                 />
               </div>
             </div>
@@ -202,27 +205,28 @@ export default function OnboardingPage() {
 
           {currentStep === 7 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 7: Record Your First Wealth Asset</h2>
-              <p className="text-xs text-[#9D8BC9] font-light">
-                Add an initial real estate holding, mutual fund portfolio, or company shareholding.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 07 // CAPITAL INVENTORY</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Log Primary Capital Instrument</h2>
+              <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+                Register an anchor real estate property, Demat folio, or corporate shareholding.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Asset Description</label>
+                  <label className="block text-[#85827B] uppercase text-[10px] mb-1">Asset Description</label>
                   <input
                     type="text"
                     value={assetName}
                     onChange={(e) => setAssetName(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Estimated Value (₹)</label>
+                  <label className="block text-[#85827B] uppercase text-[10px] mb-1">Certified Valuation (₹)</label>
                   <input
                     type="number"
                     value={assetValue}
                     onChange={(e) => setAssetValue(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                   />
                 </div>
               </div>
@@ -231,27 +235,28 @@ export default function OnboardingPage() {
 
           {currentStep === 8 && (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Step 8: Liabilities &amp; Facilities</h2>
-              <p className="text-xs text-[#9D8BC9] font-light">
-                Record any active home mortgage or business term loans to calculate accurate net worth.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 08 // DEBT REGISTER</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Record Credit Liabilities</h2>
+              <p className="font-sans text-xs text-[#85827B] leading-relaxed">
+                Log home mortgages or credit lines to ensure exact net worth calculation.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono text-xs">
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Facility Name</label>
+                  <label className="block text-[#85827B] uppercase text-[10px] mb-1">Facility Description</label>
                   <input
                     type="text"
                     value={liabilityName}
                     onChange={(e) => setLiabilityName(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#9D8BC9] mb-1">Outstanding Balance (₹)</label>
+                  <label className="block text-[#85827B] uppercase text-[10px] mb-1">Outstanding Principal (₹)</label>
                   <input
                     type="number"
                     value={liabilityBalance}
                     onChange={(e) => setLiabilityBalance(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#1E293B] rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-[#7C3AED]"
+                    className="w-full bg-[#FAF9F6] border border-[#101010] px-3.5 py-2.5 text-[#101010] focus:outline-none"
                   />
                 </div>
               </div>
@@ -259,48 +264,50 @@ export default function OnboardingPage() {
           )}
 
           {currentStep === 9 && (
-            <div className="space-y-4 text-center py-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#1E1035] border border-[#3E236E] flex items-center justify-center text-[#A78BFA] mx-auto">
+            <div className="space-y-4 text-center py-6">
+              <div className="w-12 h-12 bg-[#101010] text-[#F0EDE5] border border-[#101010] flex items-center justify-center mx-auto">
                 <Lock className="w-6 h-6" />
               </div>
-              <h2 className="text-lg font-semibold text-white">Step 9: Encrypted Family Vault Initialized</h2>
-              <p className="text-xs text-[#9D8BC9] max-w-md mx-auto font-light leading-relaxed">
-                Your private vault is provisioned with client-side envelope encryption and signed download links. You can upload title deeds and ITR statements from the dashboard.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 09 // VAULT ENCRYPTION</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Encrypted Archive Provisioned</h2>
+              <p className="font-sans text-xs text-[#85827B] max-w-md mx-auto leading-relaxed">
+                Your private vault is active with hardware-backed encryption keys. You may upload registered sale deeds and CAMS statements from the main console.
               </p>
             </div>
           )}
 
           {currentStep === 10 && (
-            <div className="space-y-4 text-center py-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#1E1035] flex items-center justify-center text-white mx-auto shadow-lg shadow-[#7C3AED]/30">
+            <div className="space-y-4 text-center py-6">
+              <div className="w-12 h-12 bg-[#263B35] text-[#FAF9F6] border border-[#101010] flex items-center justify-center mx-auto">
                 <PieChart className="w-6 h-6" />
               </div>
-              <h2 className="text-lg font-semibold text-white">Step 10: Living Wealth OS Ready</h2>
-              <p className="text-xs text-[#9D8BC9] max-w-md mx-auto font-light leading-relaxed">
-                Congratulations, {fullName}! Your family holdings, deterministic calculation engine, and AI assistant are fully synchronized.
+              <div className="font-mono text-[10px] text-[#85827B] uppercase tracking-widest">PHASE 10 // OPERATIONAL</div>
+              <h2 className="font-serif text-2xl text-[#101010]">Living Financial System Ready</h2>
+              <p className="font-sans text-xs text-[#85827B] max-w-md mx-auto leading-relaxed">
+                Welcome to PROVENTA, {fullName}. All 10 modules, the deterministic integer paise engine, and 6 intelligence agents are now active.
               </p>
             </div>
           )}
 
           {/* Navigation Controls */}
-          <div className="pt-6 border-t border-[#1E293B] flex items-center justify-between">
+          <div className="pt-6 border-t border-[#101010] flex items-center justify-between font-mono text-xs">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={prevStep}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-medium text-[#9D8BC9] hover:text-white"
+                className="px-4 py-2.5 border border-[#101010] uppercase text-[#101010] hover:bg-[#F0EDE5] transition-colors flex items-center gap-1.5"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Previous</span>
+                <span>Previous Phase</span>
               </button>
             ) : <div />}
 
             <button
               type="button"
               onClick={nextStep}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider text-white bg-[#7C3AED] hover:bg-[#8B5CF6] transition-all shadow-md shadow-[#7C3AED]/25"
+              className="px-6 py-2.5 bg-[#101010] text-[#F0EDE5] hover:bg-[#263B35] uppercase tracking-wider font-semibold border border-[#101010] transition-colors flex items-center gap-2"
             >
-              <span>{currentStep === 10 ? 'Enter Living Console' : 'Continue'}</span>
+              <span>{currentStep === 10 ? 'Enter Living Console' : 'Proceed to Next Phase'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

@@ -29,19 +29,19 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — Business without limits. | Complete Business Discovery Platform',
+    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | The Wealth Institution',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — Business without limits. The complete business discovery and opportunity platform. Discover. Connect. Collaborate. Grow. Every Business. One Place.',
+    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. The independent family financial infrastructure and private wealth operating system. Consolidated net worth, asset registers, encrypted family vault, and private wealth intelligence.',
   keywords: [
     'PROVENTA',
-    'Business without limits',
-    'business discovery platform',
-    'B2B and B2C marketplace India',
-    'verified business storefronts',
-    'products and services directory',
-    'request quotations',
+    'Family Wealth OS',
+    'The Wealth Institution',
+    'Family Financial Infrastructure',
+    'Consolidated Net Worth India',
+    'Private Wealth Intelligence',
+    'Family Office Software',
   ],
   authors: [{ name: 'PROVENTA' }],
   creator: 'PROVENTA',
@@ -51,23 +51,23 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://proventa.in',
     siteName: 'PROVENTA',
-    title: 'PROVENTA — Business without limits.',
+    title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     description:
-      'The complete business discovery and opportunity platform. Discover businesses, products, services, industries, and commercial opportunities.',
+      'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. The independent family financial infrastructure and private wealth operating system.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'PROVENTA — Business without limits.',
+        alt: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PROVENTA — Business without limits.',
+    title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     description:
-      'The complete business discovery and opportunity platform. Discover. Connect. Collaborate. Grow.',
+      'The independent family financial infrastructure and private wealth operating system.',
     images: ['/og-image.jpg'],
   },
   robots: {
