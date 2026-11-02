@@ -62,7 +62,7 @@ export function SignUpForm() {
           router.push('/sign-in?registered=true');
         }
       } else {
-        setError(json.error ?? 'Registration failed. Please try again.');
+        setError(json.error || 'Failed to create account.');
       }
     } catch {
       setError('Something went wrong. Please try again.');
@@ -72,10 +72,11 @@ export function SignUpForm() {
   };
 
   const handleCopyKey = () => {
-    if (!generatedAuthKey) return;
-    navigator.clipboard.writeText(generatedAuthKey);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 3000);
+    if (generatedAuthKey) {
+      navigator.clipboard.writeText(generatedAuthKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleProceedToProventa = async () => {
@@ -111,17 +112,6 @@ export function SignUpForm() {
     setOauthLoading('google');
     setError(null);
     try {
-      const statusRes = await fetch('/api/auth/oauth-status');
-      if (statusRes.ok) {
-        const statusData = await statusRes.json();
-        if (!statusData.google) {
-          setError(
-            'Google OAuth is not yet configured in this environment. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to enable Continue with Google.',
-          );
-          setOauthLoading(null);
-          return;
-        }
-      }
       await signIn('google', { callbackUrl: '/dashboard' });
     } catch (err: unknown) {
       setError(
@@ -136,69 +126,70 @@ export function SignUpForm() {
   if (generatedAuthKey) {
     return (
       <div className="space-y-6">
-        <div className="p-6 bg-[#E9DFCC] border border-[#D5CBB8] rounded-[2px] text-center space-y-4">
-          <div className="inline-flex p-3 rounded-[2px] bg-[#171A14] text-[#F6F0E4] mx-auto">
-            <KeyRound className="h-6 w-6 text-[#B94E2D]" />
+        <div className="p-6 bg-[#090B10] border border-[#252C38] rounded-xs text-center space-y-4">
+          <div className="inline-flex p-3 rounded-xs bg-[#171C26] text-[#2457FF] mx-auto border border-[#252C38]">
+            <KeyRound className="h-6 w-6 text-[#2457FF]" />
           </div>
 
           <div className="space-y-1">
-            <h2 className="font-mono text-xs font-medium tracking-[0.18em] uppercase text-[#181914]">
+            <h2 className="font-heading font-bold text-sm tracking-widest uppercase text-[#F4F6FA]">
               YOUR PROVENTA AUTHENTICATION KEY
             </h2>
-            <p className="text-xs text-[#5C584F]">
-              Your unique account authentication key has been generated.
+            <p className="text-xs text-[#858D9B]">
+              Your unique account key for emergency vault recovery.
             </p>
           </div>
 
-          <div className="p-4 bg-[#FBF8F1] border border-[#181914] rounded-[2px] text-lg sm:text-xl font-mono font-semibold tracking-[0.18em] text-[#181914] select-all break-all">
+          <div className="p-3 bg-[#171C26] border border-[#252C38] rounded-xs font-mono text-sm tracking-wider break-all text-[#F4F6FA] select-all">
             {generatedAuthKey}
           </div>
-
-          <p className="text-xs text-[#5C584F] leading-relaxed max-w-sm mx-auto">
-            Save this key securely. You will need it when signing in with email and password.
-          </p>
 
           <button
             type="button"
             onClick={handleCopyKey}
-            className="btn-secondary py-2 px-4"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-[#252C38] bg-[#090B10] hover:bg-[#171C26] text-xs font-mono uppercase tracking-wider text-[#C5CAD3] rounded-xs transition-colors"
           >
             {copied ? (
               <>
-                <Check className="h-4 w-4 text-[#B94E2D]" />
+                <Check className="h-3.5 w-3.5 text-[#2457FF]" />
                 <span>Copied to Clipboard</span>
               </>
             ) : (
               <>
-                <Copy className="h-4 w-4" />
+                <Copy className="h-3.5 w-3.5" />
                 <span>Copy Key</span>
               </>
             )}
           </button>
         </div>
 
-        <div className="space-y-4 pt-2">
-          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#181914] font-medium p-3 bg-[#FBF8F1] border border-[#D5CBB8] rounded-[2px]">
+        <div className="space-y-4">
+          <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={keyConfirmed}
               onChange={(e) => setKeyConfirmed(e.target.checked)}
-              className="mt-0.5 accent-[#B94E2D]"
+              className="mt-1 h-4 w-4 accent-[#2457FF] rounded-xs"
             />
-            <span className="leading-relaxed">
-              I have safely copied and stored my Proventa Authentication Key.
+            <span className="text-xs text-[#C5CAD3]">
+              I have safely copied and stored my Authentication Key in my records.
             </span>
           </label>
 
           <button
             type="button"
-            disabled={!keyConfirmed || entering}
             onClick={handleProceedToProventa}
-            className="btn-terracotta w-full"
+            disabled={!keyConfirmed || entering}
+            className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {entering && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>{entering ? 'Entering PROVENTA...' : 'Continue to Dashboard'}</span>
-            {!entering && <ArrowRight className="h-4 w-4" />}
+            {entering ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <span>Enter Family Wealth Cockpit</span>
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -210,22 +201,22 @@ export function SignUpForm() {
       {error && (
         <div
           role="alert"
-          className="p-3.5 bg-[#B94E2D]/10 border border-[#B94E2D] rounded-[2px] text-xs text-[#8E3519] font-medium"
+          className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
         >
           {error}
         </div>
       )}
 
-      {/* Primary OAuth Action: Continue with Google */}
+      {/* Primary Action: Continue with Google */}
       <div>
         <button
           type="button"
           onClick={handleGoogleSignUp}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#181914] rounded-[2px] bg-[#FBF8F1] hover:bg-[#E9DFCC] text-xs font-mono font-medium uppercase tracking-[0.14em] text-[#181914] transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#252C38] rounded-xs bg-[#F4F6FA] hover:bg-white text-xs font-heading font-bold uppercase tracking-wider text-[#090B10] transition-all shadow-sm disabled:opacity-50"
         >
           {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#181914]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#090B10]" />
           ) : (
             <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -251,139 +242,83 @@ export function SignUpForm() {
       </div>
 
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#D5CBB8] w-full" />
-        <span className="bg-[#F5F0E5] px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] absolute">
-          Or register with email
+        <div className="border-t border-[#252C38] w-full" />
+        <span className="bg-[#171C26] px-3 font-mono text-[10px] uppercase tracking-widest text-[#858D9B] absolute">
+          Or create account with email
         </span>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <label
-            htmlFor="name"
-            className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5"
-          >
+        <div className="space-y-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
             Full Name
           </label>
           <input
-            id="name"
-            type="text"
-            autoComplete="name"
-            className="input-enterprise"
-            placeholder="Your full name"
             {...register('name')}
+            type="text"
+            placeholder="Rajesh Sharma"
+            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
           />
           {errors.name && (
-            <p className="mt-1 text-xs text-[#B94E2D]">{errors.name.message}</p>
+            <p className="text-xs text-[#FF7A70]">{errors.name.message}</p>
           )}
         </div>
 
-        <div>
-          <label
-            htmlFor="email"
-            className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5"
-          >
+        <div className="space-y-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
             Email Address
           </label>
           <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            className="input-enterprise"
-            placeholder="you@domain.com"
             {...register('email')}
+            type="email"
+            placeholder="rajesh@sharmafamily.in"
+            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
           />
           {errors.email && (
-            <p className="mt-1 text-xs text-[#B94E2D]">{errors.email.message}</p>
+            <p className="text-xs text-[#FF7A70]">{errors.email.message}</p>
           )}
         </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5"
-          >
+        <div className="space-y-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
             Password
           </label>
           <input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            className="input-enterprise"
             {...register('password')}
+            type="password"
+            placeholder="••••••••••••"
+            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
           />
           {errors.password && (
-            <p className="mt-1 text-xs text-[#B94E2D]">{errors.password.message}</p>
+            <p className="text-xs text-[#FF7A70]">{errors.password.message}</p>
           )}
-          <p className="text-[11px] text-[#5C584F] mt-1">
-            Minimum 8 characters with uppercase, lowercase &amp; numbers.
-          </p>
         </div>
 
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5"
-          >
+        <div className="space-y-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
             Confirm Password
           </label>
           <input
-            id="confirmPassword"
-            type="password"
-            autoComplete="new-password"
-            className="input-enterprise"
             {...register('confirmPassword')}
+            type="password"
+            placeholder="••••••••••••"
+            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
           />
           {errors.confirmPassword && (
-            <p className="mt-1 text-xs text-[#B94E2D]">
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-
-        <div className="pt-2 border-t border-[#D5CBB8] space-y-1">
-          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#5C584F]">
-            <input
-              type="checkbox"
-              required
-              {...register('termsConsent', {
-                required:
-                  'You must agree to the Terms of Service and Privacy Policy to continue.',
-              })}
-              className="mt-0.5 accent-[#B94E2D]"
-            />
-            <span className="leading-relaxed">
-              I agree to the{' '}
-              <Link
-                href="/legal/terms"
-                className="font-semibold text-[#181914] underline hover:text-[#B94E2D]"
-              >
-                Terms of Service
-              </Link>{' '}
-              and acknowledge the{' '}
-              <Link
-                href="/legal/privacy"
-                className="font-semibold text-[#181914] underline hover:text-[#B94E2D]"
-              >
-                Privacy Policy
-              </Link>
-              .
-            </span>
-          </label>
-          {errors.termsConsent && (
-            <p className="text-xs text-[#B94E2D]">{errors.termsConsent.message}</p>
+            <p className="text-xs text-[#FF7A70]">{errors.confirmPassword.message}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="btn-terracotta w-full"
+          className="w-full py-3 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          <span>
-            {loading ? 'Creating Account...' : 'Create Account'}
-          </span>
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <span>Create Encrypted Account</span>
+          )}
         </button>
       </form>
     </div>

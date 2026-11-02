@@ -3,9 +3,9 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA — Business without limits.',
+  title: 'Sign In | PROVENTA — Family Wealth OS',
   description:
-    'Sign in to PROVENTA to manage your customer enquiries, quotations, or business storefront.',
+    'Sign in to your PROVENTA Family Wealth OS command cockpit with Google or your credentials.',
 };
 
 function getAuthErrorMessage(errorCode?: string): string | null {
@@ -14,7 +14,7 @@ function getAuthErrorMessage(errorCode?: string): string | null {
     case 'AccessDenied':
       return 'Google sign-in was cancelled or access was denied.';
     case 'OAuthAccountNotLinked':
-      return 'This email is already registered under an existing account that cannot be automatically linked. Please sign in with your email, password, and Authentication Key.';
+      return 'This email is already registered under an existing account. Please sign in with your email and password to link Google.';
     case 'unverified_oauth_email':
       return 'Your Google account email address must be verified before signing in.';
     case 'account_suspended':
@@ -45,65 +45,70 @@ export default async function SignInPage({
   const errorMessage = getAuthErrorMessage(params.error);
 
   return (
-    <div className="min-h-screen bg-[#171A14] text-[#F6F0E4] flex items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#2457FF] selection:text-white">
+      <div className="w-full max-w-md space-y-8">
         {/* Architectural Header */}
-        <div className="mb-8 text-center">
-          <Link href="/" className="inline-block">
-            <span className="font-serif text-3xl tracking-[0.18em] uppercase text-[#F6F0E4] hover:text-[#B94E2D] transition-colors">
+        <div className="text-center space-y-2">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#2457FF] text-[#F4F6FA] flex items-center justify-center font-heading font-black text-lg rounded-xs shadow-md">
+              P
+            </div>
+            <span className="font-heading text-2xl tracking-[0.1em] uppercase font-black text-[#F4F6FA]">
               PROVENTA
             </span>
           </Link>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#A98253]">
-            Business without limits. · Every Business. One Place.
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#858D9B]">
+            Family Wealth OS · One Living System
           </p>
         </div>
 
-        {(params.verified || params.registered) && (
-          <div className="mb-6 p-4 bg-[#20211C] border border-[#A98253] rounded-[2px] text-xs text-[#E9DFCC] font-mono">
-            Account activated. You can now sign in with Google or your credentials.
+        {params.verified && (
+          <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#F4F6FA] font-mono text-center">
+            Account verified. Sign in with Google or your credentials.
           </div>
         )}
 
         {errorMessage && (
           <div
             role="alert"
-            className="mb-6 p-4 bg-[#B94E2D]/20 border border-[#B94E2D] rounded-[2px] text-xs text-[#F6F0E4]"
+            className="p-4 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-mono text-center"
           >
             {errorMessage}
           </div>
         )}
 
-        {/* Warm Ivory Auth Card */}
-        <div className="rounded-[2px] border border-[#D5CBB8] bg-[#F5F0E5] text-[#181914] p-8 shadow-elevated">
-          <div className="mb-6 pb-4 border-b border-[#D5CBB8]">
-            <h1 className="font-display text-3xl text-[#181914]">
-              Sign In to PROVENTA
+        {/* Clean Auth Card */}
+        <div className="rounded-xs border border-[#252C38] bg-[#171C26] p-8 shadow-2xl space-y-6">
+          <div className="border-b border-[#252C38] pb-4">
+            <h1 className="font-heading font-black text-2xl uppercase tracking-tight text-[#F4F6FA]">
+              Sign In
             </h1>
-            <p className="text-xs text-[#5C584F] mt-1">
-              Access your customer enquiry workspace or business storefront console.
+            <p className="text-xs text-[#C5CAD3] mt-1">
+              Access your family balance sheet, encrypted vault, and wealth cockpits.
             </p>
           </div>
+
           <SignInForm callbackUrl={params.callbackUrl} />
         </div>
 
-        <div className="mt-6 rounded-[2px] border border-[#4C4A40] bg-[#20211C] p-4 font-mono text-xs text-[#E9DFCC] space-y-2">
+        {/* Bottom Registration & Demo Switcher */}
+        <div className="rounded-xs border border-[#252C38] bg-[#171C26]/60 p-4 font-mono text-xs text-[#C5CAD3] space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-[#A7A194]">NEW TO PROVENTA?</span>
+            <span className="text-[#858D9B]">NEW TO PROVENTA?</span>
             <Link
               href="/sign-up"
-              className="text-[#B94E2D] hover:underline font-medium"
+              className="text-[#2457FF] hover:underline font-bold"
             >
               CREATE ACCOUNT →
             </Link>
           </div>
-          <div className="flex items-center justify-between pt-2 border-t border-[#4C4A40]">
-            <span className="text-[#A7A194]">LISTING A BUSINESS?</span>
+          <div className="flex items-center justify-between pt-2 border-t border-[#252C38]">
+            <span className="text-[#858D9B]">EXPLORE PLATFORM?</span>
             <Link
-              href="/business/register"
-              className="text-[#F6F0E4] hover:text-[#B94E2D] hover:underline font-medium"
+              href="/dashboard"
+              className="text-[#F4F6FA] hover:text-[#2457FF] transition-colors font-medium"
             >
-              REGISTER STOREFRONT →
+              LAUNCH LIVE DEMO →
             </Link>
           </div>
         </div>

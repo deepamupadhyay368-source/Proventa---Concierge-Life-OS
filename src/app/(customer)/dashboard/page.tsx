@@ -23,12 +23,11 @@ import {
   Sparkles,
   Orbit,
   ExternalLink,
-  Compass,
 } from 'lucide-react';
 import { NetWorthSummary, AIInsightObservation } from '@/lib/wealth/types';
 import { LivingWealthGraph } from '@/components/wealth/universe/LivingWealthGraph';
 import { FinancialUniverse } from '@/components/wealth/universe/FinancialUniverse';
-import { ProventaObject, TimeLandscapes } from '@/components/wealth/art';
+import { TimeLandscapes } from '@/components/wealth/art/TimeLandscapes';
 
 export default function FamilyWealthDashboard() {
   const [telemetry, setTelemetry] = useState<NetWorthSummary | null>(null);
@@ -65,15 +64,15 @@ export default function FamilyWealthDashboard() {
 
   if (loading && !telemetry) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[500px] border border-[#B9C1CC]/20 bg-[#171B23] p-12 rounded-sm shadow-md">
-        <div className="w-12 h-12 bg-[#2457E8] text-[#F4F2ED] flex items-center justify-center font-heading font-black text-lg rounded-xs shadow-lg shadow-[#2457E8]/20 animate-pulse mb-4">
+      <div className="flex flex-col items-center justify-center min-h-[500px] border border-[#252C38] bg-[#171C26] p-12 rounded-xs shadow-md">
+        <div className="w-12 h-12 bg-[#2457FF] text-[#F4F6FA] flex items-center justify-center font-heading font-black text-lg rounded-xs shadow-lg animate-pulse mb-4">
           P
         </div>
-        <div className="font-mono text-xs uppercase tracking-[0.25em] text-[#F4F2ED] font-bold">
-          SYNTHESIZING LIVING FINANCIAL UNIVERSE
+        <div className="font-mono text-xs uppercase tracking-widest text-[#F4F6FA] font-bold">
+          LOADING LIVING FINANCIAL UNIVERSE
         </div>
-        <div className="font-mono text-[11px] text-[#A9D8F5] mt-2 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#2457E8] animate-ping" />
+        <div className="font-mono text-[11px] text-[#7595FF] mt-2 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-[#2457FF] animate-ping" />
           <span>Sharma Family Trust &amp; Holdings [FWS-001]</span>
         </div>
       </div>
@@ -145,35 +144,35 @@ export default function FamilyWealthDashboard() {
   ];
 
   return (
-    <div className="space-y-8 text-[#F4F2ED]">
-      {/* 1. LIVING FINANCIAL UNIVERSE COCKPIT OPENING */}
-      <div className="bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm shadow-md overflow-hidden">
-        {/* Top Identification Header */}
-        <div className="p-6 border-b border-[#B9C1CC]/15 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#171B23]">
+    <div className="space-y-8 text-[#F4F6FA]">
+      {/* 1. FINANCIAL COCKPIT OVERVIEW */}
+      <div className="bg-[#171C26] border border-[#252C38] rounded-xs shadow-md overflow-hidden">
+        {/* Top Header */}
+        <div className="p-6 border-b border-[#252C38] flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[#B9C1CC]/70">
-              <span className="text-[#F4F2ED] font-bold">PROVENTA</span>
-              <span className="text-[#B9C1CC]/30">/</span>
-              <span className="text-[#2457E8] font-bold">EXPERIMENTAL DIGITAL ART</span>
-              <span className="text-[#B9C1CC]/30">/</span>
-              <span className="text-[#A9D8F5] flex items-center gap-1.5 font-bold">
-                <span className="w-2 h-2 bg-[#2457E8] rounded-full animate-ping" />
-                SYSTEM ACTIVE
+            <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[#858D9B]">
+              <span className="text-[#F4F6FA] font-bold">PROVENTA</span>
+              <span className="text-[#252C38]">/</span>
+              <span className="text-[#2457FF] font-bold">FAMILY COCKPIT</span>
+              <span className="text-[#252C38]">/</span>
+              <span className="text-[#7595FF] flex items-center gap-1.5 font-bold">
+                <span className="w-1.5 h-1.5 bg-[#2457FF] rounded-full animate-ping" />
+                ACTIVE
               </span>
             </div>
-            <h1 className="font-heading text-2xl sm:text-4xl text-[#F4F2ED] uppercase font-black tracking-tight mt-1.5">
+            <h1 className="font-heading text-2xl sm:text-4xl text-[#F4F6FA] uppercase font-black tracking-tight mt-1.5">
               Financial Command Cockpit
             </h1>
           </div>
 
           {/* Member Scope Switcher */}
-          <div className="flex flex-wrap items-center gap-1.5 border border-[#B9C1CC]/20 p-1 bg-[#080A0F] rounded-xs shadow-inner">
+          <div className="flex flex-wrap items-center gap-1.5 border border-[#252C38] p-1 bg-[#090B10] rounded-xs">
             <button
               onClick={() => setSelectedUserFilter('CONSOLIDATED')}
               className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
                 selectedUserFilter === 'CONSOLIDATED'
-                  ? 'bg-[#2457E8] text-[#F4F2ED] font-bold shadow-sm'
-                  : 'text-[#B9C1CC] hover:text-[#F4F2ED] hover:bg-[#171B23]'
+                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
+                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
               }`}
             >
               Consolidated Family
@@ -182,8 +181,8 @@ export default function FamilyWealthDashboard() {
               onClick={() => setSelectedUserFilter('usr_rajesh_sharma')}
               className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
                 selectedUserFilter === 'usr_rajesh_sharma'
-                  ? 'bg-[#2457E8] text-[#F4F2ED] font-bold shadow-sm'
-                  : 'text-[#B9C1CC] hover:text-[#F4F2ED] hover:bg-[#171B23]'
+                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
+                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
               }`}
             >
               Rajesh (Self)
@@ -192,8 +191,8 @@ export default function FamilyWealthDashboard() {
               onClick={() => setSelectedUserFilter('usr_sunita_sharma')}
               className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
                 selectedUserFilter === 'usr_sunita_sharma'
-                  ? 'bg-[#2457E8] text-[#F4F2ED] font-bold shadow-sm'
-                  : 'text-[#B9C1CC] hover:text-[#F4F2ED] hover:bg-[#171B23]'
+                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
+                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
               }`}
             >
               Sunita (Spouse)
@@ -202,8 +201,8 @@ export default function FamilyWealthDashboard() {
               onClick={() => setSelectedUserFilter('usr_aarav_sharma')}
               className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
                 selectedUserFilter === 'usr_aarav_sharma'
-                  ? 'bg-[#2457E8] text-[#F4F2ED] font-bold shadow-sm'
-                  : 'text-[#B9C1CC] hover:text-[#F4F2ED] hover:bg-[#171B23]'
+                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
+                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
               }`}
             >
               Aarav (Child)
@@ -211,127 +210,124 @@ export default function FamilyWealthDashboard() {
           </div>
         </div>
 
-        {/* Prominent Living Net Worth Odometer with 3D Object Emblem */}
-        <div className="p-8 sm:p-10 border-b border-[#B9C1CC]/15 bg-gradient-to-br from-[#080A0F] via-[#171B23] to-[#080A0F] relative overflow-hidden">
-          {/* Subtle background glow */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#2457E8]/10 rounded-full blur-[80px] pointer-events-none" />
-
+        {/* Net Worth Odometer */}
+        <div className="p-8 sm:p-10 border-b border-[#252C38] bg-[#090B10] relative overflow-hidden">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
             <div>
-              <div className="font-mono text-xs uppercase tracking-[0.2em] text-[#2457E8] font-bold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#2457E8] animate-pulse" />
+              <div className="font-mono text-xs uppercase tracking-widest text-[#2457FF] font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#2457FF] animate-pulse" />
                 <span>
                   {selectedUserFilter === 'CONSOLIDATED'
                     ? 'TOTAL CONSOLIDATED FAMILY NET WORTH'
                     : 'OWNERSHIP-ADJUSTED BENEFICIAL NET WORTH'}
                 </span>
               </div>
-              <div className="font-heading font-black text-5xl sm:text-7xl lg:text-8xl tracking-tight text-[#F4F2ED] mt-3 leading-none">
+              <div className="font-heading font-black text-5xl sm:text-7xl lg:text-8xl tracking-tight text-[#F4F6FA] mt-3 leading-none">
                 {selectedUserFilter === 'CONSOLIDATED'
                   ? telemetry.formattedGrossNetWorth
                   : telemetry.formattedAdjustedNetWorth}
               </div>
-              <div className="font-mono text-xs text-[#B9C1CC]/70 mt-3 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#D5A85D]" />
+              <div className="font-mono text-xs text-[#858D9B] mt-3 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#2457FF]" />
                 Zero estimation drift • Integer paise precision math • 100% Verified across all 13 family registries
               </div>
             </div>
 
-            <div className="flex flex-col items-start lg:items-end gap-3 border-t lg:border-t-0 pt-4 lg:pt-0 border-[#B9C1CC]/15">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#171B23] border border-[#2457E8]/50 text-[#A9D8F5] font-mono text-xs uppercase tracking-wider rounded-xs">
-                <TrendingUp className="w-4 h-4 text-[#2457E8]" />
+            <div className="flex flex-col items-start lg:items-end gap-3 border-t lg:border-t-0 pt-4 lg:pt-0 border-[#252C38]">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#171C26] border border-[#252C38] text-[#7595FF] font-mono text-xs uppercase tracking-wider rounded-xs">
+                <TrendingUp className="w-4 h-4 text-[#2457FF]" />
                 <span className="font-bold">+14.2% Trailing 12M Trajectory</span>
               </div>
-              <div className="font-mono text-[11px] text-[#B9C1CC]/60">
-                Snapshot Date: {new Date(telemetry.calculatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+              <div className="font-mono text-[11px] text-[#858D9B]">
+                Snapshot: {new Date(telemetry.calculatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
               </div>
             </div>
           </div>
         </div>
 
-        {/* 4-Part Dimensional Ledger */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#B9C1CC]/15 bg-[#171B23]">
+        {/* 4-Pillar Summary Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#252C38] bg-[#171C26]">
           {/* 01: Gross Assets */}
-          <div className="p-6 space-y-2 hover:bg-[#252C38]/40 transition-colors">
-            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#B9C1CC]/70">
+          <div className="p-6 space-y-2 hover:bg-[#252C38]/30 transition-colors">
+            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#858D9B]">
               <span>01 // TOTAL ASSETS</span>
-              <Coins className="w-4 h-4 text-[#2457E8]" />
+              <Coins className="w-4 h-4 text-[#2457FF]" />
             </div>
-            <div className="font-heading font-black text-2xl text-[#F4F2ED]">
+            <div className="font-heading font-black text-2xl text-[#F4F6FA]">
               {telemetry.formattedGrossAssets}
             </div>
-            <div className="font-mono text-[11px] text-[#A9D8F5]">
+            <div className="font-mono text-[11px] text-[#7595FF]">
               Real estate, securities, bullion
             </div>
           </div>
 
           {/* 02: Total Liabilities */}
-          <div className="p-6 space-y-2 hover:bg-[#252C38]/40 transition-colors">
-            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#B9C1CC]/70">
-              <span>02 // TOTAL LIABILITIES</span>
-              <CreditCard className="w-4 h-4 text-[#D5A85D]" />
+          <div className="p-6 space-y-2 hover:bg-[#252C38]/30 transition-colors">
+            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#858D9B]">
+              <span>02 // TOTAL DEBT</span>
+              <CreditCard className="w-4 h-4 text-[#FF7A70]" />
             </div>
-            <div className="font-heading font-black text-2xl text-[#D5A85D]">
+            <div className="font-heading font-black text-2xl text-[#FF7A70]">
               {telemetry.formattedGrossLiabilities}
             </div>
-            <div className="font-mono text-[11px] text-[#B9C1CC]/70">
+            <div className="font-mono text-[11px] text-[#858D9B]">
               Term debt, lines of credit
             </div>
           </div>
 
           {/* 03: Cashflow Velocity */}
-          <div className="p-6 space-y-2 hover:bg-[#252C38]/40 transition-colors">
-            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#B9C1CC]/70">
+          <div className="p-6 space-y-2 hover:bg-[#252C38]/30 transition-colors">
+            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#858D9B]">
               <span>03 // NET CHANGE (30D)</span>
-              <ArrowLeftRight className="w-4 h-4 text-[#2457E8]" />
+              <ArrowLeftRight className="w-4 h-4 text-[#2457FF]" />
             </div>
-            <div className="font-heading font-black text-2xl text-[#F4F2ED]">
+            <div className="font-heading font-black text-2xl text-[#F4F6FA]">
               {telemetry.formattedMonthlyChange}
             </div>
-            <div className="font-mono text-[11px] text-[#A9D8F5]">
+            <div className="font-mono text-[11px] text-[#7595FF]">
               +{telemetry.monthlyGrowthPercentage}% monthly velocity
             </div>
           </div>
 
           {/* 04: Active Vault Documents */}
-          <div className="p-6 space-y-2 hover:bg-[#252C38]/40 transition-colors">
-            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#B9C1CC]/70">
-              <span>04 // ENCRYPTED INSTRUMENTS</span>
-              <Lock className="w-4 h-4 text-[#2457E8]" />
+          <div className="p-6 space-y-2 hover:bg-[#252C38]/30 transition-colors">
+            <div className="flex items-center justify-between font-mono text-xs uppercase tracking-wider text-[#858D9B]">
+              <span>04 // ENCRYPTED DEEDS</span>
+              <Lock className="w-4 h-4 text-[#2457FF]" />
             </div>
-            <div className="font-heading font-black text-2xl text-[#F4F2ED]">
-              {telemetry.totalAssetsCount} Registered Deeds
+            <div className="font-heading font-black text-2xl text-[#F4F6FA]">
+              {telemetry.totalAssetsCount} Deeds
             </div>
-            <div className="font-mono text-[11px] text-[#B9C1CC]/70">
+            <div className="font-mono text-[11px] text-[#858D9B]">
               AES-GCM-256 Air-Gapped
             </div>
           </div>
         </div>
       </div>
 
-      {/* 2. LIVING WEALTH GRAPH & ORBITAL TOPOLOGY */}
+      {/* 2. LIVING WEALTH GRAPH & CONTROLS */}
       <div className="space-y-4">
         <LivingWealthGraph />
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-[#171C26] border border-[#252C38] rounded-xs">
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowUniverseTopology(!showUniverseTopology)}
-              className="inline-flex items-center gap-2 px-4 py-2 font-mono text-xs uppercase tracking-wider bg-[#080A0F] text-[#F4F2ED] hover:bg-[#252C38] border border-[#B9C1CC]/30 rounded-xs transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 font-mono text-xs uppercase tracking-wider bg-[#090B10] text-[#F4F6FA] hover:bg-[#252C38] border border-[#252C38] rounded-xs transition-colors"
             >
-              <Orbit className="w-3.5 h-3.5 text-[#2457E8]" />
-              <span>{showUniverseTopology ? 'Hide Orbital Universe Topology' : 'Expand Interactive Orbital Topology (System 02)'}</span>
+              <Orbit className="w-3.5 h-3.5 text-[#2457FF]" />
+              <span>{showUniverseTopology ? 'Hide Orbital Topology' : 'Interactive Orbital Topology'}</span>
             </button>
             <button
               onClick={() => setShowTimeLandscapes(!showTimeLandscapes)}
-              className="inline-flex items-center gap-2 px-4 py-2 font-mono text-xs uppercase tracking-wider bg-[#080A0F] text-[#F4F2ED] hover:bg-[#252C38] border border-[#B9C1CC]/30 rounded-xs transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 font-mono text-xs uppercase tracking-wider bg-[#090B10] text-[#F4F6FA] hover:bg-[#252C38] border border-[#252C38] rounded-xs transition-colors"
             >
-              <TrendingUp className="w-3.5 h-3.5 text-[#D5A85D]" />
-              <span>{showTimeLandscapes ? 'Hide Time Landscapes' : 'Open 30-Yr Time Landscapes (System 04)'}</span>
+              <TrendingUp className="w-3.5 h-3.5 text-[#2457FF]" />
+              <span>{showTimeLandscapes ? 'Hide Time Landscapes' : '30-Year Time Landscapes'}</span>
             </button>
           </div>
-          <Link href="/family" className="font-mono text-xs text-[#A9D8F5] hover:text-[#F4F2ED]">
-            Open Full Family Governance Matrix →
+          <Link href="/family" className="font-mono text-xs text-[#7595FF] hover:text-white">
+            Open Family Governance Matrix →
           </Link>
         </div>
 
@@ -339,123 +335,123 @@ export default function FamilyWealthDashboard() {
         {showTimeLandscapes && <TimeLandscapes />}
       </div>
 
-      {/* 3. ASSET ALLOCATION & FAMILY OWNERSHIP INDEX */}
+      {/* 3. ASSET ALLOCATION & FAMILY OWNERSHIP */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Asset Class Allocation Matrix (6 cols) */}
-        <div className="lg:col-span-6 bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm shadow-sm flex flex-col justify-between overflow-hidden">
+        <div className="lg:col-span-6 bg-[#171C26] border border-[#252C38] rounded-xs shadow-sm flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="p-6 border-b border-[#B9C1CC]/15 flex items-center justify-between">
+            <div className="p-6 border-b border-[#252C38] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[#2457E8]" />
-                <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F2ED] font-bold">
-                  ASSET CLASS ALLOCATION MATRIX
+                <Layers className="w-4 h-4 text-[#2457FF]" />
+                <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F6FA] font-bold">
+                  ASSET CLASS ALLOCATION
                 </h3>
               </div>
-              <Link href="/assets" className="font-mono text-xs uppercase tracking-wider text-[#A9D8F5] hover:underline">
+              <Link href="/assets" className="font-mono text-xs uppercase tracking-wider text-[#7595FF] hover:underline">
                 View Register →
               </Link>
             </div>
 
             {/* Segmented Proportion Bar */}
-            <div className="p-6 border-b border-[#B9C1CC]/15 bg-[#080A0F]">
-              <div className="h-5 w-full border border-[#B9C1CC]/30 bg-[#171B23] flex overflow-hidden rounded-xs">
+            <div className="p-6 border-b border-[#252C38] bg-[#090B10]">
+              <div className="h-4 w-full border border-[#252C38] bg-[#171C26] flex overflow-hidden rounded-xs">
                 {telemetry.assetAllocation.map((a, idx) => {
                   const bg =
                     idx === 0
-                      ? 'bg-[#2457E8]'
+                      ? 'bg-[#2457FF]'
                       : idx === 1
                       ? 'bg-[#7595FF]'
                       : idx === 2
-                      ? 'bg-[#D5A85D]'
-                      : 'bg-[#B9C1CC]/50';
+                      ? 'bg-[#C5CAD3]'
+                      : 'bg-[#858D9B]';
                   return (
                     <div
                       key={a.category}
                       style={{ width: `${a.percentage}%` }}
-                      className={`${bg} h-full border-r border-[#080A0F] last:border-r-0`}
+                      className={`${bg} h-full border-r border-[#090B10] last:border-r-0`}
                       title={`${a.label}: ${a.percentage}%`}
                     />
                   );
                 })}
               </div>
-              <div className="flex flex-wrap items-center justify-between font-mono text-[11px] text-[#B9C1CC]/70 mt-3">
-                <span className="flex items-center gap-1.5 text-[#2457E8]">
-                  <span className="w-2 h-2 rounded-full bg-[#2457E8]" /> PHYSICAL REALTY
+              <div className="flex flex-wrap items-center justify-between font-mono text-[11px] text-[#858D9B] mt-3">
+                <span className="flex items-center gap-1.5 text-[#2457FF]">
+                  <span className="w-2 h-2 rounded-full bg-[#2457FF]" /> REAL ESTATE
                 </span>
                 <span className="flex items-center gap-1.5 text-[#7595FF]">
                   <span className="w-2 h-2 rounded-full bg-[#7595FF]" /> EQUITIES &amp; DEMAT
                 </span>
-                <span className="flex items-center gap-1.5 text-[#D5A85D]">
-                  <span className="w-2 h-2 rounded-full bg-[#D5A85D]" /> BULLION &amp; TREASURY
+                <span className="flex items-center gap-1.5 text-[#C5CAD3]">
+                  <span className="w-2 h-2 rounded-full bg-[#C5CAD3]" /> BULLION &amp; CASH
                 </span>
               </div>
             </div>
 
             {/* Structured Table */}
-            <div className="divide-y divide-[#B9C1CC]/10">
+            <div className="divide-y divide-[#252C38]">
               {telemetry.assetAllocation.map((alloc, idx) => (
-                <div key={alloc.category} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/40 transition-colors">
+                <div key={alloc.category} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="font-mono text-xs text-[#2457E8] font-bold">0{idx + 1}</span>
+                    <span className="font-mono text-xs text-[#2457FF] font-bold">0{idx + 1}</span>
                     <div>
-                      <div className="font-mono text-xs uppercase tracking-wider font-semibold text-[#F4F2ED]">
+                      <div className="font-mono text-xs uppercase tracking-wider font-semibold text-[#F4F6FA]">
                         {alloc.label}
                       </div>
-                      <div className="font-mono text-[11px] text-[#B9C1CC]/60">
+                      <div className="font-mono text-[11px] text-[#858D9B]">
                         {alloc.count} legal instruments registered
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-heading font-black text-lg text-[#F4F2ED]">{alloc.formattedTotal}</div>
-                    <div className="font-mono text-xs text-[#A9D8F5] font-semibold">{alloc.percentage}% share</div>
+                    <div className="font-heading font-black text-lg text-[#F4F6FA]">{alloc.formattedTotal}</div>
+                    <div className="font-mono text-xs text-[#7595FF] font-semibold">{alloc.percentage}% share</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="p-4 border-t border-[#B9C1CC]/15 bg-[#080A0F] flex items-center justify-between font-mono text-xs">
-            <span className="text-[#B9C1CC]/70">Missing Title Deed Flags:</span>
-            <span className="font-semibold text-[#A9D8F5]">{telemetry.missingInformationCount} Instruments Flagged</span>
+          <div className="p-4 border-t border-[#252C38] bg-[#090B10] flex items-center justify-between font-mono text-xs">
+            <span className="text-[#858D9B]">Missing Title Deed Flags:</span>
+            <span className="font-semibold text-[#7595FF]">{telemetry.missingInformationCount} Instruments Flagged</span>
           </div>
         </div>
 
         {/* Right: Family Ownership Index (6 cols) */}
-        <div className="lg:col-span-6 bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm shadow-sm flex flex-col justify-between overflow-hidden">
+        <div className="lg:col-span-6 bg-[#171C26] border border-[#252C38] rounded-xs shadow-sm flex flex-col justify-between overflow-hidden">
           <div>
-            <div className="p-6 border-b border-[#B9C1CC]/15 flex items-center justify-between">
+            <div className="p-6 border-b border-[#252C38] flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <UserCheck className="w-4 h-4 text-[#2457E8]" />
-                <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F2ED] font-bold">
-                  FAMILY OWNERSHIP &amp; EQUITY INDEX
+                <UserCheck className="w-4 h-4 text-[#2457FF]" />
+                <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F6FA] font-bold">
+                  FAMILY OWNERSHIP INDEX
                 </h3>
               </div>
-              <Link href="/family" className="font-mono text-xs uppercase tracking-wider text-[#A9D8F5] hover:underline">
+              <Link href="/family" className="font-mono text-xs uppercase tracking-wider text-[#7595FF] hover:underline">
                 Governance →
               </Link>
             </div>
 
             {/* Member Table */}
-            <div className="divide-y divide-[#B9C1CC]/10">
+            <div className="divide-y divide-[#252C38]">
               {telemetry.memberShares.map((m) => (
-                <div key={m.memberId} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/40 transition-colors">
+                <div key={m.memberId} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
                   <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 bg-[#080A0F] border border-[#B9C1CC]/30 rounded-xs flex items-center justify-center font-mono text-xs font-bold text-[#A9D8F5]">
+                    <span className="w-8 h-8 bg-[#090B10] border border-[#252C38] rounded-xs flex items-center justify-center font-mono text-xs font-bold text-[#7595FF]">
                       {m.memberName.charAt(0)}
                     </span>
                     <div>
-                      <div className="font-mono text-xs uppercase tracking-wider font-semibold text-[#F4F2ED]">
+                      <div className="font-mono text-xs uppercase tracking-wider font-semibold text-[#F4F6FA]">
                         {m.memberName}
                       </div>
-                      <div className="font-mono text-[11px] text-[#B9C1CC]/60">
+                      <div className="font-mono text-[11px] text-[#858D9B]">
                         Assets: {m.formattedAssetsTotal} · Debt: {m.formattedLiabilitiesTotal}
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="font-heading font-black text-lg text-[#F4F2ED]">{m.formattedNetWorth}</div>
-                    <div className="font-mono text-xs text-[#2457E8] font-bold">
+                    <div className="font-heading font-black text-lg text-[#F4F6FA]">{m.formattedNetWorth}</div>
+                    <div className="font-mono text-xs text-[#2457FF] font-bold">
                       {m.percentageOfFamilyNetWorth}% beneficial share
                     </div>
                   </div>
@@ -464,7 +460,7 @@ export default function FamilyWealthDashboard() {
             </div>
           </div>
 
-          <div className="p-4 border-t border-[#B9C1CC]/15 bg-[#080A0F] font-mono text-[11px] text-[#B9C1CC]/70">
+          <div className="p-4 border-t border-[#252C38] bg-[#090B10] font-mono text-[11px] text-[#858D9B]">
             All percentages calculated directly from registered title deed co-ownership records in the Family Vault.
           </div>
         </div>
@@ -473,36 +469,36 @@ export default function FamilyWealthDashboard() {
       {/* 4. FINANCIAL ACTIVITY & UPCOMING OBLIGATIONS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left: Upcoming Financial Obligations (6 cols) */}
-        <div className="lg:col-span-6 bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-[#B9C1CC]/15 flex items-center justify-between">
+        <div className="lg:col-span-6 bg-[#171C26] border border-[#252C38] rounded-xs shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-[#252C38] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#2457E8]" />
-              <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F2ED] font-bold">
-                UPCOMING FINANCIAL OBLIGATIONS
+              <Calendar className="w-4 h-4 text-[#2457FF]" />
+              <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F6FA] font-bold">
+                UPCOMING OBLIGATIONS
               </h3>
             </div>
-            <Link href="/liabilities" className="font-mono text-xs uppercase tracking-wider text-[#A9D8F5] hover:underline">
+            <Link href="/liabilities" className="font-mono text-xs uppercase tracking-wider text-[#7595FF] hover:underline">
               Amortisation Schedules →
             </Link>
           </div>
 
-          <div className="divide-y divide-[#B9C1CC]/10">
+          <div className="divide-y divide-[#252C38]">
             {upcomingObligations.map((obl) => (
-              <div key={obl.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/40 transition-colors">
+              <div key={obl.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-[#080A0F] text-[#B9C1CC] font-mono text-[10px] uppercase tracking-wider rounded-xs border border-[#B9C1CC]/20">
+                    <span className="px-2 py-0.5 bg-[#090B10] text-[#C5CAD3] font-mono text-[10px] uppercase tracking-wider rounded-xs border border-[#252C38]">
                       {obl.type}
                     </span>
-                    <span className="font-mono text-xs font-semibold text-[#F4F2ED]">{obl.title}</span>
+                    <span className="font-mono text-xs font-semibold text-[#F4F6FA]">{obl.title}</span>
                   </div>
-                  <div className="font-mono text-[11px] text-[#B9C1CC]/60">
-                    Due: <span className="text-[#F4F2ED] font-medium">{obl.dueDate}</span> · Debit from: {obl.account}
+                  <div className="font-mono text-[11px] text-[#858D9B]">
+                    Due: <span className="text-[#F4F6FA] font-medium">{obl.dueDate}</span> · Debit from: {obl.account}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-heading font-black text-base text-[#F4F2ED]">{obl.amountFormatted}</div>
-                  <span className="inline-block mt-0.5 font-mono text-[10px] px-2 py-0.5 bg-[#2457E8]/20 text-[#A9D8F5] border border-[#2457E8]/40 rounded-xs">
+                  <div className="font-heading font-black text-base text-[#F4F6FA]">{obl.amountFormatted}</div>
+                  <span className="inline-block mt-0.5 font-mono text-[10px] px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/30 rounded-xs">
                     {obl.status}
                   </span>
                 </div>
@@ -510,110 +506,69 @@ export default function FamilyWealthDashboard() {
             ))}
           </div>
 
-          <div className="p-4 bg-[#080A0F] border-t border-[#B9C1CC]/15 flex items-center justify-between font-mono text-xs text-[#B9C1CC]/70">
+          <div className="p-4 bg-[#090B10] border-t border-[#252C38] flex items-center justify-between font-mono text-xs text-[#858D9B]">
             <span>NEXT 30 DAYS DEBT OUTFLOW: ₹10,72,800</span>
-            <span className="text-[#A9D8F5] font-bold">LIQUIDITY COVER: 4.8X</span>
+            <span className="text-[#7595FF] font-bold">LIQUIDITY COVER: 4.8X</span>
           </div>
         </div>
 
         {/* Right: Recent Financial Activity (6 cols) */}
-        <div className="lg:col-span-6 bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-[#B9C1CC]/15 flex items-center justify-between">
+        <div className="lg:col-span-6 bg-[#171C26] border border-[#252C38] rounded-xs shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-[#252C38] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#2457E8]" />
-              <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F2ED] font-bold">
+              <Clock className="w-4 h-4 text-[#2457FF]" />
+              <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F6FA] font-bold">
                 RECORDED FINANCIAL ACTIVITY
               </h3>
             </div>
-            <Link href="/cashflow" className="font-mono text-xs uppercase tracking-wider text-[#A9D8F5] hover:underline">
+            <Link href="/cashflow" className="font-mono text-xs uppercase tracking-wider text-[#7595FF] hover:underline">
               Treasury Ledger →
             </Link>
           </div>
 
-          <div className="divide-y divide-[#B9C1CC]/10">
+          <div className="divide-y divide-[#252C38]">
             {recentActivities.map((act) => (
-              <div key={act.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/40 transition-colors">
+              <div key={act.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-[#2457E8] font-bold">[{act.code}]</span>
-                    <span className="font-mono text-xs font-semibold text-[#F4F2ED]">{act.title}</span>
+                    <span className="font-mono text-[10px] text-[#2457FF] font-bold">[{act.code}]</span>
+                    <span className="font-mono text-xs font-semibold text-[#F4F6FA]">{act.title}</span>
                   </div>
-                  <div className="font-mono text-[11px] text-[#B9C1CC]/60">
+                  <div className="font-mono text-[11px] text-[#858D9B]">
                     {act.timestamp} · {act.category}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={`font-heading font-black text-base ${act.isCredit ? 'text-[#2457E8]' : 'text-rose-400'}`}>
+                  <div className={`font-heading font-black text-base ${act.isCredit ? 'text-[#2457FF]' : 'text-[#FF7A70]'}`}>
                     {act.delta}
                   </div>
-                  <span className="font-mono text-[10px] text-[#B9C1CC]/60">AUDITED PAISE</span>
+                  <span className="font-mono text-[10px] text-[#858D9B]">AUDITED PAISE</span>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="p-4 bg-[#080A0F] border-t border-[#B9C1CC]/15 flex items-center justify-between font-mono text-xs text-[#B9C1CC]/70">
+          <div className="p-4 bg-[#090B10] border-t border-[#252C38] flex items-center justify-between font-mono text-xs text-[#858D9B]">
             <span>TOTAL TRANSACTIONS LOGGED: 48</span>
-            <span className="text-[#A9D8F5] font-medium">INTERNAL TRANSFERS EXCLUDED</span>
+            <span className="text-[#7595FF] font-medium">INTERNAL TRANSFERS EXCLUDED</span>
           </div>
         </div>
       </div>
 
-      {/* 5. PROACTIVE AI OBSERVATIONS & CITATIONS */}
-      {observations.length > 0 && (
-        <div className="bg-[#171B23] border border-[#B9C1CC]/20 rounded-sm shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-[#B9C1CC]/15 flex items-center justify-between bg-[#080A0F]">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-[#2457E8]" />
-              <h3 className="font-mono text-xs uppercase tracking-wider text-[#F4F2ED] font-bold">
-                PROVENTA INTELLIGENCE — INSTITUTIONAL OBSERVATIONS
-              </h3>
-            </div>
-            <span className="font-mono text-[11px] uppercase text-[#A9D8F5] font-semibold">
-              6 Specialized Desks Active
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#B9C1CC]/15">
-            {observations.map((obs) => (
-              <div key={obs.id} className="p-6 space-y-3 bg-[#171B23]">
-                <div className="flex items-center justify-between font-mono text-[10px]">
-                  <span className="px-2 py-0.5 bg-[#080A0F] text-[#A9D8F5] border border-[#2457E8]/40 uppercase font-bold rounded-xs">
-                    {obs.agentRole.replace(/_/g, ' ')}
-                  </span>
-                  <span className={`uppercase font-bold ${obs.severity === 'ALERT' ? 'text-[#D5A85D]' : 'text-[#2457E8]'}`}>
-                    {obs.severity}
-                  </span>
-                </div>
-                <h4 className="font-heading font-bold text-base text-[#F4F2ED] leading-snug">{obs.title}</h4>
-                <p className="font-sans text-xs text-[#B9C1CC]/80 leading-relaxed">
-                  {obs.observation}
-                </p>
-                {obs.actionableStep && (
-                  <div className="pt-2 border-t border-[#B9C1CC]/10 font-mono text-xs text-[#F4F2ED]">
-                    <span className="font-semibold text-[#2457E8]">Action:</span> {obs.actionableStep}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 6. QUICK ACTION REGISTERS */}
+      {/* 5. QUICK ACTION BUTTONS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Link
           href="/assets"
-          className="p-6 border border-[#B9C1CC]/20 bg-[#171B23] hover:border-[#2457E8] group transition-all rounded-sm flex flex-col justify-between h-36"
+          className="p-6 border border-[#252C38] bg-[#171C26] hover:border-[#2457FF] group transition-all rounded-xs flex flex-col justify-between h-32"
         >
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457E8]">
-            01 // REGISTER
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457FF]">
+            01 // ASSETS
           </div>
           <div>
-            <div className="font-heading text-lg font-bold text-[#F4F2ED] leading-tight group-hover:text-[#A9D8F5] transition-colors">
+            <div className="font-heading text-lg font-bold text-[#F4F6FA] leading-tight group-hover:text-[#7595FF] transition-colors">
               + Record Asset
             </div>
-            <div className="font-mono text-[11px] text-[#B9C1CC]/60 mt-1">
+            <div className="font-mono text-[11px] text-[#858D9B] mt-1">
               Property, Demat, Gold, Equity
             </div>
           </div>
@@ -621,16 +576,16 @@ export default function FamilyWealthDashboard() {
 
         <Link
           href="/liabilities"
-          className="p-6 border border-[#B9C1CC]/20 bg-[#171B23] hover:border-[#2457E8] group transition-all rounded-sm flex flex-col justify-between h-36"
+          className="p-6 border border-[#252C38] bg-[#171C26] hover:border-[#2457FF] group transition-all rounded-xs flex flex-col justify-between h-32"
         >
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457E8]">
-            02 // OBLIGATION
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457FF]">
+            02 // DEBT
           </div>
           <div>
-            <div className="font-heading text-lg font-bold text-[#F4F2ED] leading-tight group-hover:text-[#A9D8F5] transition-colors">
+            <div className="font-heading text-lg font-bold text-[#F4F6FA] leading-tight group-hover:text-[#7595FF] transition-colors">
               + Log Liability
             </div>
-            <div className="font-mono text-[11px] text-[#B9C1CC]/60 mt-1">
+            <div className="font-mono text-[11px] text-[#858D9B] mt-1">
               Mortgages, Auto Debt, EMIs
             </div>
           </div>
@@ -638,33 +593,33 @@ export default function FamilyWealthDashboard() {
 
         <Link
           href="/vault"
-          className="p-6 border border-[#B9C1CC]/20 bg-[#171B23] hover:border-[#2457E8] group transition-all rounded-sm flex flex-col justify-between h-36"
+          className="p-6 border border-[#252C38] bg-[#171C26] hover:border-[#2457FF] group transition-all rounded-xs flex flex-col justify-between h-32"
         >
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457E8]">
-            03 // ENCRYPTION
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457FF]">
+            03 // VAULT
           </div>
           <div>
-            <div className="font-heading text-lg font-bold text-[#F4F2ED] leading-tight group-hover:text-[#A9D8F5] transition-colors">
+            <div className="font-heading text-lg font-bold text-[#F4F6FA] leading-tight group-hover:text-[#7595FF] transition-colors">
               Upload to Vault
             </div>
-            <div className="font-mono text-[11px] text-[#B9C1CC]/60 mt-1">
-              Title Deed, Share Certificate
+            <div className="font-mono text-[11px] text-[#858D9B] mt-1">
+              Title Deeds, Share Certificates
             </div>
           </div>
         </Link>
 
         <Link
           href="/reports"
-          className="p-6 border border-[#B9C1CC]/20 bg-[#171B23] hover:border-[#2457E8] group transition-all rounded-sm flex flex-col justify-between h-36"
+          className="p-6 border border-[#252C38] bg-[#171C26] hover:border-[#2457FF] group transition-all rounded-xs flex flex-col justify-between h-32"
         >
-          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457E8]">
+          <div className="font-mono text-[10px] uppercase tracking-wider text-[#2457FF]">
             04 // AUDIT
           </div>
           <div>
-            <div className="font-heading text-lg font-bold text-[#F4F2ED] leading-tight group-hover:text-[#A9D8F5] transition-colors">
+            <div className="font-heading text-lg font-bold text-[#F4F6FA] leading-tight group-hover:text-[#7595FF] transition-colors">
               Financial Statement
             </div>
-            <div className="font-mono text-[11px] text-[#B9C1CC]/60 mt-1">
+            <div className="font-mono text-[11px] text-[#858D9B] mt-1">
               Printable Statement of Position
             </div>
           </div>

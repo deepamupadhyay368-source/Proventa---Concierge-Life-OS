@@ -3,43 +3,46 @@ import { SignUpForm } from '@/components/auth/sign-up-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Create Account | PROVENTA — Business without limits.',
+  title: 'Create Account | PROVENTA — Family Wealth OS',
   description:
-    'Create your PROVENTA account to discover businesses, post enquiries, or list your business storefront.',
+    'Create your PROVENTA Family Wealth OS account to organise, monitor, and preserve your complete financial universe.',
 };
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen bg-[#171A14] text-[#F6F0E4] flex items-center justify-center px-4 py-14">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <Link href="/" className="inline-block">
-            <span className="font-serif text-3xl tracking-[0.18em] uppercase text-[#F6F0E4] hover:text-[#B94E2D] transition-colors">
+    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#2457FF] selection:text-white">
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center space-y-2">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#2457FF] text-[#F4F6FA] flex items-center justify-center font-heading font-black text-lg rounded-xs shadow-md">
+              P
+            </div>
+            <span className="font-heading text-2xl tracking-[0.1em] uppercase font-black text-[#F4F6FA]">
               PROVENTA
             </span>
           </Link>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] text-[#A98253]">
-            Business without limits. · Every Business. One Place.
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#858D9B]">
+            Family Wealth OS · One Living System
           </p>
         </div>
 
-        <div className="rounded-[2px] border border-[#D5CBB8] bg-[#F5F0E5] text-[#181914] p-8 shadow-elevated">
-          <div className="mb-6 pb-4 border-b border-[#D5CBB8]">
-            <h1 className="font-display text-3xl text-[#181914]">
-              Create Your Account
+        <div className="rounded-xs border border-[#252C38] bg-[#171C26] p-8 shadow-2xl space-y-6">
+          <div className="border-b border-[#252C38] pb-4">
+            <h1 className="font-heading font-black text-2xl uppercase tracking-tight text-[#F4F6FA]">
+              Create Account
             </h1>
-            <p className="text-xs text-[#5C584F] mt-1">
-              Discover businesses, post enquiries, compare quotations, or publish your storefront.
+            <p className="text-xs text-[#C5CAD3] mt-1">
+              Start with Google or create an encrypted family wealth workspace.
             </p>
           </div>
           <SignUpForm />
         </div>
 
-        <div className="mt-6 rounded-[2px] border border-[#4C4A40] bg-[#20211C] p-4 font-mono text-xs text-[#E9DFCC] flex items-center justify-between">
-          <span className="text-[#A7A194]">ALREADY REGISTERED?</span>
+        <div className="rounded-xs border border-[#252C38] bg-[#171C26]/60 p-4 font-mono text-xs text-[#C5CAD3] flex items-center justify-between">
+          <span className="text-[#858D9B]">ALREADY REGISTERED?</span>
           <Link
             href="/sign-in"
-            className="text-[#B94E2D] hover:underline font-medium"
+            className="text-[#2457FF] hover:underline font-bold"
           >
             SIGN IN →
           </Link>

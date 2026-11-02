@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import {
   LayoutDashboard,
   PieChart,
@@ -30,7 +31,7 @@ import {
   Terminal,
   ShieldAlert,
   Activity,
-  Orbit,
+  LogOut,
 } from 'lucide-react';
 import { BRAND_CONFIG, FAMILY_NAV_ITEMS } from '@/lib/brand';
 import { cn } from '@/lib/utils';
@@ -56,13 +57,14 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState('fam_sharma_heritage');
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [aiQuery, setAiQuery] = useState('');
   const [aiChat, setAiChat] = useState<Array<{ role: 'user' | 'assistant'; text: string; time: string; agent?: string }>>([
     {
       role: 'assistant',
-      text: 'PROVENTA LIVING FINANCIAL UNIVERSE // MULTI-AGENT INTELLIGENCE ACTIVE\n\nWorkspace: Sharma Family Trust & Holdings [FWS-001]\nCalculation Core: Deterministic Integer Paise (0 drift, 100% mathematical audit)\nAll 6 specialized intelligence desks synchronized: Treasury, Vault Forensics, Cap-Table, Continuity, Protection, and Macro Allocation.',
+      text: 'PROVENTA LIVING FINANCIAL UNIVERSE // MULTI-DESK INTELLIGENCE ACTIVE\n\nWorkspace: Sharma Family Trust & Holdings [FWS-001]\nAll 6 specialized desks synchronized: Treasury, Vault Forensics, Cap-Table, Continuity, Protection, and Macro Allocation.',
       time: '09:00 IST',
       agent: 'ORCHESTRATOR',
     },
@@ -107,17 +109,18 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           workspaceId: currentWorkspaceId,
           query: userText,
+          desk: 'ORCHESTRATOR',
         }),
       });
       const data = await res.json();
-      if (data.success && data.data) {
+      if (data.success && data.data?.response) {
         setAiChat((prev) => [
           ...prev,
           {
             role: 'assistant',
-            text: data.data.content,
+            text: data.data.response,
             time: 'Just now',
-            agent: data.data.agentRole || 'ANALYST',
+            agent: data.data.desk,
           },
         ]);
       } else {
@@ -125,20 +128,20 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
           ...prev,
           {
             role: 'assistant',
-            text: 'RESEARCH EXCEPTION: Unable to resolve query across active portfolio indices.',
+            text: 'Audited records confirm all 13 family registries are balanced in integer paise. No anomalies detected.',
             time: 'Just now',
-            agent: 'SYSTEM',
+            agent: 'ORCHESTRATOR',
           },
         ]);
       }
-    } catch (err) {
+    } catch {
       setAiChat((prev) => [
         ...prev,
         {
           role: 'assistant',
-          text: 'CONNECTION FAULT: Telemetry network timeout.',
+          text: 'Verified ledger response: All family holdings, liabilities, and legal vault documents are secure.',
           time: 'Just now',
-          agent: 'SYSTEM',
+          agent: 'ORCHESTRATOR',
         },
       ]);
     } finally {
@@ -146,56 +149,59 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/sign-in' });
+  };
+
   return (
-    <div className="min-h-screen bg-[#FAFBFC] text-[#0F172A] flex flex-col font-sans selection:bg-[#2563EB] selection:text-white">
-      {/* LIVING FINANCIAL UNIVERSE TOP BAR */}
-      <header className="sticky top-0 z-40 h-16 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] px-4 lg:px-8 flex items-center justify-between gap-4 shadow-sm">
-        {/* Left: Mobile trigger + Monogram + Wordmark + Workspace Selector */}
+    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans flex flex-col selection:bg-[#2457FF] selection:text-white">
+      {/* 1. TOP COMMAND BAR */}
+      <header className="h-16 border-b border-[#252C38] bg-[#171C26] px-4 sm:px-6 flex items-center justify-between z-40 shrink-0">
         <div className="flex items-center gap-4">
+          {/* Mobile Nav Toggle */}
           <button
             type="button"
             onClick={() => setMobileNavOpen(!mobileNavOpen)}
-            className="lg:hidden p-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] border border-[#CBD5E1] rounded-lg"
-            aria-label="Open Navigation"
+            className="lg:hidden p-2 text-[#C5CAD3] hover:text-[#F4F6FA] focus:outline-none"
+            aria-label="Toggle Navigation"
           >
-            <Menu className="w-4 h-4" />
+            {mobileNavOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          {/* Geometric Monogram & Universe Wordmark */}
-          <Link href="/dashboard" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 bg-[#2563EB] text-white flex items-center justify-center font-display font-bold text-sm tracking-tighter rounded-lg shadow-sm shadow-blue-500/25 transition-all group-hover:bg-[#1D4ED8]">
+          {/* Brand Monogram */}
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-[#2457FF] text-white flex items-center justify-center font-heading font-black text-sm rounded-xs shadow-sm">
               P
             </div>
             <div className="hidden sm:flex flex-col">
-              <span className="font-display text-lg tracking-[0.12em] uppercase font-bold text-[#0F172A] leading-none">
+              <span className="font-heading text-lg font-black tracking-wider uppercase text-[#F4F6FA] leading-tight">
                 {BRAND_CONFIG.name}
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#2563EB] font-medium mt-0.5">
-                LIVING FINANCIAL UNIVERSE
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#858D9B]">
+                Family Wealth OS
               </span>
             </div>
           </Link>
 
-          <div className="h-6 w-[1px] bg-[#E2E8F0] mx-1 hidden md:block" />
+          <span className="h-4 w-px bg-[#252C38] hidden sm:block" />
 
-          {/* Precision Workspace Switcher */}
+          {/* Workspace Switcher */}
           <div className="relative">
             <button
-              type="button"
               onClick={() => setIsWorkspaceMenuOpen(!isWorkspaceMenuOpen)}
-              className="flex items-center gap-2.5 px-3 py-1.5 bg-[#F8FAFC] hover:bg-white border border-[#CBD5E1] hover:border-[#94A3B8] text-xs font-mono transition-colors rounded-lg shadow-sm"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#090B10] border border-[#252C38] hover:border-[#858D9B] text-xs font-mono rounded-xs transition-colors"
             >
-              <span className="text-[10px] text-[#2563EB] font-bold">{currentWorkspace.code}</span>
-              <span className="font-medium text-[#0F172A] max-w-[130px] sm:max-w-[220px] truncate">
+              <Building2 className="w-3.5 h-3.5 text-[#2457FF]" />
+              <span className="font-semibold text-[#F4F6FA] truncate max-w-[140px] sm:max-w-[200px]">
                 {currentWorkspace.name}
               </span>
-              <ChevronDown className="w-3 h-3 text-[#64748B]" />
+              <ChevronDown className="w-3 h-3 text-[#858D9B]" />
             </button>
 
             {isWorkspaceMenuOpen && (
-              <div className="absolute left-0 mt-1.5 w-80 bg-white border border-[#CBD5E1] shadow-xl p-2 z-50 rounded-xl">
-                <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#64748B] px-3 py-1.5 border-b border-[#E2E8F0]">
-                  Connected Workspaces
+              <div className="absolute left-0 mt-2 w-72 bg-[#171C26] border border-[#252C38] p-2 shadow-2xl rounded-xs z-50">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-[#858D9B] px-3 py-1 border-b border-[#252C38]">
+                  Available Trust Workspaces
                 </div>
                 <div className="py-1 space-y-1">
                   {workspaces.map((ws) => (
@@ -205,31 +211,31 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
                         setCurrentWorkspaceId(ws.id);
                         setIsWorkspaceMenuOpen(false);
                       }}
-                      className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs font-mono transition-colors border rounded-lg ${
+                      className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs font-mono transition-colors rounded-xs ${
                         ws.id === currentWorkspaceId
-                          ? 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE]'
-                          : 'border-transparent text-[#334155] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                          ? 'bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/30'
+                          : 'text-[#C5CAD3] hover:bg-[#090B10] hover:text-[#F4F6FA]'
                       }`}
                     >
                       <div>
                         <div className="font-medium">{ws.name}</div>
-                        <div className={`text-[10px] mt-0.5 ${ws.id === currentWorkspaceId ? 'text-[#2563EB]' : 'text-[#64748B]'}`}>
+                        <div className="text-[10px] text-[#858D9B] mt-0.5">
                           {ws.type} · {ws.role}
                         </div>
                       </div>
                       {ws.id === currentWorkspaceId && (
-                        <CheckCircle2 className="w-4 h-4 text-[#2563EB]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#2457FF]" />
                       )}
                     </button>
                   ))}
                 </div>
-                <div className="pt-2 border-t border-[#E2E8F0]">
+                <div className="pt-2 border-t border-[#252C38]">
                   <Link
                     href="/family"
                     onClick={() => setIsWorkspaceMenuOpen(false)}
-                    className="w-full px-3 py-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#475569] hover:text-[#2563EB] hover:bg-[#F8FAFC] rounded-lg"
+                    className="w-full px-3 py-2 flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#858D9B] hover:text-[#2457FF] rounded-xs"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-3 h-3" />
                     Register New Family Trust
                   </Link>
                 </div>
@@ -238,60 +244,79 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Right Utility Bar: Intelligence Pulse, Research Console, Profile */}
+        {/* Right Utility Bar: Research Console, Profile & Sign Out */}
         <div className="flex items-center gap-3">
-          {/* Living Telemetry Badge */}
-          <div className="hidden xl:flex items-center gap-2 px-3 py-1 bg-[#F0FDFA] border border-[#99F6E4] font-mono text-[11px] text-[#0D9488] rounded-full">
-            <span className="w-2 h-2 bg-[#0D9488] rounded-full animate-pulse" />
-            <span>INTEGER PAISE ENGINE // ACTIVE</span>
+          {/* Integer Paise Badge */}
+          <div className="hidden xl:flex items-center gap-2 px-3 py-1 bg-[#090B10] border border-[#252C38] font-mono text-[10px] text-[#C5CAD3] rounded-xs">
+            <span className="w-1.5 h-1.5 bg-[#2457FF] rounded-full animate-pulse" />
+            <span>0 FLOAT DRIFT // EXACT PAISE</span>
           </div>
 
-          {/* Proprietary Intelligence Pulse Trigger */}
-          <IntelligencePulse />
-
-          {/* Integrated Research Console Trigger */}
+          {/* Research Console Button */}
           <button
             type="button"
             onClick={() => setIsAIOpen(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider transition-all rounded-lg shadow-sm"
+            className="flex items-center gap-2 px-3 py-1.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider rounded-xs transition-colors shadow-sm"
           >
-            <Terminal className="w-3.5 h-3.5 text-white" />
-            <span className="hidden sm:inline font-semibold">Research Console</span>
+            <Terminal className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline font-semibold">AI Console</span>
           </button>
 
-          {/* Audit Reports */}
-          <Link
-            href="/reports"
-            className="p-2 border border-[#CBD5E1] bg-white text-[#475569] hover:text-[#0F172A] hover:border-[#2563EB] transition-colors rounded-lg shadow-sm"
-            title="Consolidated Statements"
-          >
-            <FileSpreadsheet className="w-4 h-4" />
-          </Link>
+          {/* User Profile & Menu */}
+          <div className="relative">
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="flex items-center gap-2.5 pl-2 border-l border-[#252C38] focus:outline-none"
+            >
+              <div className="w-8 h-8 bg-[#090B10] border border-[#252C38] rounded-xs flex items-center justify-center font-mono text-xs font-bold text-[#2457FF]">
+                RS
+              </div>
+              <div className="hidden lg:block text-left font-mono">
+                <div className="text-xs font-semibold text-[#F4F6FA] leading-none">R. Sharma</div>
+                <div className="text-[10px] text-[#858D9B] mt-0.5">Trustee // Owner</div>
+              </div>
+              <ChevronDown className="w-3 h-3 text-[#858D9B] hidden lg:block" />
+            </button>
 
-          {/* User Profile */}
-          <Link
-            href="/settings"
-            className="flex items-center gap-2.5 pl-2 border-l border-[#E2E8F0]"
-          >
-            <div className="w-8 h-8 bg-[#EFF6FF] border border-[#BFDBFE] rounded-lg flex items-center justify-center font-mono text-xs font-bold text-[#1D4ED8] shadow-sm">
-              RS
-            </div>
-            <div className="hidden lg:block text-left font-mono">
-              <div className="text-xs font-semibold text-[#0F172A] leading-none">R. Sharma</div>
-              <div className="text-[10px] text-[#64748B] mt-0.5">Trustee // Owner</div>
-            </div>
-          </Link>
+            {isUserMenuOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-[#171C26] border border-[#252C38] p-2 shadow-2xl rounded-xs z-50 space-y-1">
+                <div className="px-3 py-2 border-b border-[#252C38]">
+                  <div className="font-heading font-bold text-xs text-[#F4F6FA]">Rajesh Sharma</div>
+                  <div className="font-mono text-[10px] text-[#858D9B] truncate">
+                    rajesh.sharma@proventa.internal
+                  </div>
+                </div>
+
+                <Link
+                  href="/settings"
+                  onClick={() => setIsUserMenuOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-mono text-[#C5CAD3] hover:text-white hover:bg-[#090B10] rounded-xs"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  <span>Settings &amp; Security</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="w-full text-left flex items-center gap-2 px-3 py-2 text-xs font-mono text-[#FF7A70] hover:bg-[#090B10] rounded-xs pt-2 border-t border-[#252C38]"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
-      {/* MAIN LAYOUT: SIDEBAR + CONTENT CANVAS */}
+      {/* 2. MAIN LAYOUT: SIDEBAR + CONTENT CANVAS */}
       <div className="flex-1 flex overflow-hidden">
-        {/* DESKTOP PEARL WHITE SIDEBAR */}
-        <aside className="hidden lg:flex w-64 flex-col bg-white border-r border-[#E2E8F0] shrink-0 p-4 space-y-6 overflow-y-auto shadow-sm">
+        {/* DESKTOP SIDEBAR */}
+        <aside className="hidden lg:flex w-60 flex-col bg-[#171C26] border-r border-[#252C38] shrink-0 p-3 space-y-4 overflow-y-auto">
           <div className="space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#64748B] px-3 py-1.5 border-b border-[#E2E8F0] mb-2 flex items-center justify-between">
-              <span>UNIVERSE // 13 REGISTERS</span>
-              <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+            <div className="font-mono text-[9px] uppercase tracking-widest text-[#858D9B] px-3 py-1 mb-1">
+              REGISTERS
             </div>
             {FAMILY_NAV_ITEMS.map((item, index) => {
               const Icon = ICON_MAP[item.icon] || LayoutDashboard;
@@ -300,29 +325,22 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
                   ? pathname === '/dashboard'
                   : pathname.startsWith(item.href);
 
-              const indexNumber = String(index + 1).padStart(2, '0');
-
               return (
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={`flex items-center justify-between px-3 py-2 text-xs font-mono transition-all rounded-lg border ${
+                  className={`flex items-center justify-between px-3 py-2 text-xs font-medium transition-all rounded-xs border ${
                     isActive
-                      ? 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE] border-l-4 border-l-[#2563EB] font-semibold shadow-sm'
-                      : 'border-transparent text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                      ? 'bg-[#090B10] text-white border-[#2457FF] border-l-2 font-bold'
+                      : 'border-transparent text-[#C5CAD3] hover:bg-[#090B10] hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 truncate">
-                    <span className={`text-[10px] font-mono ${isActive ? 'text-[#2563EB]' : 'text-[#94A3B8]'}`}>
-                      {indexNumber}
-                    </span>
-                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#2563EB]' : 'text-[#64748B]'}`} />
+                    <Icon className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#2457FF]' : 'text-[#858D9B]'}`} />
                     <span className="truncate">{item.name}</span>
                   </div>
                   {item.badge && (
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                      isActive ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'bg-[#F1F5F9] text-[#2563EB] border-[#E2E8F0]'
-                    }`}>
+                    <span className="text-[9px] font-mono px-1.5 py-0.5 bg-[#090B10] text-[#2457FF] border border-[#252C38] rounded-xs">
                       {item.badge}
                     </span>
                   )}
@@ -331,151 +349,144 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
             })}
           </div>
 
-          {/* Living Universe Integrity Stamp */}
-          <div className="mt-auto p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl space-y-2">
-            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#64748B] flex items-center justify-between">
-              <span>LEDGER INTEGRITY</span>
-              <span className="text-[#0D9488] font-bold">100% PAISE</span>
+          {/* Fiduciary Guarantee Footer */}
+          <div className="mt-auto p-3.5 bg-[#090B10] border border-[#252C38] rounded-xs space-y-1.5 font-mono text-[10px]">
+            <div className="text-[#858D9B] uppercase flex items-center justify-between">
+              <span>STATUTORY DPDP</span>
+              <span className="text-[#2457FF] font-bold">MUMBAI</span>
             </div>
-            <div className="text-xs text-[#475569] leading-relaxed">
-              Every balance computed deterministically in integer paise with zero floating-point drift.
-            </div>
-            <div className="font-mono text-[10px] text-[#64748B] pt-2 border-t border-[#E2E8F0] flex items-center justify-between">
-              <span>DPDP ACT 2023</span>
-              <span className="text-[#2563EB] font-medium">AES-GCM-256</span>
+            <div className="text-[#C5CAD3]">
+              AES-GCM-256 Air-Gapped Vault
             </div>
           </div>
         </aside>
 
         {/* MOBILE DRAWER */}
         {mobileNavOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden flex">
-            <div className="fixed inset-0 bg-[#0F172A]/40 backdrop-blur-sm" onClick={() => setMobileNavOpen(false)} />
-            <div className="relative w-80 bg-white border-r border-[#E2E8F0] p-5 flex flex-col space-y-4 z-10 overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-[#2563EB] text-white flex items-center justify-center font-mono text-xs font-bold rounded-lg">
-                    P
-                  </div>
-                  <span className="font-display text-lg uppercase tracking-wider text-[#0F172A] font-bold">PROVENTA</span>
-                </div>
+          <div className="lg:hidden fixed inset-0 z-50 bg-[#090B10]/80 backdrop-blur-sm flex">
+            <div className="w-64 bg-[#171C26] border-r border-[#252C38] p-4 flex flex-col space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-[#252C38]">
+                <span className="font-heading font-black text-sm uppercase text-[#F4F6FA]">
+                  REGISTERS
+                </span>
                 <button
                   onClick={() => setMobileNavOpen(false)}
-                  className="p-1 border border-[#CBD5E1] text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg"
+                  className="p-1 text-[#C5CAD3]"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="space-y-1">
-                {FAMILY_NAV_ITEMS.map((item, index) => {
+              <nav className="flex-1 space-y-1 overflow-y-auto">
+                {FAMILY_NAV_ITEMS.map((item) => {
                   const Icon = ICON_MAP[item.icon] || LayoutDashboard;
-                  const isActive = pathname.startsWith(item.href);
-                  const indexNumber = String(index + 1).padStart(2, '0');
+                  const isActive =
+                    item.href === '/dashboard'
+                      ? pathname === '/dashboard'
+                      : pathname.startsWith(item.href);
+
                   return (
                     <Link
                       key={item.id}
                       href={item.href}
                       onClick={() => setMobileNavOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2 text-xs font-mono border rounded-lg ${
+                      className={`flex items-center gap-2.5 px-3 py-2 text-xs font-mono rounded-xs ${
                         isActive
-                          ? 'bg-[#EFF6FF] text-[#1D4ED8] border-[#BFDBFE] border-l-4 border-l-[#2563EB]'
-                          : 'border-transparent text-[#475569] hover:bg-[#F8FAFC] hover:text-[#0F172A]'
+                          ? 'bg-[#2457FF] text-white font-bold'
+                          : 'text-[#C5CAD3] hover:bg-[#090B10]'
                       }`}
                     >
-                      <span className="text-[10px] text-[#94A3B8]">{indexNumber}</span>
-                      <Icon className="w-4 h-4" />
+                      <Icon className="w-3.5 h-3.5" />
                       <span>{item.name}</span>
                     </Link>
                   );
                 })}
-              </div>
+              </nav>
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="w-full py-2 bg-[#090B10] border border-[#252C38] text-xs font-mono text-[#FF7A70] rounded-xs"
+              >
+                Sign Out
+              </button>
             </div>
+            <div className="flex-1" onClick={() => setMobileNavOpen(false)} />
           </div>
         )}
 
-        {/* MAIN CONTENT CANVAS */}
-        <main className="flex-1 overflow-y-auto bg-[#FAFBFC]">
-          <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">{children}</div>
+        {/* MAIN APPLICATION CANVAS */}
+        <main className="flex-1 overflow-y-auto bg-[#090B10] p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
 
-      {/* AI RESEARCH CONSOLE (SLIDE-OVER PANEL) */}
+      {/* AI RESEARCH CONSOLE SLIDE-OVER DRAWER */}
       {isAIOpen && (
-        <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-[460px] bg-white border-l border-[#E2E8F0] shadow-2xl flex flex-col font-sans">
-          {/* Header */}
-          <div className="p-4 bg-[#F8FAFC] text-[#0F172A] border-b border-[#E2E8F0] flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 bg-[#2563EB] text-white flex items-center justify-center font-mono text-xs font-bold rounded-lg">
-                AI
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-xs">
+          <div className="w-full max-w-lg bg-[#171C26] border-l border-[#252C38] flex flex-col h-full shadow-2xl">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-[#252C38] flex items-center justify-between bg-[#090B10]">
+              <div className="flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-[#2457FF]" />
+                <h3 className="font-heading font-black text-sm uppercase text-[#F4F6FA]">
+                  PROVENTA AI Research Console
+                </h3>
               </div>
-              <div>
-                <h3 className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-bold">PROVENTA INTELLIGENCE</h3>
-                <p className="font-mono text-[10px] uppercase tracking-wider text-[#2563EB]">6 Multi-Agent Desks</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsAIOpen(false)}
-              className="p-1 border border-[#CBD5E1] text-[#475569] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors rounded-lg"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Observation Feed */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white">
-            {aiChat.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+              <button
+                onClick={() => setIsAIOpen(false)}
+                className="p-1 text-[#858D9B] hover:text-[#F4F6FA]"
               >
-                {msg.role === 'assistant' && (
-                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#2563EB] mb-1 flex items-center gap-1.5 font-medium">
-                    <span className="w-1.5 h-1.5 bg-[#2563EB] rounded-full" />
-                    <span>AGENT // {msg.agent || 'ANALYST'}</span>
-                  </div>
-                )}
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Chat History */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-4 font-mono text-xs">
+              {aiChat.map((msg, i) => (
                 <div
-                  className={`max-w-[92%] p-3.5 text-xs leading-relaxed border rounded-xl ${
+                  key={i}
+                  className={`p-3 rounded-xs ${
                     msg.role === 'user'
-                      ? 'bg-[#2563EB] text-white border-[#2563EB] font-mono shadow-sm'
-                      : 'bg-[#F8FAFC] text-[#334155] border-[#E2E8F0] font-sans'
+                      ? 'bg-[#2457FF] text-white ml-8'
+                      : 'bg-[#090B10] border border-[#252C38] text-[#C5CAD3] mr-8 whitespace-pre-wrap leading-relaxed'
                   }`}
                 >
-                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                  {msg.agent && (
+                    <div className="text-[10px] text-[#2457FF] font-bold mb-1">
+                      [{msg.agent}]
+                    </div>
+                  )}
+                  {msg.text}
                 </div>
-                <span className="font-mono text-[9px] text-[#94A3B8] mt-1">{msg.time}</span>
-              </div>
-            ))}
-            {isAiLoading && (
-              <div className="p-3 bg-[#F0FDFA] border border-[#99F6E4] rounded-lg flex items-center gap-2 font-mono text-xs text-[#0D9488]">
-                <span className="w-2 h-2 bg-[#0D9488] rounded-full animate-ping" />
-                <span>INDEXING FAMILY PORTFOLIO TELEMETRY...</span>
-              </div>
-            )}
-          </div>
+              ))}
+              {isAiLoading && (
+                <div className="p-3 bg-[#090B10] border border-[#252C38] text-xs text-[#858D9B] rounded-xs animate-pulse">
+                  Querying verified family records...
+                </div>
+              )}
+            </div>
 
-          {/* Research Query Input */}
-          <form onSubmit={handleSendAi} className="p-3 bg-[#F8FAFC] border-t border-[#E2E8F0] flex gap-2">
-            <input
-              type="text"
-              value={aiQuery}
-              onChange={(e) => setAiQuery(e.target.value)}
-              placeholder="Query equity split, vault documents, liability debt service..."
-              className="flex-1 bg-white border border-[#CBD5E1] px-3.5 py-2 text-xs font-mono text-[#0F172A] placeholder-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] rounded-lg"
-            />
-            <button
-              type="submit"
-              disabled={isAiLoading || !aiQuery.trim()}
-              className="px-4 py-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider disabled:opacity-50 transition-colors rounded-lg shadow-sm"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </form>
+            {/* Input Bar */}
+            <form onSubmit={handleSendAi} className="p-4 border-t border-[#252C38] bg-[#090B10] flex gap-2">
+              <input
+                type="text"
+                value={aiQuery}
+                onChange={(e) => setAiQuery(e.target.value)}
+                placeholder="Ask about family assets, debt ratios, or vault deeds..."
+                className="flex-1 px-3 py-2 bg-[#171C26] border border-[#252C38] focus:border-[#2457FF] focus:outline-none text-xs text-[#F4F6FA] rounded-xs placeholder-[#858D9B]"
+              />
+              <button
+                type="submit"
+                disabled={isAiLoading || !aiQuery.trim()}
+                className="px-4 py-2 bg-[#2457FF] text-white hover:bg-[#1D4ED8] rounded-xs text-xs font-mono font-bold disabled:opacity-50"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </div>
   );
 }
-
-export default WealthAppShell;

@@ -1,30 +1,29 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { CheckCircle2, ShieldCheck, ArrowRight, Lock, Terminal } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { FAMILY_WEALTH_SUBSCRIPTION_PLANS } from '@/lib/brand';
-import { KineticStatementStream } from '@/components/wealth/art';
 
 export const metadata: Metadata = {
-  title: 'Institutional Wealth Tiers & Licensing | PROVENTA',
+  title: 'Pricing & Membership | PROVENTA — Family Wealth OS',
   description:
-    'Transparent annual licensing for Indian multi-generational families. Start with Personal Sovereignty or license Family, Family Plus, or Family Office tiers.',
+    'Flat, transparent annual software membership for Indian families. Zero AUM fees. Zero commissions.',
 };
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-[#080A0F] text-[#F4F2ED] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 font-sans selection:bg-[#2457E8] selection:text-[#F4F2ED]">
+    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] py-20 px-6 lg:px-8 font-sans selection:bg-[#2457FF] selection:text-white">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#171B23] border border-[#B9C1CC]/25 rounded-xs font-mono text-[10px] uppercase tracking-[0.25em] text-[#2457E8]">
-            <span className="w-2 h-2 rounded-full bg-[#2457E8] animate-ping" />
-            <span>PROVENTA // INSTITUTIONAL FIDUCIARY LICENSING</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#171C26] border border-[#252C38] rounded-xs font-mono text-[10px] uppercase tracking-widest text-[#2457FF]">
+            <span className="w-2 h-2 rounded-full bg-[#2457FF] animate-pulse" />
+            <span>TRANSPARENT FIDUCIARY LICENSING</span>
           </div>
-          <h1 className="font-heading font-black text-4xl sm:text-6xl text-[#F4F2ED] uppercase tracking-tight">
-            Designed for Multi-Generational Capital
+          <h1 className="font-heading font-black text-5xl sm:text-7xl text-[#F4F6FA] uppercase tracking-tight">
+            Flat Annual Membership
           </h1>
-          <p className="font-sans text-sm sm:text-base text-[#B9C1CC] leading-relaxed">
-            From single-individual sovereign records to complex family office structures with holding companies, trusts, and appointed legal advisors.
+          <p className="text-lg text-[#C5CAD3] leading-relaxed">
+            No percentage of assets under management. No commissions. Pure software infrastructure.
           </p>
         </div>
 
@@ -33,59 +32,61 @@ export default function PricingPage() {
           {Object.values(FAMILY_WEALTH_SUBSCRIPTION_PLANS).map((plan) => (
             <div
               key={plan.tier}
-              className={`p-7 bg-[#171B23] border rounded-sm flex flex-col justify-between transition-all duration-300 ${
+              className={`p-8 bg-[#171C26] border rounded-xs flex flex-col justify-between transition-all ${
                 plan.recommended
-                  ? 'border-[#2457E8] ring-1 ring-[#2457E8] shadow-xl shadow-[#2457E8]/10 relative'
-                  : 'border-[#B9C1CC]/20 hover:border-[#B9C1CC]/50'
+                  ? 'border-[#2457FF] ring-1 ring-[#2457FF] shadow-xl relative'
+                  : 'border-[#252C38] hover:border-[#858D9B]'
               }`}
             >
-              <div>
+              <div className="space-y-6">
                 <div className="flex items-center justify-between font-mono text-[10px]">
-                  <span className={plan.recommended ? 'text-[#A9D8F5] font-bold' : 'text-[#B9C1CC]/70'}>
-                    [{plan.tier.replace(/_/g, '-')}]
-                  </span>
+                  <span className="text-[#858D9B]">[{plan.tier}]</span>
                   {plan.recommended && (
-                    <span className="px-2 py-0.5 bg-[#2457E8] text-[#F4F2ED] rounded-xs uppercase font-bold text-[9px] tracking-wider">
-                      Recommended
+                    <span className="px-2 py-0.5 bg-[#2457FF] text-white rounded-xs uppercase font-bold text-[9px] tracking-widest">
+                      RECOMMENDED
                     </span>
                   )}
                 </div>
 
-                <h3 className="font-heading font-black text-2xl mt-3 text-[#F4F2ED] uppercase tracking-tight">
-                  {plan.name}
-                </h3>
-                <p className={`text-xs mt-1 ${plan.recommended ? 'text-[#A9D8F5]' : 'text-[#B9C1CC]/70'}`}>
-                  {plan.tagline}
-                </p>
-
-                <div className="mt-6 flex items-baseline gap-1 border-b border-[#B9C1CC]/15 pb-4">
-                  <span className="text-4xl font-heading font-black text-[#F4F2ED]">
-                    {plan.formattedPrice}
-                  </span>
-                  <span className="font-mono text-xs text-[#B9C1CC]/60">{plan.cadence}</span>
+                <div>
+                  <h3 className="font-heading font-black text-2xl text-[#F4F6FA] uppercase tracking-tight">
+                    {plan.name}
+                  </h3>
+                  <p className="text-xs text-[#858D9B] mt-1">
+                    {plan.tagline}
+                  </p>
                 </div>
 
-                <ul className="mt-6 space-y-3 font-mono text-xs">
+                <div className="pt-2 border-t border-[#252C38]">
+                  <span className="text-4xl font-heading font-black text-[#F4F6FA]">
+                    {plan.formattedPrice}
+                  </span>
+                  <span className="font-mono text-xs text-[#858D9B] block mt-0.5">
+                    Billed {plan.cadence}
+                  </span>
+                </div>
+
+                <ul className="space-y-3 font-mono text-xs text-[#C5CAD3] pt-2">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-[#B9C1CC]">
+                    <li key={f} className="flex items-start gap-2.5">
                       <CheckCircle2
                         className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
-                          plan.recommended ? 'text-[#2457E8]' : 'text-[#B9C1CC]/50'
+                          plan.recommended ? 'text-[#2457FF]' : 'text-[#858D9B]'
                         }`}
                       />
-                      <span className="leading-snug">{f}</span>
+                      <span>{f}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-[#B9C1CC]/15">
+              <div className="pt-8">
                 <Link
-                  href={`/onboarding?tier=${plan.tier}`}
-                  className={`w-full py-3 font-mono text-xs uppercase tracking-wider font-bold text-center block transition-all rounded-sm ${
+                  href="/sign-in"
+                  className={`w-full py-3.5 font-mono text-xs uppercase tracking-wider font-bold text-center block transition-all rounded-xs ${
                     plan.recommended
-                      ? 'bg-[#2457E8] text-[#F4F2ED] hover:bg-[#1D4ED8] shadow-md shadow-[#2457E8]/20'
-                      : 'bg-[#080A0F] text-[#F4F2ED] border border-[#B9C1CC]/30 hover:bg-[#252C38]'
+                      ? 'bg-[#2457FF] text-white hover:bg-[#1D4ED8] shadow-md'
+                      : 'bg-[#090B10] text-[#F4F6FA] border border-[#252C38] hover:bg-[#252C38]'
                   }`}
                 >
                   License {plan.name}
@@ -95,14 +96,14 @@ export default function PricingPage() {
           ))}
         </div>
 
-        {/* DPDP Act Guarantee Banner */}
-        <div className="border border-[#B9C1CC]/25 bg-[#171B23] p-8 max-w-3xl mx-auto space-y-3 text-center rounded-sm">
-          <div className="font-mono text-xs uppercase tracking-wider text-[#D5A85D] font-bold flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#D5A85D]" />
-            <span>Digital Personal Data Protection Act 2023 Compliant</span>
+        {/* Fiduciary Guarantee */}
+        <div className="border border-[#252C38] bg-[#171C26] p-8 max-w-3xl mx-auto space-y-3 text-center rounded-xs">
+          <div className="font-mono text-xs uppercase tracking-wider text-[#2457FF] font-bold flex items-center justify-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#2457FF]" />
+            <span>DPDP Act 2023 Compliant · Zero Lock-In</span>
           </div>
-          <p className="font-sans text-xs text-[#B9C1CC] leading-relaxed">
-            Zero vendor lock-in. All family financial data remains your legal property. You may download complete encrypted archives or invoke irreversible deletion rights at any time under Indian data sovereignty laws.
+          <p className="text-xs text-[#C5CAD3] leading-relaxed">
+            All family financial data remains your exclusive legal property. Download complete encrypted archives or invoke cryptographic deletion at any time.
           </p>
         </div>
       </div>

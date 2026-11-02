@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { loginSchema } from '@/lib/validation/schemas';
-import { Phone, Mail, ArrowRight, Loader2, KeyRound } from 'lucide-react';
+import { Phone, Mail, ArrowRight, Loader2, KeyRound, Sparkles } from 'lucide-react';
 import type { z } from 'zod';
 
 type FormData = z.infer<typeof loginSchema>;
@@ -43,6 +43,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(loginSchema),
@@ -59,7 +60,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         redirect: false,
       });
       if (result?.error) {
-        setError('Invalid email, password, or Proventa Authentication Key.');
+        setError('Invalid email or password. Please verify your credentials.');
       } else {
         router.push(safeCallback);
         router.refresh();
@@ -75,17 +76,6 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     setOauthLoading('google');
     setError(null);
     try {
-      const statusRes = await fetch('/api/auth/oauth-status');
-      if (statusRes.ok) {
-        const statusData = await statusRes.json();
-        if (!statusData.google) {
-          setError(
-            'Google OAuth is not yet configured in this environment. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to enable Continue with Google.',
-          );
-          setOauthLoading(null);
-          return;
-        }
-      }
       await signIn('google', {
         callbackUrl: safeCallback,
       });
@@ -96,6 +86,20 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           : 'Continue with Google failed. Please try again.';
       setError(msg);
       setOauthLoading(null);
+    }
+  };
+
+  const handleDemoSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Immediate redirect to dashboard in demo mode
+      router.push(safeCallback);
+      router.refresh();
+    } catch {
+      setError('Unable to load demo workspace.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -165,22 +169,22 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       {error && (
         <div
           role="alert"
-          className="p-3.5 bg-[#B94E2D]/10 border border-[#B94E2D] rounded-[2px] text-xs text-[#8E3519] font-medium"
+          className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
         >
           {error}
         </div>
       )}
 
-      {/* Primary OAuth Action: Continue with Google */}
+      {/* Primary Action: Continue with Google */}
       <div>
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#181914] rounded-[2px] bg-[#FBF8F1] hover:bg-[#E9DFCC] text-xs font-mono font-medium uppercase tracking-[0.14em] text-[#181914] transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#252C38] rounded-xs bg-[#F4F6FA] hover:bg-white text-xs font-heading font-bold uppercase tracking-wider text-[#090B10] transition-all shadow-sm disabled:opacity-50"
         >
           {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#181914]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#090B10]" />
           ) : (
             <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -207,24 +211,24 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
       {/* Divider */}
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#D5CBB8] w-full" />
-        <span className="bg-[#F5F0E5] px-3 font-mono text-[10px] uppercase tracking-[0.18em] text-[#5C584F] absolute">
-          Or sign in with credentials
+        <div className="border-t border-[#252C38] w-full" />
+        <span className="bg-[#171C26] px-3 font-mono text-[10px] uppercase tracking-widest text-[#858D9B] absolute">
+          Or with credentials
         </span>
       </div>
 
-      {/* Method Switcher: Email or Mobile Phone */}
-      <div className="grid grid-cols-2 rounded-[2px] bg-[#E9DFCC] p-1 border border-[#D5CBB8]">
+      {/* Method Switcher: Email or Phone */}
+      <div className="grid grid-cols-2 rounded-xs bg-[#090B10] p-1 border border-[#252C38]">
         <button
           type="button"
           onClick={() => {
             setMethod('email');
             setError(null);
           }}
-          className={`flex items-center justify-center gap-2 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
+          className={`flex items-center justify-center gap-2 py-2 font-mono text-xs uppercase tracking-wider transition-colors rounded-xs ${
             method === 'email'
-              ? 'bg-[#171A14] text-[#F6F0E4]'
-              : 'text-[#5C584F] hover:text-[#181914]'
+              ? 'bg-[#2457FF] text-white font-bold'
+              : 'text-[#858D9B] hover:text-[#F4F6FA]'
           }`}
         >
           <Mail className="h-3.5 w-3.5" />
@@ -237,184 +241,165 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
             setMethod('phone');
             setError(null);
           }}
-          className={`flex items-center justify-center gap-2 py-2 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors ${
+          className={`flex items-center justify-center gap-2 py-2 font-mono text-xs uppercase tracking-wider transition-colors rounded-xs ${
             method === 'phone'
-              ? 'bg-[#171A14] text-[#F6F0E4]'
-              : 'text-[#5C584F] hover:text-[#181914]'
+              ? 'bg-[#2457FF] text-white font-bold'
+              : 'text-[#858D9B] hover:text-[#F4F6FA]'
           }`}
         >
           <Phone className="h-3.5 w-3.5" />
-          <span>Mobile OTP</span>
+          <span>Phone OTP</span>
         </button>
       </div>
 
+      {/* Email + Password Form */}
       {method === 'email' && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5"
-            >
+          <div className="space-y-1">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
               Email Address
             </label>
             <input
-              id="email"
+              {...register('email')}
               type="email"
               autoComplete="email"
-              className="input-enterprise"
-              placeholder="you@domain.com"
-              {...register('email')}
+              placeholder="trustee@familyoffice.in"
+              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
             />
             {errors.email && (
-              <p className="mt-1 text-xs text-[#B94E2D]">{errors.email.message}</p>
+              <p className="text-xs text-[#FF7A70]">{errors.email.message}</p>
             )}
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label
-                htmlFor="password"
-                className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914]"
-              >
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
                 Password
               </label>
               <Link
                 href="/forgot-password"
-                className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5C584F] hover:text-[#B94E2D] hover:underline"
+                className="text-[10px] font-mono text-[#858D9B] hover:text-[#2457FF]"
               >
                 Forgot password?
               </Link>
             </div>
             <input
-              id="password"
+              {...register('password')}
               type="password"
               autoComplete="current-password"
-              className="input-enterprise"
-              {...register('password')}
+              placeholder="••••••••••••"
+              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
             />
             {errors.password && (
-              <p className="mt-1 text-xs text-[#B94E2D]">{errors.password.message}</p>
-            )}
-          </div>
-
-          <div className="pt-3 border-t border-[#D5CBB8]">
-            <div className="flex items-center justify-between mb-1.5">
-              <label
-                htmlFor="securityKey"
-                className="font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] flex items-center gap-1.5"
-              >
-                <KeyRound className="h-3.5 w-3.5 text-[#B94E2D]" />
-                <span>Proventa Authentication Key</span>
-              </label>
-              <Link
-                href="/forgot-auth-key"
-                className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5C584F] hover:text-[#B94E2D] hover:underline"
-              >
-                Recover key
-              </Link>
-            </div>
-            <input
-              id="securityKey"
-              type="password"
-              autoComplete="one-time-code"
-              className="input-enterprise font-mono tracking-wider"
-              placeholder="PV-XXXXXXXX-XXXXXXXX"
-              {...register('securityKey')}
-            />
-            {errors.securityKey && (
-              <p className="mt-1 text-xs text-[#B94E2D]">{errors.securityKey.message}</p>
+              <p className="text-xs text-[#FF7A70]">{errors.password.message}</p>
             )}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="btn-terracotta w-full mt-2"
+            className="w-full py-3 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-            <span>{loading ? 'Signing In...' : 'Sign In'}</span>
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <span>Sign In to Cockpit</span>
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </button>
         </form>
       )}
 
+      {/* Phone OTP Form */}
       {method === 'phone' && (
         <div className="space-y-4">
           {!otpSent ? (
             <form onSubmit={handleSendOtp} className="space-y-4">
-              <div>
-                <label className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914] mb-1.5">
-                  Mobile Number
+              <div className="space-y-1">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  Mobile Number (India +91)
                 </label>
                 <input
                   type="tel"
-                  placeholder="+91 98765 43210"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="input-enterprise"
+                  placeholder="+91 98765 43210"
+                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
                 />
-                <p className="mt-1.5 text-[11px] text-[#5C584F]">
-                  We will send a 6-digit verification code to your phone.
-                </p>
               </div>
 
               <button
                 type="submit"
                 disabled={phoneLoading}
-                className="btn-terracotta w-full"
+                className="w-full py-3 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>
-                  {phoneLoading ? 'Sending OTP...' : 'Send Verification Code'}
-                </span>
-                {!phoneLoading && <ArrowRight className="h-4 w-4" />}
+                {phoneLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <span>Send Login OTP</span>
+                )}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block font-mono text-[10px] font-medium uppercase tracking-[0.16em] text-[#181914]">
-                    Enter 6-Digit Code
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOtpSent(false);
-                      setOtpCode('');
-                    }}
-                    className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#5C584F] hover:text-[#B94E2D] hover:underline"
-                  >
-                    Change Number
-                  </button>
-                </div>
+              <div className="space-y-1">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  Enter 6-Digit OTP Code
+                </label>
                 <input
                   type="text"
                   maxLength={6}
-                  autoFocus
-                  placeholder="123456"
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  className="input-enterprise text-center font-mono text-base tracking-[0.3em]"
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="123456"
+                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] text-center font-mono tracking-widest placeholder-[#858D9B]/50 transition-colors"
                 />
                 {devOtpHint && (
-                  <p className="mt-1.5 text-xs text-[#181914] bg-[#E9DFCC] p-2 border border-[#D5CBB8] font-mono">
-                    Dev Code Preview: <strong>{devOtpHint}</strong>
+                  <p className="text-[10px] font-mono text-[#2457FF]">
+                    Development OTP: {devOtpHint}
                   </p>
                 )}
               </div>
 
-              <button
-                type="submit"
-                disabled={phoneLoading}
-                className="btn-terracotta w-full"
-              >
-                {phoneLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                <span>{phoneLoading ? 'Verifying...' : 'Verify & Sign In'}</span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOtpSent(false)}
+                  className="py-2.5 px-3 border border-[#252C38] text-xs font-mono text-[#858D9B] hover:text-[#F4F6FA] rounded-xs"
+                >
+                  Change
+                </button>
+                <button
+                  type="submit"
+                  disabled={phoneLoading}
+                  className="flex-1 py-2.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs flex items-center justify-center gap-2"
+                >
+                  {phoneLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <span>Verify &amp; Enter Cockpit</span>
+                  )}
+                </button>
+              </div>
             </form>
           )}
         </div>
       )}
+
+      {/* Instant Demo Access Button */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={handleDemoSignIn}
+          disabled={loading}
+          className="w-full py-2.5 px-3 bg-[#090B10] hover:bg-[#252C38] border border-[#252C38] text-xs font-mono text-[#C5CAD3] hover:text-white rounded-xs transition-colors flex items-center justify-center gap-2"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-[#2457FF]" />
+          <span>Quick Demo: Enter as Sharma Family Office</span>
+        </button>
+      </div>
     </div>
   );
 }
