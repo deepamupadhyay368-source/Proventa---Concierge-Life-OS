@@ -13,15 +13,18 @@ import {
   Layers,
 } from 'lucide-react';
 import { NetWorthSummary } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function MyWealthPage() {
+  const { currentWorkspaceId, isLoaded } = useCurrentWorkspace();
   const [telemetry, setTelemetry] = useState<NetWorthSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
+      if (!currentWorkspaceId) return;
       try {
-        const res = await fetch('/api/wealth/telemetry?workspaceId=fam_sharma_heritage');
+        const res = await fetch(`/api/wealth/telemetry?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
         const json = await res.json();
         if (json.success) {
           setTelemetry(json.data.telemetry);
@@ -32,8 +35,10 @@ export default function MyWealthPage() {
         setLoading(false);
       }
     }
-    void loadData();
-  }, []);
+    if (isLoaded) {
+      void loadData();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   if (loading || !telemetry) {
     return (
@@ -99,7 +104,7 @@ export default function MyWealthPage() {
                 02 // ATTRIBUTABLE LEGAL SHARE
               </span>
               <span className="px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 uppercase font-semibold rounded-[2px]">
-                Rajesh Sharma (Self)
+                {telemetry.memberShares[0]?.memberName || 'Primary Beneficiary'} (Self)
               </span>
             </div>
 

@@ -43,7 +43,7 @@ const DEFAULT_MILESTONES: Milestone[] = [
   {
     id: 'm3',
     year: 2038,
-    label: 'Sharma Philanthropic Foundation',
+    label: 'Family Philanthropic Foundation',
     category: 'PHILANTHROPY',
     projectedPaise: 11000000000, // ₹110 Cr
     description: 'Establishment of perpetual STEM educational trust endowed with commercial rent yields.',

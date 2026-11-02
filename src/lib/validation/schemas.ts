@@ -113,12 +113,21 @@ export const registerSchema = z
     },
   );
 
-export const loginSchema = z.object({
-  email: emailSchema,
-  password: z.string().min(1, 'Password is required'),
-  authenticationKey: z.string().optional(),
-  securityKey: z.string().optional(),
-});
+export const loginSchema = z
+  .object({
+    email: emailSchema,
+    password: z.string().optional(),
+    accessKey: z.string().optional(),
+    authenticationKey: z.string().optional(),
+    securityKey: z.string().optional(),
+  })
+  .refine(
+    (data) => Boolean(data.password || data.accessKey || data.authenticationKey || data.securityKey),
+    {
+      message: 'Password or PROVENTA Access Key is required',
+      path: ['password'],
+    },
+  );
 
 export const changeAuthenticationKeySchema = z
   .object({

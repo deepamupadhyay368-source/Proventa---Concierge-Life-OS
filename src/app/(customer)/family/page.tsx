@@ -13,11 +13,15 @@ import {
 } from 'lucide-react';
 import { FamilyWorkspaceDTO, FamilyMemberDTO } from '@/lib/wealth/types';
 import { FinancialUniverse } from '@/components/wealth/universe/FinancialUniverse';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function FamilyWorkspacePage() {
+  const { user, isLoaded, refreshWorkspaces } = useCurrentWorkspace();
   const [workspace, setWorkspace] = useState<FamilyWorkspaceDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newFamilyName, setNewFamilyName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'ADMIN' | 'MEMBER' | 'VIEWER'>('MEMBER');
   const [inviteRelationship, setInviteRelationship] = useState('CHILD');
@@ -26,10 +30,13 @@ export default function FamilyWorkspacePage() {
   async function loadFamilyData() {
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/workspaces?userId=usr_rajesh_sharma');
+      const userId = user?.id || 'usr_primary';
+      const res = await fetch(`/api/wealth/workspaces?userId=${encodeURIComponent(userId)}`);
       const json = await res.json();
       if (json.success && json.data?.families?.length > 0) {
         setWorkspace(json.data.families[0]);
+      } else {
+        setWorkspace(null);
       }
     } catch (err) {
       console.error(err);
@@ -39,8 +46,36 @@ export default function FamilyWorkspacePage() {
   }
 
   useEffect(() => {
-    void loadFamilyData();
-  }, []);
+    if (isLoaded) {
+      void loadFamilyData();
+    }
+  }, [user?.id, isLoaded]);
+
+  async function handleCreateFamily(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newFamilyName.trim()) return;
+
+    try {
+      const res = await fetch('/api/wealth/workspaces', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newFamilyName.trim(),
+          ownerId: user?.id || 'usr_primary',
+          ownerName: user?.name || 'Primary Trustee',
+          ownerEmail: user?.email || 'trustee@proventa.internal',
+        }),
+      });
+      if (res.ok) {
+        setIsCreateModalOpen(false);
+        setNewFamilyName('');
+        await loadFamilyData();
+        await refreshWorkspaces();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   async function handleSendInvite(e: React.FormEvent) {
     e.preventDefault();
@@ -72,10 +107,46 @@ export default function FamilyWorkspacePage() {
     }
   }
 
-  if (loading || !workspace) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px] border border-[#CBD5E1] bg-white p-8 font-mono text-xs uppercase tracking-wider text-[#2563EB] rounded-2xl shadow-sm">
         Loading Living Family Governance Topology...
+      </div>
+    );
+  }
+
+  if (!workspace) {
+    return (
+      <div className="space-y-6">
+        <div className="p-8 sm:p-12 border border-[#CBD5E1] bg-white rounded-2xl shadow-sm text-center space-y-4">
+          <div className="w-12 h-12 mx-auto bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center rounded-2xl">
+            <Users className="w-6 h-6" />
+          </div>
+          <h2 className="font-display font-bold text-2xl text-[#0F172A]">
+            Register Your Family Trust
+          </h2>
+          <p className="text-sm text-[#64748B] max-w-md mx-auto">
+            You are currently operating in your Personal Workspace. Register a multi-member family trust to invite family beneficiaries, advisors, and co-trustees.
+          </p>
+          <div className="pt-2 max-w-sm mx-auto">
+            <form onSubmit={handleCreateFamily} className="space-y-3">
+              <input
+                type="text"
+                value={newFamilyName}
+                onChange={(e) => setNewFamilyName(e.target.value)}
+                placeholder="e.g. Heritage Family Trust"
+                className="w-full px-4 py-2.5 bg-white border border-[#CBD5E1] focus:border-[#2563EB] focus:outline-none rounded-xl text-sm text-[#0F172A]"
+                required
+              />
+              <button
+                type="submit"
+                className="w-full py-3 bg-[#2563EB] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider font-semibold rounded-xl shadow-sm transition-all"
+              >
+                + Register Family Trust
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     );
   }

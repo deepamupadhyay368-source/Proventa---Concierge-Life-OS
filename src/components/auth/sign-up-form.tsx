@@ -256,7 +256,7 @@ export function SignUpForm() {
           <input
             {...register('name')}
             type="text"
-            placeholder="Rajesh Sharma"
+            placeholder="Aditya Verma"
             className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
           />
           {errors.name && (
@@ -271,7 +271,7 @@ export function SignUpForm() {
           <input
             {...register('email')}
             type="email"
-            placeholder="rajesh@sharmafamily.in"
+            placeholder="aditya@familytrust.in"
             className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
           />
           {errors.email && (

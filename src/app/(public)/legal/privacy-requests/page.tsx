@@ -196,7 +196,7 @@ export default function PrivacyRequestsPage() {
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="e.g. Rahul Sharma"
+                        placeholder="e.g. Rahul Verma"
                         className="w-full px-3.5 py-2 text-xs rounded-xl border border-[#ded7cc] bg-white text-[#141312] focus:outline-hidden focus:ring-2 focus:ring-[#8a7053]"
                       />
                     </div>

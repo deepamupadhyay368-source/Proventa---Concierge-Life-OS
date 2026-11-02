@@ -27,20 +27,23 @@ const STEPS = [
   { id: 10, label: 'Synthesis', desc: 'Deterministic Terminal' },
 ];
 
+import { useSession } from 'next-auth/react';
+
 export default function OnboardingPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form states
-  const [fullName, setFullName] = useState('Rajesh Sharma');
-  const [email, setEmail] = useState('rajesh.sharma@familywealth.internal');
-  const [familyName, setFamilyName] = useState('Sharma Family Trust & Holdings');
-  const [inviteEmail, setInviteEmail] = useState('sunita.sharma@familywealth.internal');
-  const [assetName, setAssetName] = useState('Worli Penthouse Residence');
-  const [assetValue, setAssetValue] = useState('125000000'); // ₹12.5 Cr
-  const [hasLiability, setHasLiability] = useState(true);
-  const [liabilityName, setLiabilityName] = useState('SBI Home Loan (Worli)');
-  const [liabilityBalance, setLiabilityBalance] = useState('18500000'); // ₹1.85 Cr
+  const [fullName, setFullName] = useState(session?.user?.name || '');
+  const [email, setEmail] = useState(session?.user?.email || '');
+  const [familyName, setFamilyName] = useState('');
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [assetName, setAssetName] = useState('');
+  const [assetValue, setAssetValue] = useState('');
+  const [hasLiability, setHasLiability] = useState(false);
+  const [liabilityName, setLiabilityName] = useState('');
+  const [liabilityBalance, setLiabilityBalance] = useState('');
 
   function nextStep() {
     if (currentStep < 10) {

@@ -5,7 +5,10 @@ import { rupeesToPaise } from '@/lib/wealth/engine';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
     const category = searchParams.get('category') || undefined;
 
     const assets = listAssets({ workspaceId, category });
@@ -30,21 +33,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: updated });
     }
 
+    if (!body.workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
     const valuePaise = body.currentValuePaise || rupeesToPaise(body.currentValueRupees || 0);
     const newAsset = createAsset({
-      workspaceId: body.workspaceId || 'fam_sharma_heritage',
-      workspaceType: body.workspaceType || 'FAMILY',
-      familyId: body.familyId || 'fam_sharma_heritage',
-      name: body.name,
-      category: body.category,
+      workspaceId: body.workspaceId,
+      workspaceType: body.workspaceType || (body.workspaceId.startsWith('ind_') ? 'INDIVIDUAL' : 'FAMILY'),
+      familyId: body.familyId || body.workspaceId,
+      name: body.name || 'Untitled Asset',
+      category: body.category || 'FINANCIAL',
       subcategory: body.subcategory,
       description: body.description,
       acquisitionDate: body.acquisitionDate,
       acquisitionValuePaise: body.acquisitionValueRupees ? rupeesToPaise(body.acquisitionValueRupees) : null,
       currentValuePaise: valuePaise,
       currency: body.currency || 'INR',
-      legalOwnerId: body.legalOwnerId || 'usr_rajesh_sharma',
-      legalOwnerName: body.legalOwnerName || 'Rajesh Sharma',
+      legalOwnerId: body.legalOwnerId || 'usr_owner',
+      legalOwnerName: body.legalOwnerName || 'Primary Owner',
       ownershipPercentage: body.ownershipPercentage !== undefined ? Number(body.ownershipPercentage) : 100,
       coOwners: body.coOwners || [],
       valuationStatus: body.valuationStatus || 'USER_REPORTED',

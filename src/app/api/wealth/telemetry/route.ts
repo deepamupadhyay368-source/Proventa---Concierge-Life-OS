@@ -5,7 +5,10 @@ import { getProactiveLivingObservations } from '@/lib/wealth/ai-agents';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
     const targetUserId = searchParams.get('userId') || undefined;
 
     const telemetry = getWealthDashboardTelemetry({

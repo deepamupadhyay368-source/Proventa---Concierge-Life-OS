@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Space_Grotesk, Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { QueryProvider } from '@/components/providers/query-provider';
+import { SessionProvider } from '@/components/providers/session-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
@@ -115,10 +116,12 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          <QueryProvider>
-            {children}
-            <Toaster richColors closeButton position="top-right" />
-          </QueryProvider>
+          <SessionProvider>
+            <QueryProvider>
+              {children}
+              <Toaster richColors closeButton position="top-right" />
+            </QueryProvider>
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

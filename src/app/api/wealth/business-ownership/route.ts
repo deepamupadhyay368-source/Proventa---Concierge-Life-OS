@@ -4,7 +4,10 @@ import { getFamilyBusinessOwnershipGraph } from '@/lib/wealth/business-ownership
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const familyId = searchParams.get('familyId') || 'fam_sharma_heritage';
+    const familyId = searchParams.get('familyId') || searchParams.get('workspaceId');
+    if (!familyId) {
+      return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
+    }
 
     const graph = getFamilyBusinessOwnershipGraph(familyId);
     return NextResponse.json({ success: true, data: graph });

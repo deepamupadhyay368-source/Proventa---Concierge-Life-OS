@@ -39,7 +39,7 @@ const DEFAULT_TOPOLOGY: TopologyNode[] = [
   // 1. Root Trust Anchor
   {
     id: 'node-root',
-    name: 'Sharma Family Trust & Holdings',
+    name: 'Primary Family Trust & Holdings',
     stratum: 'TRUST_ROOT',
     code: 'FWS-001',
     valuationFormatted: '₹94,20,00,000 Net Worth',
@@ -57,7 +57,7 @@ const DEFAULT_TOPOLOGY: TopologyNode[] = [
   // 2. Family Beneficiaries
   {
     id: 'node-mem1',
-    name: 'Rajesh Sharma',
+    name: 'Managing Trustee',
     stratum: 'BENEFICIARY',
     code: 'BEN-01',
     valuationFormatted: 'Attributed Share: 45%',
@@ -74,7 +74,7 @@ const DEFAULT_TOPOLOGY: TopologyNode[] = [
   },
   {
     id: 'node-mem2',
-    name: 'Sunita Sharma',
+    name: 'Co-Trustee',
     stratum: 'BENEFICIARY',
     code: 'BEN-02',
     valuationFormatted: 'Attributed Share: 35%',
@@ -91,7 +91,7 @@ const DEFAULT_TOPOLOGY: TopologyNode[] = [
   },
   {
     id: 'node-mem3',
-    name: 'Aarav Sharma',
+    name: 'Successor Beneficiary',
     stratum: 'BENEFICIARY',
     code: 'BEN-03',
     valuationFormatted: 'Attributed Share: 20%',

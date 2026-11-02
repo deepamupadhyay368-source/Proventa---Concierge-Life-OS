@@ -7,15 +7,18 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { NetWorthSummary } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function ReportsPage() {
+  const { currentWorkspaceId, currentWorkspace, user, isLoaded } = useCurrentWorkspace();
   const [telemetry, setTelemetry] = useState<NetWorthSummary | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
+      if (!currentWorkspaceId) return;
       try {
-        const res = await fetch('/api/wealth/telemetry?workspaceId=fam_sharma_heritage');
+        const res = await fetch(`/api/wealth/telemetry?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
         const json = await res.json();
         if (json.success) {
           setTelemetry(json.data.telemetry);
@@ -26,8 +29,10 @@ export default function ReportsPage() {
         setLoading(false);
       }
     }
-    void loadData();
-  }, []);
+    if (isLoaded) {
+      void loadData();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   function handlePrint() {
     window.print();
@@ -85,7 +90,7 @@ export default function ReportsPage() {
               Consolidated Statement of Family Financial Position
             </h2>
             <div className="font-mono text-xs text-[#858D9B] mt-1 print:text-neutral-600">
-              Entity: Sharma Family Trust &amp; Holdings · Workspace Code: FWS-001
+              Entity: {currentWorkspace.name} · Workspace Code: {currentWorkspace.code || 'PRV-001'}
             </div>
           </div>
           <div className="text-left sm:text-right font-mono text-xs text-[#C5CAD3] space-y-0.5 print:text-black">
@@ -199,9 +204,9 @@ export default function ReportsPage() {
               PRIMARY TRUSTEE EXECUTION &amp; SEAL
             </div>
             <div className="h-16 border-b border-[#252C38] flex items-end pb-1 font-display font-bold text-lg text-[#F4F6FA] print:border-black print:text-black">
-              Rajesh Sharma (Trustee)
+              {user?.name || 'Authorized Member'} ({currentWorkspace.role || 'Trustee'})
             </div>
-            <div className="text-[10px] text-[#85827B] print:text-neutral-600">Authorized Signatory · Sharma Family Trust</div>
+            <div className="text-[10px] text-[#85827B] print:text-neutral-600">Authorized Signatory · {currentWorkspace.name}</div>
           </div>
 
           <div className="space-y-4">

@@ -27,6 +27,11 @@ function getProtectionStore(): ProtectionStore {
       policies: new Map(),
     };
 
+    if (process.env.NODE_ENV !== 'test') {
+      globalThis.__proventaProtectionStore = store;
+      return store;
+    }
+
     const demoFamilyId = 'fam_sharma_heritage';
 
     const demoPolicies: InsurancePolicyDTO[] = [

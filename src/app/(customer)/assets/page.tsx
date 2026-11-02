@@ -13,8 +13,10 @@ import {
   FileText,
 } from 'lucide-react';
 import { AssetDTO, AssetCategoryType } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function AssetsPage() {
+  const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
   const [assets, setAssets] = useState<AssetDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
@@ -28,7 +30,7 @@ export default function AssetsPage() {
   const [newCategory, setNewCategory] = useState<AssetCategoryType>('FINANCIAL');
   const [newSubcategory, setNewSubcategory] = useState('MUTUAL_FUND');
   const [newValueRupees, setNewValueRupees] = useState('');
-  const [newOwnerName, setNewOwnerName] = useState('Rajesh Sharma');
+  const [newOwnerName, setNewOwnerName] = useState(user?.name || 'Primary Owner');
   const [newOwnershipPct, setNewOwnershipPct] = useState('100');
   const [newDescription, setNewDescription] = useState('');
 
@@ -37,12 +39,13 @@ export default function AssetsPage() {
   const [valuationNote, setValuationNote] = useState('');
 
   async function loadAssets() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
       const url =
         selectedCategory !== 'ALL'
-          ? `/api/wealth/assets?workspaceId=fam_sharma_heritage&category=${selectedCategory}`
-          : '/api/wealth/assets?workspaceId=fam_sharma_heritage';
+          ? `/api/wealth/assets?workspaceId=${encodeURIComponent(currentWorkspaceId)}&category=${selectedCategory}`
+          : `/api/wealth/assets?workspaceId=${encodeURIComponent(currentWorkspaceId)}`;
       const res = await fetch(url);
       const json = await res.json();
       if (json.success) {
@@ -56,23 +59,27 @@ export default function AssetsPage() {
   }
 
   useEffect(() => {
-    void loadAssets();
-  }, [selectedCategory]);
+    if (isLoaded) {
+      void loadAssets();
+    }
+  }, [selectedCategory, currentWorkspaceId, isLoaded]);
 
   async function handleCreateAsset(e: React.FormEvent) {
     e.preventDefault();
-    if (!newName || !newValueRupees) return;
+    if (!newName || !newValueRupees || !currentWorkspaceId) return;
 
     try {
       const res = await fetch('/api/wealth/assets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          workspaceId: currentWorkspaceId,
           name: newName,
           category: newCategory,
           subcategory: newSubcategory,
           currentValueRupees: parseFloat(newValueRupees),
-          legalOwnerName: newOwnerName,
+          legalOwnerId: user?.id || 'usr_owner',
+          legalOwnerName: newOwnerName || user?.name || 'Primary Owner',
           ownershipPercentage: parseFloat(newOwnershipPct),
           description: newDescription,
         }),
@@ -319,6 +326,24 @@ export default function AssetsPage() {
             ))}
           </tbody>
         </table>
+        {filteredAssets.length === 0 && (
+          <div className="p-12 text-center space-y-3">
+            <div className="w-10 h-10 mx-auto bg-[#2457FF]/10 text-[#2457FF] flex items-center justify-center rounded-xs">
+              <Coins className="w-5 h-5" />
+            </div>
+            <div className="font-heading font-bold text-base text-[#0F172A]">No Capital Assets Recorded</div>
+            <p className="text-xs text-[#64748B] max-w-sm mx-auto">
+              Your asset register is currently empty. Record your real estate properties, equities, fixed deposits, bullion, or private business interests.
+            </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white hover:bg-blue-700 font-mono text-xs uppercase tracking-wider rounded-lg transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Record First Capital Asset</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 4. RECORD ASSET MODAL */}

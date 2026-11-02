@@ -5,7 +5,10 @@ import { rupeesToPaise } from '@/lib/wealth/engine';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
 
     const goals = listGoals(workspaceId);
     return NextResponse.json({ success: true, data: goals });
@@ -36,17 +39,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: simulation });
     }
 
+    if (!body.workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
     const targetPaise = body.targetAmountPaise || rupeesToPaise(body.targetAmountRupees || 0);
     const currentPaise = body.currentAmountPaise || rupeesToPaise(body.currentAmountRupees || 0);
 
     const goal = createGoal({
-      workspaceId: body.workspaceId || 'fam_sharma_heritage',
-      familyId: body.familyId || 'fam_sharma_heritage',
-      title: body.title,
-      category: body.category,
+      workspaceId: body.workspaceId,
+      familyId: body.familyId || body.workspaceId,
+      title: body.title || 'Milestone Goal',
+      category: body.category || 'RETIREMENT',
       targetAmountPaise: targetPaise,
       currentAmountPaise: currentPaise,
-      targetDate: body.targetDate,
+      targetDate: body.targetDate || new Date().toISOString().split('T')[0],
       contributors: body.contributors || [],
       status: body.status || 'ON_TRACK',
       notes: body.notes,

@@ -9,7 +9,10 @@ import { rupeesToPaise } from '@/lib/wealth/engine';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
     const periodMonth = searchParams.get('periodMonth') || undefined;
 
     const summary = getCashflowSummary(workspaceId, periodMonth);
@@ -30,16 +33,19 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    if (!body.workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
     const amountPaise = body.amountPaise || rupeesToPaise(body.amountRupees || 0);
 
     const tx = createCashflowTransaction({
-      workspaceId: body.workspaceId || 'fam_sharma_heritage',
-      familyId: body.familyId || 'fam_sharma_heritage',
-      userId: body.userId || 'usr_rajesh_sharma',
-      userName: body.userName || 'Rajesh Sharma',
-      title: body.title,
-      type: body.type,
-      category: body.category,
+      workspaceId: body.workspaceId,
+      familyId: body.familyId || body.workspaceId,
+      userId: body.userId || 'usr_member',
+      userName: body.userName || 'Account Member',
+      title: body.title || 'Cashflow Entry',
+      type: body.type || 'INCOME',
+      category: body.category || 'OTHER_INCOME',
       amountPaise,
       transactionDate: body.transactionDate || new Date().toISOString().split('T')[0],
       isRecurring: Boolean(body.isRecurring),

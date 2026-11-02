@@ -13,8 +13,10 @@ import {
   Eye,
 } from 'lucide-react';
 import { DocumentDTO, DocumentCategory } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function FamilyVaultPage() {
+  const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
   const [documents, setDocuments] = useState<DocumentDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,12 +30,13 @@ export default function FamilyVaultPage() {
   const [fileName, setFileName] = useState('');
 
   async function loadDocuments() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
       const url =
         selectedCategory !== 'ALL'
-          ? `/api/wealth/vault?workspaceId=fam_sharma_heritage&category=${selectedCategory}`
-          : '/api/wealth/vault?workspaceId=fam_sharma_heritage';
+          ? `/api/wealth/vault?workspaceId=${encodeURIComponent(currentWorkspaceId)}&category=${selectedCategory}`
+          : `/api/wealth/vault?workspaceId=${encodeURIComponent(currentWorkspaceId)}`;
       const res = await fetch(url);
       const json = await res.json();
       if (json.success) {
@@ -47,18 +50,23 @@ export default function FamilyVaultPage() {
   }
 
   useEffect(() => {
-    void loadDocuments();
-  }, [selectedCategory]);
+    if (isLoaded) {
+      void loadDocuments();
+    }
+  }, [selectedCategory, currentWorkspaceId, isLoaded]);
 
   async function handleUpload(e: React.FormEvent) {
     e.preventDefault();
-    if (!newTitle) return;
+    if (!newTitle || !currentWorkspaceId) return;
 
     try {
       const res = await fetch('/api/wealth/vault', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          workspaceId: currentWorkspaceId,
+          uploadedByUserId: user?.id || 'usr_member',
+          uploadedByUserName: user?.name || 'Vault Custodian',
           title: newTitle,
           category: newCategory,
           fileName: fileName || `${newTitle.replace(/\s+/g, '_')}.pdf`,
@@ -309,6 +317,24 @@ export default function FamilyVaultPage() {
             </div>
           );
         })}
+        {filteredDocs.length === 0 && (
+          <div className="col-span-full p-12 text-center space-y-3 bg-white border border-[#E2E8F0] rounded-2xl shadow-sm">
+            <div className="w-10 h-10 mx-auto bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center rounded-lg">
+              <Lock className="w-5 h-5" />
+            </div>
+            <div className="font-display font-bold text-base text-[#0F172A]">Family Vault Is Empty</div>
+            <p className="text-xs text-[#64748B] max-w-sm mx-auto">
+              Your zero-knowledge encrypted vault has no uploaded documents. Upload registered property deeds, demat holding statements, share certificates, or insurance policies.
+            </p>
+            <button
+              onClick={() => setIsUploadOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider rounded-lg transition-colors"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              <span>+ Upload First Document</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 4. HUMAN VERIFICATION REVIEW MODAL */}

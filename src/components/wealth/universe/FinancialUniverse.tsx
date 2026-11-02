@@ -34,7 +34,7 @@ const DEFAULT_NODES: UniverseNode[] = [
   // Core Anchor
   {
     id: 'core-trust',
-    name: 'Sharma Family Trust & Holdings',
+    name: 'Primary Family Trust & Holdings',
     category: 'core',
     subType: 'Irrevocable Family Trust (PAN: AABTS7812E)',
     valueFormatted: '₹94,20,00,000 Net Worth',
@@ -49,7 +49,7 @@ const DEFAULT_NODES: UniverseNode[] = [
   // Family Members (Orbit 1)
   {
     id: 'mem-1',
-    name: 'Rajesh Sharma',
+    name: 'Managing Trustee',
     category: 'family',
     subType: 'Managing Trustee & Founder',
     valueFormatted: 'Beneficial Share: 45%',
@@ -63,7 +63,7 @@ const DEFAULT_NODES: UniverseNode[] = [
   },
   {
     id: 'mem-2',
-    name: 'Priya Sharma',
+    name: 'Co-Trustee',
     category: 'family',
     subType: 'Co-Trustee',
     valueFormatted: 'Beneficial Share: 35%',
@@ -77,7 +77,7 @@ const DEFAULT_NODES: UniverseNode[] = [
   },
   {
     id: 'mem-3',
-    name: 'Aarav Sharma',
+    name: 'Senior Beneficiary',
     category: 'family',
     subType: 'Beneficiary (Major)',
     valueFormatted: 'Beneficial Share: 10%',
@@ -91,7 +91,7 @@ const DEFAULT_NODES: UniverseNode[] = [
   },
   {
     id: 'mem-4',
-    name: 'Ananya Sharma',
+    name: 'Successor Beneficiary',
     category: 'family',
     subType: 'Beneficiary (Minor)',
     valueFormatted: 'Beneficial Share: 10%',

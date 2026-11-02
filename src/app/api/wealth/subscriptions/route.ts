@@ -15,11 +15,13 @@ function getSubStore(): SubscriptionStore {
     const store: SubscriptionStore = {
       activeSubscriptions: new Map(),
     };
-    store.activeSubscriptions.set('fam_sharma_heritage', {
-      tier: 'FAMILY_OFFICE',
-      active: true,
-      renewedAt: '2026-01-01T00:00:00.000Z',
-    });
+    if (process.env.NODE_ENV === 'test') {
+      store.activeSubscriptions.set('fam_sharma_heritage', {
+        tier: 'FAMILY_OFFICE',
+        active: true,
+        renewedAt: '2026-01-01T00:00:00.000Z',
+      });
+    }
     globalThis.__proventaSubStore = store;
   }
   return globalThis.__proventaSubStore;
@@ -28,7 +30,7 @@ function getSubStore(): SubscriptionStore {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId') || 'primary_workspace';
 
     const store = getSubStore();
     const current = store.activeSubscriptions.get(workspaceId) || {
@@ -64,7 +66,7 @@ export async function POST(req: NextRequest) {
 
     // In sandbox or with Razorpay credentials, verify server-side
     const store = getSubStore();
-    store.activeSubscriptions.set(workspaceId || 'fam_sharma_heritage', {
+    store.activeSubscriptions.set(workspaceId || 'primary_workspace', {
       tier: targetTier as WealthPlanTier,
       active: true,
       renewedAt: new Date().toISOString(),

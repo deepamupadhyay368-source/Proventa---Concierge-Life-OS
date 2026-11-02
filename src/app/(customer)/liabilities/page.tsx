@@ -10,8 +10,10 @@ import {
   Building,
 } from 'lucide-react';
 import { LiabilityDTO, LiabilityType } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function LiabilitiesPage() {
+  const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
   const [liabilities, setLiabilities] = useState<LiabilityDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -25,13 +27,14 @@ export default function LiabilitiesPage() {
   const [emiRupees, setEmiRupees] = useState('');
   const [interestRate, setInterestRate] = useState('8.5');
   const [maturityDate, setMaturityDate] = useState('');
-  const [primaryBorrowerName, setPrimaryBorrowerName] = useState('Rajesh Sharma');
+  const [primaryBorrowerName, setPrimaryBorrowerName] = useState(user?.name || 'Primary Borrower');
   const [ownershipPct, setOwnershipPct] = useState('100');
 
   async function loadLiabilities() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/liabilities?workspaceId=fam_sharma_heritage');
+      const res = await fetch(`/api/wealth/liabilities?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
       const json = await res.json();
       if (json.success) {
         setLiabilities(json.data);
@@ -44,18 +47,21 @@ export default function LiabilitiesPage() {
   }
 
   useEffect(() => {
-    void loadLiabilities();
-  }, []);
+    if (isLoaded) {
+      void loadLiabilities();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   async function handleCreateLiability(e: React.FormEvent) {
     e.preventDefault();
-    if (!name || !balanceRupees) return;
+    if (!name || !balanceRupees || !currentWorkspaceId) return;
 
     try {
       const res = await fetch('/api/wealth/liabilities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          workspaceId: currentWorkspaceId,
           name,
           lenderName,
           liabilityType,
@@ -64,7 +70,8 @@ export default function LiabilitiesPage() {
           emiRupees: emiRupees ? parseFloat(emiRupees) : null,
           interestRateAnnual: parseFloat(interestRate),
           maturityDate,
-          primaryBorrowerName,
+          primaryBorrowerId: user?.id || 'usr_borrower',
+          primaryBorrowerName: primaryBorrowerName || user?.name || 'Primary Borrower',
           borrowerOwnershipPercentage: parseFloat(ownershipPct),
         }),
       });
@@ -212,6 +219,24 @@ export default function LiabilitiesPage() {
             ))}
           </tbody>
         </table>
+        {liabilities.length === 0 && (
+          <div className="p-12 text-center space-y-3 bg-[#171C26]">
+            <div className="w-10 h-10 mx-auto bg-[#FF7A70]/10 text-[#FF7A70] flex items-center justify-center rounded-xs border border-[#FF7A70]/20">
+              <CreditCard className="w-5 h-5" />
+            </div>
+            <div className="font-heading font-bold text-base text-[#F4F6FA]">No Debt Facilities Recorded</div>
+            <p className="text-xs text-[#858D9B] max-w-sm mx-auto">
+              No active liabilities logged. Record mortgages, commercial credit, or personal facilities to monitor debt amortization.
+            </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider rounded-xs transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Record First Liability</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3. RECORD LIABILITY MODAL */}

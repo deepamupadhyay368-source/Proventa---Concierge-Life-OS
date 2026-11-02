@@ -25,6 +25,11 @@ function getContinuityStore(): ContinuityStore {
       records: new Map(),
     };
 
+    if (process.env.NODE_ENV !== 'test') {
+      globalThis.__proventaContinuityStore = store;
+      return store;
+    }
+
     const demoFamilyId = 'fam_sharma_heritage';
 
     const demoRecord: FamilyContinuityDTO = {

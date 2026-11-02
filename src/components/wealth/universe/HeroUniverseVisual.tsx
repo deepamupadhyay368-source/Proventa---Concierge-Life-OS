@@ -28,7 +28,7 @@ export function HeroUniverseVisual() {
               </div>
               <div>
                 <div className="font-display font-bold text-base text-[#0F172A] tracking-tight">
-                  Sharma Family Trust & Holdings
+                  Primary Family Trust & Holdings
                 </div>
                 <div className="font-mono text-[11px] text-[#64748B] flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-[#0D9488]" />

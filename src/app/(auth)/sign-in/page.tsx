@@ -91,8 +91,8 @@ export default async function SignInPage({
           <SignInForm callbackUrl={params.callbackUrl} />
         </div>
 
-        {/* Bottom Registration & Demo Switcher */}
-        <div className="rounded-xs border border-[#252C38] bg-[#171C26]/60 p-4 font-mono text-xs text-[#C5CAD3] space-y-3">
+        {/* Bottom Registration Switcher */}
+        <div className="rounded-xs border border-[#252C38] bg-[#171C26]/60 p-4 font-mono text-xs text-[#C5CAD3]">
           <div className="flex items-center justify-between">
             <span className="text-[#858D9B]">NEW TO PROVENTA?</span>
             <Link
@@ -100,15 +100,6 @@ export default async function SignInPage({
               className="text-[#2457FF] hover:underline font-bold"
             >
               CREATE ACCOUNT →
-            </Link>
-          </div>
-          <div className="flex items-center justify-between pt-2 border-t border-[#252C38]">
-            <span className="text-[#858D9B]">EXPLORE PLATFORM?</span>
-            <Link
-              href="/dashboard"
-              className="text-[#F4F6FA] hover:text-[#2457FF] transition-colors font-medium"
-            >
-              LAUNCH LIVE DEMO →
             </Link>
           </div>
         </div>

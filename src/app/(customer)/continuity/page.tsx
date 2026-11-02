@@ -12,17 +12,20 @@ import {
   UserCheck,
 } from 'lucide-react';
 import { FamilyContinuityDTO } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function ContinuityPage() {
+  const { currentWorkspaceId, isLoaded } = useCurrentWorkspace();
   const [continuity, setContinuity] = useState<FamilyContinuityDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditingInstructions, setIsEditingInstructions] = useState(false);
   const [instructionsText, setInstructionsText] = useState('');
 
   async function loadContinuity() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/continuity?familyId=fam_sharma_heritage');
+      const res = await fetch(`/api/wealth/continuity?familyId=${encodeURIComponent(currentWorkspaceId)}`);
       const json = await res.json();
       if (json.success && json.data) {
         setContinuity(json.data);
@@ -36,17 +39,20 @@ export default function ContinuityPage() {
   }
 
   useEffect(() => {
-    void loadContinuity();
-  }, []);
+    if (isLoaded) {
+      void loadContinuity();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   async function handleSaveInstructions() {
+    if (!currentWorkspaceId) return;
     try {
       const res = await fetch('/api/wealth/continuity', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'UPDATE_INSTRUCTIONS',
-          familyId: 'fam_sharma_heritage',
+          familyId: currentWorkspaceId,
           instructions: instructionsText,
         }),
       });

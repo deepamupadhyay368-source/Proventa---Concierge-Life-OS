@@ -36,6 +36,8 @@ import {
 import { BRAND_CONFIG, FAMILY_NAV_ITEMS } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 import { IntelligencePulse } from './universe/IntelligencePulse';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
+import { AccessKeyModal } from '@/components/auth/AccessKeyModal';
 
 const ICON_MAP: Record<string, React.ElementType> = {
   LayoutDashboard,
@@ -55,7 +57,14 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 export function WealthAppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [currentWorkspaceId, setCurrentWorkspaceId] = useState('fam_sharma_heritage');
+  const {
+    currentWorkspaceId,
+    currentWorkspace,
+    workspaces,
+    setCurrentWorkspaceId,
+    user,
+  } = useCurrentWorkspace();
+
   const [isWorkspaceMenuOpen, setIsWorkspaceMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -64,34 +73,12 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
   const [aiChat, setAiChat] = useState<Array<{ role: 'user' | 'assistant'; text: string; time: string; agent?: string }>>([
     {
       role: 'assistant',
-      text: 'PROVENTA LIVING FINANCIAL UNIVERSE // MULTI-DESK INTELLIGENCE ACTIVE\n\nWorkspace: Sharma Family Trust & Holdings [FWS-001]\nAll 6 specialized desks synchronized: Treasury, Vault Forensics, Cap-Table, Continuity, Protection, and Macro Allocation.',
+      text: 'PROVENTA LIVING FINANCIAL UNIVERSE // MULTI-DESK INTELLIGENCE ACTIVE\n\nYour institutional desks are synchronized: Treasury, Vault Forensics, Cap-Table, Continuity, Protection, and Macro Allocation.\nSpecify your inquiry below to inspect portfolio records.',
       time: '09:00 IST',
       agent: 'ORCHESTRATOR',
     },
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
-
-  // Available Workspaces for Rajesh Sharma
-  const workspaces = [
-    {
-      id: 'fam_sharma_heritage',
-      name: 'Sharma Family Trust & Holdings',
-      type: 'FAMILY OFFICE',
-      role: 'TRUSTEE / OWNER',
-      membersCount: 4,
-      code: 'FWS-001',
-    },
-    {
-      id: 'ind_usr_rajesh_sharma',
-      name: 'Rajesh Sharma (Personal Universe)',
-      type: 'INDIVIDUAL',
-      role: 'PRIMARY BENEFICIARY',
-      membersCount: 1,
-      code: 'IND-082',
-    },
-  ];
-
-  const currentWorkspace = workspaces.find((w) => w.id === currentWorkspaceId) || workspaces[0];
 
   const handleSendAi = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -153,8 +140,19 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
     await signOut({ callbackUrl: '/sign-in' });
   };
 
+  const userDisplayName = user?.name || 'Primary Account';
+  const userDisplayEmail = user?.email || 'account@proventa.in';
+  const userInitials = userDisplayName
+    .split(' ')
+    .map((p) => p[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'P';
+
   return (
     <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans flex flex-col selection:bg-[#2457FF] selection:text-white">
+      <AccessKeyModal />
       {/* 1. TOP COMMAND BAR */}
       <header className="h-16 border-b border-[#252C38] bg-[#171C26] px-4 sm:px-6 flex items-center justify-between z-40 shrink-0">
         <div className="flex items-center gap-4">
@@ -269,11 +267,11 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-2.5 pl-2 border-l border-[#252C38] focus:outline-none"
             >
               <div className="w-8 h-8 bg-[#090B10] border border-[#252C38] rounded-xs flex items-center justify-center font-mono text-xs font-bold text-[#2457FF]">
-                RS
+                {userInitials}
               </div>
               <div className="hidden lg:block text-left font-mono">
-                <div className="text-xs font-semibold text-[#F4F6FA] leading-none">R. Sharma</div>
-                <div className="text-[10px] text-[#858D9B] mt-0.5">Trustee // Owner</div>
+                <div className="text-xs font-semibold text-[#F4F6FA] leading-none truncate max-w-[120px]">{userDisplayName}</div>
+                <div className="text-[10px] text-[#858D9B] mt-0.5">{currentWorkspace.role || 'Member'}</div>
               </div>
               <ChevronDown className="w-3 h-3 text-[#858D9B] hidden lg:block" />
             </button>
@@ -281,9 +279,9 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
             {isUserMenuOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-[#171C26] border border-[#252C38] p-2 shadow-2xl rounded-xs z-50 space-y-1">
                 <div className="px-3 py-2 border-b border-[#252C38]">
-                  <div className="font-heading font-bold text-xs text-[#F4F6FA]">Rajesh Sharma</div>
+                  <div className="font-heading font-bold text-xs text-[#F4F6FA] truncate">{userDisplayName}</div>
                   <div className="font-mono text-[10px] text-[#858D9B] truncate">
-                    rajesh.sharma@proventa.internal
+                    {userDisplayEmail}
                   </div>
                 </div>
 

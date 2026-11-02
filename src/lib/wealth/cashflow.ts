@@ -28,6 +28,11 @@ function getCashflowStore(): CashflowStore {
       transactions: new Map(),
     };
 
+    if (process.env.NODE_ENV !== 'test') {
+      globalThis.__proventaCashflowStore = store;
+      return store;
+    }
+
     const demoFamilyId = 'fam_sharma_heritage';
 
     // Realistic monthly family cashflows

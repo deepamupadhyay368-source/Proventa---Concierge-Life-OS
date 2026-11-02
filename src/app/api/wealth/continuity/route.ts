@@ -8,7 +8,10 @@ import {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const familyId = searchParams.get('familyId') || 'fam_sharma_heritage';
+    const familyId = searchParams.get('familyId') || searchParams.get('workspaceId');
+    if (!familyId) {
+      return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
+    }
 
     const continuity = getFamilyContinuity(familyId);
     return NextResponse.json({ success: true, data: continuity });
@@ -20,7 +23,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const familyId = body.familyId || 'fam_sharma_heritage';
+    const familyId = body.familyId || body.workspaceId;
+    if (!familyId) {
+      return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
+    }
 
     if (body.action === 'UPDATE_INSTRUCTIONS') {
       const updated = updateEmergencyInstructions(familyId, body.instructions);

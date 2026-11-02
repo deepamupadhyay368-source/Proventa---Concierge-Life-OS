@@ -5,7 +5,10 @@ import { rupeesToPaise } from '@/lib/wealth/engine';
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
     const liabilities = listLiabilities({ workspaceId });
     return NextResponse.json({ success: true, data: liabilities });
   } catch (error) {
@@ -17,17 +20,21 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
+    if (!body.workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
     const originalPaise = body.originalPrincipalPaise || rupeesToPaise(body.originalPrincipalRupees || 0);
     const balancePaise = body.outstandingBalancePaise || rupeesToPaise(body.outstandingBalanceRupees || 0);
     const emiPaise = body.emiRupees ? rupeesToPaise(body.emiRupees) : null;
 
     const newLiability = createLiability({
-      workspaceId: body.workspaceId || 'fam_sharma_heritage',
-      workspaceType: body.workspaceType || 'FAMILY',
-      familyId: body.familyId || 'fam_sharma_heritage',
-      name: body.name,
-      lenderName: body.lenderName,
-      liabilityType: body.liabilityType,
+      workspaceId: body.workspaceId,
+      workspaceType: body.workspaceType || (body.workspaceId.startsWith('ind_') ? 'INDIVIDUAL' : 'FAMILY'),
+      familyId: body.familyId || body.workspaceId,
+      name: body.name || 'Debt Facility',
+      lenderName: body.lenderName || 'Lending Institution',
+      liabilityType: body.liabilityType || 'HOME_LOAN',
       originalPrincipalPaise: originalPaise,
       outstandingBalancePaise: balancePaise,
       currency: body.currency || 'INR',
@@ -36,8 +43,8 @@ export async function POST(req: NextRequest) {
       startDate: body.startDate,
       maturityDate: body.maturityDate,
       repaymentFrequency: body.repaymentFrequency || 'MONTHLY',
-      primaryBorrowerId: body.primaryBorrowerId || 'usr_rajesh_sharma',
-      primaryBorrowerName: body.primaryBorrowerName || 'Rajesh Sharma',
+      primaryBorrowerId: body.primaryBorrowerId || 'usr_borrower',
+      primaryBorrowerName: body.primaryBorrowerName || 'Primary Borrower',
       borrowerOwnershipPercentage: body.borrowerOwnershipPercentage !== undefined ? Number(body.borrowerOwnershipPercentage) : 100,
       coBorrowers: body.coBorrowers || [],
       supportingDocumentIds: body.supportingDocumentIds || [],

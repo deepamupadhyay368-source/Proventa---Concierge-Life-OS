@@ -16,6 +16,7 @@ import {
   Bot,
 } from 'lucide-react';
 import { AIAgentRole, AIAssistantMessage, AIInsightObservation } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 const AGENT_TABS: Array<{ role: AIAgentRole; label: string; code: string; icon: any; promptHint: string }> = [
   { role: 'FAMILY_ASSISTANT', label: 'Family Assistant', code: 'AGT-01', icon: Users, promptHint: 'Query consolidated positions, member access, or portfolio overviews...' },
@@ -27,6 +28,7 @@ const AGENT_TABS: Array<{ role: AIAgentRole; label: string; code: string; icon: 
 ];
 
 export default function IntelligencePage() {
+  const { currentWorkspaceId, currentWorkspace, user, isLoaded } = useCurrentWorkspace();
   const [activeAgent, setActiveAgent] = useState<AIAgentRole>('FAMILY_ASSISTANT');
   const [observations, setObservations] = useState<AIInsightObservation[]>([]);
   const [messages, setMessages] = useState<AIAssistantMessage[]>([
@@ -35,8 +37,8 @@ export default function IntelligencePage() {
       role: 'assistant',
       agentRole: 'FAMILY_ASSISTANT',
       content:
-        'MEMORANDUM // PROVENTA RESEARCH CONSOLE INITIALIZED\n\nTo: Sharma Family Trust & Holdings [FWS-001]\nFrom: Lead Family Intelligence Analyst\nClassification: RESTRICTED // PRIVILEGED\n\nAll subsequent analytical research notes are generated strictly from verified workspace database records. Mathematical calculations are deterministically computed in integer paise without estimation drift.\n\nSpecify your inquiry below to commence portfolio analysis.',
-      dataSourcesCited: ['PROVENTA Integer Paise Calculation Engine', 'Sharma Family Trust Holdings Registry', 'Family Vault Encrypted Archive'],
+        `MEMORANDUM // PROVENTA RESEARCH CONSOLE INITIALIZED\n\nTo: ${currentWorkspace?.name || 'Primary Workspace'}\nFrom: Lead Family Intelligence Analyst\nClassification: RESTRICTED // PRIVILEGED\n\nAll subsequent analytical research notes are generated strictly from verified workspace database records. Mathematical calculations are deterministically computed in integer paise without estimation drift.\n\nSpecify your inquiry below to commence portfolio analysis.`,
+      dataSourcesCited: ['PROVENTA Integer Paise Calculation Engine', 'Private Workspace Holdings Registry', 'Family Vault Encrypted Archive'],
       dataDate: new Date().toISOString().split('T')[0],
       timestamp: '09:00 IST',
     },
@@ -46,8 +48,9 @@ export default function IntelligencePage() {
 
   useEffect(() => {
     async function loadObservations() {
+      if (!currentWorkspaceId) return;
       try {
-        const res = await fetch('/api/wealth/ai?workspaceId=fam_sharma_heritage');
+        const res = await fetch(`/api/wealth/ai?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
         const json = await res.json();
         if (json.success) {
           setObservations(json.data || []);
@@ -56,8 +59,10 @@ export default function IntelligencePage() {
         console.error(err);
       }
     }
-    void loadObservations();
-  }, []);
+    if (isLoaded) {
+      void loadObservations();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
@@ -80,7 +85,8 @@ export default function IntelligencePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          workspaceId: 'fam_sharma_heritage',
+          workspaceId: currentWorkspaceId,
+          userId: user?.id || 'usr_member',
           query: userText,
           agentRole: activeAgent,
         }),

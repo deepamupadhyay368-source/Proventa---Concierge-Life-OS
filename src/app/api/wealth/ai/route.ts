@@ -8,10 +8,13 @@ export async function POST(req: NextRequest) {
     if (!body.query) {
       return NextResponse.json({ success: false, error: 'Query is required' }, { status: 400 });
     }
+    if (!body.workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
 
     const response = await executeAIAssistantQuery({
-      workspaceId: body.workspaceId || 'fam_sharma_heritage',
-      userId: body.userId || 'usr_rajesh_sharma',
+      workspaceId: body.workspaceId,
+      userId: body.userId || 'usr_member',
       query: body.query,
       requestedAgent: body.agentRole,
     });
@@ -28,7 +31,10 @@ export async function POST(req: NextRequest) {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
 
     const observations = getProactiveLivingObservations(workspaceId);
     return NextResponse.json({ success: true, data: observations });

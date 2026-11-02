@@ -28,8 +28,10 @@ import { NetWorthSummary, AIInsightObservation } from '@/lib/wealth/types';
 import { LivingWealthGraph } from '@/components/wealth/universe/LivingWealthGraph';
 import { FinancialUniverse } from '@/components/wealth/universe/FinancialUniverse';
 import { TimeLandscapes } from '@/components/wealth/art/TimeLandscapes';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function FamilyWealthDashboard() {
+  const { currentWorkspaceId, currentWorkspace, isLoaded } = useCurrentWorkspace();
   const [telemetry, setTelemetry] = useState<NetWorthSummary | null>(null);
   const [observations, setObservations] = useState<AIInsightObservation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,12 +40,13 @@ export default function FamilyWealthDashboard() {
   const [showTimeLandscapes, setShowTimeLandscapes] = useState<boolean>(false);
 
   async function loadDashboardData(targetUserId?: string) {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
       const url =
         targetUserId && targetUserId !== 'CONSOLIDATED'
-          ? `/api/wealth/telemetry?workspaceId=fam_sharma_heritage&userId=${targetUserId}`
-          : '/api/wealth/telemetry?workspaceId=fam_sharma_heritage';
+          ? `/api/wealth/telemetry?workspaceId=${encodeURIComponent(currentWorkspaceId)}&userId=${targetUserId}`
+          : `/api/wealth/telemetry?workspaceId=${encodeURIComponent(currentWorkspaceId)}`;
 
       const res = await fetch(url);
       const json = await res.json();
@@ -59,8 +62,10 @@ export default function FamilyWealthDashboard() {
   }
 
   useEffect(() => {
-    void loadDashboardData(selectedUserFilter);
-  }, [selectedUserFilter]);
+    if (isLoaded) {
+      void loadDashboardData(selectedUserFilter);
+    }
+  }, [selectedUserFilter, currentWorkspaceId, isLoaded]);
 
   if (loading && !telemetry) {
     return (
@@ -73,7 +78,7 @@ export default function FamilyWealthDashboard() {
         </div>
         <div className="font-mono text-[11px] text-[#7595FF] mt-2 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#2457FF] animate-ping" />
-          <span>Sharma Family Trust &amp; Holdings [FWS-001]</span>
+          <span>{currentWorkspace.name}</span>
         </div>
       </div>
     );
@@ -81,67 +86,27 @@ export default function FamilyWealthDashboard() {
 
   if (!telemetry) return null;
 
-  // Upcoming scheduled obligations for Sharma Family
-  const upcomingObligations = [
-    {
-      id: 'obl-01',
-      title: 'HDFC Home Loan EMI // Gulmohar Villa',
-      dueDate: '10 Nov 2026',
-      amountFormatted: '₹1,42,800',
-      account: 'HDFC Priority Bank A/C',
-      type: 'DEBT SERVICE',
-      status: 'SCHEDULED',
-    },
-    {
-      id: 'obl-02',
-      title: 'Max Life Smart Wealth Plan Premium',
-      dueDate: '28 Nov 2026',
-      amountFormatted: '₹2,50,000',
-      account: 'Sunita Sharma / Direct Debit',
-      type: 'PROTECTION',
-      status: 'AUTO-DEBIT',
-    },
-    {
-      id: 'obl-03',
-      title: 'Advance Income Tax Q3 FY26 // Trust',
-      dueDate: '15 Dec 2026',
-      amountFormatted: '₹6,80,000',
-      account: 'Sharma Family Trust Treasury',
-      type: 'STATUTORY',
-      status: 'PENDING AUDIT',
-    },
-  ];
+  // Upcoming scheduled obligations for active workspace
+  const upcomingObligations: Array<{
+    id: string;
+    title: string;
+    dueDate: string;
+    amountFormatted: string;
+    account: string;
+    type: string;
+    status: string;
+  }> = [];
 
   // Recent verified financial activities
-  const recentActivities = [
-    {
-      id: 'act-01',
-      title: 'Physical Gold Sovereign Certificate Vaulted',
-      timestamp: 'Yesterday, 16:40 IST',
-      category: 'VAULT INTAKE',
-      delta: '+₹25,00,000',
-      isCredit: true,
-      code: 'DOC-041',
-    },
-    {
-      id: 'act-02',
-      title: 'Kotak Auto Loan Monthly Amortisation',
-      timestamp: '01 Nov 2026',
-      category: 'DEBT AMORTISATION',
-      delta: '-₹48,500',
-      isCredit: false,
-      code: 'LIA-003',
-    },
-    {
-      id: 'act-03',
-      title: 'TCS & Infosys Dividend Credited',
-      timestamp: '27 Oct 2026',
-      category: 'TREASURY YIELD',
-      delta: '+₹86,400',
-      isCredit: true,
-      code: 'CASH-089',
-    },
-  ];
+  const recentActivities: Array<{
+    id: string;
+    title: string;
+    timestamp: string;
+    category: string;
+    delta: string;
+    isCredit: boolean;
+    code: string;
+  }> = [];
 
   return (
     <div className="space-y-8 text-[#F4F6FA]">
@@ -175,38 +140,21 @@ export default function FamilyWealthDashboard() {
                   : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
               }`}
             >
-              Consolidated Family
+              Consolidated Workspace
             </button>
-            <button
-              onClick={() => setSelectedUserFilter('usr_rajesh_sharma')}
-              className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
-                selectedUserFilter === 'usr_rajesh_sharma'
-                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
-                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
-              }`}
-            >
-              Rajesh (Self)
-            </button>
-            <button
-              onClick={() => setSelectedUserFilter('usr_sunita_sharma')}
-              className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
-                selectedUserFilter === 'usr_sunita_sharma'
-                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
-                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
-              }`}
-            >
-              Sunita (Spouse)
-            </button>
-            <button
-              onClick={() => setSelectedUserFilter('usr_aarav_sharma')}
-              className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
-                selectedUserFilter === 'usr_aarav_sharma'
-                  ? 'bg-[#2457FF] text-white font-bold shadow-sm'
-                  : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
-              }`}
-            >
-              Aarav (Child)
-            </button>
+            {telemetry.memberShares.map((m) => (
+              <button
+                key={m.memberId}
+                onClick={() => setSelectedUserFilter(m.memberId)}
+                className={`px-3 py-1 font-mono text-xs uppercase tracking-wider transition-all rounded-xs ${
+                  selectedUserFilter === m.memberId
+                    ? 'bg-[#2457FF] text-white font-bold shadow-sm'
+                    : 'text-[#C5CAD3] hover:text-white hover:bg-[#171C26]'
+                }`}
+              >
+                {m.memberName}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -304,6 +252,63 @@ export default function FamilyWealthDashboard() {
           </div>
         </div>
       </div>
+
+      {/* ZERO-STATE ONBOARDING BANNER */}
+      {telemetry.totalAssetsCount === 0 && telemetry.totalLiabilitiesCount === 0 && (
+        <div className="p-8 sm:p-10 border border-[#2457FF]/40 bg-[#171C26] rounded-xs space-y-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-[#2457FF]/15 border border-[#2457FF]/30 text-[#2457FF] flex items-center justify-center rounded-xs shrink-0">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="font-heading font-black text-xl sm:text-2xl uppercase tracking-tight text-[#F4F6FA]">
+                Workspace Initialized · Awaiting First Records
+              </h2>
+              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed max-w-2xl">
+                Your living financial cockpit is connected with deterministic integer paise precision (0 IEEE-754 drift). Record your first capital asset or debt facility to activate your real consolidated balance sheet.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <Link
+              href="/assets"
+              className="p-4 bg-[#090B10] border border-[#252C38] hover:border-[#2457FF] rounded-xs transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-xs uppercase tracking-wider text-[#2457FF] font-bold">Step 01</span>
+                <Plus className="w-4 h-4 text-[#858D9B] group-hover:text-[#2457FF]" />
+              </div>
+              <div className="font-heading font-bold text-sm text-[#F4F6FA]">Record Capital Asset</div>
+              <div className="font-mono text-[11px] text-[#858D9B] mt-1">Real estate, listed equities, bullion, deposits</div>
+            </Link>
+
+            <Link
+              href="/liabilities"
+              className="p-4 bg-[#090B10] border border-[#252C38] hover:border-[#2457FF] rounded-xs transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-xs uppercase tracking-wider text-[#7595FF] font-bold">Step 02</span>
+                <Plus className="w-4 h-4 text-[#858D9B] group-hover:text-[#7595FF]" />
+              </div>
+              <div className="font-heading font-bold text-sm text-[#F4F6FA]">Log Debt Facilities</div>
+              <div className="font-mono text-[11px] text-[#858D9B] mt-1">Home loans, business credit, personal facilities</div>
+            </Link>
+
+            <Link
+              href="/vault"
+              className="p-4 bg-[#090B10] border border-[#252C38] hover:border-[#2457FF] rounded-xs transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-xs uppercase tracking-wider text-[#C5CAD3] font-bold">Step 03</span>
+                <Plus className="w-4 h-4 text-[#858D9B] group-hover:text-white" />
+              </div>
+              <div className="font-heading font-bold text-sm text-[#F4F6FA]">Family Vault Upload</div>
+              <div className="font-mono text-[11px] text-[#858D9B] mt-1">Encrypted deeds, share certificates, insurance</div>
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* 2. LIVING WEALTH GRAPH & CONTROLS */}
       <div className="space-y-4">
@@ -483,32 +488,40 @@ export default function FamilyWealthDashboard() {
           </div>
 
           <div className="divide-y divide-[#252C38]">
-            {upcomingObligations.map((obl) => (
-              <div key={obl.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 bg-[#090B10] text-[#C5CAD3] font-mono text-[10px] uppercase tracking-wider rounded-xs border border-[#252C38]">
-                      {obl.type}
-                    </span>
-                    <span className="font-mono text-xs font-semibold text-[#F4F6FA]">{obl.title}</span>
-                  </div>
-                  <div className="font-mono text-[11px] text-[#858D9B]">
-                    Due: <span className="text-[#F4F6FA] font-medium">{obl.dueDate}</span> · Debit from: {obl.account}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-heading font-black text-base text-[#F4F6FA]">{obl.amountFormatted}</div>
-                  <span className="inline-block mt-0.5 font-mono text-[10px] px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/30 rounded-xs">
-                    {obl.status}
-                  </span>
-                </div>
+            {telemetry.totalLiabilitiesCount === 0 ? (
+              <div className="p-10 text-center space-y-2">
+                <div className="font-mono text-xs text-[#858D9B] uppercase tracking-wider">No Scheduled Debt Obligations</div>
+                <p className="text-xs text-[#C5CAD3]">No debt facilities recorded in this workspace. Add liabilities to monitor upcoming EMI payments.</p>
+                <Link href="/liabilities" className="inline-block mt-2 text-xs font-mono text-[#2457FF] hover:underline uppercase font-bold">+ Record Debt Facility</Link>
               </div>
-            ))}
+            ) : (
+              upcomingObligations.map((obl) => (
+                <div key={obl.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 bg-[#090B10] text-[#C5CAD3] font-mono text-[10px] uppercase tracking-wider rounded-xs border border-[#252C38]">
+                        {obl.type}
+                      </span>
+                      <span className="font-mono text-xs font-semibold text-[#F4F6FA]">{obl.title}</span>
+                    </div>
+                    <div className="font-mono text-[11px] text-[#858D9B]">
+                      Due: <span className="text-[#F4F6FA] font-medium">{obl.dueDate}</span> · Debit from: {obl.account}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-heading font-black text-base text-[#F4F6FA]">{obl.amountFormatted}</div>
+                    <span className="inline-block mt-0.5 font-mono text-[10px] px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/30 rounded-xs">
+                      {obl.status}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="p-4 bg-[#090B10] border-t border-[#252C38] flex items-center justify-between font-mono text-xs text-[#858D9B]">
-            <span>NEXT 30 DAYS DEBT OUTFLOW: ₹10,72,800</span>
-            <span className="text-[#7595FF] font-bold">LIQUIDITY COVER: 4.8X</span>
+            <span>TOTAL LIABILITIES RECORDED: {telemetry.totalLiabilitiesCount}</span>
+            <span className="text-[#7595FF] font-bold">TOTAL DEBT: {telemetry.formattedGrossLiabilities}</span>
           </div>
         </div>
 
@@ -527,30 +540,38 @@ export default function FamilyWealthDashboard() {
           </div>
 
           <div className="divide-y divide-[#252C38]">
-            {recentActivities.map((act) => (
-              <div key={act.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] text-[#2457FF] font-bold">[{act.code}]</span>
-                    <span className="font-mono text-xs font-semibold text-[#F4F6FA]">{act.title}</span>
-                  </div>
-                  <div className="font-mono text-[11px] text-[#858D9B]">
-                    {act.timestamp} · {act.category}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className={`font-heading font-black text-base ${act.isCredit ? 'text-[#2457FF]' : 'text-[#FF7A70]'}`}>
-                    {act.delta}
-                  </div>
-                  <span className="font-mono text-[10px] text-[#858D9B]">AUDITED PAISE</span>
-                </div>
+            {telemetry.totalAssetsCount === 0 && telemetry.totalLiabilitiesCount === 0 ? (
+              <div className="p-10 text-center space-y-2">
+                <div className="font-mono text-xs text-[#858D9B] uppercase tracking-wider">No Recorded Financial Activities</div>
+                <p className="text-xs text-[#C5CAD3]">All transactions are recorded as you manage assets, liabilities, and bank cashflow.</p>
+                <Link href="/assets" className="inline-block mt-2 text-xs font-mono text-[#2457FF] hover:underline uppercase font-bold">+ Record First Asset</Link>
               </div>
-            ))}
+            ) : (
+              recentActivities.map((act) => (
+                <div key={act.id} className="p-4 sm:p-5 flex items-center justify-between hover:bg-[#252C38]/30 transition-colors">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] text-[#2457FF] font-bold">[{act.code}]</span>
+                      <span className="font-mono text-xs font-semibold text-[#F4F6FA]">{act.title}</span>
+                    </div>
+                    <div className="font-mono text-[11px] text-[#858D9B]">
+                      {act.timestamp} · {act.category}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-heading font-black text-base ${act.isCredit ? 'text-[#2457FF]' : 'text-[#FF7A70]'}`}>
+                      {act.delta}
+                    </div>
+                    <span className="font-mono text-[10px] text-[#858D9B]">AUDITED PAISE</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="p-4 bg-[#090B10] border-t border-[#252C38] flex items-center justify-between font-mono text-xs text-[#858D9B]">
-            <span>TOTAL TRANSACTIONS LOGGED: 48</span>
-            <span className="text-[#7595FF] font-medium">INTERNAL TRANSFERS EXCLUDED</span>
+            <span>TOTAL ASSETS RECORDED: {telemetry.totalAssetsCount}</span>
+            <span className="text-[#7595FF] font-medium">REAL-TIME VALUATION</span>
           </div>
         </div>
       </div>

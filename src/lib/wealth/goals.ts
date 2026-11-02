@@ -28,6 +28,11 @@ function getGoalsStore(): GoalsStore {
       goals: new Map(),
     };
 
+    if (process.env.NODE_ENV !== 'test') {
+      globalThis.__proventaGoalsStore = store;
+      return store;
+    }
+
     const demoFamilyId = 'fam_sharma_heritage';
 
     const demoGoals: FinancialGoalDTO[] = [

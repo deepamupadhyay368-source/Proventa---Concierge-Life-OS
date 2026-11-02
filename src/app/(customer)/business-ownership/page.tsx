@@ -9,15 +9,18 @@ import {
   Layers,
 } from 'lucide-react';
 import { BusinessOwnershipGraphDTO } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function BusinessOwnershipPage() {
+  const { currentWorkspaceId, isLoaded } = useCurrentWorkspace();
   const [graph, setGraph] = useState<BusinessOwnershipGraphDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadGraph() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/business-ownership?familyId=fam_sharma_heritage');
+      const res = await fetch(`/api/wealth/business-ownership?familyId=${encodeURIComponent(currentWorkspaceId)}`);
       const json = await res.json();
       if (json.success && json.data) {
         setGraph(json.data);
@@ -30,8 +33,10 @@ export default function BusinessOwnershipPage() {
   }
 
   useEffect(() => {
-    void loadGraph();
-  }, []);
+    if (isLoaded) {
+      void loadGraph();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   if (loading || !graph) {
     return (
@@ -95,45 +100,57 @@ export default function BusinessOwnershipPage() {
         </div>
 
         <div className="divide-y divide-[#252C38]">
-          {graph.entities.map((entity, idx) => (
-            <div key={entity.id} className="p-6 space-y-4 hover:bg-[#1C2230] transition-colors">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-[#7595FF]" />
-                    <h4 className="font-display font-bold text-xl text-[#F4F6FA]">{entity.name}</h4>
-                  </div>
-                  <div className="font-mono text-[10px] text-[#858D9B] mt-0.5">
-                    {entity.entityType.replace(/_/g, ' ')} · CIN: {entity.registrationNumber}
-                  </div>
-                </div>
-                <div className="text-left sm:text-right font-mono">
-                  <div className="font-display font-bold text-xl text-[#F4F6FA]">{entity.formattedValuation}</div>
-                  <div className="text-[10px] text-[#858D9B]">Total Enterprise Valuation</div>
-                </div>
+          {graph.entities.length === 0 ? (
+            <div className="p-12 text-center space-y-3 bg-[#171C26]">
+              <div className="w-10 h-10 mx-auto bg-[#2457FF]/10 text-[#2457FF] flex items-center justify-center rounded-xs border border-[#2457FF]/20">
+                <Building2 className="w-5 h-5" />
               </div>
-
-              {/* Cap Table Breakdown */}
-              <div className="pt-3 border-t border-[#252C38] space-y-2">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-[#7595FF] font-semibold">
-                  Direct Cap-Table Shareholders
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {entity.directOwners.map((owner, i) => (
-                    <div
-                      key={i}
-                      className="p-3 border border-[#252C38] bg-[#090B10] text-xs font-mono flex justify-between items-center rounded-[2px]"
-                    >
-                      <span className={owner.isFamilyMember ? 'font-semibold text-[#F4F6FA]' : 'text-[#858D9B]'}>
-                        {owner.ownerName}
-                      </span>
-                      <span className="font-bold text-[#7595FF]">{owner.equityPercentage}%</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <div className="font-heading font-bold text-base text-[#F4F6FA]">No Operating Entities Registered</div>
+              <p className="text-xs text-[#858D9B] max-w-sm mx-auto">
+                No corporate shareholding logged in this workspace. Record family LLPs, private limited entities, or holding company structures.
+              </p>
             </div>
-          ))}
+          ) : (
+            graph.entities.map((entity, idx) => (
+              <div key={entity.id} className="p-6 space-y-4 hover:bg-[#1C2230] transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Building2 className="w-4 h-4 text-[#7595FF]" />
+                      <h4 className="font-display font-bold text-xl text-[#F4F6FA]">{entity.name}</h4>
+                    </div>
+                    <div className="font-mono text-[10px] text-[#858D9B] mt-0.5">
+                      {entity.entityType.replace(/_/g, ' ')} · CIN: {entity.registrationNumber}
+                    </div>
+                  </div>
+                  <div className="text-left sm:text-right font-mono">
+                    <div className="font-display font-bold text-xl text-[#F4F6FA]">{entity.formattedValuation}</div>
+                    <div className="text-[10px] text-[#858D9B]">Total Enterprise Valuation</div>
+                  </div>
+                </div>
+
+                {/* Cap Table Breakdown */}
+                <div className="pt-3 border-t border-[#252C38] space-y-2">
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#7595FF] font-semibold">
+                    Direct Cap-Table Shareholders
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {entity.directOwners.map((owner, i) => (
+                      <div
+                        key={i}
+                        className="p-3 border border-[#252C38] bg-[#090B10] text-xs font-mono flex justify-between items-center rounded-[2px]"
+                      >
+                        <span className={owner.isFamilyMember ? 'font-semibold text-[#F4F6FA]' : 'text-[#858D9B]'}>
+                          {owner.ownerName}
+                        </span>
+                        <span className="font-bold text-[#7595FF]">{owner.equityPercentage}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

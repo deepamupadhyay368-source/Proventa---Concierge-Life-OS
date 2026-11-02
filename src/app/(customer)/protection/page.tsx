@@ -8,8 +8,10 @@ import {
   X,
 } from 'lucide-react';
 import { InsurancePolicyDTO, InsuranceType } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function ProtectionPage() {
+  const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
   const [policies, setPolicies] = useState<InsurancePolicyDTO[]>([]);
   const [summary, setSummary] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -21,12 +23,13 @@ export default function ProtectionPage() {
   const [sumAssuredRupees, setSumAssuredRupees] = useState('');
   const [premiumRupees, setPremiumRupees] = useState('');
   const [renewalDate, setRenewalDate] = useState('');
-  const [policyholderName, setPolicyholderName] = useState('Rajesh Sharma');
+  const [policyholderName, setPolicyholderName] = useState(user?.name || 'Primary Policyholder');
 
   async function loadProtection() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/protection?workspaceId=fam_sharma_heritage');
+      const res = await fetch(`/api/wealth/protection?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
       const json = await res.json();
       if (json.success && json.data) {
         setPolicies(json.data.policies || []);
@@ -40,24 +43,28 @@ export default function ProtectionPage() {
   }
 
   useEffect(() => {
-    void loadProtection();
-  }, []);
+    if (isLoaded) {
+      void loadProtection();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   async function handleCreatePolicy(e: React.FormEvent) {
     e.preventDefault();
-    if (!insurerName || !sumAssuredRupees) return;
+    if (!insurerName || !sumAssuredRupees || !currentWorkspaceId) return;
 
     try {
       const res = await fetch('/api/wealth/protection', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          workspaceId: currentWorkspaceId,
+          policyholderId: user?.id || 'usr_member',
+          policyholderName: policyholderName || user?.name || 'Primary Policyholder',
           insurerName,
           policyType,
           sumAssuredRupees: parseFloat(sumAssuredRupees),
           premiumAmountRupees: parseFloat(premiumRupees || '0'),
           renewalDate: renewalDate || new Date().toISOString().split('T')[0],
-          policyholderName,
         }),
       });
 
@@ -200,6 +207,24 @@ export default function ProtectionPage() {
             ))}
           </tbody>
         </table>
+        {policies.length === 0 && (
+          <div className="p-12 text-center space-y-3 bg-[#171C26]">
+            <div className="w-10 h-10 mx-auto bg-[#2457FF]/10 text-[#2457FF] flex items-center justify-center rounded-xs border border-[#2457FF]/20">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div className="font-heading font-bold text-base text-[#F4F6FA]">No Insurance Policies Registered</div>
+            <p className="text-xs text-[#858D9B] max-w-sm mx-auto">
+              Your protection register is clean. Record term life policies, health floater covers, keyman insurance, or commercial umbrella coverage.
+            </p>
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider rounded-xs transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Record First Policy</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3. RECORD POLICY MODAL */}

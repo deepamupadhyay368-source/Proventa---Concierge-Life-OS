@@ -9,16 +9,19 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { FAMILY_WEALTH_SUBSCRIPTION_PLANS, WealthPlanTier } from '@/lib/brand';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function SettingsPage() {
+  const { currentWorkspaceId, currentWorkspace, isLoaded, user } = useCurrentWorkspace();
   const [activeTab, setActiveTab] = useState<'PROFILE' | 'DPDP' | 'BILLING'>('PROFILE');
   const [subData, setSubData] = useState<any>(null);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadSub() {
+      if (!currentWorkspaceId) return;
       try {
-        const res = await fetch('/api/wealth/subscriptions?workspaceId=fam_sharma_heritage');
+        const res = await fetch(`/api/wealth/subscriptions?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
         const json = await res.json();
         if (json.success) {
           setSubData(json.data);
@@ -27,14 +30,16 @@ export default function SettingsPage() {
         console.error(err);
       }
     }
-    void loadSub();
-  }, []);
+    if (isLoaded) {
+      void loadSub();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   function handleDataExport() {
     setExportStatus('Compiling complete encrypted archive of all family assets, documents metadata, and cashflows...');
     setTimeout(() => {
       setExportStatus('Archive compiled! Downloading proventa_family_wealth_export.json');
-      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), entity: 'Sharma Family Trust', status: 'VERIFIED' }, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), entity: currentWorkspace?.name || 'Primary Workspace', status: 'VERIFIED' }, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -112,7 +117,7 @@ export default function SettingsPage() {
               <input
                 type="text"
                 disabled
-                value="Rajesh Sharma"
+                value={user?.name || 'Primary Account'}
                 className="w-full bg-[#090B10] border border-[#252C38] px-3.5 py-2.5 text-[#F4F6FA] rounded-[2px]"
               />
             </div>
@@ -121,7 +126,7 @@ export default function SettingsPage() {
               <input
                 type="email"
                 disabled
-                value="rajesh.sharma@proventa.internal"
+                value={user?.email || 'account@proventa.in'}
                 className="w-full bg-[#090B10] border border-[#252C38] px-3.5 py-2.5 text-[#F4F6FA] rounded-[2px]"
               />
             </div>

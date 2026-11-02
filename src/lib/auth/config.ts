@@ -10,6 +10,11 @@ import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
 import { loginSchema } from '@/lib/validation/schemas';
 import { logger } from '@/lib/logger';
 import { createSecurityEvent } from '@/lib/audit';
+import {
+  verifyAccessKey,
+  generateProventaAccessKey,
+  stageOneTimeAccessKey,
+} from '@/lib/auth/access-key';
 import bcrypt from 'bcryptjs';
 
 export { sanitizeCallbackPath };
@@ -38,6 +43,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        accessKey: { label: 'PROVENTA Access Key', type: 'password' },
         authenticationKey: { label: 'Authentication Key', type: 'password' },
         securityKey: { label: 'Security Key', type: 'password' },
       },
@@ -47,13 +53,65 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const { email, password } = parsed.data;
         const normalizedEmail = email.trim().toLowerCase();
         const authKey =
-          parsed.data.authenticationKey || parsed.data.securityKey;
+          parsed.data.accessKey ||
+          parsed.data.authenticationKey ||
+          parsed.data.securityKey;
 
         const user = await db.user.findUnique({
           where: { email: normalizedEmail, deletedAt: null },
           include: { userRoles: true },
         });
 
+        // 1. DIRECT PROVENTA ACCESS KEY AUTHENTICATION (Method B)
+        if (!password && authKey) {
+          if (!user || !user.securityKeyHash) {
+            await verifyPassword(
+              'dummy',
+              '$2b$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            );
+            void createSecurityEvent('LOGIN_FAILED', {
+              data: { email: normalizedEmail, reason: 'user_or_key_not_found' },
+            });
+            return null;
+          }
+
+          if (user.status === 'SUSPENDED') {
+            void createSecurityEvent('LOGIN_BLOCKED', {
+              userId: user.id,
+              data: { reason: 'suspended' },
+            });
+            return null;
+          }
+
+          const isValidKey = await verifyAccessKey(authKey, user.securityKeyHash);
+          if (!isValidKey) {
+            void createSecurityEvent('AUTH_KEY_FAILED', {
+              userId: user.id,
+              data: { reason: 'invalid_access_key' },
+            });
+            void createSecurityEvent('LOGIN_FAILED', {
+              userId: user.id,
+              data: { reason: 'invalid_access_key' },
+            });
+            return null;
+          }
+
+          void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
+          void createSecurityEvent('LOGIN_COMPLETED', { userId: user.id });
+          void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
+          logger.info({ userId: user.id }, 'User logged in with PROVENTA Access Key');
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            roles: user.userRoles.map((r) => r.role),
+            emailVerified: user.emailVerified,
+          };
+        }
+
+        // 2. STANDARD EMAIL + PASSWORD (+ OPTIONAL KEY) AUTHENTICATION
         if (!user || !user.passwordHash) {
           await verifyPassword(
             'dummy',
@@ -80,10 +138,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const isValidPassword = await verifyPassword(
-          password,
-          user.passwordHash,
-        );
+        const isValidPassword = password
+          ? await verifyPassword(password, user.passwordHash)
+          : false;
+
         if (!isValidPassword) {
           void createSecurityEvent('LOGIN_PASSWORD_FAILURE', {
             userId: user.id,
@@ -111,10 +169,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             });
             return null;
           }
-          const isValidKey = await verifyPassword(
-            authKey,
-            user.securityKeyHash,
-          );
+          const isValidKey = await verifyAccessKey(authKey, user.securityKeyHash);
           if (!isValidKey) {
             void createSecurityEvent('AUTH_KEY_FAILED', {
               userId: user.id,
@@ -400,6 +455,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (!existingUser) {
+            // Generate unique PROVENTA Access Key for the new user
+            const { plaintextKey, hash: accessKeyHash } = await generateProventaAccessKey();
+
             // Create a new non-admin CUSTOMER account (never grant admin roles via OAuth)
             existingUser = await db.user.create({
               data: {
@@ -407,13 +465,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 name: user.name || normalizedEmail.split('@')[0],
                 image: user.image,
                 status: 'ACTIVE',
+                securityKeyHash: accessKeyHash,
+                authKeyUpdatedAt: new Date(),
                 emailVerified: new Date(),
                 userRoles: {
                   create: [{ role: 'CUSTOMER' }],
                 },
                 customerProfile: {
                   create: {
-                    city: 'Ahmedabad',
+                    city: 'Mumbai',
                   },
                 },
                 oauthAccounts: {
@@ -434,11 +494,26 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               },
             });
 
+            // Stage for mandatory one-time display to user
+            stageOneTimeAccessKey(existingUser.id, plaintextKey);
+
             void createSecurityEvent('LOGIN_SUCCESS', {
               userId: existingUser.id,
               data: { provider: account.provider, method: 'oauth_created' },
             });
           } else {
+            // Provision access key if migrating/existing account lacks one
+            if (!existingUser.securityKeyHash) {
+              const { plaintextKey, hash: accessKeyHash } = await generateProventaAccessKey();
+              await db.user.update({
+                where: { id: existingUser.id },
+                data: {
+                  securityKeyHash: accessKeyHash,
+                  authKeyUpdatedAt: new Date(),
+                },
+              });
+              stageOneTimeAccessKey(existingUser.id, plaintextKey);
+            }
             // Prevent suspended users from signing in via OAuth
             if (
               existingUser.status === 'SUSPENDED' ||

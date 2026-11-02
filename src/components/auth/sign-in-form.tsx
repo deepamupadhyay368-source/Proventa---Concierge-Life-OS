@@ -28,7 +28,7 @@ function getSafeCallbackUrl(raw?: string): string {
 export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
   const safeCallback = getSafeCallbackUrl(callbackUrl);
-  const [method, setMethod] = useState<'email' | 'phone'>('email');
+  const [method, setMethod] = useState<'access-key' | 'password' | 'phone'>('access-key');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
@@ -55,12 +55,13 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     try {
       const result = await signIn('credentials', {
         email: data.email,
-        password: data.password,
-        securityKey: data.securityKey || '',
+        password: data.password || '',
+        accessKey: data.accessKey || data.securityKey || '',
+        securityKey: data.securityKey || data.accessKey || '',
         redirect: false,
       });
       if (result?.error) {
-        setError('Invalid email or password. Please verify your credentials.');
+        setError('Invalid credentials. Please verify your email and Access Key / Password.');
       } else {
         router.push(safeCallback);
         router.refresh();
@@ -86,20 +87,6 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           : 'Continue with Google failed. Please try again.';
       setError(msg);
       setOauthLoading(null);
-    }
-  };
-
-  const handleDemoSignIn = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // Immediate redirect to dashboard in demo mode
-      router.push(safeCallback);
-      router.refresh();
-    } catch {
-      setError('Unable to load demo workspace.');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -217,22 +204,38 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         </span>
       </div>
 
-      {/* Method Switcher: Email or Phone */}
-      <div className="grid grid-cols-2 rounded-xs bg-[#090B10] p-1 border border-[#252C38]">
+      {/* Method Switcher: Access Key, Password, Phone */}
+      <div className="grid grid-cols-3 rounded-xs bg-[#090B10] p-1 border border-[#252C38]">
         <button
           type="button"
           onClick={() => {
-            setMethod('email');
+            setMethod('access-key');
             setError(null);
           }}
-          className={`flex items-center justify-center gap-2 py-2 font-mono text-xs uppercase tracking-wider transition-colors rounded-xs ${
-            method === 'email'
+          className={`flex items-center justify-center gap-1.5 py-2 font-mono text-[11px] uppercase tracking-wider transition-colors rounded-xs ${
+            method === 'access-key'
               ? 'bg-[#2457FF] text-white font-bold'
               : 'text-[#858D9B] hover:text-[#F4F6FA]'
           }`}
         >
-          <Mail className="h-3.5 w-3.5" />
-          <span>Email</span>
+          <KeyRound className="h-3 w-3" />
+          <span>Access Key</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setMethod('password');
+            setError(null);
+          }}
+          className={`flex items-center justify-center gap-1.5 py-2 font-mono text-[11px] uppercase tracking-wider transition-colors rounded-xs ${
+            method === 'password'
+              ? 'bg-[#2457FF] text-white font-bold'
+              : 'text-[#858D9B] hover:text-[#F4F6FA]'
+          }`}
+        >
+          <Mail className="h-3 w-3" />
+          <span>Password</span>
         </button>
 
         <button
@@ -241,19 +244,71 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
             setMethod('phone');
             setError(null);
           }}
-          className={`flex items-center justify-center gap-2 py-2 font-mono text-xs uppercase tracking-wider transition-colors rounded-xs ${
+          className={`flex items-center justify-center gap-1.5 py-2 font-mono text-[11px] uppercase tracking-wider transition-colors rounded-xs ${
             method === 'phone'
               ? 'bg-[#2457FF] text-white font-bold'
               : 'text-[#858D9B] hover:text-[#F4F6FA]'
           }`}
         >
-          <Phone className="h-3.5 w-3.5" />
-          <span>Phone OTP</span>
+          <Phone className="h-3 w-3" />
+          <span>Phone</span>
         </button>
       </div>
 
-      {/* Email + Password Form */}
-      {method === 'email' && (
+      {/* Method A: PROVENTA Access Key */}
+      {method === 'access-key' && (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+              Registered Email
+            </label>
+            <input
+              {...register('email')}
+              type="email"
+              autoComplete="email"
+              placeholder="you@domain.com"
+              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+            />
+            {errors.email && (
+              <p className="text-xs text-[#FF7A70]">{errors.email.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+              PROVENTA Access Key
+            </label>
+            <input
+              {...register('securityKey')}
+              type="text"
+              autoComplete="off"
+              placeholder="PROV-XXXX-XXXX-XXXX-XXXX"
+              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm font-mono text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors uppercase"
+            />
+            <p className="text-[10px] text-[#858D9B]">
+              Your 128-bit key displayed upon registration or generated in Security Settings.
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <span>Sign In with Access Key</span>
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
+          </button>
+        </form>
+      )}
+
+      {/* Method B: Email + Password */}
+      {method === 'password' && (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-1">
             <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
@@ -263,7 +318,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               {...register('email')}
               type="email"
               autoComplete="email"
-              placeholder="trustee@familyoffice.in"
+              placeholder="you@domain.com"
               className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
             />
             {errors.email && (
@@ -304,7 +359,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <span>Sign In to Cockpit</span>
+                <span>Sign In with Password</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -387,19 +442,6 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           )}
         </div>
       )}
-
-      {/* Instant Demo Access Button */}
-      <div className="pt-2">
-        <button
-          type="button"
-          onClick={handleDemoSignIn}
-          disabled={loading}
-          className="w-full py-2.5 px-3 bg-[#090B10] hover:bg-[#252C38] border border-[#252C38] text-xs font-mono text-[#C5CAD3] hover:text-white rounded-xs transition-colors flex items-center justify-center gap-2"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-[#2457FF]" />
-          <span>Quick Demo: Enter as Sharma Family Office</span>
-        </button>
-      </div>
     </div>
   );
 }

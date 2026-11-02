@@ -30,7 +30,12 @@ function getVaultStore(): VaultStore {
       documents: new Map(),
     };
 
-    // Pre-seed demo documents for Sharma Family
+    if (process.env.NODE_ENV !== 'test') {
+      globalThis.__proventaVaultStore = store;
+      return store;
+    }
+
+    // Pre-seed demo documents strictly for test suite
     const demoDocs: DocumentDTO[] = [
       {
         id: 'doc_deed_worli',

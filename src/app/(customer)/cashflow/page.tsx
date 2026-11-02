@@ -11,8 +11,10 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { CashflowTransactionDTO, CashflowSummaryDTO, CashflowType, CashflowCategory } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function CashflowPage() {
+  const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
   const [summary, setSummary] = useState<CashflowSummaryDTO | null>(null);
   const [transactions, setTransactions] = useState<CashflowTransactionDTO[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,9 +29,10 @@ export default function CashflowPage() {
   const [isInternalTransfer, setIsInternalTransfer] = useState(false);
 
   async function loadCashflow() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/cashflow?workspaceId=fam_sharma_heritage');
+      const res = await fetch(`/api/wealth/cashflow?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
       const json = await res.json();
       if (json.success && json.data) {
         setSummary(json.data.summary);
@@ -43,18 +46,23 @@ export default function CashflowPage() {
   }
 
   useEffect(() => {
-    void loadCashflow();
-  }, []);
+    if (isLoaded) {
+      void loadCashflow();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   async function handleCreateCashflow(e: React.FormEvent) {
     e.preventDefault();
-    if (!title || !amountRupees) return;
+    if (!title || !amountRupees || !currentWorkspaceId) return;
 
     try {
       const res = await fetch('/api/wealth/cashflow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          workspaceId: currentWorkspaceId,
+          userId: user?.id || 'usr_member',
+          userName: user?.name || 'Primary User',
           title,
           type,
           category,
@@ -229,6 +237,24 @@ export default function CashflowPage() {
             ))}
           </tbody>
         </table>
+        {transactions.length === 0 && (
+          <div className="p-12 text-center space-y-3 bg-[#171C26]">
+            <div className="w-10 h-10 mx-auto bg-[#2457FF]/10 text-[#2457FF] flex items-center justify-center rounded-xs border border-[#2457FF]/20">
+              <ArrowLeftRight className="w-5 h-5" />
+            </div>
+            <div className="font-heading font-bold text-base text-[#F4F6FA]">No Cashflow Transactions Recorded</div>
+            <p className="text-xs text-[#858D9B] max-w-sm mx-auto">
+              Your monthly cashflow ledger is clean. Log salary inflows, business dividend yields, rental returns, or recurring expenses.
+            </p>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider rounded-xs transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Record First Cashflow Entry</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3. RECORD CASHFLOW ENTRY MODAL */}

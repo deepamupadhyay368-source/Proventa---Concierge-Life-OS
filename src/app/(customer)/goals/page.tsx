@@ -12,8 +12,10 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { FinancialGoalDTO, ScenarioSimulationResult } from '@/lib/wealth/types';
+import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
 
 export default function GoalsPage() {
+  const { currentWorkspaceId, isLoaded } = useCurrentWorkspace();
   const [goals, setGoals] = useState<FinancialGoalDTO[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -28,9 +30,10 @@ export default function GoalsPage() {
   const [isSimulating, setIsSimulating] = useState(false);
 
   async function loadGoals() {
+    if (!currentWorkspaceId) return;
     setLoading(true);
     try {
-      const res = await fetch('/api/wealth/goals?workspaceId=fam_sharma_heritage');
+      const res = await fetch(`/api/wealth/goals?workspaceId=${encodeURIComponent(currentWorkspaceId)}`);
       const json = await res.json();
       if (json.success) {
         setGoals(json.data);
@@ -43,9 +46,11 @@ export default function GoalsPage() {
   }
 
   useEffect(() => {
-    void loadGoals();
-    void runSimulation();
-  }, []);
+    if (isLoaded) {
+      void loadGoals();
+      void runSimulation();
+    }
+  }, [currentWorkspaceId, isLoaded]);
 
   async function runSimulation() {
     setIsSimulating(true);
@@ -171,6 +176,17 @@ export default function GoalsPage() {
               </div>
             </div>
           ))}
+          {goals.length === 0 && (
+            <div className="col-span-full p-10 text-center space-y-3 bg-white border border-[#E2E8F0] rounded-2xl">
+              <div className="w-10 h-10 mx-auto bg-[#2563EB]/10 text-[#2563EB] flex items-center justify-center rounded-xl">
+                <Target className="w-5 h-5" />
+              </div>
+              <div className="font-display font-bold text-base text-[#0F172A]">No Capital Goals Configured</div>
+              <p className="text-xs text-[#64748B] max-w-sm mx-auto">
+                No active wealth targets configured. Define education funds, retirement corpuses, or real estate acquisition milestones.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

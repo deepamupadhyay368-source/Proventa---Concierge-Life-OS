@@ -9,7 +9,7 @@ import {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get('userId') || 'usr_rajesh_sharma';
+    const userId = searchParams.get('userId') || 'usr_primary';
 
     const workspaces = listUserWorkspaces(userId);
     return NextResponse.json({ success: true, data: workspaces });
@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
     if (body.action === 'INVITE_MEMBER') {
       const invitation = inviteFamilyMember({
         familyId: body.familyId,
-        invitedByUserId: body.invitedByUserId || 'usr_rajesh_sharma',
-        invitedByName: body.invitedByName || 'Rajesh Sharma',
+        invitedByUserId: body.invitedByUserId || 'usr_primary',
+        invitedByName: body.invitedByName || 'Family Owner',
         inviteeEmail: body.inviteeEmail,
         role: body.role || 'MEMBER',
         relationship: body.relationship || 'OTHER',
@@ -36,8 +36,8 @@ export async function POST(req: NextRequest) {
 
     if (body.action === 'ACCEPT_INVITATION') {
       const workspace = acceptFamilyInvitation(body.invitationId, {
-        id: body.userId || 'usr_new_member',
-        name: body.userName || 'New Member',
+        id: body.userId || `usr_${Date.now()}`,
+        name: body.userName || 'Family Member',
         email: body.email,
       });
       return NextResponse.json({ success: true, data: workspace });
@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
 
     // Default: create new family workspace
     const newWorkspace = createFamilyWorkspace({
-      name: body.name || 'New Family Trust',
-      ownerId: body.ownerId || 'usr_rajesh_sharma',
-      ownerName: body.ownerName || 'Rajesh Sharma',
-      ownerEmail: body.ownerEmail || 'rajesh.sharma@proventa.internal',
+      name: body.name || 'Private Family Trust',
+      ownerId: body.ownerId || 'usr_primary',
+      ownerName: body.ownerName || 'Family Trustee',
+      ownerEmail: body.ownerEmail || 'trustee@proventa.internal',
     });
 
     return NextResponse.json({ success: true, data: newWorkspace }, { status: 201 });

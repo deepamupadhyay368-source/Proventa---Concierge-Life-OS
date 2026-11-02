@@ -409,10 +409,10 @@ export default function MarketingHomePage() {
             </Link>
 
             <Link
-              href="/dashboard"
+              href="/sign-in"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#090B10] text-[#F4F6FA] hover:bg-[#252C38] border border-[#252C38] font-semibold text-sm tracking-wider uppercase rounded-xs transition-colors"
             >
-              Explore Live Demo
+              Sign In with Access Key
             </Link>
           </div>
         </div>

@@ -45,7 +45,12 @@ function createInitialWealthStore(): WealthStore {
     history: new Map(),
   };
 
-  // Pre-seed demo family workspace for immediate testing & realistic sandbox
+  // Production stores are strictly empty. Test fixtures only seed during test execution.
+  if (process.env.NODE_ENV !== 'test') {
+    return store;
+  }
+
+  // Pre-seed demo family workspace strictly for automated test suite
   const demoFamilyId = 'fam_sharma_heritage';
   const demoOwnerId = 'usr_rajesh_sharma';
 

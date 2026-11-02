@@ -9,7 +9,10 @@ import {
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const workspaceId = searchParams.get('workspaceId') || 'fam_sharma_heritage';
+    const workspaceId = searchParams.get('workspaceId');
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
     const category = searchParams.get('category') as any;
     const search = searchParams.get('search') || undefined;
 
@@ -33,11 +36,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: confirmed });
     }
 
+    if (!body.workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
     const doc = uploadDocument({
-      workspaceId: body.workspaceId || 'fam_sharma_heritage',
-      familyId: body.familyId || 'fam_sharma_heritage',
-      uploadedByUserId: body.uploadedByUserId || 'usr_rajesh_sharma',
-      uploadedByUserName: body.uploadedByUserName || 'Rajesh Sharma',
+      workspaceId: body.workspaceId,
+      familyId: body.familyId || body.workspaceId,
+      uploadedByUserId: body.uploadedByUserId || 'usr_member',
+      uploadedByUserName: body.uploadedByUserName || 'Vault Custodian',
       fileName: body.fileName || 'Financial_Document.pdf',
       fileSize: Number(body.fileSize || 1048576),
       mimeType: body.mimeType || 'application/pdf',
