@@ -142,11 +142,11 @@ export default function RegisterDetailsPage() {
             <span>SOVEREIGN REGISTRATION PROTOCOL</span>
           </div>
           <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-[#F4F6FA] uppercase">
-            {passKey ? 'Your Proventa Pass Key' : 'Complete Registration'}
+            {passKey ? 'Your 12-Digit Pass Key' : 'Complete Registration'}
           </h1>
           <p className="font-mono text-xs text-[#858D9B]">
             {passKey
-              ? 'Save your private credential. Displayed once only.'
+              ? 'Save your 12-digit private credential. Displayed once only.'
               : 'Configure your primary institutional identity to initialize your personal wealth workspace.'}
           </p>
         </div>
@@ -158,11 +158,11 @@ export default function RegisterDetailsPage() {
               <KeyRound className="w-5 h-5 text-[#7595FF] shrink-0 mt-0.5" />
               <div className="text-xs text-[#C5CAD3] space-y-1">
                 <span className="font-bold text-[#F4F6FA] uppercase tracking-wider block">
-                  128-Bit Cryptographic Pass Key
+                  12-Digit Numeric Sovereign Pass Key
                 </span>
                 <p>
-                  This unique pass key is your sovereign key for PROVENTA. We only store its salted cryptographic hash. 
-                  You can use this pass key with your email address to sign in passwordlessly on any device.
+                  This unique 12-digit key is your permanent credential for PROVENTA. We only store its salted cryptographic hash. 
+                  On every subsequent visit, enter your registered email and this 12-digit key to sign in directly without a password.
                 </p>
               </div>
             </div>
@@ -170,16 +170,16 @@ export default function RegisterDetailsPage() {
             {/* Pass Key Display Box */}
             <div className="space-y-2">
               <label className="block text-[10px] font-mono uppercase tracking-widest text-[#858D9B]">
-                Your PROVENTA Pass Key
+                Your 12-Digit PROVENTA Pass Key
               </label>
               <div className="p-4 bg-[#090B10] border border-[#2457FF] rounded-xs flex items-center justify-between gap-2">
-                <span className="font-mono font-bold text-sm sm:text-base text-[#7595FF] tracking-wider select-all break-all">
+                <span className="font-mono font-black text-lg sm:text-2xl text-[#7595FF] tracking-[0.15em] select-all break-all">
                   {passKey}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyPassKey}
-                  className="px-3 py-1.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase font-bold rounded-xs flex items-center gap-1.5 transition-colors shrink-0"
+                  className="px-3.5 py-2 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase font-bold rounded-xs flex items-center gap-1.5 transition-colors shrink-0"
                 >
                   {copied ? (
                     <>
@@ -198,7 +198,7 @@ export default function RegisterDetailsPage() {
 
             <div className="p-3.5 bg-[#090B10] border border-[#252C38] rounded-xs flex items-center gap-2.5 text-xs text-[#858D9B]">
               <AlertTriangle className="w-4 h-4 text-[#FF7A70] shrink-0" />
-              <span>Make sure to copy and store this key safely before entering your cockpit.</span>
+              <span>Make sure to copy and store this 12-digit key safely before entering your cockpit.</span>
             </div>
 
             {/* Mandatory Confirmation Checkbox */}
@@ -210,7 +210,7 @@ export default function RegisterDetailsPage() {
                 className="mt-1 h-4 w-4 rounded-xs border-[#252C38] bg-[#171C26] text-[#2457FF] focus:ring-0 cursor-pointer"
               />
               <span className="text-xs text-[#C5CAD3] leading-snug">
-                I have securely copied and saved my <strong className="text-white">PROVENTA Pass Key</strong>. I understand it will not be displayed again.
+                I have securely copied and saved my <strong className="text-white">12-Digit PROVENTA Pass Key</strong>. I understand it will not be displayed again.
               </span>
             </label>
 

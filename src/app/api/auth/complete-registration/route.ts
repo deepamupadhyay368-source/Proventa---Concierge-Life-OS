@@ -43,8 +43,8 @@ export async function POST(req: NextRequest) {
     const cleanName = name.trim();
     const cleanCountry = (country || 'India').trim();
 
-    // Generate unique 128-bit PROVENTA Pass Key
-    const { plaintextKey, hash: passKeyHash } = await generateProventaAccessKey();
+    // Generate unique 12-digit numeric PROVENTA Pass Key
+    const { plaintextKey, formattedKey, hash: passKeyHash } = await generateProventaAccessKey();
 
     // 1. Update user record
     await db.user.update({
@@ -107,10 +107,11 @@ export async function POST(req: NextRequest) {
       data: { source: 'google_registration_complete' },
     });
 
-    // Return the plaintext pass key to the client for single-view mandatory confirmation
+    // Return the formatted 12-digit pass key to the client for single-view mandatory confirmation
     return NextResponse.json({
       success: true,
-      passKey: plaintextKey,
+      passKey: formattedKey,
+      rawDigits: plaintextKey,
       userId,
       workspaceId: `ind_${userId}`,
     });

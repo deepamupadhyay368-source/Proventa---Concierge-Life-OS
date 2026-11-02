@@ -14,6 +14,8 @@ import {
   verifyAccessKey,
   generateProventaAccessKey,
   stageOneTimeAccessKey,
+  checkPassKeyRateLimit,
+  resetPassKeyRateLimit,
 } from '@/lib/auth/access-key';
 import bcrypt from 'bcryptjs';
 
@@ -64,6 +66,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // 1. DIRECT PROVENTA ACCESS KEY AUTHENTICATION (Method B)
         if (!password && authKey) {
+          // Enforce strict rate limiting on 12-digit numeric pass key attempts (max 5 per 15 mins)
+          const rl = checkPassKeyRateLimit(`passkey:${normalizedEmail}`);
+          if (!rl.allowed) {
+            void createSecurityEvent('LOGIN_BLOCKED', {
+              data: { email: normalizedEmail, reason: 'passkey_rate_limit_exceeded' },
+            });
+            throw new Error('TooManyAttempts');
+          }
+
           if (!user || !user.securityKeyHash) {
             await verifyPassword(
               'dummy',
@@ -96,6 +107,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return null;
           }
 
+          resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
           void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
           void createSecurityEvent('LOGIN_COMPLETED', { userId: user.id });
           void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
@@ -181,6 +193,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             });
             return null;
           }
+          resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
           void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
         } else if (authKey) {
           const newKeyHash = (await verifyPassword(authKey, '$2b$12$dummy'))
@@ -198,7 +211,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               userId: user.id,
               data: { source: 'migration_login' },
             });
-            void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
+            resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
+          void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
           }
         }
 
