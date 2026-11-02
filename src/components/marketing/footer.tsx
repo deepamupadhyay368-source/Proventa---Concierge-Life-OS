@@ -4,19 +4,19 @@ import { BRAND_CONFIG } from '@/lib/brand';
 
 const FOOTER_SECTIONS = [
   {
-    code: '01 // WEALTH REGISTERS',
+    code: '01 // WEALTH UNIVERSE',
     title: 'Platform Modules',
     links: [
       { label: 'Family Wealth Command Cockpit', href: '/dashboard' },
       { label: 'Capital Asset Inventory', href: '/assets' },
       { label: 'Debt & Facility Register', href: '/liabilities' },
       { label: 'Encrypted Family Vault', href: '/vault' },
-      { label: 'Treasury & Cashflow', href: '/cashflow' },
+      { label: 'Treasury & Cashflow Stream', href: '/cashflow' },
       { label: 'Analytical Research Console', href: '/intelligence' },
     ],
   },
   {
-    code: '02 // CONTINUITY & GRAPH',
+    code: '02 // CONTINUITY & TOPOLOGY',
     title: 'Succession Architecture',
     links: [
       { label: 'Capital Milestone Goals', href: '/goals' },
@@ -27,7 +27,7 @@ const FOOTER_SECTIONS = [
     ],
   },
   {
-    code: '03 // ENTITLEMENTS',
+    code: '03 // LICENSING & TIERS',
     title: 'Institutional Licenses',
     links: [
       { label: 'Institutional Licensing Tiers', href: '/pricing' },
@@ -50,56 +50,61 @@ const FOOTER_SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="bg-[#090B10] text-[#F4F6FA] border-t border-[#252C38] font-sans">
-      {/* Monumental Banner */}
-      <div className="border-b border-[#252C38] bg-[#171C26]">
-        <div className="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+    <footer className="bg-[#FAFBFC] text-[#0F172A] border-t border-[#E2E8F0] font-sans">
+      {/* Living Financial Universe Banner */}
+      <div className="border-b border-[#E2E8F0] bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-8 space-y-4">
-              <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-[#7595FF] font-semibold flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-[#2457FF]" />
-                <span>PROVENTA // TITANIUM FUTURE × DIGITAL COBALT</span>
+              <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
+                <span>PROVENTA // LIVING FINANCIAL UNIVERSE</span>
               </div>
-              <h2 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#F4F6FA] leading-none">
+              <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0F172A] leading-tight">
                 Your wealth. One living system.
               </h2>
-              <p className="font-sans text-sm sm:text-base text-[#C5CAD3] max-w-2xl leading-relaxed">
-                Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence. Consolidated net worth, asset registers, encrypted family vault, and private wealth telemetry.
+              <p className="font-sans text-sm sm:text-base text-[#475569] max-w-2xl leading-relaxed">
+                An intelligent, connected financial universe for high-net-worth Indian families. Real-time consolidated net worth, multi-generational continuity, encrypted family deed vaults, and deterministic scenarios.
               </p>
             </div>
             <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 font-mono text-xs">
               <Link
                 href="/onboarding"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-[#2457FF] text-[#F4F6FA] hover:bg-[#1B46D9] uppercase tracking-wider font-semibold border border-[#7595FF]/40 rounded-[2px] shadow-[0_0_20px_rgba(36,87,255,0.3)] transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] uppercase tracking-wider font-semibold rounded-lg shadow-sm shadow-blue-500/25 transition-all"
               >
                 <span>Commence Institutional Intake</span>
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center gap-2 px-6 py-4 bg-[#090B10] text-[#C5CAD3] hover:text-[#F4F6FA] hover:border-[#7595FF]/50 uppercase tracking-wider font-semibold border border-[#252C38] rounded-[2px] transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F8FAFC] text-[#334155] hover:text-[#0F172A] hover:bg-white uppercase tracking-wider font-semibold border border-[#CBD5E1] rounded-lg transition-colors"
               >
-                Inspect Institutional Tiers
+                Review Licensing Schedules
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Directory Grid */}
-      <div className="max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-          {FOOTER_SECTIONS.map((section) => (
-            <div key={section.code} className="space-y-4 font-mono">
-              <div className="text-[10px] uppercase tracking-[0.2em] text-[#7595FF] font-semibold">
-                {section.code}
+      {/* Directory Columns */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {FOOTER_SECTIONS.map((sec) => (
+            <div key={sec.code} className="space-y-4">
+              <div className="border-b border-[#E2E8F0] pb-2">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#94A3B8]">
+                  {sec.code}
+                </div>
+                <h4 className="font-display text-sm font-bold text-[#0F172A] mt-0.5">
+                  {sec.title}
+                </h4>
               </div>
-              <ul className="space-y-2.5 text-xs text-[#858D9B]">
-                {section.links.map((link) => (
+              <ul className="space-y-2.5 font-mono text-xs">
+                {sec.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="hover:text-[#F4F6FA] hover:underline transition-colors"
+                      className="text-[#64748B] hover:text-[#2563EB] transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -110,20 +115,27 @@ export function MarketingFooter() {
           ))}
         </div>
 
-        {/* Regulatory Disclaimers & DPDP Notice */}
-        <div className="mt-16 pt-8 border-t border-[#252C38] font-mono text-[10px] text-[#858D9B] space-y-2 leading-relaxed">
-          <p>
-            STATUTORY INDEPENDENCE NOTICE: PROVENTA is an independent digital family financial infrastructure and software platform. PROVENTA is not a registered investment advisor, stock broker, depository participant, or merchant banker under the Securities and Exchange Board of India (SEBI), nor an insurance repository or intermediary under IRDAI.
-          </p>
-          <p>
-            DATA PRIVACY &amp; DPDP ACT 2023: All family documents, cap-table maps, and personal ledgers are processed under strict client-side encryption and tenant-level database separation in compliance with the Digital Personal Data Protection Act 2023.
-          </p>
-          <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[#858D9B]">
-            <div>© {new Date().getFullYear()} PROVENTA TECHNOLOGIES PRIVATE LIMITED. ALL RIGHTS RESERVED.</div>
-            <div className="flex items-center gap-4">
-              <span>JURISDICTION: INDIA</span>
-              <span className="text-[#7595FF]">ENGINE: DETERMINISTIC PAISE PRECISION</span>
+        {/* Fiduciary Notice & Legal Sub-footer */}
+        <div className="mt-14 pt-8 border-t border-[#E2E8F0] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-xs text-[#64748B]">
+          <div className="flex items-center gap-3">
+            <div className="w-6 h-6 bg-[#2563EB] text-white rounded-md flex items-center justify-center font-display font-bold text-xs">
+              P
             </div>
+            <div>
+              <span className="font-bold text-[#0F172A]">PROVENTA PLATFORM TECHNOLOGIES PRIVATE LIMITED</span>
+              <span className="mx-2">•</span>
+              <span>CIN: U72200MH2024PTC419821</span>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+            <span className="flex items-center gap-1.5 text-[#0D9488]">
+              <ShieldCheck className="w-3.5 h-3.5" /> DPDP ACT COMPLIANT
+            </span>
+            <span className="flex items-center gap-1.5 text-[#2563EB]">
+              <Lock className="w-3.5 h-3.5" /> AES-GCM-256 ENCRYPTED
+            </span>
+            <span>© {new Date().getFullYear()} PROVENTA. All rights reserved.</span>
           </div>
         </div>
       </div>
@@ -131,5 +143,6 @@ export function MarketingFooter() {
   );
 }
 
-export default MarketingFooter;
 export const PublicFooter = MarketingFooter;
+export default MarketingFooter;
+

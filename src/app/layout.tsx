@@ -27,15 +27,15 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | Titanium Cobalt Family Wealth OS',
+    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | Living Financial Universe',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence. Consolidated net worth, asset registers, encrypted family vault, and private wealth telemetry.',
+    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. An intelligent, connected financial universe for high-net-worth Indian families to organize, understand, monitor, and preserve their complete financial universe.',
   keywords: [
     'PROVENTA',
     'Family Wealth OS',
-    'Titanium Cobalt',
+    'Living Financial Universe',
     'Family Financial Infrastructure',
     'Consolidated Net Worth India',
     'Private Wealth Intelligence',
@@ -92,8 +92,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#171A14' },
-    { media: '(prefers-color-scheme: dark)', color: '#171A14' },
+    { media: '(prefers-color-scheme: light)', color: '#FAFBFC' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B0E17' },
   ],
 };
 
@@ -106,12 +106,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geist.variable} ${spaceGrotesk.variable} ${geistMono.variable} dark`}
+      className={`${geist.variable} ${spaceGrotesk.variable} ${geistMono.variable}`}
     >
-      <body className="min-h-screen bg-[#090B10] text-[#F4F6FA] antialiased">
+      <body className="min-h-screen bg-[#FAFBFC] text-[#0F172A] antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >

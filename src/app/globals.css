@@ -4,43 +4,44 @@
 
 @layer base {
   :root {
-    /* PROVENTA TITANIUM COBALT DESIGN SYSTEM */
-    /* Obsidian (#090B10), Graphite (#171C26), Dark Steel (#252C38), Titanium Silver (#C5CAD3), Ice White (#F4F6FA), Digital Cobalt (#2457FF), Electric Blue (#7595FF), Muted Grey (#858D9B) */
-    --background: 223 28% 5%;    /* #090B10 Obsidian Black */
-    --foreground: 220 27% 97%;   /* #F4F6FA Ice White */
+    /* PROVENTA LIVING FINANCIAL UNIVERSE — LIGHT-FIRST FOUNDATION */
+    /* Pearl White (#FAFBFC / #FFFFFF), Cool Silver (#E2E8F0 / #CBD5E1), Soft Graphite (#334155 / #0F172A) */
+    /* Royal Blue (#2563EB), Deep Indigo (#1E1B4B), Subtle Lavender (#EEF2FF), Restrained Aqua (#0D9488) */
+    --background: 210 20% 98%;   /* #FAFBFC Pearl White */
+    --foreground: 222 47% 11%;   /* #0F172A Deep Slate / Graphite */
 
-    --card: 220 25% 12%;         /* #171C26 Graphite */
-    --card-foreground: 220 27% 97%;
+    --card: 0 0% 100%;           /* #FFFFFF Pure Pearl */
+    --card-foreground: 222 47% 11%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 220 27% 97%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Primary: Digital Cobalt (#2457FF) */
-    --primary: 226 100% 57%;
-    --primary-foreground: 220 27% 97%;
+    /* Primary: Royal Blue (#2563EB) */
+    --primary: 221 83% 53%;
+    --primary-foreground: 210 40% 98%;
 
-    /* Secondary: Dark Steel (#252C38) */
-    --secondary: 219 20% 18%;
-    --secondary-foreground: 218 14% 80%; /* #C5CAD3 Titanium */
+    /* Secondary: Cool Silver Surface */
+    --secondary: 210 40% 96%;    /* #F1F5F9 */
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 219 20% 18%;
-    --muted-foreground: 218 9% 56%;      /* #858D9B Muted Grey */
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%; /* #64748B */
 
-    /* Accent: Electric Blue (#7595FF) */
-    --accent: 227 100% 73%;
-    --accent-foreground: 223 28% 5%;
+    /* Accent: Restrained Aqua (#0D9488) */
+    --accent: 175 84% 32%;
+    --accent-foreground: 210 40% 98%;
 
-    /* Destructive / Liability */
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 220 27% 97%;
+    /* Destructive / Risk */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    /* Precision Borders */
-    --border: 219 20% 18%;       /* #252C38 Dark Steel */
-    --input: 219 20% 18%;
-    --ring: 226 100% 57%;
+    /* Precision Architectural Silver Borders */
+    --border: 214 32% 91%;       /* #E2E8F0 Cool Silver */
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;         /* Royal Blue Ring */
 
-    /* Sharp 0-4px Titanium Precision */
-    --radius: 2px;
+    /* Smooth Geometric Curvature */
+    --radius: 8px;
 
     /* Typography */
     --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
@@ -49,33 +50,34 @@
   }
 
   .dark {
-    --background: 223 28% 5%;    /* #090B10 */
-    --foreground: 220 27% 97%;   /* #F4F6FA */
+    /* Graceful night mode matching Living Universe Deep Indigo */
+    --background: 224 71% 4%;    /* #0B0E17 Deep Indigo Cosmos */
+    --foreground: 210 40% 98%;   /* #F8FAFC */
 
-    --card: 220 25% 12%;         /* #171C26 */
-    --card-foreground: 220 27% 97%;
+    --card: 224 50% 8%;          /* #0F1424 */
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 25% 12%;
-    --popover-foreground: 220 27% 97%;
+    --popover: 224 50% 8%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 226 100% 57%;     /* #2457FF */
-    --primary-foreground: 220 27% 97%;
+    --primary: 221 83% 53%;     /* #2563EB */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 219 20% 18%;    /* #252C38 */
-    --secondary-foreground: 218 14% 80%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 219 20% 18%;
-    --muted-foreground: 218 9% 56%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 227 100% 73%;
-    --accent-foreground: 223 28% 5%;
+    --accent: 175 84% 32%;       /* #0D9488 */
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 220 27% 97%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 219 20% 18%;
-    --input: 219 20% 18%;
-    --ring: 226 100% 57%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 221 83% 53%;
   }
 }
 
@@ -86,13 +88,13 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #090B10;
-    color: #F4F6FA;
+    background-color: #FAFBFC;
+    color: #0F172A;
   }
 
   body {
-    background-color: #090B10;
-    color: #F4F6FA;
+    background-color: #FAFBFC;
+    color: #0F172A;
     font-family: var(--font-sans);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     min-height: 100vh;
@@ -100,13 +102,13 @@
   }
 
   ::selection {
-    background-color: #2457FF;
-    color: #F4F6FA;
+    background-color: #2563EB;
+    color: #FFFFFF;
   }
 
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -121,144 +123,192 @@
 
   .font-mono-tech {
     font-family: var(--font-mono);
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
   }
 
-  /* Titanium Cobalt Grids & Containers */
+  /* ========================================================= */
+  /* PROVENTA LIVING FINANCIAL UNIVERSE SYSTEM UTILITIES      */
+  /* ========================================================= */
+
+  .universe-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Dimensional Layered Panels with Dynamic Depth */
+  .universe-card {
+    @apply bg-white border border-[#E2E8F0] rounded-xl shadow-[0_4px_20px_-2px_rgba(30,27,75,0.04),0_1px_3px_0_rgba(30,27,75,0.03)] transition-all duration-300;
+  }
+
+  .universe-card-hover {
+    @apply hover:shadow-[0_12px_32px_-8px_rgba(37,99,235,0.12),0_2px_8px_0_rgba(30,27,75,0.04)] hover:border-[#BFDBFE] hover:-translate-y-0.5;
+  }
+
+  .universe-panel {
+    @apply bg-white border border-[#E2E8F0] rounded-xl;
+  }
+
+  .universe-panel-elevated {
+    @apply bg-white border border-[#CBD5E1] rounded-xl shadow-[0_12px_36px_-6px_rgba(30,27,75,0.07),0_2px_6px_0_rgba(30,27,75,0.03)];
+  }
+
+  .universe-panel-subtle {
+    @apply bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl;
+  }
+
+  .universe-panel-active {
+    @apply bg-white border-2 border-[#2563EB] rounded-xl shadow-[0_8px_24px_-4px_rgba(37,99,235,0.18)];
+  }
+
+  /* Badges & Telemetry Pills */
+  .universe-badge-royal {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] font-mono text-[11px] font-medium tracking-wide rounded-full;
+  }
+
+  .universe-badge-aqua {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F0FDFA] text-[#0D9488] border border-[#99F6E4] font-mono text-[11px] font-medium tracking-wide rounded-full;
+  }
+
+  .universe-badge-indigo {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#EEF2FF] text-[#312E81] border border-[#C7D2FE] font-mono text-[11px] font-medium tracking-wide rounded-full;
+  }
+
+  .universe-badge-silver {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] font-mono text-[11px] font-medium tracking-wide rounded-full;
+  }
+
+  /* Buttons & Action Triggers */
+  .universe-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#2563EB] text-white font-medium text-sm rounded-lg shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] hover:bg-[#1D4ED8] hover:shadow-[0_6px_20px_0_rgba(37,99,235,0.4)] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .universe-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#1E293B] border border-[#CBD5E1] font-medium text-sm rounded-lg shadow-sm hover:bg-[#F8FAFC] hover:border-[#94A3B8] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .universe-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] font-medium text-sm rounded-lg transition-colors;
+  }
+
+  /* Inputs */
+  .universe-input {
+    @apply w-full bg-white border border-[#CBD5E1] text-[#0F172A] px-3.5 py-2.5 text-sm rounded-lg placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all;
+  }
+
+  /* Subtle Ambient Living Mesh Grid */
+  .living-grid {
+    background-image: radial-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  .living-glow {
+    background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.07) 0%, rgba(238, 242, 255, 0.4) 40%, transparent 80%);
+  }
+
+  /* Backward-compatible aliases mapping seamlessly into the Living Universe */
   .tc-container {
-    @apply max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8;
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
-
-  .grid-12 {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  /* Precision Metallic Panels */
   .tc-panel {
-    @apply bg-[#171C26] border border-[#252C38] rounded-[2px];
+    @apply bg-white border border-[#E2E8F0] rounded-xl shadow-[0_2px_12px_-2px_rgba(30,27,75,0.03)];
   }
-
   .tc-panel-obsidian {
-    @apply bg-[#090B10] border border-[#252C38] rounded-[2px];
+    @apply bg-[#0F172A] border border-[#1E293B] rounded-xl text-white;
   }
-
   .tc-panel-elevated {
-    @apply bg-[#1C2230] border border-[#252C38] rounded-[2px];
+    @apply bg-white border border-[#CBD5E1] rounded-xl shadow-[0_8px_24px_-4px_rgba(30,27,75,0.06)];
   }
-
   .tc-panel-active {
-    @apply bg-[#171C26] border border-[#2457FF] rounded-[2px];
+    @apply bg-white border-2 border-[#2563EB] rounded-xl shadow-sm;
   }
-
   .tc-panel-steel {
-    @apply bg-[#252C38] border border-[#364052] rounded-[2px];
+    @apply bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl;
   }
-
-  /* Technical Labels & Numbering */
   .tc-label {
-    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#858D9B];
+    @apply font-mono text-[11px] uppercase tracking-wider text-[#64748B];
   }
-
   .tc-label-titanium {
-    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#C5CAD3];
+    @apply font-mono text-[11px] uppercase tracking-wider text-[#475569];
   }
-
   .tc-label-cobalt {
-    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#7595FF];
+    @apply font-mono text-[11px] uppercase tracking-wider text-[#2563EB];
   }
-
   .tc-number {
     @apply font-mono font-medium tracking-tight tabular-nums;
   }
-
-  /* Stamp Badges */
   .tc-badge-cobalt {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
-
   .tc-badge-titanium {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#252C38] text-[#C5CAD3] border border-[#364052] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
-
   .tc-badge-ice {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#F4F6FA] text-[#090B10] font-mono text-[10px] uppercase tracking-wider font-semibold rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#2563EB] text-white font-mono text-[10px] uppercase tracking-wider font-semibold rounded-full;
   }
-
   .tc-badge-oxide {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#A63B32]/20 text-[#FF7A70] border border-[#A63B32]/50 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
-
-  /* Titanium Cobalt Action Triggers */
   .tc-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2457FF] text-[#F4F6FA] border border-[#2457FF] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#1B46D9] rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-medium text-xs rounded-lg shadow-sm hover:bg-[#1D4ED8] transition-all;
   }
-
   .tc-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#171C26] text-[#C5CAD3] border border-[#252C38] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#252C38] hover:text-[#F4F6FA] hover:border-[#7595FF]/40 rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#334155] border border-[#CBD5E1] font-medium text-xs rounded-lg hover:bg-[#F8FAFC] transition-all;
   }
-
   .tc-btn-cobalt-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-[#2457FF]/10 text-[#7595FF] border border-[#2457FF]/30 font-mono text-xs uppercase tracking-wider hover:bg-[#2457FF]/20 rounded-[2px];
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] font-medium text-xs rounded-lg hover:bg-[#DBEAFE];
   }
-
   .tc-btn-steel {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#252C38] text-[#C5CAD3] border border-[#364052] font-mono text-xs uppercase tracking-wider hover:bg-[#364052] hover:text-[#F4F6FA] rounded-[2px];
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-medium text-xs rounded-lg hover:bg-[#E2E8F0];
   }
-
-  /* Precision Inputs */
   .tc-input {
-    @apply w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-xs font-mono placeholder:text-[#858D9B] rounded-[2px] focus:outline-none focus:border-[#2457FF] transition-colors;
+    @apply w-full bg-white border border-[#CBD5E1] text-[#0F172A] px-3.5 py-2 text-xs font-mono placeholder:text-[#94A3B8] rounded-lg focus:outline-none focus:border-[#2563EB];
   }
-
-  /* Neo-institutional compatibility aliases */
   .inst-panel {
-    @apply bg-[#171C26] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+    @apply bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] shadow-sm;
   }
   .inst-panel-ivory {
-    @apply bg-[#1C2230] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+    @apply bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] shadow-sm;
   }
   .inst-panel-dark {
-    @apply bg-[#090B10] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+    @apply bg-[#0F172A] border border-[#1E293B] rounded-xl text-white shadow-sm;
   }
   .inst-panel-subtle {
-    @apply bg-[#171C26] border border-[#252C38] rounded-[2px] text-[#F4F6FA];
+    @apply bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#0F172A];
   }
   .inst-label {
-    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#858D9B];
+    @apply font-mono text-[11px] uppercase tracking-wider text-[#64748B];
   }
   .inst-label-dark {
-    @apply font-mono text-[10px] uppercase tracking-[0.18em] text-[#C5CAD3];
+    @apply font-mono text-[11px] uppercase tracking-wider text-[#475569];
   }
   .inst-number {
     @apply font-mono font-medium tracking-tight tabular-nums;
   }
   .badge-forest {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#2457FF]/15 text-[#7595FF] border border-[#2457FF]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F0FDFA] text-[#0D9488] border border-[#99F6E4] font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
   .badge-oxide {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#A63B32]/20 text-[#FF7A70] border border-[#A63B32]/50 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
   .badge-stone {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#252C38] text-[#C5CAD3] border border-[#364052] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
   .badge-obsidian {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 bg-[#090B10] text-[#F4F6FA] border border-[#252C38] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#0F172A] text-white font-mono text-[10px] uppercase tracking-wider rounded-full;
   }
   .btn-inst-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2457FF] text-[#F4F6FA] border border-[#2457FF] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#1B46D9] rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-medium text-xs rounded-lg shadow-sm hover:bg-[#1D4ED8] transition-all;
   }
   .btn-inst-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#171C26] text-[#C5CAD3] border border-[#252C38] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#252C38] hover:text-[#F4F6FA] hover:border-[#7595FF]/40 rounded-[2px] disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#334155] border border-[#CBD5E1] font-medium text-xs rounded-lg hover:bg-[#F8FAFC] transition-all;
   }
   .btn-inst-forest {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#2457FF] text-[#F4F6FA] border border-[#2457FF] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#1B46D9] rounded-[2px];
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#0D9488] text-white font-medium text-xs rounded-lg hover:bg-[#0F766E];
   }
   .btn-inst-oxide {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#A63B32] text-[#F4F6FA] border border-[#A63B32] font-mono text-xs uppercase tracking-[0.14em] font-medium transition-all hover:bg-[#8B2E26] rounded-[2px];
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 text-white font-medium text-xs rounded-lg hover:bg-rose-700;
   }
   .input-inst {
-    @apply w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-xs font-mono placeholder:text-[#858D9B] rounded-[2px] focus:outline-none focus:border-[#2457FF] transition-colors;
+    @apply w-full bg-white border border-[#CBD5E1] text-[#0F172A] px-3.5 py-2 text-xs font-mono placeholder:text-[#94A3B8] rounded-lg focus:outline-none focus:border-[#2563EB];
   }
 }
 
@@ -271,20 +321,21 @@
   }
 }
 
-/* Precision Metallic Scrollbar */
+/* Elegant Light Universe Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #090B10;
+  background: #FAFBFC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #252C38;
+  background: #CBD5E1;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2457FF;
+  background: #2563EB;
 }
