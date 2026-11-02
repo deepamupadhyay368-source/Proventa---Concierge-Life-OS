@@ -95,6 +95,18 @@ function getProtectionStore(): ProtectionStore {
   return globalThis.__proventaProtectionStore;
 }
 
+export function syncWorkspacePolicies(workspaceId: string, policies: InsurancePolicyDTO[]): void {
+  const store = getProtectionStore();
+  for (const [id, pol] of Array.from(store.policies.entries())) {
+    if (pol.workspaceId === workspaceId) {
+      store.policies.delete(id);
+    }
+  }
+  for (const p of policies) {
+    store.policies.set(p.id, p);
+  }
+}
+
 export function listInsurancePolicies(workspaceId: string): InsurancePolicyDTO[] {
   const store = getProtectionStore();
   const results: InsurancePolicyDTO[] = [];

@@ -94,6 +94,11 @@ function getContinuityStore(): ContinuityStore {
   return globalThis.__proventaContinuityStore;
 }
 
+export function syncWorkspaceContinuity(familyId: string, data: FamilyContinuityDTO): void {
+  const store = getContinuityStore();
+  store.records.set(familyId, data);
+}
+
 export function getFamilyContinuity(familyId: string): FamilyContinuityDTO {
   const store = getContinuityStore();
   const record = store.records.get(familyId);

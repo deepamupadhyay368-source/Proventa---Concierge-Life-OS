@@ -87,6 +87,18 @@ function getGoalsStore(): GoalsStore {
   return globalThis.__proventaGoalsStore;
 }
 
+export function syncWorkspaceGoals(workspaceId: string, goals: FinancialGoalDTO[]): void {
+  const store = getGoalsStore();
+  for (const [id, goal] of Array.from(store.goals.entries())) {
+    if (goal.workspaceId === workspaceId) {
+      store.goals.delete(id);
+    }
+  }
+  for (const g of goals) {
+    store.goals.set(g.id, g);
+  }
+}
+
 export function listGoals(workspaceId: string): FinancialGoalDTO[] {
   const store = getGoalsStore();
   const results: FinancialGoalDTO[] = [];

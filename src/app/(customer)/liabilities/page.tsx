@@ -8,15 +8,26 @@ import {
   X,
   AlertTriangle,
   Building,
+  Calculator,
 } from 'lucide-react';
 import { LiabilityDTO, LiabilityType } from '@/lib/wealth/types';
 import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
+import {
+  calculateEMI,
+  generateAmortisationSchedule,
+  simulateLoanPrepayment,
+  formatInr,
+  rupeesToPaise,
+} from '@/lib/wealth/engine';
 
 export default function LiabilitiesPage() {
   const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
   const [liabilities, setLiabilities] = useState<LiabilityDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedLiabilityForSchedule, setSelectedLiabilityForSchedule] = useState<LiabilityDTO | null>(null);
+  const [prepayExtraRupees, setPrepayExtraRupees] = useState<string>('15000');
+  const [prepayLumpSumRupees, setPrepayLumpSumRupees] = useState<string>('0');
 
   // Form state
   const [name, setName] = useState('');
@@ -207,13 +218,23 @@ export default function LiabilitiesPage() {
                   <div className="font-mono text-[10px] text-[#858D9B]">Matures: {l.maturityDate || 'N/A'}</div>
                 </td>
                 <td className="py-4 px-4 text-right">
-                  <button
-                    onClick={() => handleDelete(l.id)}
-                    className="p-1 border border-[#252C38] bg-[#090B10] text-[#858D9B] hover:text-[#FF7A70] hover:border-[#FF7A70]/50 transition-colors rounded-[2px]"
-                    title="Remove Record"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => setSelectedLiabilityForSchedule(l)}
+                      className="px-2.5 py-1 border border-[#252C38] bg-[#090B10] text-[#7595FF] hover:border-[#2457FF] hover:text-[#F4F6FA] font-mono text-[10px] uppercase transition-colors rounded-[2px] flex items-center gap-1"
+                      title="View Amortisation Schedule & Prepayment Simulator"
+                    >
+                      <Calculator className="w-3 h-3" />
+                      <span>Amortise</span>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(l.id)}
+                      className="p-1 border border-[#252C38] bg-[#090B10] text-[#858D9B] hover:text-[#FF7A70] hover:border-[#FF7A70]/50 transition-colors rounded-[2px]"
+                      title="Remove Record"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -372,6 +393,134 @@ export default function LiabilitiesPage() {
           </div>
         </div>
       )}
+
+      {/* 4. AMORTISATION & PREPAYMENT MODAL */}
+      {selectedLiabilityForSchedule && (() => {
+        const principalPaise = selectedLiabilityForSchedule.outstandingBalancePaise;
+        const rate = selectedLiabilityForSchedule.interestRateAnnual || 8.5;
+        const tenureMonths = 120; // default 10-year view or based on maturity
+        const extraPaise = rupeesToPaise(parseFloat(prepayExtraRupees) || 0);
+        const lumpSumPaise = rupeesToPaise(parseFloat(prepayLumpSumRupees) || 0);
+
+        const standardSchedule = generateAmortisationSchedule(principalPaise, rate, tenureMonths);
+        const simResult = simulateLoanPrepayment(principalPaise, rate, tenureMonths, extraPaise, lumpSumPaise);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#090B10]/85 backdrop-blur-sm">
+            <div className="w-full max-w-4xl bg-[#171C26] border border-[#252C38] rounded-[2px] shadow-[0_8px_32px_rgba(0,0,0,0.9)] max-h-[90vh] flex flex-col">
+              <div className="p-6 border-b border-[#252C38] flex items-center justify-between">
+                <div>
+                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#7595FF] font-semibold">
+                    AMORTISATION &amp; PREPAYMENT ENGINE
+                  </div>
+                  <h3 className="font-display font-bold text-2xl text-[#F4F6FA] mt-0.5">
+                    {selectedLiabilityForSchedule.name}
+                  </h3>
+                  <div className="font-mono text-xs text-[#858D9B] mt-1">
+                    Balance: {selectedLiabilityForSchedule.formattedOutstandingBalance} · {rate}% p.a. · {selectedLiabilityForSchedule.lenderName}
+                  </div>
+                </div>
+                <button
+                  onClick={() => setSelectedLiabilityForSchedule(null)}
+                  className="text-[#C5CAD3] hover:text-[#F4F6FA] hover:bg-[#252C38] p-1.5 border border-[#252C38] rounded-[2px]"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Prepayment Simulation Interactive Controls */}
+              <div className="p-6 bg-[#090B10] border-b border-[#252C38] grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
+                    Simulate Extra Monthly Prepayment (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={prepayExtraRupees}
+                    onChange={(e) => setPrepayExtraRupees(e.target.value)}
+                    placeholder="e.g. 15000"
+                    className="w-full bg-[#171C26] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
+                  />
+                  <div className="text-[10px] text-[#858D9B] mt-1 font-mono">
+                    Added to every monthly EMI towards principal repayment
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#858D9B] mb-1">
+                    Simulate One-Time Lump Sum Prepayment (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={prepayLumpSumRupees}
+                    onChange={(e) => setPrepayLumpSumRupees(e.target.value)}
+                    placeholder="e.g. 200000"
+                    className="w-full bg-[#171C26] border border-[#252C38] px-3 py-2 font-mono text-xs text-[#F4F6FA] focus:outline-none focus:border-[#2457FF] rounded-[2px]"
+                  />
+                  <div className="text-[10px] text-[#858D9B] mt-1 font-mono">
+                    Immediate capital injection in Month 1
+                  </div>
+                </div>
+              </div>
+
+              {/* Prepayment Summary Strip */}
+              <div className="p-4 bg-[#1C2230] border-b border-[#252C38] grid grid-cols-3 divide-x divide-[#252C38] text-center font-mono">
+                <div>
+                  <div className="text-[10px] text-[#858D9B] uppercase">INTEREST SAVED</div>
+                  <div className="font-display font-bold text-xl text-[#7595FF] mt-0.5">
+                    {simResult.formattedInterestSaved}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-[#858D9B] uppercase">TENURE REDUCTION</div>
+                  <div className="font-display font-bold text-xl text-[#F4F6FA] mt-0.5">
+                    {simResult.monthsSaved} Months Saved
+                  </div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-[#858D9B] uppercase">NEW DEBT FREEDOM</div>
+                  <div className="font-display font-bold text-xl text-[#FF7A70] mt-0.5">
+                    {simResult.newTenureMonths} Months
+                  </div>
+                </div>
+              </div>
+
+              {/* Amortisation Table */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <table className="w-full text-left text-xs font-mono border-collapse">
+                  <thead className="bg-[#090B10] text-[#7595FF] text-[10px] uppercase sticky top-0">
+                    <tr>
+                      <th className="py-2.5 px-3 border-b border-[#252C38]">Mo</th>
+                      <th className="py-2.5 px-3 border-b border-[#252C38]">Opening Balance</th>
+                      <th className="py-2.5 px-3 border-b border-[#252C38]">Total Payment</th>
+                      <th className="py-2.5 px-3 border-b border-[#252C38]">Principal Paid</th>
+                      <th className="py-2.5 px-3 border-b border-[#252C38]">Interest Paid</th>
+                      <th className="py-2.5 px-3 border-b border-[#252C38]">Closing Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#252C38] text-[#F4F6FA]">
+                    {simResult.schedule.slice(0, 36).map((row) => (
+                      <tr key={row.month} className="hover:bg-[#1C2230]">
+                        <td className="py-2 px-3 text-[#7595FF]">#{row.month}</td>
+                        <td className="py-2 px-3">{formatInr(row.openingBalancePaise)}</td>
+                        <td className="py-2 px-3 font-semibold">{formatInr(row.emiPaise)}</td>
+                        <td className="py-2 px-3 text-[#7595FF]">{formatInr(row.principalPaidPaise)}</td>
+                        <td className="py-2 px-3 text-[#FF7A70]">{formatInr(row.interestPaidPaise)}</td>
+                        <td className="py-2 px-3">{formatInr(row.closingBalancePaise)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {simResult.schedule.length > 36 && (
+                  <div className="text-center font-mono text-[10px] text-[#858D9B] py-3">
+                    Showing first 36 months of {simResult.schedule.length} months amortisation schedule.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

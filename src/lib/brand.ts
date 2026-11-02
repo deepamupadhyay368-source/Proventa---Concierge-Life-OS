@@ -102,6 +102,7 @@ export const FAMILY_NAV_ITEMS: FamilyNavItem[] = [
   { id: 'protection', name: 'Protection', href: '/protection', icon: 'ShieldCheck', description: 'Insurance coverage, renewals & policy records' },
   { id: 'goals', name: 'Goals', href: '/goals', icon: 'Target', description: 'Family milestone targets & scenario modeling' },
   { id: 'business', name: 'Business & Ownership', href: '/business-ownership', icon: 'Network', description: 'Corporate shareholdings & visual ownership map' },
+  { id: 'decision-lab', name: 'Decision Lab', href: '/decision-lab', icon: 'Sparkles', description: 'Financial Decision Lab: Prepay vs Invest, FIRE & Buy vs Rent' },
   { id: 'intelligence', name: 'Intelligence', href: '/intelligence', icon: 'BrainCircuit', description: 'Multi-agent financial analysis & private assistant' },
   { id: 'reports', name: 'Reports', href: '/reports', icon: 'FileSpreadsheet', description: 'Deterministic net worth & audit statements' },
   { id: 'settings', name: 'Settings', href: '/settings', icon: 'Settings', description: 'Profile, security keys, DPDP privacy & subscriptions' },

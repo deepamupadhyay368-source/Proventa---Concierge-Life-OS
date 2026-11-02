@@ -9,9 +9,12 @@ import {
   CheckCircle2,
   X,
   CreditCard,
+  ShieldCheck,
+  AlertTriangle,
 } from 'lucide-react';
 import { CashflowTransactionDTO, CashflowSummaryDTO, CashflowType, CashflowCategory } from '@/lib/wealth/types';
 import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
+import { calculateEmergencyRunway, formatInr } from '@/lib/wealth/engine';
 
 export default function CashflowPage() {
   const { currentWorkspaceId, user, isLoaded } = useCurrentWorkspace();
@@ -181,6 +184,40 @@ export default function CashflowPage() {
             </div>
           </div>
         </div>
+
+        {/* 5. EMERGENCY LIQUIDITY RUNWAY STRIP */}
+        {(() => {
+          // Assume baseline liquid reserves of 6x expenses or calculate from positive savings
+          const liquidReservesPaise = Math.max(summary.totalExpensesPaise * 6, summary.netCashflowPaise * 12);
+          const runway = calculateEmergencyRunway(liquidReservesPaise, summary.totalExpensesPaise);
+          return (
+            <div className="p-4 bg-[#090B10] border-t border-[#252C38] flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-xs">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="w-5 h-5 text-[#7595FF] shrink-0" />
+                <div>
+                  <span className="text-[#858D9B] uppercase text-[10px]">TREASURY EMERGENCY RUNWAY: </span>
+                  <strong className="text-[#F4F6FA] text-sm">
+                    {summary.totalExpensesPaise > 0 ? `${runway.runwayMonths} Months Operating Coverage` : 'No Operational Outflows'}
+                  </strong>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-0.5 rounded-[2px] text-[10px] uppercase font-bold ${
+                  runway.status === 'HEALTHY'
+                    ? 'bg-[#2457FF]/20 text-[#7595FF] border border-[#2457FF]/40'
+                    : runway.status === 'ADEQUATE'
+                    ? 'bg-[#7595FF]/20 text-[#7595FF] border border-[#7595FF]/40'
+                    : 'bg-[#FF7A70]/20 text-[#FF7A70] border border-[#FF7A70]/40'
+                }`}>
+                  {runway.status} BUFFER
+                </span>
+                <span className="text-[10px] text-[#858D9B]">
+                  ({summary.totalExpensesPaise > 0 ? `${formatInr(summary.totalExpensesPaise)}/mo standard burn` : '₹0 burn'})
+                </span>
+              </div>
+            </div>
+          );
+        })()}
       </div>
 
       {/* 2. TITANIUM TRANSACTIONS LEDGER */}

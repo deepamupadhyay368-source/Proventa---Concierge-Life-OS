@@ -10,14 +10,25 @@ import {
   AlertCircle,
   Terminal,
   TrendingUp,
+  Plus,
+  X,
 } from 'lucide-react';
-import { FinancialGoalDTO, ScenarioSimulationResult } from '@/lib/wealth/types';
+import { FinancialGoalDTO, GoalCategory, ScenarioSimulationResult } from '@/lib/wealth/types';
 import { useCurrentWorkspace } from '@/lib/wealth/workspace-context';
+import { calculateGoalRequiredSIP, formatInr } from '@/lib/wealth/engine';
 
 export default function GoalsPage() {
   const { currentWorkspaceId, isLoaded } = useCurrentWorkspace();
   const [goals, setGoals] = useState<FinancialGoalDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  // New Goal Form
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<GoalCategory>('CHILDREN_EDUCATION');
+  const [targetRupees, setTargetRupees] = useState('');
+  const [currentRupees, setCurrentRupees] = useState('');
+  const [targetDate, setTargetDate] = useState('');
 
   // Scenario Simulator Inputs
   const [startingWealthRupees, setStartingWealthRupees] = useState('250000000'); // ₹25 Cr
@@ -79,21 +90,61 @@ export default function GoalsPage() {
     }
   }
 
+  async function handleCreateGoal(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title || !targetRupees || !currentWorkspaceId) return;
+
+    try {
+      const res = await fetch('/api/wealth/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          workspaceId: currentWorkspaceId,
+          title,
+          category,
+          targetAmountRupees: parseFloat(targetRupees),
+          currentAmountRupees: parseFloat(currentRupees || '0'),
+          targetDate: targetDate || '2030-12-31',
+        }),
+      });
+
+      if (res.ok) {
+        setIsAddModalOpen(false);
+        setTitle('');
+        setTargetRupees('');
+        setCurrentRupees('');
+        await loadGoals();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   return (
     <div className="space-y-8 font-sans">
       {/* 1. LIVING CAPITAL TARGETS BANNER */}
       <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden">
-        <div className="p-6 sm:p-8 border-b border-[#E2E8F0]">
-          <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
-            <span>REGISTER 08 // CAPITAL TARGETS &amp; SCENARIOS</span>
+        <div className="p-6 sm:p-8 border-b border-[#E2E8F0] flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
+              <span>REGISTER 08 // CAPITAL TARGETS &amp; SCENARIOS</span>
+            </div>
+            <h1 className="font-display font-bold text-3xl sm:text-4xl text-[#0F172A] tracking-tight mt-1">
+              Family Milestones &amp; Scenarios
+            </h1>
+            <p className="font-sans text-xs text-[#475569] mt-2 max-w-xl">
+              Target progression tracking and deterministic forward compound projections with inflation-discounted purchasing power modeling.
+            </p>
           </div>
-          <h1 className="font-display font-bold text-3xl sm:text-4xl text-[#0F172A] tracking-tight mt-1">
-            Family Milestones &amp; Scenarios
-          </h1>
-          <p className="font-sans text-xs text-[#475569] mt-2 max-w-xl">
-            Target progression tracking and deterministic forward compound projections with inflation-discounted purchasing power modeling.
-          </p>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-5 py-3 bg-[#2563EB] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider font-semibold rounded-xl transition-all flex items-center gap-2 shadow-sm"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>+ Register Milestone</span>
+          </button>
         </div>
 
         {/* Milestone Summary Strip */}
@@ -166,6 +217,31 @@ export default function GoalsPage() {
                   <span>Target Date: {g.targetDate}</span>
                 </div>
               </div>
+
+              {/* Required Monthly SIP Calculator Strip */}
+              {(() => {
+                const targetDateObj = new Date(g.targetDate);
+                const now = new Date();
+                const diffMonths = Math.max(1, Math.round((targetDateObj.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 30.4375)));
+                const sipCalculation = calculateGoalRequiredSIP(g.targetAmountPaise, g.currentAmountPaise, 12.0, diffMonths);
+
+                return (
+                  <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl font-mono text-xs flex items-center justify-between">
+                    <div>
+                      <div className="text-[10px] text-[#64748B] uppercase">REQUIRED MONTHLY SIP (12% CAGR)</div>
+                      <div className="text-sm font-bold text-[#2563EB] mt-0.5">
+                        {formatInr(sipCalculation.requiredMonthlySipPaise)} / Mo
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-[10px] text-[#64748B] uppercase">REMAINING HORIZON</div>
+                      <div className="text-xs font-semibold text-[#0F172A] mt-0.5">
+                        {diffMonths} Months
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Contributors */}
               <div className="pt-3 border-t border-[#F1F5F9] font-mono text-xs text-[#64748B]">
@@ -334,6 +410,115 @@ export default function GoalsPage() {
           </div>
         )}
       </div>
+
+      {/* 4. REGISTER MILESTONE MODAL */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-lg bg-white border border-[#CBD5E1] p-6 space-y-5 rounded-2xl shadow-xl">
+            <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+              <h3 className="font-display font-bold text-xl text-[#0F172A]">Register Capital Milestone</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-[#64748B] hover:text-[#0F172A] p-1 border border-[#E2E8F0] rounded-lg">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateGoal} className="space-y-4">
+              <div>
+                <label className="block font-mono text-[10px] uppercase tracking-wider text-[#64748B] mb-1">
+                  Goal Title / Milestone Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Higher Education Fund / Vacation Home"
+                  className="w-full bg-[#FAFBFC] border border-[#CBD5E1] px-3.5 py-2 font-mono text-xs text-[#0F172A] focus:outline-none focus:border-[#2563EB] rounded-lg"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#64748B] mb-1">
+                    Goal Classification
+                  </label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value as GoalCategory)}
+                    className="w-full bg-[#FAFBFC] border border-[#CBD5E1] px-3 py-2 font-mono text-xs text-[#0F172A] focus:outline-none focus:border-[#2563EB] rounded-lg"
+                  >
+                    <option value="CHILDREN_EDUCATION">Children Education</option>
+                    <option value="PROPERTY_PURCHASE">Real Estate Purchase</option>
+                    <option value="RETIREMENT">Retirement Corpus</option>
+                    <option value="EMERGENCY_RESERVE">Emergency Reserve</option>
+                    <option value="BUSINESS_EXPANSION">Business Expansion</option>
+                    <option value="FAMILY_EVENT">Family Milestone</option>
+                    <option value="WEALTH_PRESERVATION">Wealth Preservation</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#64748B] mb-1">
+                    Target Maturity Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={targetDate}
+                    onChange={(e) => setTargetDate(e.target.value)}
+                    className="w-full bg-[#FAFBFC] border border-[#CBD5E1] px-3 py-2 font-mono text-xs text-[#0F172A] focus:outline-none focus:border-[#2563EB] rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#64748B] mb-1">
+                    Target Amount (₹)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={targetRupees}
+                    onChange={(e) => setTargetRupees(e.target.value)}
+                    placeholder="e.g. 5000000"
+                    className="w-full bg-[#FAFBFC] border border-[#CBD5E1] px-3.5 py-2 font-mono text-xs text-[#0F172A] focus:outline-none focus:border-[#2563EB] rounded-lg"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-mono text-[10px] uppercase tracking-wider text-[#64748B] mb-1">
+                    Current Funded Amount (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={currentRupees}
+                    onChange={(e) => setCurrentRupees(e.target.value)}
+                    placeholder="e.g. 1500000"
+                    className="w-full bg-[#FAFBFC] border border-[#CBD5E1] px-3.5 py-2 font-mono text-xs text-[#0F172A] focus:outline-none focus:border-[#2563EB] rounded-lg"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2 border border-[#CBD5E1] font-mono text-xs uppercase text-[#64748B] hover:text-[#0F172A] rounded-lg"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase tracking-wider font-semibold rounded-lg shadow-sm"
+                >
+                  Save Milestone
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -13,6 +13,15 @@ import {
   deduplicateAssets,
   calculateNetWorth,
   runScenarioSimulation,
+  calculateEMI,
+  generateAmortisationSchedule,
+  simulateLoanPrepayment,
+  calculateSavingsRate,
+  calculateEmergencyRunway,
+  calculateInvestmentHealth,
+  calculateGoalRequiredSIP,
+  calculateFIRE,
+  calculateBuyVsRent,
 } from '@/lib/wealth/engine';
 import { AssetDTO, LiabilityDTO } from '@/lib/wealth/types';
 
@@ -260,6 +269,135 @@ describe('Deterministic Financial Calculation Engine', () => {
       expect(result.projectedNetWorthPaise).toBeGreaterThan(1000000000);
       expect(result.netGainPaise).toBe(result.projectedNetWorthPaise - 1000000000);
       expect(result.assumptionsStated.length).toBeGreaterThanOrEqual(4);
+    });
+  });
+
+  describe('Debt Freedom Engine (EMI & Amortisation)', () => {
+    it('calculates exact monthly EMI with integer paise precision', () => {
+      // ₹50 Lakh loan at 8.5% for 20 years (240 months)
+      const principalPaise = 500000000;
+      const emi = calculateEMI(principalPaise, 8.5, 240);
+      // Standard mathematical reducing-balance EMI for ₹50L @ 8.5% 20y is ₹43,391.16
+      expect(emi).toBe(4339116); // ₹43,391.16 in paise
+    });
+
+    it('generates amortisation schedule reconciling closing balance to 0', () => {
+      const schedule = generateAmortisationSchedule(120000000, 10.0, 12); // ₹12L @ 10% for 12 mos
+      expect(schedule.length).toBe(12);
+      expect(schedule[0].month).toBe(1);
+      expect(schedule[11].closingBalancePaise).toBe(0);
+      expect(schedule[11].cumulativeInterestPaise).toBeGreaterThan(0);
+    });
+
+    it('simulates loan prepayment showing exact interest saved and reduced tenure', () => {
+      const principalPaise = 250000000; // ₹25 Lakh loan
+      const result = simulateLoanPrepayment(principalPaise, 9.0, 120, 1000000, 0); // ₹10k extra monthly
+      expect(result.monthsSaved).toBeGreaterThan(0);
+      expect(result.interestSavedPaise).toBeGreaterThan(0);
+      expect(result.newTenureMonths).toBeLessThan(120);
+    });
+  });
+
+  describe('Treasury & Investment Health Engine', () => {
+    it('calculates savings rate and emergency liquidity runway', () => {
+      const savingsRate = calculateSavingsRate(20000000, 12000000); // ₹2L income, ₹1.2L expense
+      expect(savingsRate).toBe(40.0);
+
+      const runway = calculateEmergencyRunway(60000000, 10000000); // ₹6L liquid, ₹1L expense
+      expect(runway.runwayMonths).toBe(6.0);
+      expect(runway.status).toBe('HEALTHY');
+
+      const lowRunway = calculateEmergencyRunway(20000000, 10000000); // 2 months
+      expect(lowRunway.status).toBe('CRITICAL');
+    });
+
+    it('calculates investment health and flags high single-asset concentration', () => {
+      const assets: AssetDTO[] = [
+        {
+          id: 'a1',
+          workspaceId: 'w1',
+          workspaceType: 'INDIVIDUAL',
+          name: 'Apex Precision Shares',
+          category: 'BUSINESS',
+          subcategory: 'PRIVATE_COMPANY',
+          currentValuePaise: 800000000, // ₹8 Crore (80% concentration)
+          formattedCurrentValue: '₹8,00,00,000',
+          currency: 'INR',
+          legalOwnerId: 'u1',
+          legalOwnerName: 'User 1',
+          ownershipPercentage: 100,
+          coOwners: [],
+          valuationStatus: 'DOCUMENT_VERIFIED',
+          lastValuationDate: '2026-01-01',
+          valuationHistory: [],
+          supportingDocumentIds: [],
+          createdAt: '2026-01-01',
+          updatedAt: '2026-01-01',
+        },
+        {
+          id: 'a2',
+          workspaceId: 'w1',
+          workspaceType: 'INDIVIDUAL',
+          name: 'HDFC Savings Account',
+          category: 'FINANCIAL',
+          subcategory: 'BANK_DEPOSIT',
+          currentValuePaise: 200000000, // ₹2 Crore
+          formattedCurrentValue: '₹2,00,00,000',
+          currency: 'INR',
+          legalOwnerId: 'u1',
+          legalOwnerName: 'User 1',
+          ownershipPercentage: 100,
+          coOwners: [],
+          valuationStatus: 'DOCUMENT_VERIFIED',
+          lastValuationDate: '2026-01-01',
+          valuationHistory: [],
+          supportingDocumentIds: [],
+          createdAt: '2026-01-01',
+          updatedAt: '2026-01-01',
+        },
+      ];
+
+      const health = calculateInvestmentHealth(assets);
+      expect(health.percentages.equity).toBe(80.0);
+      expect(health.percentages.cash).toBe(20.0);
+      expect(health.topHoldingPercentage).toBe(80.0);
+      expect(health.alerts.length).toBeGreaterThan(0);
+      expect(health.alerts[0]).toContain('High concentration risk');
+    });
+  });
+
+  describe('Goals SIP & Financial Decision Lab', () => {
+    it('calculates required monthly SIP to achieve target corpus', () => {
+      const targetPaise = 500000000; // ₹50 Lakh target
+      const currentPaise = 100000000; // ₹10 Lakh current
+      const sip = calculateGoalRequiredSIP(targetPaise, currentPaise, 12.0, 60); // 5 years at 12% CAGR
+      expect(sip.requiredMonthlySipPaise).toBeGreaterThan(0);
+      expect(sip.requiredLumpSumPaise).toBeGreaterThan(0);
+    });
+
+    it('calculates FIRE retirement timeline and required corpus', () => {
+      const fire = calculateFIRE(1000000000, 120000000, 200000000, 10.0, 6.0, 3.5);
+      expect(fire.targetFireCorpusPaise).toBeGreaterThan(0);
+      expect(fire.yearsToFire).toBeGreaterThan(0);
+      expect(fire.fireMilestones.length).toBeGreaterThan(0);
+    });
+
+    it('calculates Buy vs Rent institutional comparison', () => {
+      const buyVsRent = calculateBuyVsRent(
+        1500000000, // ₹1.5 Cr property
+        20,
+        8.5,
+        20,
+        6.0,
+        3500000, // ₹35,000 rent
+        5.0,
+        12.0,
+        15,
+      );
+      expect(buyVsRent.recommendation).toBeDefined();
+      expect(buyVsRent.buyingNetWorthPaise).toBeGreaterThan(0);
+      expect(buyVsRent.rentingNetWorthPaise).toBeGreaterThan(0);
+      expect(buyVsRent.yearlyComparison.length).toBe(15);
     });
   });
 });

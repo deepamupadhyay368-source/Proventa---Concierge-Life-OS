@@ -145,6 +145,18 @@ function getCashflowStore(): CashflowStore {
   return globalThis.__proventaCashflowStore;
 }
 
+export function syncWorkspaceCashflows(workspaceId: string, txs: CashflowTransactionDTO[]): void {
+  const store = getCashflowStore();
+  for (const [id, tx] of Array.from(store.transactions.entries())) {
+    if (tx.workspaceId === workspaceId) {
+      store.transactions.delete(id);
+    }
+  }
+  for (const tx of txs) {
+    store.transactions.set(tx.id, tx);
+  }
+}
+
 export function listCashflows(params: {
   workspaceId: string;
   type?: CashflowType;

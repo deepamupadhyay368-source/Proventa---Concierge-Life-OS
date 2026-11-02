@@ -436,3 +436,526 @@ export function runScenarioSimulation(input: ScenarioSimulationInput): ScenarioS
     assumptionsStated: assumptions,
   };
 }
+
+// ==========================================
+// DEBT FREEDOM ENGINE: EMI & AMORTISATION
+// ==========================================
+
+export interface AmortisationMonth {
+  month: number;
+  dateStr?: string;
+  openingBalancePaise: number;
+  emiPaise: number;
+  principalPaidPaise: number;
+  interestPaidPaise: number;
+  closingBalancePaise: number;
+  cumulativeInterestPaise: number;
+}
+
+export interface LoanPrepaymentResult {
+  originalTotalInterestPaise: number;
+  newTotalInterestPaise: number;
+  interestSavedPaise: number;
+  formattedInterestSaved: string;
+  originalTenureMonths: number;
+  newTenureMonths: number;
+  monthsSaved: number;
+  schedule: AmortisationMonth[];
+}
+
+/**
+ * Calculates deterministic monthly EMI using standard reducing-balance formula:
+ * EMI = [P * r * (1 + r)^n] / [(1 + r)^n - 1]
+ * All calculations preserve integer paise precision.
+ */
+export function calculateEMI(
+  principalPaise: number,
+  annualInterestRate: number,
+  tenureMonths: number,
+): number {
+  if (principalPaise <= 0 || tenureMonths <= 0) return 0;
+  if (annualInterestRate <= 0) {
+    return Math.round(principalPaise / tenureMonths);
+  }
+
+  const monthlyRate = annualInterestRate / (12 * 100);
+  const factor = Math.pow(1 + monthlyRate, tenureMonths);
+  const emi = (principalPaise * monthlyRate * factor) / (factor - 1);
+
+  return Math.round(emi);
+}
+
+/**
+ * Generates month-by-month loan amortisation schedule.
+ * Reconciles closing balance strictly to 0 at final maturity.
+ */
+export function generateAmortisationSchedule(
+  principalPaise: number,
+  annualInterestRate: number,
+  tenureMonths: number,
+  startDate?: string,
+): AmortisationMonth[] {
+  if (principalPaise <= 0 || tenureMonths <= 0) return [];
+
+  const emiPaise = calculateEMI(principalPaise, annualInterestRate, tenureMonths);
+  const monthlyRate = annualInterestRate / (12 * 100);
+  const schedule: AmortisationMonth[] = [];
+
+  let balance = principalPaise;
+  let cumulativeInterest = 0;
+  const start = startDate ? new Date(startDate) : new Date();
+
+  for (let m = 1; m <= tenureMonths; m++) {
+    const opening = balance;
+    let interest = Math.round(balance * monthlyRate);
+    let principal = emiPaise - interest;
+
+    if (principal > balance || m === tenureMonths) {
+      principal = balance;
+      interest = Math.max(0, emiPaise - principal);
+      balance = 0;
+    } else {
+      balance -= principal;
+    }
+
+    cumulativeInterest += interest;
+
+    const monthDate = new Date(start.getFullYear(), start.getMonth() + m - 1, 1);
+    const dateStr = monthDate.toISOString().substring(0, 7);
+
+    schedule.push({
+      month: m,
+      dateStr,
+      openingBalancePaise: opening,
+      emiPaise: principal + interest,
+      principalPaidPaise: principal,
+      interestPaidPaise: interest,
+      closingBalancePaise: balance,
+      cumulativeInterestPaise: cumulativeInterest,
+    });
+
+    if (balance <= 0) break;
+  }
+
+  return schedule;
+}
+
+/**
+ * Simulates the financial benefit of regular or lump-sum loan prepayment.
+ * Computes exact interest saved and tenure reduction.
+ */
+export function simulateLoanPrepayment(
+  principalPaise: number,
+  annualInterestRate: number,
+  tenureMonths: number,
+  extraMonthlyPaise: number = 0,
+  lumpSumPaise: number = 0,
+  lumpSumMonth: number = 1,
+): LoanPrepaymentResult {
+  const baseSchedule = generateAmortisationSchedule(principalPaise, annualInterestRate, tenureMonths);
+  const originalTotalInterestPaise = baseSchedule.reduce((acc, row) => acc + row.interestPaidPaise, 0);
+
+  if (extraMonthlyPaise <= 0 && lumpSumPaise <= 0) {
+    return {
+      originalTotalInterestPaise,
+      newTotalInterestPaise: originalTotalInterestPaise,
+      interestSavedPaise: 0,
+      formattedInterestSaved: formatInr(0),
+      originalTenureMonths: tenureMonths,
+      newTenureMonths: baseSchedule.length,
+      monthsSaved: 0,
+      schedule: baseSchedule,
+    };
+  }
+
+  const standardEmiPaise = calculateEMI(principalPaise, annualInterestRate, tenureMonths);
+  const monthlyRate = annualInterestRate / (12 * 100);
+  const newSchedule: AmortisationMonth[] = [];
+
+  let balance = principalPaise;
+  let cumulativeInterest = 0;
+  let month = 0;
+
+  while (balance > 0 && month < tenureMonths * 2) {
+    month++;
+    const opening = balance;
+    const interest = Math.round(balance * monthlyRate);
+    let totalPayment = standardEmiPaise + extraMonthlyPaise;
+
+    if (month === lumpSumMonth) {
+      totalPayment += lumpSumPaise;
+    }
+
+    let principal = totalPayment - interest;
+    if (principal > balance) {
+      principal = balance;
+      balance = 0;
+    } else {
+      balance -= principal;
+    }
+
+    cumulativeInterest += interest;
+
+    newSchedule.push({
+      month,
+      openingBalancePaise: opening,
+      emiPaise: principal + interest,
+      principalPaidPaise: principal,
+      interestPaidPaise: interest,
+      closingBalancePaise: balance,
+      cumulativeInterestPaise: cumulativeInterest,
+    });
+  }
+
+  const newTotalInterestPaise = cumulativeInterest;
+  const interestSavedPaise = Math.max(0, originalTotalInterestPaise - newTotalInterestPaise);
+  const monthsSaved = Math.max(0, baseSchedule.length - newSchedule.length);
+
+  return {
+    originalTotalInterestPaise,
+    newTotalInterestPaise,
+    interestSavedPaise,
+    formattedInterestSaved: formatInr(interestSavedPaise),
+    originalTenureMonths: baseSchedule.length,
+    newTenureMonths: newSchedule.length,
+    monthsSaved,
+    schedule: newSchedule,
+  };
+}
+
+// ==========================================
+// CASHFLOW INTELLIGENCE & RUNWAY
+// ==========================================
+
+export function calculateSavingsRate(incomePaise: number, expensePaise: number): number {
+  if (incomePaise <= 0) return 0;
+  const net = incomePaise - expensePaise;
+  return Number(((net / incomePaise) * 100).toFixed(1));
+}
+
+export function calculateEmergencyRunway(
+  liquidCashPaise: number,
+  monthlyExpensesPaise: number,
+): { runwayMonths: number; status: 'CRITICAL' | 'ADEQUATE' | 'HEALTHY' } {
+  if (monthlyExpensesPaise <= 0) {
+    return { runwayMonths: 99, status: 'HEALTHY' };
+  }
+  const runwayMonths = Number((liquidCashPaise / monthlyExpensesPaise).toFixed(1));
+  let status: 'CRITICAL' | 'ADEQUATE' | 'HEALTHY' = 'HEALTHY';
+  if (runwayMonths < 3) status = 'CRITICAL';
+  else if (runwayMonths < 6) status = 'ADEQUATE';
+
+  return { runwayMonths, status };
+}
+
+// ==========================================
+// INVESTMENT HEALTH ENGINE
+// ==========================================
+
+export interface InvestmentHealthSummary {
+  equityPaise: number;
+  debtPaise: number;
+  goldPaise: number;
+  realEstatePaise: number;
+  cashPaise: number;
+  percentages: {
+    equity: number;
+    debt: number;
+    gold: number;
+    realEstate: number;
+    cash: number;
+  };
+  concentrationRiskScore: number; // 0 - 100 (higher = more concentrated)
+  topHoldingPercentage: number;
+  topHoldingName: string;
+  alerts: string[];
+}
+
+export function calculateInvestmentHealth(assets: AssetDTO[]): InvestmentHealthSummary {
+  let equityPaise = 0;
+  let debtPaise = 0;
+  let goldPaise = 0;
+  let realEstatePaise = 0;
+  let cashPaise = 0;
+  let totalPaise = 0;
+
+  let topHoldingPaise = 0;
+  let topHoldingName = 'None';
+
+  for (const a of assets) {
+    const val = a.currentValuePaise;
+    totalPaise += val;
+
+    if (val > topHoldingPaise) {
+      topHoldingPaise = val;
+      topHoldingName = a.name;
+    }
+
+    switch (a.subcategory) {
+      case 'STOCK':
+      case 'MUTUAL_FUND':
+      case 'PRIVATE_COMPANY':
+      case 'PARTNERSHIP_INTEREST':
+      case 'FAMILY_BUSINESS':
+        equityPaise += val;
+        break;
+      case 'BOND':
+      case 'GOV_SECURITY':
+      case 'FIXED_DEPOSIT':
+      case 'RECURRING_DEPOSIT':
+      case 'PROVIDENT_FUND':
+      case 'PPF':
+      case 'EPF':
+      case 'NPS':
+        debtPaise += val;
+        break;
+      case 'GOLD':
+      case 'JEWELLERY':
+        goldPaise += val;
+        break;
+      case 'RESIDENTIAL_PROPERTY':
+      case 'COMMERCIAL_PROPERTY':
+      case 'AGRICULTURAL_LAND':
+        realEstatePaise += val;
+        break;
+      case 'BANK_DEPOSIT':
+      case 'SAVINGS_ACCOUNT':
+        cashPaise += val;
+        break;
+      default:
+        if (a.category === 'PHYSICAL') realEstatePaise += val;
+        else if (a.category === 'BUSINESS') equityPaise += val;
+        else cashPaise += val;
+        break;
+    }
+  }
+
+  const toPct = (val: number) => (totalPaise > 0 ? Number(((val / totalPaise) * 100).toFixed(1)) : 0);
+
+  const topHoldingPercentage = toPct(topHoldingPaise);
+  // Concentration score: HHI proxy or top holding weight
+  const concentrationRiskScore = Math.min(100, Math.round(topHoldingPercentage * 1.2));
+
+  const alerts: string[] = [];
+  if (topHoldingPercentage > 40 && totalPaise > 0) {
+    alerts.push(`High concentration risk: "${topHoldingName}" represents ${topHoldingPercentage}% of total asset base.`);
+  }
+  const equityPct = toPct(equityPaise);
+  const debtPct = toPct(debtPaise);
+  if (debtPct < 15 && totalPaise > 0) {
+    alerts.push('Low fixed-income allocation: Debt assets represent less than 15% of your portfolio.');
+  }
+
+  return {
+    equityPaise,
+    debtPaise,
+    goldPaise,
+    realEstatePaise,
+    cashPaise,
+    percentages: {
+      equity: equityPct,
+      debt: debtPct,
+      gold: toPct(goldPaise),
+      realEstate: toPct(realEstatePaise),
+      cash: toPct(cashPaise),
+    },
+    concentrationRiskScore,
+    topHoldingPercentage,
+    topHoldingName,
+    alerts,
+  };
+}
+
+// ==========================================
+// GOALS & FUTURE PLANNING ENGINE (SIP)
+// ==========================================
+
+export function calculateGoalRequiredSIP(
+  targetCorpusPaise: number,
+  currentCorpusPaise: number,
+  expectedCAGR: number,
+  tenureMonths: number,
+  inflationRate: number = 0,
+): {
+  requiredMonthlySipPaise: number;
+  requiredLumpSumPaise: number;
+  inflationAdjustedTargetPaise: number;
+} {
+  if (targetCorpusPaise <= 0 || tenureMonths <= 0) {
+    return {
+      requiredMonthlySipPaise: 0,
+      requiredLumpSumPaise: 0,
+      inflationAdjustedTargetPaise: 0,
+    };
+  }
+
+  const years = tenureMonths / 12;
+  const inflationAdjustedTargetPaise = Math.round(
+    targetCorpusPaise * Math.pow(1 + inflationRate / 100, years),
+  );
+
+  const monthlyRate = expectedCAGR / (12 * 100);
+  const growthFactor = Math.pow(1 + monthlyRate, tenureMonths);
+
+  const futureValueOfCurrent = Math.round(currentCorpusPaise * growthFactor);
+  const netDeficitPaise = Math.max(0, inflationAdjustedTargetPaise - futureValueOfCurrent);
+
+  if (netDeficitPaise === 0) {
+    return {
+      requiredMonthlySipPaise: 0,
+      requiredLumpSumPaise: 0,
+      inflationAdjustedTargetPaise,
+    };
+  }
+
+  // Required Monthly SIP formula: FV * r / [(1 + r) * ((1 + r)^n - 1)]
+  let requiredMonthlySipPaise = 0;
+  if (monthlyRate > 0 && growthFactor > 1) {
+    requiredMonthlySipPaise = Math.round(
+      (netDeficitPaise * monthlyRate) / ((1 + monthlyRate) * (growthFactor - 1)),
+    );
+  } else {
+    requiredMonthlySipPaise = Math.round(netDeficitPaise / tenureMonths);
+  }
+
+  const requiredLumpSumPaise = Math.round(netDeficitPaise / growthFactor);
+
+  return {
+    requiredMonthlySipPaise,
+    requiredLumpSumPaise,
+    inflationAdjustedTargetPaise,
+  };
+}
+
+// ==========================================
+// FINANCIAL DECISION LAB: FIRE & BUY VS RENT
+// ==========================================
+
+export function calculateFIRE(
+  currentNetWorthPaise: number,
+  annualExpensePaise: number,
+  annualSavingsPaise: number,
+  expectedReturnRate: number = 10.0,
+  inflationRate: number = 6.0,
+  swrPercentage: number = 3.5,
+): {
+  targetFireCorpusPaise: number;
+  yearsToFire: number;
+  isAchieved: boolean;
+  fireMilestones: Array<{ year: number; projectedPaise: number; targetPaise: number }>;
+} {
+  const targetFireCorpusPaise = Math.round((annualExpensePaise * 100) / swrPercentage);
+
+  if (currentNetWorthPaise >= targetFireCorpusPaise) {
+    return {
+      targetFireCorpusPaise,
+      yearsToFire: 0,
+      isAchieved: true,
+      fireMilestones: [{ year: 0, projectedPaise: currentNetWorthPaise, targetPaise: targetFireCorpusPaise }],
+    };
+  }
+
+  const milestones: Array<{ year: number; projectedPaise: number; targetPaise: number }> = [];
+  let projectedPaise = currentNetWorthPaise;
+  let targetPaise = targetFireCorpusPaise;
+  let yearsToFire = 50; // max cap
+
+  for (let y = 1; y <= 40; y++) {
+    projectedPaise = Math.round(projectedPaise * (1 + expectedReturnRate / 100)) + annualSavingsPaise;
+    targetPaise = Math.round(targetPaise * (1 + inflationRate / 100));
+
+    milestones.push({
+      year: y,
+      projectedPaise,
+      targetPaise,
+    });
+
+    if (projectedPaise >= targetPaise && yearsToFire === 50) {
+      yearsToFire = y;
+      break;
+    }
+  }
+
+  return {
+    targetFireCorpusPaise,
+    yearsToFire: yearsToFire === 50 ? 40 : yearsToFire,
+    isAchieved: false,
+    fireMilestones: milestones,
+  };
+}
+
+export function calculateBuyVsRent(
+  propertyCostPaise: number,
+  downPaymentPercentage: number = 20,
+  loanInterestRate: number = 8.5,
+  loanTenureYears: number = 20,
+  expectedPropertyAppreciation: number = 6.0,
+  initialMonthlyRentPaise: number = 4000000, // ₹40,000 / month
+  rentInflationRate: number = 5.0,
+  investmentReturnRate: number = 11.0,
+  projectionYears: number = 15,
+): {
+  buyingNetWorthPaise: number;
+  rentingNetWorthPaise: number;
+  recommendation: 'BUY' | 'RENT';
+  financialAdvantagePaise: number;
+  yearlyComparison: Array<{ year: number; buyWealthPaise: number; rentWealthPaise: number }>;
+} {
+  const downPaymentPaise = Math.round((propertyCostPaise * downPaymentPercentage) / 100);
+  const loanPrincipalPaise = propertyCostPaise - downPaymentPaise;
+  const loanTenureMonths = loanTenureYears * 12;
+  const monthlyEmiPaise = calculateEMI(loanPrincipalPaise, loanInterestRate, loanTenureMonths);
+
+  let propertyValuePaise = propertyCostPaise;
+  let remainingLoanBalancePaise = loanPrincipalPaise;
+  const monthlyLoanRate = loanInterestRate / (12 * 100);
+
+  // Rent scenario: invest the downpayment in diversified index fund
+  let rentInvestmentPortfolioPaise = downPaymentPaise;
+  let currentMonthlyRentPaise = initialMonthlyRentPaise;
+
+  const yearlyComparison: Array<{ year: number; buyWealthPaise: number; rentWealthPaise: number }> = [];
+
+  for (let y = 1; y <= projectionYears; y++) {
+    // 1. Buying side
+    propertyValuePaise = Math.round(propertyValuePaise * (1 + expectedPropertyAppreciation / 100));
+    // Amortise 12 months
+    for (let m = 0; m < 12; m++) {
+      if (remainingLoanBalancePaise > 0) {
+        const interest = Math.round(remainingLoanBalancePaise * monthlyLoanRate);
+        const principal = Math.min(remainingLoanBalancePaise, monthlyEmiPaise - interest);
+        remainingLoanBalancePaise -= principal;
+      }
+    }
+    const buyWealth = propertyValuePaise - remainingLoanBalancePaise;
+
+    // 2. Renting side
+    rentInvestmentPortfolioPaise = Math.round(
+      rentInvestmentPortfolioPaise * (1 + investmentReturnRate / 100),
+    );
+    // If EMI is higher than Rent, the renter invests the monthly difference
+    const monthlyDifference = Math.max(0, monthlyEmiPaise - currentMonthlyRentPaise);
+    rentInvestmentPortfolioPaise += monthlyDifference * 12;
+
+    currentMonthlyRentPaise = Math.round(currentMonthlyRentPaise * (1 + rentInflationRate / 100));
+
+    yearlyComparison.push({
+      year: y,
+      buyWealthPaise: buyWealth,
+      rentWealthPaise: rentInvestmentPortfolioPaise,
+    });
+  }
+
+  const finalBuyWealth = yearlyComparison[yearlyComparison.length - 1].buyWealthPaise;
+  const finalRentWealth = yearlyComparison[yearlyComparison.length - 1].rentWealthPaise;
+  const recommendation = finalBuyWealth >= finalRentWealth ? 'BUY' : 'RENT';
+  const financialAdvantagePaise = Math.abs(finalBuyWealth - finalRentWealth);
+
+  return {
+    buyingNetWorthPaise: finalBuyWealth,
+    rentingNetWorthPaise: finalRentWealth,
+    recommendation,
+    financialAdvantagePaise,
+    yearlyComparison,
+  };
+}

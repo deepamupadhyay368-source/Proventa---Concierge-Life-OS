@@ -1,13 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listGoals, createGoal, simulateScenario } from '@/lib/wealth/goals';
+import { auth } from '@/lib/auth/config';
+import {
+  listGoals,
+  createGoal,
+  simulateScenario,
+  syncWorkspaceGoals,
+} from '@/lib/wealth/goals';
 import { rupeesToPaise } from '@/lib/wealth/engine';
+import { loadPersistedGoals, savePersistedGoals } from '@/lib/wealth/persistence';
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get('workspaceId');
+
     if (!workspaceId) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
+    if (userId && workspaceId.startsWith('ind_') && workspaceId !== `ind_${userId}`) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Cannot access another user goals' },
+        { status: 403 },
+      );
+    }
+
+    if (userId) {
+      const persisted = await loadPersistedGoals(workspaceId, userId);
+      if (persisted.length > 0) {
+        syncWorkspaceGoals(workspaceId, persisted);
+      }
     }
 
     const goals = listGoals(workspaceId);
@@ -19,6 +43,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const body = await req.json();
 
     if (body.action === 'SIMULATE_SCENARIO') {
@@ -43,6 +69,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
 
+    if (userId && body.workspaceId.startsWith('ind_') && body.workspaceId !== `ind_${userId}`) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Cannot record goals in another user workspace' },
+        { status: 403 },
+      );
+    }
+
     const targetPaise = body.targetAmountPaise || rupeesToPaise(body.targetAmountRupees || 0);
     const currentPaise = body.currentAmountPaise || rupeesToPaise(body.currentAmountRupees || 0);
 
@@ -58,6 +91,11 @@ export async function POST(req: NextRequest) {
       status: body.status || 'ON_TRACK',
       notes: body.notes,
     });
+
+    if (userId) {
+      const all = listGoals(body.workspaceId);
+      await savePersistedGoals(body.workspaceId, userId, all);
+    }
 
     return NextResponse.json({ success: true, data: goal }, { status: 201 });
   } catch (error) {

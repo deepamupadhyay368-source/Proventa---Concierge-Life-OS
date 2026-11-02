@@ -1,12 +1,22 @@
 /**
  * PROVENTA — Wealth OS Persistent Database Storage & Tenant Isolation
  * 
- * Persists assets, liabilities, and workspaces per user in PostgreSQL,
- * ensuring complete isolation between accounts.
+ * Persists assets, liabilities, cashflow, goals, insurance policies,
+ * vault documents, and continuity data per user in PostgreSQL,
+ * guaranteeing strict isolation between accounts.
  */
 
 import { db } from '@/lib/db';
-import { AssetDTO, LiabilityDTO, FamilyWorkspaceDTO } from './types';
+import {
+  AssetDTO,
+  LiabilityDTO,
+  CashflowTransactionDTO,
+  FinancialGoalDTO,
+  InsurancePolicyDTO,
+  DocumentDTO,
+  BusinessOwnershipGraphDTO,
+  FamilyContinuityDTO,
+} from './types';
 import { Prisma } from '@prisma/client';
 
 async function getOrCreateProfileId(userId: string): Promise<string | null> {
@@ -30,125 +40,146 @@ async function getOrCreateProfileId(userId: string): Promise<string | null> {
 }
 
 /**
- * Loads persisted assets for a specific workspace and user.
+ * Generic loader for any user-scoped JSON entity
  */
+export async function loadPersistedCategory<T>(
+  category: string,
+  key: string,
+  userId: string,
+): Promise<T | null> {
+  if (process.env.NODE_ENV === 'test') return null;
+  try {
+    const profileId = await getOrCreateProfileId(userId);
+    if (!profileId) return null;
+
+    const record = await db.customerPreference.findUnique({
+      where: {
+        customerId_category_key: {
+          customerId: profileId,
+          category,
+          key,
+        },
+      },
+    });
+
+    if (record && record.value !== null && record.value !== undefined) {
+      return record.value as unknown as T;
+    }
+    return null;
+  } catch (err) {
+    console.error(`[Persistence] loadPersistedCategory (${category}) error:`, err);
+    return null;
+  }
+}
+
+/**
+ * Generic saver for any user-scoped JSON entity
+ */
+export async function savePersistedCategory<T>(
+  category: string,
+  key: string,
+  userId: string,
+  data: T,
+): Promise<void> {
+  if (process.env.NODE_ENV === 'test') return;
+  try {
+    const profileId = await getOrCreateProfileId(userId);
+    if (!profileId) return;
+
+    await db.customerPreference.upsert({
+      where: {
+        customerId_category_key: {
+          customerId: profileId,
+          category,
+          key,
+        },
+      },
+      create: {
+        customerId: profileId,
+        category,
+        key,
+        value: data as unknown as Prisma.InputJsonValue,
+        source: 'explicit',
+      },
+      update: {
+        value: data as unknown as Prisma.InputJsonValue,
+      },
+    });
+  } catch (err) {
+    console.error(`[Persistence] savePersistedCategory (${category}) error:`, err);
+  }
+}
+
+// ==========================================
+// TYPED WRAPPERS FOR MODULES
+// ==========================================
+
 export async function loadPersistedAssets(workspaceId: string, userId: string): Promise<AssetDTO[]> {
-  if (process.env.NODE_ENV === 'test') return [];
-  try {
-    const profileId = await getOrCreateProfileId(userId);
-    if (!profileId) return [];
-
-    const record = await db.customerPreference.findUnique({
-      where: {
-        customerId_category_key: {
-          customerId: profileId,
-          category: 'wealth_assets',
-          key: workspaceId,
-        },
-      },
-    });
-
-    if (record && Array.isArray(record.value)) {
-      return record.value as unknown as AssetDTO[];
-    }
-    return [];
-  } catch (err) {
-    console.error('[Persistence] loadPersistedAssets error:', err);
-    return [];
-  }
+  const data = await loadPersistedCategory<AssetDTO[]>('wealth_assets', workspaceId, userId);
+  return Array.isArray(data) ? data : [];
 }
 
-/**
- * Saves assets for a specific workspace and user.
- */
 export async function savePersistedAssets(workspaceId: string, userId: string, assets: AssetDTO[]): Promise<void> {
-  if (process.env.NODE_ENV === 'test') return;
-  try {
-    const profileId = await getOrCreateProfileId(userId);
-    if (!profileId) return;
-
-    await db.customerPreference.upsert({
-      where: {
-        customerId_category_key: {
-          customerId: profileId,
-          category: 'wealth_assets',
-          key: workspaceId,
-        },
-      },
-      create: {
-        customerId: profileId,
-        category: 'wealth_assets',
-        key: workspaceId,
-        value: assets as unknown as Prisma.InputJsonValue,
-        source: 'explicit',
-      },
-      update: {
-        value: assets as unknown as Prisma.InputJsonValue,
-      },
-    });
-  } catch (err) {
-    console.error('[Persistence] savePersistedAssets error:', err);
-  }
+  await savePersistedCategory('wealth_assets', workspaceId, userId, assets);
 }
 
-/**
- * Loads persisted liabilities for a specific workspace and user.
- */
 export async function loadPersistedLiabilities(workspaceId: string, userId: string): Promise<LiabilityDTO[]> {
-  if (process.env.NODE_ENV === 'test') return [];
-  try {
-    const profileId = await getOrCreateProfileId(userId);
-    if (!profileId) return [];
-
-    const record = await db.customerPreference.findUnique({
-      where: {
-        customerId_category_key: {
-          customerId: profileId,
-          category: 'wealth_liabilities',
-          key: workspaceId,
-        },
-      },
-    });
-
-    if (record && Array.isArray(record.value)) {
-      return record.value as unknown as LiabilityDTO[];
-    }
-    return [];
-  } catch (err) {
-    console.error('[Persistence] loadPersistedLiabilities error:', err);
-    return [];
-  }
+  const data = await loadPersistedCategory<LiabilityDTO[]>('wealth_liabilities', workspaceId, userId);
+  return Array.isArray(data) ? data : [];
 }
 
-/**
- * Saves liabilities for a specific workspace and user.
- */
 export async function savePersistedLiabilities(workspaceId: string, userId: string, liabilities: LiabilityDTO[]): Promise<void> {
-  if (process.env.NODE_ENV === 'test') return;
-  try {
-    const profileId = await getOrCreateProfileId(userId);
-    if (!profileId) return;
+  await savePersistedCategory('wealth_liabilities', workspaceId, userId, liabilities);
+}
 
-    await db.customerPreference.upsert({
-      where: {
-        customerId_category_key: {
-          customerId: profileId,
-          category: 'wealth_liabilities',
-          key: workspaceId,
-        },
-      },
-      create: {
-        customerId: profileId,
-        category: 'wealth_liabilities',
-        key: workspaceId,
-        value: liabilities as unknown as Prisma.InputJsonValue,
-        source: 'explicit',
-      },
-      update: {
-        value: liabilities as unknown as Prisma.InputJsonValue,
-      },
-    });
-  } catch (err) {
-    console.error('[Persistence] savePersistedLiabilities error:', err);
-  }
+export async function loadPersistedCashflows(workspaceId: string, userId: string): Promise<CashflowTransactionDTO[]> {
+  const data = await loadPersistedCategory<CashflowTransactionDTO[]>('wealth_cashflow', workspaceId, userId);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePersistedCashflows(workspaceId: string, userId: string, txs: CashflowTransactionDTO[]): Promise<void> {
+  await savePersistedCategory('wealth_cashflow', workspaceId, userId, txs);
+}
+
+export async function loadPersistedGoals(workspaceId: string, userId: string): Promise<FinancialGoalDTO[]> {
+  const data = await loadPersistedCategory<FinancialGoalDTO[]>('wealth_goals', workspaceId, userId);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePersistedGoals(workspaceId: string, userId: string, goals: FinancialGoalDTO[]): Promise<void> {
+  await savePersistedCategory('wealth_goals', workspaceId, userId, goals);
+}
+
+export async function loadPersistedPolicies(workspaceId: string, userId: string): Promise<InsurancePolicyDTO[]> {
+  const data = await loadPersistedCategory<InsurancePolicyDTO[]>('wealth_protection', workspaceId, userId);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePersistedPolicies(workspaceId: string, userId: string, policies: InsurancePolicyDTO[]): Promise<void> {
+  await savePersistedCategory('wealth_protection', workspaceId, userId, policies);
+}
+
+export async function loadPersistedDocuments(workspaceId: string, userId: string): Promise<DocumentDTO[]> {
+  const data = await loadPersistedCategory<DocumentDTO[]>('wealth_vault', workspaceId, userId);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePersistedDocuments(workspaceId: string, userId: string, docs: DocumentDTO[]): Promise<void> {
+  await savePersistedCategory('wealth_vault', workspaceId, userId, docs);
+}
+
+export async function loadPersistedBusinessMap(familyId: string, userId: string): Promise<BusinessOwnershipGraphDTO | null> {
+  return await loadPersistedCategory<BusinessOwnershipGraphDTO>('wealth_business', familyId, userId);
+}
+
+export async function savePersistedBusinessMap(familyId: string, userId: string, data: BusinessOwnershipGraphDTO): Promise<void> {
+  await savePersistedCategory('wealth_business', familyId, userId, data);
+}
+
+export async function loadPersistedContinuity(familyId: string, userId: string): Promise<FamilyContinuityDTO | null> {
+  return await loadPersistedCategory<FamilyContinuityDTO>('wealth_continuity', familyId, userId);
+}
+
+export async function savePersistedContinuity(familyId: string, userId: string, data: FamilyContinuityDTO): Promise<void> {
+  await savePersistedCategory('wealth_continuity', familyId, userId, data);
 }

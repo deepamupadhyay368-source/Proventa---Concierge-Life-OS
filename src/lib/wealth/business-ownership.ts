@@ -12,7 +12,34 @@ import {
 } from './types';
 import { formatInr } from './engine';
 
+interface BusinessStore {
+  graphs: Map<string, BusinessOwnershipGraphDTO>;
+}
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __proventaBusinessStore: BusinessStore | undefined;
+}
+
+function getBusinessStore(): BusinessStore {
+  if (!globalThis.__proventaBusinessStore) {
+    globalThis.__proventaBusinessStore = { graphs: new Map() };
+  }
+  return globalThis.__proventaBusinessStore;
+}
+
+export function syncWorkspaceBusinessMap(familyId: string, data: BusinessOwnershipGraphDTO): void {
+  const store = getBusinessStore();
+  store.graphs.set(familyId, data);
+}
+
 export function getFamilyBusinessOwnershipGraph(familyId: string): BusinessOwnershipGraphDTO {
+  const store = getBusinessStore();
+  const existing = store.graphs.get(familyId);
+  if (existing) {
+    return existing;
+  }
+
   if (process.env.NODE_ENV !== 'test' || familyId !== 'fam_sharma_heritage') {
     return {
       entities: [],

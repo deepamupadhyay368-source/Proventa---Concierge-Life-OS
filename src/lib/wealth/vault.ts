@@ -128,6 +128,18 @@ function getVaultStore(): VaultStore {
   return globalThis.__proventaVaultStore;
 }
 
+export function syncWorkspaceDocuments(workspaceId: string, docs: DocumentDTO[]): void {
+  const store = getVaultStore();
+  for (const [id, doc] of Array.from(store.documents.entries())) {
+    if (doc.workspaceId === workspaceId) {
+      store.documents.delete(id);
+    }
+  }
+  for (const d of docs) {
+    store.documents.set(d.id, d);
+  }
+}
+
 export function listDocuments(params: {
   workspaceId: string;
   category?: DocumentCategory;
