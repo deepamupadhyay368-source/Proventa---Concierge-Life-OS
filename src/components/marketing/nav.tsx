@@ -3,16 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowRight, Menu, X, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Menu, X, ShieldCheck, Compass } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 const PRIMARY_NAV_ITEMS = [
-  { label: 'Living Universe', href: '/#universe' },
-  { label: 'Dynamic Trajectory', href: '/#trajectory' },
-  { label: 'Family Constellation', href: '/#constellation' },
-  { label: 'Encrypted Vault', href: '/#vault' },
-  { label: 'Licensing & Membership', href: '/pricing' },
+  { label: 'Proventa Object', href: '/#object' },
+  { label: 'Topology', href: '/#topology' },
+  { label: 'Time Landscapes', href: '/#landscapes' },
+  { label: 'Codex Registers', href: '/#registers' },
+  { label: 'Fiduciary Pricing', href: '/pricing' },
   { label: 'DPDP Security', href: '/#privacy' },
 ];
 
@@ -21,7 +21,7 @@ export function MarketingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#E2E8F0] text-[#0F172A] font-sans shadow-sm">
+    <header className="sticky top-0 z-50 w-full bg-[#080A0F]/95 backdrop-blur-md border-b border-[#B9C1CC]/15 text-[#F4F2ED] font-sans shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-6">
           {/* Left: Monogram + Wordmark */}
@@ -30,16 +30,16 @@ export function MarketingNav() {
               href="/"
               className="group inline-flex items-center gap-3 focus:outline-none"
             >
-              <div className="w-8 h-8 bg-[#2563EB] text-white rounded-lg flex items-center justify-center font-display font-bold text-sm tracking-tighter group-hover:bg-[#1D4ED8] transition-all shadow-sm shadow-blue-500/25">
+              <div className="w-8 h-8 bg-[#2457E8] text-[#F4F2ED] rounded-xs flex items-center justify-center font-heading font-black text-sm tracking-tighter group-hover:bg-[#1D4ED8] transition-all shadow-md shadow-[#2457E8]/20">
                 P
               </div>
-              <span className="font-display text-xl tracking-[0.1em] uppercase font-bold text-[#0F172A]">
+              <span className="font-heading text-xl tracking-[0.1em] uppercase font-black text-[#F4F2ED]">
                 {BRAND_CONFIG.name}
               </span>
             </Link>
-            <span className="hidden sm:inline-block h-4 w-[1px] bg-[#E2E8F0]" />
-            <span className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-[#2563EB] font-medium">
-              LIVING FINANCIAL UNIVERSE
+            <span className="hidden sm:inline-block h-4 w-[1px] bg-[#B9C1CC]/20" />
+            <span className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#2457E8] font-bold">
+              EXPERIMENTAL DIGITAL ART
             </span>
           </div>
 
@@ -57,8 +57,8 @@ export function MarketingNav() {
                   className={cn(
                     'font-mono text-xs uppercase tracking-wider transition-colors py-1',
                     isActive
-                      ? 'text-[#2563EB] font-bold border-b-2 border-[#2563EB]'
-                      : 'text-[#64748B] hover:text-[#2563EB]',
+                      ? 'text-[#2457E8] font-bold border-b-2 border-[#2457E8]'
+                      : 'text-[#B9C1CC] hover:text-[#F4F2ED]'
                   )}
                 >
                   {item.label}
@@ -68,60 +68,63 @@ export function MarketingNav() {
           </nav>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-3 font-mono text-xs">
+          <div className="hidden sm:flex items-center gap-3 font-mono text-xs">
+            <Link
+              href="/login"
+              className="px-4 py-2 text-[#B9C1CC] hover:text-[#F4F2ED] transition-colors uppercase tracking-wider"
+            >
+              Sign In
+            </Link>
             <Link
               href="/dashboard"
-              className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 border border-[#CBD5E1] bg-[#F8FAFC] text-[#334155] hover:text-[#0F172A] hover:border-[#2563EB] uppercase tracking-wider font-semibold transition-colors rounded-lg shadow-sm"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#2457E8] text-[#F4F2ED] hover:bg-[#1D4ED8] uppercase tracking-wider font-bold rounded-xs shadow-sm transition-all"
             >
-              Command Console
-            </Link>
-            <Link
-              href="/onboarding"
-              className="inline-flex items-center gap-2 px-5 py-2 bg-[#2563EB] text-white hover:bg-[#1D4ED8] uppercase tracking-wider font-semibold transition-all rounded-lg shadow-sm shadow-blue-500/25"
-            >
-              <span>Explore Platform</span>
+              <span>Platform Cockpit</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
-
-            {/* Mobile Hamburger */}
-            <button
-              type="button"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 border border-[#CBD5E1] text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] rounded-lg"
-            >
-              <Menu className="w-4 h-4" />
-            </button>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle navigation menu"
+            className="lg:hidden p-2 text-[#B9C1CC] hover:text-[#F4F2ED] focus:outline-none"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-[#E2E8F0] bg-white p-4 space-y-3 font-mono text-xs shadow-lg">
-          {PRIMARY_NAV_ITEMS.map((item) => (
+        <div className="lg:hidden border-b border-[#B9C1CC]/15 bg-[#171B23] px-4 pt-3 pb-6 space-y-3 font-mono text-xs uppercase tracking-wider">
+          <nav className="flex flex-col space-y-2">
+            {PRIMARY_NAV_ITEMS.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                className="py-2 text-[#B9C1CC] hover:text-[#F4F2ED]"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="pt-3 border-t border-[#B9C1CC]/15 flex flex-col gap-2">
             <Link
-              key={item.label}
-              href={item.href}
+              href="/login"
               onClick={() => setMobileOpen(false)}
-              className="block py-2 text-[#475569] hover:text-[#2563EB] border-b border-[#F1F5F9]"
+              className="py-2 text-center text-[#B9C1CC] hover:text-[#F4F2ED]"
             >
-              {item.label}
+              Sign In
             </Link>
-          ))}
-          <div className="pt-2 flex flex-col gap-2">
             <Link
               href="/dashboard"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2.5 border border-[#CBD5E1] bg-[#F8FAFC] text-[#334155] font-semibold uppercase rounded-lg"
+              className="py-2.5 text-center bg-[#2457E8] text-[#F4F2ED] font-bold rounded-xs"
             >
-              Command Console
-            </Link>
-            <Link
-              href="/onboarding"
-              onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2.5 bg-[#2563EB] text-white font-semibold uppercase rounded-lg shadow-sm"
-            >
-              Commence Intake
+              Open Cockpit
             </Link>
           </div>
         </div>
@@ -131,4 +134,3 @@ export function MarketingNav() {
 }
 
 export const PublicNav = MarketingNav;
-export default MarketingNav;

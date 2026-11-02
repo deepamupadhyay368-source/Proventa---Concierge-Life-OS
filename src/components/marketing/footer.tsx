@@ -1,18 +1,18 @@
 import Link from 'next/link';
-import { ArrowUpRight, ShieldCheck, Lock } from 'lucide-react';
+import { ArrowUpRight, ShieldCheck, Lock, Compass } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/brand';
 
 const FOOTER_SECTIONS = [
   {
-    code: '01 // WEALTH UNIVERSE',
-    title: 'Platform Modules',
+    code: '01 // CAPITAL MATRIX',
+    title: 'Platform Registers',
     links: [
       { label: 'Family Wealth Command Cockpit', href: '/dashboard' },
       { label: 'Capital Asset Inventory', href: '/assets' },
       { label: 'Debt & Facility Register', href: '/liabilities' },
       { label: 'Encrypted Family Vault', href: '/vault' },
       { label: 'Treasury & Cashflow Stream', href: '/cashflow' },
-      { label: 'Analytical Research Console', href: '/intelligence' },
+      { label: 'Analytical Research Workspace', href: '/intelligence' },
     ],
   },
   {
@@ -33,7 +33,7 @@ const FOOTER_SECTIONS = [
       { label: 'Institutional Licensing Tiers', href: '/pricing' },
       { label: 'Commence Intake Journey', href: '/onboarding' },
       { label: 'Family Trust Workspaces', href: '/family' },
-      { label: 'Multi-Agent Orchestrator', href: '/intelligence' },
+      { label: 'Multi-Agent Desks', href: '/intelligence' },
     ],
   },
   {
@@ -50,63 +50,64 @@ const FOOTER_SECTIONS = [
 
 export function MarketingFooter() {
   return (
-    <footer className="bg-[#FAFBFC] text-[#0F172A] border-t border-[#E2E8F0] font-sans">
+    <footer className="bg-[#080A0F] text-[#F4F2ED] border-t border-[#B9C1CC]/15 font-sans">
       {/* Living Financial Universe Banner */}
-      <div className="border-b border-[#E2E8F0] bg-white">
+      <div className="border-b border-[#B9C1CC]/15 bg-[#171B23]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-end">
             <div className="lg:col-span-8 space-y-4">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
-                <span>PROVENTA // LIVING FINANCIAL UNIVERSE</span>
+              <div className="font-mono text-xs uppercase tracking-wider text-[#2457E8] font-bold flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#2457E8] animate-pulse" />
+                <span>EXPERIMENTAL DIGITAL ART // FAMILY WEALTH OS</span>
               </div>
-              <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#0F172A] leading-tight">
+              <h2 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#F4F2ED] leading-tight">
                 Your wealth. One living system.
               </h2>
-              <p className="font-sans text-sm sm:text-base text-[#475569] max-w-2xl leading-relaxed">
-                An intelligent, connected financial universe for high-net-worth Indian families. Real-time consolidated net worth, multi-generational continuity, encrypted family deed vaults, and deterministic scenarios.
+              <p className="text-sm sm:text-base text-[#B9C1CC] max-w-2xl leading-relaxed">
+                Transform disparate bank accounts, unlisted shares, private equity stakes, and physical deeds into a single, unified, living architecture.
               </p>
             </div>
             <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 font-mono text-xs">
               <Link
                 href="/onboarding"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] uppercase tracking-wider font-semibold rounded-lg shadow-sm shadow-blue-500/25 transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-[#2457E8] text-[#F4F2ED] hover:bg-[#1D4ED8] uppercase tracking-wider font-bold rounded-xs shadow-md transition-all text-center"
               >
                 <span>Commence Institutional Intake</span>
                 <ArrowUpRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/pricing"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#F8FAFC] text-[#334155] hover:text-[#0F172A] hover:bg-white uppercase tracking-wider font-semibold border border-[#CBD5E1] rounded-lg transition-colors"
+                href="/dashboard"
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-[#080A0F] text-[#F4F2ED] hover:bg-[#252C38] uppercase tracking-wider font-bold border border-[#B9C1CC]/30 rounded-xs transition-all text-center"
               >
-                Review Licensing Schedules
+                Launch Cockpit Platform
               </Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Directory Columns */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {FOOTER_SECTIONS.map((sec) => (
-            <div key={sec.code} className="space-y-4">
-              <div className="border-b border-[#E2E8F0] pb-2">
-                <div className="font-mono text-[10px] uppercase tracking-wider text-[#94A3B8]">
-                  {sec.code}
+      {/* Main 4-Column Codex Navigation */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          {FOOTER_SECTIONS.map((section) => (
+            <div key={section.code} className="space-y-4">
+              <div className="space-y-1">
+                <div className="font-mono text-[10px] uppercase tracking-wider text-[#A9D8F5] font-semibold">
+                  {section.code}
                 </div>
-                <h4 className="font-display text-sm font-bold text-[#0F172A] mt-0.5">
-                  {sec.title}
-                </h4>
+                <h3 className="font-heading font-bold text-base text-[#F4F2ED] uppercase tracking-wide">
+                  {section.title}
+                </h3>
               </div>
               <ul className="space-y-2.5 font-mono text-xs">
-                {sec.links.map((link) => (
+                {section.links.map((link) => (
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-[#64748B] hover:text-[#2563EB] transition-colors"
+                      className="text-[#B9C1CC] hover:text-[#F4F2ED] transition-colors flex items-center justify-between group"
                     >
-                      {link.label}
+                      <span>{link.label}</span>
+                      <ArrowUpRight className="w-3 h-3 text-[#B9C1CC]/40 group-hover:text-[#2457E8] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
                     </Link>
                   </li>
                 ))}
@@ -115,27 +116,23 @@ export function MarketingFooter() {
           ))}
         </div>
 
-        {/* Fiduciary Notice & Legal Sub-footer */}
-        <div className="mt-14 pt-8 border-t border-[#E2E8F0] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-xs text-[#64748B]">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 bg-[#2563EB] text-white rounded-md flex items-center justify-center font-display font-bold text-xs">
-              P
-            </div>
-            <div>
-              <span className="font-bold text-[#0F172A]">PROVENTA PLATFORM TECHNOLOGIES PRIVATE LIMITED</span>
-              <span className="mx-2">•</span>
-              <span>CIN: U72200MH2024PTC419821</span>
-            </div>
+        {/* Bottom Bar: Fiduciary Compliance & DPDP Act */}
+        <div className="mt-16 pt-8 border-t border-[#B9C1CC]/15 flex flex-col md:flex-row items-center justify-between gap-6 font-mono text-[11px] text-[#B9C1CC]/70">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-[#F4F2ED] font-bold">© 2026 {BRAND_CONFIG.name} INC.</span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5 text-[#D5A85D]">
+              <ShieldCheck className="w-3.5 h-3.5" /> DPDP Act 2023 Compliant
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1.5 text-[#A9D8F5]">
+              <Lock className="w-3.5 h-3.5" /> Client-Side AES-GCM-256
+            </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
-            <span className="flex items-center gap-1.5 text-[#0D9488]">
-              <ShieldCheck className="w-3.5 h-3.5" /> DPDP ACT COMPLIANT
-            </span>
-            <span className="flex items-center gap-1.5 text-[#2563EB]">
-              <Lock className="w-3.5 h-3.5" /> AES-GCM-256 ENCRYPTED
-            </span>
-            <span>© {new Date().getFullYear()} PROVENTA. All rights reserved.</span>
+          <div className="flex items-center gap-6">
+            <span>INTEGER PAISE ACCURATE (0 FLOAT DRIFT)</span>
+            <span>MUMBAI, IN</span>
           </div>
         </div>
       </div>
@@ -144,5 +141,3 @@ export function MarketingFooter() {
 }
 
 export const PublicFooter = MarketingFooter;
-export default MarketingFooter;
-

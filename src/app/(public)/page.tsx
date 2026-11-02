@@ -21,9 +21,18 @@ import {
   Building2,
   Globe2,
   Orbit,
+  Cpu,
+  Compass,
 } from 'lucide-react';
 import { BRAND_CONFIG, FAMILY_WEALTH_SUBSCRIPTION_PLANS } from '@/lib/brand';
-import { HeroUniverseVisual } from '@/components/wealth/universe/HeroUniverseVisual';
+import {
+  ProventaObject,
+  WealthTopology,
+  KineticHeroTitle,
+  KineticStatementStream,
+  KineticStatCard,
+  TimeLandscapes,
+} from '@/components/wealth/art';
 
 const MODULE_REGISTERS = [
   {
@@ -108,211 +117,230 @@ const MODULE_REGISTERS = [
   },
 ];
 
-const LIVING_SYSTEMS = [
+const SIGNATURE_SYSTEMS = [
   {
     number: '01',
-    name: 'Living Wealth Graph',
-    subtitle: 'ACTUAL RECORD SYNTHESIS',
-    description: 'Financial visualisations evolve organically from genuine family asset, liability, and cashflow records. No fabricated projections.',
-    accent: 'border-[#2563EB] text-[#2563EB]',
+    name: 'THE PROVENTA OBJECT',
+    subtitle: '3D KINETIC LATTICE SCULPTURE',
+    description: 'A procedural dual-lattice geometric projection engine reflecting capital equilibrium, asset composition, and balance sheet integrity.',
+    accent: 'border-[#2457E8] text-[#2457E8]',
   },
   {
     number: '02',
-    name: 'Financial Universe',
-    subtitle: 'ORBITAL TOPOLOGY',
-    description: 'Interactive gravitational nodes connect trustees, beneficiaries, legal entities, real estate, and facilities through luminous energy strands.',
-    accent: 'border-[#0D9488] text-[#0D9488]',
+    name: 'WEALTH TOPOLOGY',
+    subtitle: 'SPATIAL CAPITAL MATRIX',
+    description: 'An interactive structural topology connecting family trusts, trustees, operating entities, physical assets, and credit facilities.',
+    accent: 'border-[#A9D8F5] text-[#A9D8F5]',
   },
   {
     number: '03',
-    name: 'Intelligence Pulse',
-    subtitle: 'SUBTLE AUDIT SIGNALS',
-    description: 'Gentle, luminescent telemetry signals communicate real-time audit findings across 6 specialized AI desks with zero automated execution.',
-    accent: 'border-[#4338CA] text-[#4338CA]',
+    name: 'KINETIC TYPOGRAPHY',
+    subtitle: 'ARCHITECTURAL TELEMETRY',
+    description: 'High-density typographic layouts that dynamically adapt tracking, character offset, and coordinate data from live ledger telemetry.',
+    accent: 'border-[#D5A85D] text-[#D5A85D]',
   },
   {
     number: '04',
-    name: 'Fluid Transitions',
-    subtitle: 'SEAMLESS MOTION',
-    description: 'Buttery-smooth spring motion between financial registers, cross-filtering views without jarring layout reloads.',
-    accent: 'border-[#2563EB] text-[#2563EB]',
-  },
-  {
-    number: '05',
-    name: 'Dynamic Depth',
-    subtitle: 'CALIBRATED LIGHTING',
-    description: 'Dimensional layer elevations with calibrated shadows, soft rim highlights, and high-contrast typography designed for financial clarity.',
-    accent: 'border-[#0D9488] text-[#0D9488]',
+    name: 'TIME LANDSCAPES',
+    subtitle: 'MULTI-DECADAL HORIZONS',
+    description: 'Dimensional elevation terrain modelling 30-year compounding trajectories, inflation erosion strata, and structural family milestones.',
+    accent: 'border-[#2457E8] text-[#2457E8]',
   },
 ];
 
 export default function MarketingHomePage() {
   return (
-    <div className="min-h-screen bg-[#FAFBFC] text-[#0F172A] font-sans selection:bg-[#2563EB] selection:text-white">
-      {/* 1. HERO SECTION: THE LIVING FINANCIAL UNIVERSE */}
-      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-32 border-b border-[#E2E8F0]">
-        {/* Living Mesh Grid Background */}
-        <div className="absolute inset-0 living-grid opacity-60 pointer-events-none" />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 living-glow pointer-events-none" />
+    <div className="min-h-screen bg-[#080A0F] text-[#F4F2ED] font-sans selection:bg-[#2457E8] selection:text-[#F4F2ED]">
+      {/* 1. HERO SECTION: EXPERIMENTAL DIGITAL ART SHOWCASE */}
+      <section className="relative overflow-hidden pt-8 pb-16 lg:pt-14 lg:pb-24 border-b border-[#B9C1CC]/15">
+        {/* Volumetric Glow & Spatial Grid Background */}
+        <div className="absolute inset-0 spatial-grid opacity-25 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[550px] volumetric-glow pointer-events-none" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto space-y-6">
-            {/* Telemetry Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-white border border-[#CBD5E1] shadow-sm rounded-full text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-[#0D9488] animate-pulse" />
-              <span className="text-[#334155] font-semibold">PROVENTA // LIVING FINANCIAL UNIVERSE</span>
-              <span className="text-[#94A3B8]">|</span>
-              <span className="text-[#2563EB]">FAMILY WEALTH OS</span>
+          {/* Architectural Kinetic Typography Title */}
+          <KineticHeroTitle
+            title="YOUR WEALTH. ONE LIVING SYSTEM."
+            subtitle="An experimental digital architecture for family capital, sovereign estates, corporate equity, and multi-generational continuity."
+            badge="SYS.VER // 2.5.0 — EXPERIMENTAL DIGITAL ART"
+          />
+
+          {/* Interactive Hero Proventa Object & Telemetry Console */}
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            {/* Left Column: Interactive 3D Proventa Object */}
+            <div className="lg:col-span-7 flex flex-col items-center justify-center p-6 rounded-sm bg-[#171B23]/70 border border-[#B9C1CC]/20 relative backdrop-blur-md">
+              <div className="w-full flex items-center justify-between font-mono text-[10px] tracking-[0.2em] text-[#B9C1CC]/70 pb-3 border-b border-[#B9C1CC]/15">
+                <span className="flex items-center gap-1.5 text-[#A9D8F5]">
+                  <Compass className="w-3.5 h-3.5 text-[#2457E8]" />
+                  SIGNATURE ASSET A // THE PROVENTA OBJECT
+                </span>
+                <span className="text-[#D5A85D]">DRAG CURSOR TO ROTATE 3D LATTICE</span>
+              </div>
+
+              {/* 3D Geometric Sculpture */}
+              <div className="py-2">
+                <ProventaObject size={440} healthScore={98} />
+              </div>
+
+              <div className="w-full flex items-center justify-between font-mono text-[10px] text-[#B9C1CC]/60 pt-3 border-t border-[#B9C1CC]/15">
+                <span>MATHEMATICS: DUAL GOLDEN RATIO (φ=1.618)</span>
+                <span>STATUS: EQUILIBRIUM ACTIVE</span>
+              </div>
             </div>
 
-            {/* Monumental Headline */}
-            <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#0F172A] leading-[1.08]">
-              Your wealth.{' '}
-              <span className="text-[#2563EB] underline decoration-[#BFDBFE] decoration-wavy decoration-2">
-                One living system.
-              </span>
-            </h1>
+            {/* Right Column: Hero Architecture Cockpit */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <KineticStatCard
+                  code="CAPITAL.NET"
+                  label="Verified Family Capital"
+                  value="₹48.24 CR"
+                  subvalue="INTEGER PAISE ACCURATE"
+                  trend="+14.2% YOY"
+                />
+                <KineticStatCard
+                  code="TRUSTS.ACTIVE"
+                  label="Sovereign Entities"
+                  value="04"
+                  subvalue="2 TRUSTS // 2 PVT LTD"
+                />
+              </div>
 
-            {/* Sub-headline */}
-            <p className="font-sans text-base sm:text-xl text-[#475569] max-w-2xl mx-auto leading-relaxed">
-              Every family’s financial life is a connected, evolving universe. Organize, understand, monitor, and preserve your complete capital architecture through one proprietary operating system.
-            </p>
+              <div className="p-5 rounded-sm bg-[#171B23] border border-[#B9C1CC]/20 font-mono text-xs space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[#B9C1CC]/15 text-[#B9C1CC]">
+                  <span className="text-[10px] tracking-widest text-[#2457E8] font-bold">
+                    SYSTEM CAPABILITIES // ED-01
+                  </span>
+                  <span className="text-[#A9D8F5]">AIR-GAPPED</span>
+                </div>
+                <p className="text-[#B9C1CC] text-xs font-sans leading-relaxed">
+                  Every family financial deed, corporate cap table, and liability tranche is modeled inside a deterministic living structure with zero third-party data sharing.
+                </p>
 
-            {/* CTAs */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 font-mono text-xs">
-              <Link
-                href="/onboarding"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-[#2563EB] text-white hover:bg-[#1D4ED8] uppercase tracking-wider font-semibold rounded-lg shadow-sm shadow-blue-500/25 transition-all"
-              >
-                <span>Commence Institutional Intake</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white text-[#1E293B] hover:bg-[#F8FAFC] uppercase tracking-wider font-semibold border border-[#CBD5E1] hover:border-[#94A3B8] rounded-lg shadow-sm transition-all"
-              >
-                Explore Live Demo Platform
-              </Link>
-            </div>
-
-            {/* Trust Signals Strip */}
-            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 font-mono text-[11px] text-[#64748B]">
-              <span className="flex items-center gap-1.5 text-[#0D9488] font-medium">
-                <CheckCircle2 className="w-4 h-4" /> Integer-Paise Precision (0 Float Drift)
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5 text-[#2563EB] font-medium">
-                <ShieldCheck className="w-4 h-4" /> DPDP Act 2023 Encrypted
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5 text-[#4338CA] font-medium">
-                <Lock className="w-4 h-4" /> Zero Commission / 100% Fiduciary
-              </span>
-            </div>
-          </div>
-
-          {/* Interactive Living Universe Hero Display */}
-          <div className="mt-14 lg:mt-16">
-            <HeroUniverseVisual />
-          </div>
-        </div>
-      </section>
-
-      {/* 2. THE 5 PROPRIETARY VISUAL SYSTEMS */}
-      <section className="py-20 lg:py-28 border-b border-[#E2E8F0] bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl space-y-3 mb-14">
-            <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-2">
-              <Orbit className="w-4 h-4 text-[#2563EB]" />
-              <span>PROPRIETARY MOTION & VISUAL ARCHITECTURE</span>
-            </div>
-            <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A]">
-              Five original systems designed for financial clarity.
-            </h2>
-            <p className="text-sm sm:text-base text-[#475569] leading-relaxed">
-              We rejected generic fintech cards and AI purple gradients to engineer a proprietary design language reflecting connection, movement, continuity, and institutional control.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {LIVING_SYSTEMS.map((sys) => (
-              <div
-                key={sys.number}
-                className="p-6 bg-[#FAFBFC] border border-[#E2E8F0] hover:border-[#BFDBFE] hover:bg-white rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-2xl font-bold text-[#CBD5E1]">
-                      {sys.number}
-                    </span>
-                    <span className={`w-2 h-2 rounded-full border-2 ${sys.accent}`} />
+                <div className="space-y-2 pt-1 font-mono text-[11px] text-[#F4F2ED]">
+                  <div className="flex items-center justify-between py-1 border-b border-[#B9C1CC]/10">
+                    <span className="text-[#B9C1CC]/70">FLOAT DRIFT:</span>
+                    <span className="text-[#A9D8F5] font-bold">0.0000 PAISE (EXACT)</span>
                   </div>
-                  <h3 className="font-display font-bold text-lg text-[#0F172A] mt-3">
-                    {sys.name}
-                  </h3>
-                  <div className="font-mono text-[10px] uppercase tracking-wider text-[#64748B] mt-0.5">
-                    {sys.subtitle}
+                  <div className="flex items-center justify-between py-1 border-b border-[#B9C1CC]/10">
+                    <span className="text-[#B9C1CC]/70">VAULT CIPHER:</span>
+                    <span className="text-[#F4F2ED] font-bold">AES-GCM-256</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-[#B9C1CC]/70">DPDP COMPLIANCE:</span>
+                    <span className="text-[#D5A85D] font-bold">STRICT RESIDENCY (MUMBAI)</span>
                   </div>
                 </div>
-                <p className="text-xs text-[#475569] leading-relaxed">
-                  {sys.description}
-                </p>
               </div>
-            ))}
+
+              {/* CTAs */}
+              <div className="pt-2 flex flex-col sm:flex-row gap-3 font-mono text-xs">
+                <Link
+                  href="/onboarding"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#2457E8] text-[#F4F2ED] hover:bg-[#1D4ED8] uppercase tracking-wider font-bold rounded-sm shadow-md shadow-[#2457E8]/20 transition-all"
+                >
+                  <span>Commence Intake</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/dashboard"
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#171B23] text-[#F4F2ED] hover:bg-[#252C38] uppercase tracking-wider font-bold border border-[#B9C1CC]/30 rounded-sm transition-all"
+                >
+                  Explore Cockpit
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 3. 10 INDEPENDENT WEALTH REGISTERS */}
-      <section id="registers" className="py-20 lg:py-28 border-b border-[#E2E8F0] bg-[#FAFBFC]">
+      {/* 2. KINETIC STATEMENT STREAM */}
+      <KineticStatementStream />
+
+      {/* 3. SIGNATURE ASSET B: SPATIAL WEALTH TOPOLOGY */}
+      <section className="py-20 lg:py-28 border-b border-[#B9C1CC]/15 bg-[#080A0F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-            <div className="max-w-2xl space-y-3">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
-                <span>COMPLETE CAPITAL COVERAGE // 10 REGISTERS</span>
-              </div>
-              <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A]">
-                Every asset, liability, and directive accounted for.
-              </h2>
-              <p className="text-sm sm:text-base text-[#475569] leading-relaxed">
-                A connected ecosystem of 10 specialized financial registers designed specifically for Indian tax treaties, Hindu Undivided Families (HUF), and multi-generational family trusts.
-              </p>
+          <div className="max-w-3xl space-y-3 mb-10">
+            <div className="font-mono text-xs uppercase tracking-wider text-[#2457E8] font-bold flex items-center gap-2">
+              <Network className="w-4 h-4 text-[#2457E8]" />
+              <span>SIGNATURE ASSET B // SPATIAL CAPITAL MATRIX</span>
             </div>
-            <Link
-              href="/dashboard"
-              className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center gap-1.5 hover:underline"
-            >
-              Explore Complete Register Index <ChevronRight className="w-4 h-4" />
-            </Link>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#F4F2ED]">
+              Wealth Topology
+            </h2>
+            <p className="text-sm sm:text-base text-[#B9C1CC] leading-relaxed">
+              Explore your complete family universe as an interconnected spatial topology. Click any node to inspect balance sheets, legal ownership shares, and credit facilities.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Interactive Topology Component */}
+          <WealthTopology />
+        </div>
+      </section>
+
+      {/* 4. SIGNATURE ASSET D: TIME LANDSCAPES */}
+      <section className="py-20 lg:py-28 border-b border-[#B9C1CC]/15 bg-[#080A0F]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl space-y-3 mb-10">
+            <div className="font-mono text-xs uppercase tracking-wider text-[#D5A85D] font-bold flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-[#D5A85D]" />
+              <span>SIGNATURE ASSET D // 30-YEAR MULTI-DECADAL HORIZON</span>
+            </div>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#F4F2ED]">
+              Time Landscapes
+            </h2>
+            <p className="text-sm sm:text-base text-[#B9C1CC] leading-relaxed">
+              Dimensional elevation terrain modelling historical trajectory, continuous compound accumulation, inflation erosion strata, and structural succession monoliths.
+            </p>
+          </div>
+
+          {/* Interactive Time Landscapes Component */}
+          <TimeLandscapes />
+        </div>
+      </section>
+
+      {/* 5. TEN CODEX REGISTERS */}
+      <section className="py-20 lg:py-28 border-b border-[#B9C1CC]/15 bg-[#171B23]/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl space-y-3 mb-14">
+            <div className="font-mono text-xs uppercase tracking-wider text-[#2457E8] font-bold flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-[#2457E8]" />
+              <span>CODEX REGISTERS // COMPLETE PLATFORM ARSENAL</span>
+            </div>
+            <h2 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#F4F2ED]">
+              Ten Unified Registers. Zero Gaps.
+            </h2>
+            <p className="text-sm sm:text-base text-[#B9C1CC] leading-relaxed">
+              Every dimension of Indian family wealth organized into connected, verifiable registers with zero duplicate accounting.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {MODULE_REGISTERS.map((mod) => {
               const Icon = mod.icon;
               return (
                 <Link
                   key={mod.code}
                   href={mod.href}
-                  className="p-5 bg-white border border-[#E2E8F0] hover:border-[#BFDBFE] hover:shadow-md rounded-xl transition-all flex flex-col justify-between group"
+                  className="group relative p-5 bg-[#171B23] border border-[#B9C1CC]/20 hover:border-[#2457E8] transition-all duration-300 rounded-sm flex flex-col justify-between overflow-hidden"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="font-mono text-[10px] text-[#64748B] group-hover:text-[#2563EB]">
-                        {mod.code}
+                      <span className="font-mono text-[10px] text-[#B9C1CC]/60 group-hover:text-[#A9D8F5] transition-colors">
+                        [{mod.code}]
                       </span>
-                      <Icon className="w-4 h-4 text-[#64748B] group-hover:text-[#2563EB] transition-colors" />
+                      <Icon className="w-4 h-4 text-[#B9C1CC] group-hover:text-[#2457E8] transition-colors" />
                     </div>
-                    <h3 className="font-display font-bold text-base text-[#0F172A] group-hover:text-[#2563EB] transition-colors">
+                    <h3 className="font-heading font-bold text-base text-[#F4F2ED] group-hover:text-[#A9D8F5] transition-colors">
                       {mod.title}
                     </h3>
-                    <p className="text-xs text-[#475569] leading-relaxed line-clamp-3">
+                    <p className="text-xs text-[#B9C1CC]/80 leading-relaxed line-clamp-3">
                       {mod.desc}
                     </p>
                   </div>
-                  <div className="mt-4 pt-3 border-t border-[#F1F5F9] font-mono text-[10px] text-[#0D9488] font-medium flex items-center justify-between">
+                  <div className="mt-4 pt-3 border-t border-[#B9C1CC]/10 font-mono text-[10px] text-[#A9D8F5] font-semibold flex items-center justify-between">
                     <span>{mod.highlight}</span>
-                    <ChevronRight className="w-3 h-3 text-[#CBD5E1] group-hover:text-[#2563EB] group-hover:translate-x-0.5 transition-all" />
+                    <ChevronRight className="w-3 h-3 text-[#B9C1CC] group-hover:text-[#2457E8] group-hover:translate-x-0.5 transition-all" />
                   </div>
                 </Link>
               );
@@ -321,60 +349,60 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      {/* 4. FIDUCIARY COMMITMENT & DPDP PRIVACY GUARANTEE */}
-      <section id="privacy" className="py-20 lg:py-28 border-b border-[#E2E8F0] bg-white">
+      {/* 6. STATUTORY PRIVACY & AIR-GAPPED CIPHER */}
+      <section id="privacy" className="py-20 lg:py-28 border-b border-[#B9C1CC]/15 bg-[#080A0F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#0D9488] font-semibold flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
+              <div className="font-mono text-xs uppercase tracking-wider text-[#D5A85D] font-bold flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#D5A85D]" />
                 <span>STATUTORY COMPLIANCE // DPDP ACT 2023</span>
               </div>
-              <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A] leading-tight">
-                Zero commissions. Zero third-party data sharing.
+              <h2 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#F4F2ED] leading-tight">
+                Zero commissions. Zero third-party telemetry.
               </h2>
-              <p className="text-sm sm:text-base text-[#475569] leading-relaxed">
-                PROVENTA is not a financial broker. We do not sell mutual funds, insurance policies, or investment products. You pay an institutional subscription for pure, uncompromised technology infrastructure.
+              <p className="text-sm sm:text-base text-[#B9C1CC] leading-relaxed">
+                PROVENTA is not a financial distributor or broker. We do not sell mutual funds, insurance policies, or investment products. You pay an institutional subscription for pure, uncompromised technology infrastructure.
               </p>
 
               <div className="space-y-4 pt-2">
                 <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#F0FDFA] border border-[#99F6E4] flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                  <div className="w-5 h-5 rounded-sm bg-[#171B23] border border-[#2457E8]/40 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2457E8]" />
                   </div>
                   <div>
-                    <h4 className="font-display font-bold text-sm text-[#0F172A]">
+                    <h4 className="font-heading font-bold text-sm text-[#F4F2ED]">
                       Client-Side AES-GCM-256 Deed Encryption
                     </h4>
-                    <p className="text-xs text-[#64748B] mt-0.5">
+                    <p className="text-xs text-[#B9C1CC]/80 mt-0.5">
                       Your registered sale deeds, will documents, and demat account numbers are encrypted at rest with zero-knowledge keys.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#F0FDFA] border border-[#99F6E4] flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                  <div className="w-5 h-5 rounded-sm bg-[#171B23] border border-[#2457E8]/40 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2457E8]" />
                   </div>
                   <div>
-                    <h4 className="font-display font-bold text-sm text-[#0F172A]">
+                    <h4 className="font-heading font-bold text-sm text-[#F4F2ED]">
                       Human Confirmation Protocol for AI
                     </h4>
-                    <p className="text-xs text-[#64748B] mt-0.5">
+                    <p className="text-xs text-[#B9C1CC]/80 mt-0.5">
                       AI agents extract and cross-reference documents, but no balance, nominee change, or execution is committed without explicit trustee review.
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-[#F0FDFA] border border-[#99F6E4] flex items-center justify-center shrink-0 mt-0.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                  <div className="w-5 h-5 rounded-sm bg-[#171B23] border border-[#2457E8]/40 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2457E8]" />
                   </div>
                   <div>
-                    <h4 className="font-display font-bold text-sm text-[#0F172A]">
+                    <h4 className="font-heading font-bold text-sm text-[#F4F2ED]">
                       Complete Data Portability & Erasure
                     </h4>
-                    <p className="text-xs text-[#64748B] mt-0.5">
+                    <p className="text-xs text-[#B9C1CC]/80 mt-0.5">
                       Export your complete financial universe into machine-readable JSON at any time, or trigger irreversible cryptographic deletion under DPDP Act provisions.
                     </p>
                   </div>
@@ -383,42 +411,42 @@ export default function MarketingHomePage() {
             </div>
 
             {/* Cryptographic Shield Card */}
-            <div className="lg:col-span-6 bg-[#FAFBFC] border border-[#CBD5E1] p-8 rounded-2xl shadow-sm space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-[#E2E8F0]">
+            <div className="lg:col-span-6 bg-[#171B23] border border-[#B9C1CC]/25 p-8 rounded-sm space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[#B9C1CC]/15">
                 <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-[#2563EB]" />
-                  <span className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-bold">
+                  <Lock className="w-4 h-4 text-[#2457E8]" />
+                  <span className="font-mono text-xs uppercase tracking-wider text-[#F4F2ED] font-bold">
                     SECURITY ARCHITECTURE // AIR-GAP
                   </span>
                 </div>
-                <span className="px-2.5 py-0.5 bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] font-mono text-[10px] rounded-full">
+                <span className="px-2.5 py-0.5 bg-[#2457E8]/20 text-[#A9D8F5] border border-[#2457E8]/40 font-mono text-[10px] rounded-xs font-bold">
                   AUDITED
                 </span>
               </div>
 
-              <div className="space-y-4 font-mono text-xs">
-                <div className="p-3.5 bg-white border border-[#E2E8F0] rounded-xl flex items-center justify-between">
-                  <span className="text-[#64748B]">ENCRYPTION STANDARD:</span>
-                  <span className="font-bold text-[#0F172A]">AES-GCM-256 + PBKDF2</span>
+              <div className="space-y-3 font-mono text-xs">
+                <div className="p-3.5 bg-[#080A0F] border border-[#B9C1CC]/15 rounded-sm flex items-center justify-between">
+                  <span className="text-[#B9C1CC]">ENCRYPTION STANDARD:</span>
+                  <span className="font-bold text-[#F4F2ED]">AES-GCM-256 + PBKDF2</span>
                 </div>
-                <div className="p-3.5 bg-white border border-[#E2E8F0] rounded-xl flex items-center justify-between">
-                  <span className="text-[#64748B]">DATA RESIDENCY:</span>
-                  <span className="font-bold text-[#0F172A]">Mumbai, India (AWS ap-south-1)</span>
+                <div className="p-3.5 bg-[#080A0F] border border-[#B9C1CC]/15 rounded-sm flex items-center justify-between">
+                  <span className="text-[#B9C1CC]">DATA RESIDENCY:</span>
+                  <span className="font-bold text-[#F4F2ED]">Mumbai, India (AWS ap-south-1)</span>
                 </div>
-                <div className="p-3.5 bg-white border border-[#E2E8F0] rounded-xl flex items-center justify-between">
-                  <span className="text-[#64748B]">MULTI-TENANCY:</span>
-                  <span className="font-bold text-[#0F172A]">Row-Level Security (RLS)</span>
+                <div className="p-3.5 bg-[#080A0F] border border-[#B9C1CC]/15 rounded-sm flex items-center justify-between">
+                  <span className="text-[#B9C1CC]">MULTI-TENANCY:</span>
+                  <span className="font-bold text-[#F4F2ED]">Row-Level Security (RLS)</span>
                 </div>
-                <div className="p-3.5 bg-white border border-[#E2E8F0] rounded-xl flex items-center justify-between">
-                  <span className="text-[#64748B]">CALCULATION INTEGRITY:</span>
-                  <span className="font-bold text-[#0D9488]">Integer Paise (Zero Floating Error)</span>
+                <div className="p-3.5 bg-[#080A0F] border border-[#B9C1CC]/15 rounded-sm flex items-center justify-between">
+                  <span className="text-[#B9C1CC]">CALCULATION INTEGRITY:</span>
+                  <span className="font-bold text-[#A9D8F5]">Integer Paise (Zero Floating Error)</span>
                 </div>
               </div>
 
               <div className="pt-2">
                 <Link
                   href="/settings"
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#0F172A] text-white hover:bg-[#1E293B] font-mono text-xs uppercase tracking-wider rounded-lg transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#080A0F] text-[#F4F2ED] hover:bg-[#252C38] border border-[#B9C1CC]/30 font-mono text-xs uppercase tracking-wider rounded-sm transition-colors"
                 >
                   Inspect Governance & Privacy Protocols
                 </Link>
@@ -428,18 +456,18 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      {/* 5. INSTITUTIONAL PRICING SCHEDULES */}
-      <section id="pricing" className="py-20 lg:py-28 bg-[#FAFBFC]">
+      {/* 7. INSTITUTIONAL PRICING SCHEDULES */}
+      <section id="pricing" className="py-20 lg:py-28 bg-[#171B23]/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <div className="font-mono text-xs uppercase tracking-wider text-[#2563EB] font-semibold flex items-center justify-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#2563EB]" />
+            <div className="font-mono text-xs uppercase tracking-wider text-[#2457E8] font-bold flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#2457E8] animate-ping" />
               <span>INSTITUTIONAL MEMBERSHIP & LICENSING</span>
             </div>
-            <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-[#0F172A]">
-              Transparent, flat fiduciary licensing.
+            <h2 className="font-heading font-black text-3xl sm:text-5xl uppercase tracking-tight text-[#F4F2ED]">
+              Transparent, Flat Fiduciary Licensing.
             </h2>
-            <p className="text-sm sm:text-base text-[#475569]">
+            <p className="text-sm sm:text-base text-[#B9C1CC]">
               Zero percentage-based AUM management fees. Zero commissions. Pure infrastructure pricing.
             </p>
           </div>
@@ -450,65 +478,65 @@ export default function MarketingHomePage() {
               return (
                 <div
                   key={plan.tier}
-                  className={`p-6 bg-white border rounded-2xl flex flex-col justify-between transition-all ${
+                  className={`p-6 bg-[#171B23] border rounded-sm flex flex-col justify-between transition-all ${
                     isPopular
-                      ? 'border-[#2563EB] shadow-lg shadow-blue-500/10 ring-2 ring-[#2563EB]/20 relative'
-                      : 'border-[#CBD5E1] shadow-sm hover:shadow-md'
+                      ? 'border-[#2457E8] shadow-lg shadow-[#2457E8]/10 ring-1 ring-[#2457E8] relative'
+                      : 'border-[#B9C1CC]/20 hover:border-[#B9C1CC]/50'
                   }`}
                 >
                   {isPopular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-[#2563EB] text-white font-mono text-[10px] uppercase font-bold tracking-wider rounded-full shadow-sm">
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 bg-[#2457E8] text-[#F4F2ED] font-mono text-[10px] uppercase font-bold tracking-wider rounded-xs shadow-sm">
                       MOST RECOMMENDED
                     </span>
                   )}
                   <div className="space-y-4">
                     <div>
-                      <div className="font-mono text-[10px] uppercase tracking-wider text-[#64748B]">
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-[#B9C1CC]/70">
                         {plan.tier.replace(/_/g, ' ')}
                       </div>
-                      <h3 className="font-display font-bold text-xl text-[#0F172A] mt-1">
+                      <h3 className="font-heading font-bold text-xl text-[#F4F2ED] mt-1">
                         {plan.name}
                       </h3>
-                      <p className="text-xs text-[#475569] mt-1">
+                      <p className="text-xs text-[#B9C1CC]/80 mt-1">
                         {plan.description}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t border-[#F1F5F9]">
-                      <div className="font-display font-bold text-3xl text-[#0F172A]">
+                    <div className="pt-2 border-t border-[#B9C1CC]/15">
+                      <div className="font-heading font-black text-3xl text-[#F4F2ED]">
                         {plan.formattedPrice}
                       </div>
-                      <div className="font-mono text-[10px] text-[#64748B]">
+                      <div className="font-mono text-[10px] text-[#B9C1CC]/60">
                         Billed {plan.cadence}
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-[#F1F5F9] space-y-2">
-                      <div className="font-mono text-[10px] uppercase text-[#64748B]">
+                    <div className="pt-3 border-t border-[#B9C1CC]/15 space-y-2">
+                      <div className="font-mono text-[10px] uppercase text-[#B9C1CC]/70">
                         INCLUDED ENTITLEMENTS:
                       </div>
-                      <ul className="space-y-2 font-mono text-xs text-[#334155]">
+                      <ul className="space-y-2 font-mono text-xs text-[#B9C1CC]">
                         <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2457E8]" />
                           Up to {plan.limits.maxFamilyMembers} Family Members
                         </li>
                         <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2457E8]" />
                           Up to {plan.limits.maxWorkspaces} Trust Workspaces
                         </li>
                         <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#2457E8]" />
                           {plan.limits.storageMb >= 1024 ? `${plan.limits.storageMb / 1024} GB` : `${plan.limits.storageMb} MB`} Encrypted Vault
                         </li>
                         {plan.limits.canAccessScenarioSimulations && (
-                          <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488]" />
+                          <li className="flex items-center gap-2 text-[#A9D8F5]">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#A9D8F5]" />
                             Deterministic Scenario Engine
                           </li>
                         )}
                         {plan.limits.canAccessBusinessOwnership && (
-                          <li className="flex items-center gap-2 text-[#2563EB] font-bold">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-[#2563EB]" />
+                          <li className="flex items-center gap-2 text-[#D5A85D] font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-[#D5A85D]" />
                             Corporate Cap-Table Map
                           </li>
                         )}
@@ -519,10 +547,10 @@ export default function MarketingHomePage() {
                   <div className="pt-6">
                     <Link
                       href={`/onboarding?tier=${plan.tier}`}
-                      className={`w-full inline-flex items-center justify-center gap-2 py-2.5 font-mono text-xs uppercase tracking-wider font-semibold rounded-lg transition-colors ${
+                      className={`w-full inline-flex items-center justify-center gap-2 py-2.5 font-mono text-xs uppercase tracking-wider font-bold rounded-sm transition-colors ${
                         isPopular
-                          ? 'bg-[#2563EB] text-white hover:bg-[#1D4ED8] shadow-sm'
-                          : 'bg-[#F8FAFC] text-[#1E293B] hover:bg-[#EFF6FF] hover:text-[#2563EB] border border-[#CBD5E1]'
+                          ? 'bg-[#2457E8] text-[#F4F2ED] hover:bg-[#1D4ED8] shadow-sm'
+                          : 'bg-[#080A0F] text-[#F4F2ED] hover:bg-[#252C38] border border-[#B9C1CC]/30'
                       }`}
                     >
                       <span>Select Tier</span>

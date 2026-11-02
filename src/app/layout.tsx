@@ -27,19 +27,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | Living Financial Universe',
+    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | Experimental Digital Art',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. An intelligent, connected financial universe for high-net-worth Indian families to organize, understand, monitor, and preserve their complete financial universe.',
+    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. A fusion of experimental digital art, computational architecture, and family financial infrastructure.',
   keywords: [
     'PROVENTA',
     'Family Wealth OS',
-    'Living Financial Universe',
+    'Experimental Digital Art',
+    'The Proventa Object',
+    'Wealth Topology',
     'Family Financial Infrastructure',
     'Consolidated Net Worth India',
-    'Private Wealth Intelligence',
-    'Family Office Software',
   ],
   authors: [{ name: 'PROVENTA' }],
   creator: 'PROVENTA',
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     siteName: 'PROVENTA',
     title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     description:
-      'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence.',
+      'A fusion of experimental digital art, computational architecture, and family financial infrastructure.',
     images: [
       {
         url: '/og-image.jpg',
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
     description:
-      'Next-generation family financial infrastructure built with titanium precision and digital cobalt intelligence.',
+      'A fusion of experimental digital art, computational architecture, and family financial infrastructure.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -92,8 +92,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAFBFC' },
-    { media: '(prefers-color-scheme: dark)', color: '#0B0E17' },
+    { media: '(prefers-color-scheme: light)', color: '#F4F2ED' },
+    { media: '(prefers-color-scheme: dark)', color: '#080A0F' },
   ],
 };
 
@@ -106,12 +106,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geist.variable} ${spaceGrotesk.variable} ${geistMono.variable}`}
+      className={`${geist.variable} ${spaceGrotesk.variable} ${geistMono.variable} dark`}
     >
-      <body className="min-h-screen bg-[#FAFBFC] text-[#0F172A] antialiased">
+      <body className="min-h-screen bg-[#080A0F] text-[#F4F2ED] antialiased selection:bg-[#2457E8] selection:text-[#F4F2ED]">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

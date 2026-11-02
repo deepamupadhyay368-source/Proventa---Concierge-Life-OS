@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, ArrowRight, Lock, Terminal } from 'lucide-react';
 import { FAMILY_WEALTH_SUBSCRIPTION_PLANS } from '@/lib/brand';
+import { KineticStatementStream } from '@/components/wealth/art';
 
 export const metadata: Metadata = {
   title: 'Institutional Wealth Tiers & Licensing | PROVENTA',
@@ -11,18 +12,18 @@ export const metadata: Metadata = {
 
 export default function PricingPage() {
   return (
-    <div className="min-h-screen bg-[#FAFBFC] text-[#0F172A] py-16 sm:py-24 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#080A0F] text-[#F4F2ED] py-12 sm:py-20 px-4 sm:px-6 lg:px-8 font-sans selection:bg-[#2457E8] selection:text-[#F4F2ED]">
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-[#CBD5E1] rounded-full font-mono text-[11px] uppercase tracking-wider text-[#2563EB] shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-[#2563EB] animate-pulse" />
+        <div className="text-center max-w-3xl mx-auto space-y-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-[#171B23] border border-[#B9C1CC]/25 rounded-xs font-mono text-[10px] uppercase tracking-[0.25em] text-[#2457E8]">
+            <span className="w-2 h-2 rounded-full bg-[#2457E8] animate-ping" />
             <span>PROVENTA // INSTITUTIONAL FIDUCIARY LICENSING</span>
           </div>
-          <h1 className="font-display font-bold text-4xl sm:text-6xl text-[#0F172A] tracking-tight">
+          <h1 className="font-heading font-black text-4xl sm:text-6xl text-[#F4F2ED] uppercase tracking-tight">
             Designed for Multi-Generational Capital
           </h1>
-          <p className="font-sans text-sm sm:text-base text-[#475569] leading-relaxed">
+          <p className="font-sans text-sm sm:text-base text-[#B9C1CC] leading-relaxed">
             From single-individual sovereign records to complex family office structures with holding companies, trusts, and appointed legal advisors.
           </p>
         </div>
@@ -32,51 +33,59 @@ export default function PricingPage() {
           {Object.values(FAMILY_WEALTH_SUBSCRIPTION_PLANS).map((plan) => (
             <div
               key={plan.tier}
-              className={`p-8 bg-white border rounded-2xl flex flex-col justify-between transition-all ${
+              className={`p-7 bg-[#171B23] border rounded-sm flex flex-col justify-between transition-all duration-300 ${
                 plan.recommended
-                  ? 'border-[#2563EB] ring-2 ring-[#2563EB]/20 shadow-xl shadow-blue-500/10'
-                  : 'border-[#CBD5E1] shadow-sm hover:shadow-md'
+                  ? 'border-[#2457E8] ring-1 ring-[#2457E8] shadow-xl shadow-[#2457E8]/10 relative'
+                  : 'border-[#B9C1CC]/20 hover:border-[#B9C1CC]/50'
               }`}
             >
               <div>
                 <div className="flex items-center justify-between font-mono text-[10px]">
-                  <span className={plan.recommended ? 'text-[#2563EB] font-bold' : 'text-[#64748B]'}>
-                    {plan.tier}
+                  <span className={plan.recommended ? 'text-[#A9D8F5] font-bold' : 'text-[#B9C1CC]/70'}>
+                    [{plan.tier.replace(/_/g, '-')}]
                   </span>
                   {plan.recommended && (
-                    <span className="px-2.5 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] rounded-full uppercase font-bold text-[10px]">
+                    <span className="px-2 py-0.5 bg-[#2457E8] text-[#F4F2ED] rounded-xs uppercase font-bold text-[9px] tracking-wider">
                       Recommended
                     </span>
                   )}
                 </div>
 
-                <h3 className="font-display font-bold text-2xl mt-2 text-[#0F172A]">{plan.name}</h3>
-                <p className={`text-xs mt-1 ${plan.recommended ? 'text-[#2563EB]' : 'text-[#64748B]'}`}>
+                <h3 className="font-heading font-black text-2xl mt-3 text-[#F4F2ED] uppercase tracking-tight">
+                  {plan.name}
+                </h3>
+                <p className={`text-xs mt-1 ${plan.recommended ? 'text-[#A9D8F5]' : 'text-[#B9C1CC]/70'}`}>
                   {plan.tagline}
                 </p>
 
-                <div className="mt-6 flex items-baseline gap-1 border-b border-[#F1F5F9] pb-4">
-                  <span className="text-4xl font-display font-bold text-[#0F172A]">{plan.formattedPrice}</span>
-                  <span className="font-mono text-xs text-[#64748B]">{plan.cadence}</span>
+                <div className="mt-6 flex items-baseline gap-1 border-b border-[#B9C1CC]/15 pb-4">
+                  <span className="text-4xl font-heading font-black text-[#F4F2ED]">
+                    {plan.formattedPrice}
+                  </span>
+                  <span className="font-mono text-xs text-[#B9C1CC]/60">{plan.cadence}</span>
                 </div>
 
                 <ul className="mt-6 space-y-3 font-mono text-xs">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-[#334155]">
-                      <CheckCircle2 className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${plan.recommended ? 'text-[#0D9488]' : 'text-[#94A3B8]'}`} />
+                    <li key={f} className="flex items-start gap-2.5 text-[#B9C1CC]">
+                      <CheckCircle2
+                        className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                          plan.recommended ? 'text-[#2457E8]' : 'text-[#B9C1CC]/50'
+                        }`}
+                      />
                       <span className="leading-snug">{f}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-[#F1F5F9]">
+              <div className="mt-8 pt-6 border-t border-[#B9C1CC]/15">
                 <Link
                   href={`/onboarding?tier=${plan.tier}`}
-                  className={`w-full py-3 font-mono text-xs uppercase tracking-wider font-semibold text-center block transition-all rounded-lg shadow-sm ${
+                  className={`w-full py-3 font-mono text-xs uppercase tracking-wider font-bold text-center block transition-all rounded-sm ${
                     plan.recommended
-                      ? 'bg-[#2563EB] text-white hover:bg-[#1D4ED8]'
-                      : 'bg-[#F8FAFC] text-[#1E293B] border border-[#CBD5E1] hover:bg-[#EFF6FF] hover:text-[#2563EB]'
+                      ? 'bg-[#2457E8] text-[#F4F2ED] hover:bg-[#1D4ED8] shadow-md shadow-[#2457E8]/20'
+                      : 'bg-[#080A0F] text-[#F4F2ED] border border-[#B9C1CC]/30 hover:bg-[#252C38]'
                   }`}
                 >
                   License {plan.name}
@@ -87,12 +96,12 @@ export default function PricingPage() {
         </div>
 
         {/* DPDP Act Guarantee Banner */}
-        <div className="border border-[#CBD5E1] bg-white p-8 max-w-3xl mx-auto space-y-2 text-center rounded-2xl shadow-sm">
-          <div className="font-mono text-xs uppercase tracking-wider text-[#0F172A] font-semibold flex items-center justify-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#0D9488]" />
+        <div className="border border-[#B9C1CC]/25 bg-[#171B23] p-8 max-w-3xl mx-auto space-y-3 text-center rounded-sm">
+          <div className="font-mono text-xs uppercase tracking-wider text-[#D5A85D] font-bold flex items-center justify-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-[#D5A85D]" />
             <span>Digital Personal Data Protection Act 2023 Compliant</span>
           </div>
-          <p className="font-sans text-xs text-[#475569] leading-relaxed">
+          <p className="font-sans text-xs text-[#B9C1CC] leading-relaxed">
             Zero vendor lock-in. All family financial data remains your legal property. You may download complete encrypted archives or invoke irreversible deletion rights at any time under Indian data sovereignty laws.
           </p>
         </div>

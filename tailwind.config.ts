@@ -16,6 +16,31 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        // PROVENTA EXPERIMENTAL DIGITAL ART TOKENS
+        eda: {
+          void: '#080A0F',
+          carbon: '#171B23',
+          'carbon-surface': '#1E242F',
+          'carbon-elevated': '#262D3B',
+          'carbon-border': '#2A3342',
+          titanium: '#B9C1CC',
+          'titanium-light': '#D8DEE7',
+          'titanium-dark': '#848E9D',
+          porcelain: '#F4F2ED',
+          'porcelain-pure': '#FAF9F6',
+          'porcelain-border': '#E4E0D6',
+          'porcelain-muted': '#EBE8E0',
+          cobalt: '#2457E8',
+          'cobalt-hover': '#1B46CB',
+          'cobalt-glow': 'rgba(36, 87, 232, 0.25)',
+          'cobalt-subtle': '#EEF2FF',
+          ice: '#A9D8F5',
+          'ice-subtle': 'rgba(169, 216, 245, 0.12)',
+          'ice-border': '#7DC2ED',
+          signal: '#D5A85D',
+          'signal-dark': '#B88B42',
+          'signal-subtle': 'rgba(213, 168, 93, 0.15)',
+        },
         // PROVENTA LIVING FINANCIAL UNIVERSE TOKENS
         universe: {
           pearl: '#FAFBFC',

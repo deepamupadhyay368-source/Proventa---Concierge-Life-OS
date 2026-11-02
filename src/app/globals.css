@@ -4,80 +4,78 @@
 
 @layer base {
   :root {
-    /* PROVENTA LIVING FINANCIAL UNIVERSE — LIGHT-FIRST FOUNDATION */
-    /* Pearl White (#FAFBFC / #FFFFFF), Cool Silver (#E2E8F0 / #CBD5E1), Soft Graphite (#334155 / #0F172A) */
-    /* Royal Blue (#2563EB), Deep Indigo (#1E1B4B), Subtle Lavender (#EEF2FF), Restrained Aqua (#0D9488) */
-    --background: 210 20% 98%;   /* #FAFBFC Pearl White */
-    --foreground: 222 47% 11%;   /* #0F172A Deep Slate / Graphite */
+    /* PROVENTA EXPERIMENTAL DIGITAL ART — ART DIRECTION SYSTEM */
+    /* Void (#080A0F), Carbon (#171B23), Titanium (#B9C1CC), Porcelain (#F4F2ED), Cobalt (#2457E8), Ice (#A9D8F5), Signal (#D5A85D) */
+    --background: 43 20% 94%;    /* #F4F2ED Porcelain Base */
+    --foreground: 224 45% 5%;    /* #080A0F Void Obsidian */
 
-    --card: 0 0% 100%;           /* #FFFFFF Pure Pearl */
-    --card-foreground: 222 47% 11%;
+    --card: 48 33% 97%;          /* #FAF9F6 Pure Porcelain Surface */
+    --card-foreground: 224 45% 5%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 48 33% 97%;
+    --popover-foreground: 224 45% 5%;
 
-    /* Primary: Royal Blue (#2563EB) */
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Electric Cobalt (#2457E8) */
+    --primary: 224 82% 52%;
+    --primary-foreground: 43 20% 94%;
 
-    /* Secondary: Cool Silver Surface */
-    --secondary: 210 40% 96%;    /* #F1F5F9 */
-    --secondary-foreground: 222 47% 11%;
+    /* Secondary: Titanium Surface (#B9C1CC) */
+    --secondary: 217 14% 76%;
+    --secondary-foreground: 224 45% 5%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%; /* #64748B */
+    --muted: 40 10% 90%;         /* Porcelain Muted */
+    --muted-foreground: 220 10% 40%;
 
-    /* Accent: Restrained Aqua (#0D9488) */
-    --accent: 175 84% 32%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent: Signal Gold (#D5A85D) */
+    --accent: 38 57% 60%;
+    --accent-foreground: 224 45% 5%;
 
     /* Destructive / Risk */
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 78% 55%;
+    --destructive-foreground: 43 20% 94%;
 
-    /* Precision Architectural Silver Borders */
-    --border: 214 32% 91%;       /* #E2E8F0 Cool Silver */
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;         /* Royal Blue Ring */
+    /* Precision Brushed Titanium Borders */
+    --border: 217 14% 82%;       /* #D8DEE7 Brushed Border */
+    --input: 217 14% 82%;
+    --ring: 224 82% 52%;
 
-    /* Smooth Geometric Curvature */
-    --radius: 8px;
+    --radius: 4px;
 
-    /* Typography */
+    /* Distinctive Typographic System */
     --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
     --font-display: 'Space Grotesk', system-ui, sans-serif;
     --font-mono: 'Geist Mono', 'IBM Plex Mono', 'SFMono-Regular', monospace;
   }
 
   .dark {
-    /* Graceful night mode matching Living Universe Deep Indigo */
-    --background: 224 71% 4%;    /* #0B0E17 Deep Indigo Cosmos */
-    --foreground: 210 40% 98%;   /* #F8FAFC */
+    /* Atmospheric Void & Carbon Space */
+    --background: 224 45% 5%;    /* #080A0F Void Base */
+    --foreground: 43 20% 94%;    /* #F4F2ED Porcelain Text */
 
-    --card: 224 50% 8%;          /* #0F1424 */
-    --card-foreground: 210 40% 98%;
+    --card: 221 21% 11%;         /* #171B23 Carbon */
+    --card-foreground: 43 20% 94%;
 
-    --popover: 224 50% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 221 21% 11%;
+    --popover-foreground: 43 20% 94%;
 
-    --primary: 221 83% 53%;     /* #2563EB */
-    --primary-foreground: 210 40% 98%;
+    --primary: 224 82% 52%;     /* #2457E8 Cobalt */
+    --primary-foreground: 43 20% 94%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 22% 15%;    /* #1E242F */
+    --secondary-foreground: 217 14% 76%;
 
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 22% 15%;
+    --muted-foreground: 217 14% 65%;
 
-    --accent: 175 84% 32%;       /* #0D9488 */
-    --accent-foreground: 210 40% 98%;
+    --accent: 38 57% 60%;       /* #D5A85D Signal */
+    --accent-foreground: 224 45% 5%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 43 20% 94%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 221 83% 53%;
+    --border: 218 22% 21%;       /* #2A3342 Carbon Border */
+    --input: 218 22% 21%;
+    --ring: 224 82% 52%;
   }
 }
 
@@ -88,27 +86,27 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #FAFBFC;
-    color: #0F172A;
+    background-color: #080A0F;
+    color: #F4F2ED;
   }
 
   body {
-    background-color: #FAFBFC;
-    color: #0F172A;
+    background-color: #080A0F;
+    color: #F4F2ED;
     font-family: var(--font-sans);
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     min-height: 100vh;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.015em;
   }
 
   ::selection {
-    background-color: #2563EB;
-    color: #FFFFFF;
+    background-color: #2457E8;
+    color: #F4F2ED;
   }
 
   h1, h2, h3, .font-display {
     font-family: var(--font-display);
-    letter-spacing: -0.025em;
+    letter-spacing: -0.03em;
   }
 }
 
@@ -117,198 +115,123 @@
     text-wrap: balance;
   }
 
-  .font-display {
+  /* ========================================================= */
+  /* PROVENTA EXPERIMENTAL DIGITAL ART MATERIAL LANGUAGE       */
+  /* ========================================================= */
+
+  /* Brushed Titanium Material */
+  .mat-titanium {
+    background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 50%, #B9C1CC 100%);
+    color: #080A0F;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 8px rgba(8, 10, 15, 0.2);
+  }
+
+  /* Matte Carbon Material */
+  .mat-carbon {
+    background-color: #171B23;
+    border: 1px solid #2A3342;
+    color: #F4F2ED;
+    box-shadow: 0 4px 24px -4px rgba(8, 10, 15, 0.6);
+  }
+
+  .mat-carbon-elevated {
+    background-color: #1E242F;
+    border: 1px solid #384356;
+    color: #F4F2ED;
+    box-shadow: 0 12px 36px -8px rgba(8, 10, 15, 0.7);
+  }
+
+  /* Matte Ceramic Porcelain Material */
+  .mat-porcelain {
+    background-color: #FAF9F6;
+    border: 1px solid #E4E0D6;
+    color: #080A0F;
+    box-shadow: 0 4px 20px -2px rgba(8, 10, 15, 0.05);
+  }
+
+  /* Translucent Resin Material */
+  .mat-resin {
+    background: rgba(23, 27, 35, 0.75);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(185, 193, 204, 0.18);
+    color: #F4F2ED;
+  }
+
+  .mat-resin-light {
+    background: rgba(250, 249, 246, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(228, 224, 214, 0.8);
+    color: #080A0F;
+  }
+
+  /* Electric Cobalt Signature Accent */
+  .mat-cobalt {
+    background-color: #2457E8;
+    color: #F4F2ED;
+    box-shadow: 0 0 24px rgba(36, 87, 232, 0.35);
+  }
+
+  /* Signal Gold Highlight */
+  .mat-signal {
+    background-color: rgba(213, 168, 93, 0.12);
+    border: 1px solid rgba(213, 168, 93, 0.4);
+    color: #D5A85D;
+  }
+
+  /* Volumetric Atmospheric Glow */
+  .volumetric-glow {
+    background: radial-gradient(circle at 50% 30%, rgba(36, 87, 232, 0.15) 0%, rgba(169, 216, 245, 0.04) 40%, transparent 70%);
+  }
+
+  .volumetric-gold {
+    background: radial-gradient(circle at 50% 50%, rgba(213, 168, 93, 0.12) 0%, transparent 60%);
+  }
+
+  /* Structural Spatial Grid */
+  .spatial-grid {
+    background-image: 
+      linear-gradient(to right, rgba(185, 193, 204, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(185, 193, 204, 0.06) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* Kinetic Typography helpers */
+  .kinetic-display {
     font-family: var(--font-display);
+    letter-spacing: -0.04em;
+    line-height: 0.92;
   }
 
-  .font-mono-tech {
-    font-family: var(--font-mono);
-    letter-spacing: 0.08em;
+  /* Backward-compatible aliases mapping into the new material language */
+  .universe-container, .tc-container {
+    @apply max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8;
   }
-
-  /* ========================================================= */
-  /* PROVENTA LIVING FINANCIAL UNIVERSE SYSTEM UTILITIES      */
-  /* ========================================================= */
-
-  .universe-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  .universe-card, .tc-panel {
+    @apply bg-[#171B23] border border-[#2A3342] text-[#F4F2ED] rounded-[4px] shadow-lg;
   }
-
-  /* Dimensional Layered Panels with Dynamic Depth */
-  .universe-card {
-    @apply bg-white border border-[#E2E8F0] rounded-xl shadow-[0_4px_20px_-2px_rgba(30,27,75,0.04),0_1px_3px_0_rgba(30,27,75,0.03)] transition-all duration-300;
-  }
-
-  .universe-card-hover {
-    @apply hover:shadow-[0_12px_32px_-8px_rgba(37,99,235,0.12),0_2px_8px_0_rgba(30,27,75,0.04)] hover:border-[#BFDBFE] hover:-translate-y-0.5;
-  }
-
-  .universe-panel {
-    @apply bg-white border border-[#E2E8F0] rounded-xl;
-  }
-
-  .universe-panel-elevated {
-    @apply bg-white border border-[#CBD5E1] rounded-xl shadow-[0_12px_36px_-6px_rgba(30,27,75,0.07),0_2px_6px_0_rgba(30,27,75,0.03)];
-  }
-
-  .universe-panel-subtle {
-    @apply bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl;
-  }
-
-  .universe-panel-active {
-    @apply bg-white border-2 border-[#2563EB] rounded-xl shadow-[0_8px_24px_-4px_rgba(37,99,235,0.18)];
-  }
-
-  /* Badges & Telemetry Pills */
-  .universe-badge-royal {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] font-mono text-[11px] font-medium tracking-wide rounded-full;
-  }
-
-  .universe-badge-aqua {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F0FDFA] text-[#0D9488] border border-[#99F6E4] font-mono text-[11px] font-medium tracking-wide rounded-full;
-  }
-
-  .universe-badge-indigo {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#EEF2FF] text-[#312E81] border border-[#C7D2FE] font-mono text-[11px] font-medium tracking-wide rounded-full;
-  }
-
-  .universe-badge-silver {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] font-mono text-[11px] font-medium tracking-wide rounded-full;
-  }
-
-  /* Buttons & Action Triggers */
-  .universe-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#2563EB] text-white font-medium text-sm rounded-lg shadow-[0_4px_14px_0_rgba(37,99,235,0.3)] hover:bg-[#1D4ED8] hover:shadow-[0_6px_20px_0_rgba(37,99,235,0.4)] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
-  }
-
-  .universe-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#1E293B] border border-[#CBD5E1] font-medium text-sm rounded-lg shadow-sm hover:bg-[#F8FAFC] hover:border-[#94A3B8] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
-  }
-
-  .universe-btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3.5 py-2 text-[#475569] hover:text-[#0F172A] hover:bg-[#F1F5F9] font-medium text-sm rounded-lg transition-colors;
-  }
-
-  /* Inputs */
-  .universe-input {
-    @apply w-full bg-white border border-[#CBD5E1] text-[#0F172A] px-3.5 py-2.5 text-sm rounded-lg placeholder:text-[#94A3B8] focus:outline-none focus:border-[#2563EB] focus:ring-2 focus:ring-[#2563EB]/20 transition-all;
-  }
-
-  /* Subtle Ambient Living Mesh Grid */
-  .living-grid {
-    background-image: radial-gradient(rgba(37, 99, 235, 0.08) 1px, transparent 0);
-    background-size: 24px 24px;
-  }
-
-  .living-glow {
-    background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.07) 0%, rgba(238, 242, 255, 0.4) 40%, transparent 80%);
-  }
-
-  /* Backward-compatible aliases mapping seamlessly into the Living Universe */
-  .tc-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  .tc-panel {
-    @apply bg-white border border-[#E2E8F0] rounded-xl shadow-[0_2px_12px_-2px_rgba(30,27,75,0.03)];
+  .universe-panel, .inst-panel {
+    @apply bg-[#171B23] border border-[#2A3342] text-[#F4F2ED] rounded-[4px];
   }
   .tc-panel-obsidian {
-    @apply bg-[#0F172A] border border-[#1E293B] rounded-xl text-white;
+    @apply bg-[#080A0F] border border-[#2A3342] text-[#F4F2ED] rounded-[4px];
   }
-  .tc-panel-elevated {
-    @apply bg-white border border-[#CBD5E1] rounded-xl shadow-[0_8px_24px_-4px_rgba(30,27,75,0.06)];
+  .universe-badge-royal, .tc-badge-cobalt {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#2457E8]/15 text-[#A9D8F5] border border-[#2457E8]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-  .tc-panel-active {
-    @apply bg-white border-2 border-[#2563EB] rounded-xl shadow-sm;
+  .universe-badge-aqua, .badge-forest {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-teal-500/15 text-teal-300 border border-teal-500/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-  .tc-panel-steel {
-    @apply bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl;
+  .tc-badge-titanium, .universe-badge-silver {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#262D3B] text-[#B9C1CC] border border-[#384356] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
   }
-  .tc-label {
-    @apply font-mono text-[11px] uppercase tracking-wider text-[#64748B];
+  .universe-btn-primary, .tc-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#2457E8] text-[#F4F2ED] font-mono text-xs uppercase tracking-wider font-semibold rounded-[2px] shadow-[0_0_20px_rgba(36,87,232,0.35)] hover:bg-[#1B46CB] transition-all;
   }
-  .tc-label-titanium {
-    @apply font-mono text-[11px] uppercase tracking-wider text-[#475569];
+  .universe-btn-secondary, .tc-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#171B23] text-[#B9C1CC] border border-[#2A3342] font-mono text-xs uppercase tracking-wider font-medium rounded-[2px] hover:text-[#F4F2ED] hover:border-[#B9C1CC]/40 transition-all;
   }
-  .tc-label-cobalt {
-    @apply font-mono text-[11px] uppercase tracking-wider text-[#2563EB];
-  }
-  .tc-number {
-    @apply font-mono font-medium tracking-tight tabular-nums;
-  }
-  .tc-badge-cobalt {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE] font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .tc-badge-titanium {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .tc-badge-ice {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#2563EB] text-white font-mono text-[10px] uppercase tracking-wider font-semibold rounded-full;
-  }
-  .tc-badge-oxide {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .tc-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-medium text-xs rounded-lg shadow-sm hover:bg-[#1D4ED8] transition-all;
-  }
-  .tc-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#334155] border border-[#CBD5E1] font-medium text-xs rounded-lg hover:bg-[#F8FAFC] transition-all;
-  }
-  .tc-btn-cobalt-ghost {
-    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 bg-[#EFF6FF] text-[#2563EB] border border-[#BFDBFE] font-medium text-xs rounded-lg hover:bg-[#DBEAFE];
-  }
-  .tc-btn-steel {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#F1F5F9] text-[#334155] border border-[#E2E8F0] font-medium text-xs rounded-lg hover:bg-[#E2E8F0];
-  }
-  .tc-input {
-    @apply w-full bg-white border border-[#CBD5E1] text-[#0F172A] px-3.5 py-2 text-xs font-mono placeholder:text-[#94A3B8] rounded-lg focus:outline-none focus:border-[#2563EB];
-  }
-  .inst-panel {
-    @apply bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] shadow-sm;
-  }
-  .inst-panel-ivory {
-    @apply bg-white border border-[#E2E8F0] rounded-xl text-[#0F172A] shadow-sm;
-  }
-  .inst-panel-dark {
-    @apply bg-[#0F172A] border border-[#1E293B] rounded-xl text-white shadow-sm;
-  }
-  .inst-panel-subtle {
-    @apply bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-[#0F172A];
-  }
-  .inst-label {
-    @apply font-mono text-[11px] uppercase tracking-wider text-[#64748B];
-  }
-  .inst-label-dark {
-    @apply font-mono text-[11px] uppercase tracking-wider text-[#475569];
-  }
-  .inst-number {
-    @apply font-mono font-medium tracking-tight tabular-nums;
-  }
-  .badge-forest {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F0FDFA] text-[#0D9488] border border-[#99F6E4] font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .badge-oxide {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-rose-50 text-rose-600 border border-rose-200 font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .badge-stone {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#F1F5F9] text-[#475569] border border-[#E2E8F0] font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .badge-obsidian {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#0F172A] text-white font-mono text-[10px] uppercase tracking-wider rounded-full;
-  }
-  .btn-inst-primary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#2563EB] text-white font-medium text-xs rounded-lg shadow-sm hover:bg-[#1D4ED8] transition-all;
-  }
-  .btn-inst-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-white text-[#334155] border border-[#CBD5E1] font-medium text-xs rounded-lg hover:bg-[#F8FAFC] transition-all;
-  }
-  .btn-inst-forest {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#0D9488] text-white font-medium text-xs rounded-lg hover:bg-[#0F766E];
-  }
-  .btn-inst-oxide {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-rose-600 text-white font-medium text-xs rounded-lg hover:bg-rose-700;
-  }
-  .input-inst {
-    @apply w-full bg-white border border-[#CBD5E1] text-[#0F172A] px-3.5 py-2 text-xs font-mono placeholder:text-[#94A3B8] rounded-lg focus:outline-none focus:border-[#2563EB];
+  .universe-input, .tc-input {
+    @apply w-full bg-[#080A0F] border border-[#2A3342] text-[#F4F2ED] px-3.5 py-2 text-xs font-mono placeholder:text-[#848E9D] rounded-[2px] focus:outline-none focus:border-[#2457E8];
   }
 }
 
@@ -321,21 +244,21 @@
   }
 }
 
-/* Elegant Light Universe Scrollbar */
+/* Precision Experimental Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #FAFBFC;
+  background: #080A0F;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #CBD5E1;
-  border-radius: 4px;
+  background: #2A3342;
+  border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2563EB;
+  background: #2457E8;
 }
