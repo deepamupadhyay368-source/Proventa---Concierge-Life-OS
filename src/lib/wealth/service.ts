@@ -599,6 +599,30 @@ export function listAssets(params: {
   return results.sort((a, b) => b.currentValuePaise - a.currentValuePaise);
 }
 
+export function syncWorkspaceAssets(workspaceId: string, persisted: AssetDTO[]): void {
+  const store = getWealthStore();
+  for (const [id, a] of Array.from(store.assets.entries())) {
+    if (a.workspaceId === workspaceId) {
+      store.assets.delete(id);
+    }
+  }
+  for (const a of persisted) {
+    store.assets.set(a.id, a);
+  }
+}
+
+export function syncWorkspaceLiabilities(workspaceId: string, persisted: LiabilityDTO[]): void {
+  const store = getWealthStore();
+  for (const [id, l] of Array.from(store.liabilities.entries())) {
+    if (l.workspaceId === workspaceId) {
+      store.liabilities.delete(id);
+    }
+  }
+  for (const l of persisted) {
+    store.liabilities.set(l.id, l);
+  }
+}
+
 export function getAssetById(id: string): AssetDTO | null {
   const store = getWealthStore();
   return store.assets.get(id) || null;

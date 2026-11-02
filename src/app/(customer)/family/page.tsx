@@ -30,7 +30,12 @@ export default function FamilyWorkspacePage() {
   async function loadFamilyData() {
     setLoading(true);
     try {
-      const userId = user?.id || 'usr_primary';
+      const userId = user?.id;
+      if (!userId) {
+        setWorkspace(null);
+        setLoading(false);
+        return;
+      }
       const res = await fetch(`/api/wealth/workspaces?userId=${encodeURIComponent(userId)}`);
       const json = await res.json();
       if (json.success && json.data?.families?.length > 0) {
@@ -61,7 +66,7 @@ export default function FamilyWorkspacePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: newFamilyName.trim(),
-          ownerId: user?.id || 'usr_primary',
+          ownerId: user?.id,
           ownerName: user?.name || 'Primary Trustee',
           ownerEmail: user?.email || 'trustee@proventa.internal',
         }),

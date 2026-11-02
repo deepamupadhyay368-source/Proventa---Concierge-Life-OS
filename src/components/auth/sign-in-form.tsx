@@ -77,9 +77,13 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     setOauthLoading('google');
     setError(null);
     try {
-      await signIn('google', {
-        callbackUrl: safeCallback,
-      });
+      await signIn(
+        'google',
+        {
+          callbackUrl: safeCallback,
+        },
+        { prompt: 'select_account' },
+      );
     } catch (err: unknown) {
       const msg =
         err instanceof Error

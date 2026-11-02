@@ -1,16 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { listAssets, createAsset, deleteAsset, updateAssetValuation } from '@/lib/wealth/service';
+import { auth } from '@/lib/auth/config';
+import {
+  listAssets,
+  createAsset,
+  deleteAsset,
+  updateAssetValuation,
+  syncWorkspaceAssets,
+} from '@/lib/wealth/service';
 import { rupeesToPaise } from '@/lib/wealth/engine';
+import { loadPersistedAssets, savePersistedAssets } from '@/lib/wealth/persistence';
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get('workspaceId');
+
     if (!workspaceId) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
-    const category = searchParams.get('category') || undefined;
 
+    // Account isolation check: If requesting personal workspace, must match authenticated user
+    if (userId && workspaceId.startsWith('ind_') && workspaceId !== `ind_${userId}`) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Cannot access another user workspace' },
+        { status: 403 },
+      );
+    }
+
+    // If authenticated user, hydrate persisted assets from database
+    if (userId) {
+      const persisted = await loadPersistedAssets(workspaceId, userId);
+      if (persisted.length > 0) {
+        syncWorkspaceAssets(workspaceId, persisted);
+      }
+    }
+
+    const category = searchParams.get('category') || undefined;
     const assets = listAssets({ workspaceId, category });
     return NextResponse.json({ success: true, data: assets });
   } catch (error) {
@@ -20,6 +47,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const body = await req.json();
 
     if (body.action === 'UPDATE_VALUATION') {
@@ -30,11 +59,25 @@ export async function POST(req: NextRequest) {
         sourceNote: body.sourceNote,
         documentId: body.documentId,
       });
+
+      if (userId && body.workspaceId) {
+        const all = listAssets({ workspaceId: body.workspaceId });
+        await savePersistedAssets(body.workspaceId, userId, all);
+      }
+
       return NextResponse.json({ success: true, data: updated });
     }
 
     if (!body.workspaceId) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
+    // Account isolation: enforce user owns this workspace
+    if (userId && body.workspaceId.startsWith('ind_') && body.workspaceId !== `ind_${userId}`) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Cannot record assets in another user workspace' },
+        { status: 403 },
+      );
     }
 
     const valuePaise = body.currentValuePaise || rupeesToPaise(body.currentValueRupees || 0);
@@ -50,8 +93,8 @@ export async function POST(req: NextRequest) {
       acquisitionValuePaise: body.acquisitionValueRupees ? rupeesToPaise(body.acquisitionValueRupees) : null,
       currentValuePaise: valuePaise,
       currency: body.currency || 'INR',
-      legalOwnerId: body.legalOwnerId || 'usr_owner',
-      legalOwnerName: body.legalOwnerName || 'Primary Owner',
+      legalOwnerId: userId || body.legalOwnerId || 'usr_owner',
+      legalOwnerName: session?.user?.name || body.legalOwnerName || 'Primary Owner',
       ownershipPercentage: body.ownershipPercentage !== undefined ? Number(body.ownershipPercentage) : 100,
       coOwners: body.coOwners || [],
       valuationStatus: body.valuationStatus || 'USER_REPORTED',
@@ -59,6 +102,12 @@ export async function POST(req: NextRequest) {
       supportingDocumentIds: body.supportingDocumentIds || [],
       notes: body.notes,
     });
+
+    // Persist to database for this user
+    if (userId) {
+      const all = listAssets({ workspaceId: body.workspaceId });
+      await savePersistedAssets(body.workspaceId, userId, all);
+    }
 
     return NextResponse.json({ success: true, data: newAsset }, { status: 201 });
   } catch (error) {
@@ -68,12 +117,23 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
+    const workspaceId = searchParams.get('workspaceId');
+
     if (!id) {
       return NextResponse.json({ success: false, error: 'Asset ID required' }, { status: 400 });
     }
+
     const deleted = deleteAsset(id);
+
+    if (userId && workspaceId) {
+      const all = listAssets({ workspaceId });
+      await savePersistedAssets(workspaceId, userId, all);
+    }
+
     return NextResponse.json({ success: true, data: { deleted } });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });

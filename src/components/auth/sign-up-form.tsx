@@ -112,7 +112,11 @@ export function SignUpForm() {
     setOauthLoading('google');
     setError(null);
     try {
-      await signIn('google', { callbackUrl: '/dashboard' });
+      await signIn(
+        'google',
+        { callbackUrl: '/dashboard' },
+        { prompt: 'select_account' },
+      );
     } catch (err: unknown) {
       setError(
         err instanceof Error

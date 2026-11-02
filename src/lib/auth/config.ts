@@ -437,6 +437,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             user.id = linkedUser.id;
             (user as unknown as { roles: string[] }).roles =
               linkedUser.userRoles.map((r) => r.role);
+            // Needs registration if mobile number or security key is not yet established
+            (user as unknown as { needsRegistration: boolean }).needsRegistration =
+              !linkedUser.phone || !linkedUser.securityKeyHash;
+
             void createSecurityEvent('LOGIN_SUCCESS', {
               userId: linkedUser.id,
               data: { provider: account.provider, method: 'oauth_linked' },
@@ -455,25 +459,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           });
 
           if (!existingUser) {
-            // Generate unique PROVENTA Access Key for the new user
-            const { plaintextKey, hash: accessKeyHash } = await generateProventaAccessKey();
+            // Generate unique PROVENTA User ID
+            const uniqueUserId = `usr_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-            // Create a new non-admin CUSTOMER account (never grant admin roles via OAuth)
+            // Create a brand new non-admin CUSTOMER account (empty state, pending registration details)
             existingUser = await db.user.create({
               data: {
+                id: uniqueUserId,
                 email: normalizedEmail,
                 name: user.name || normalizedEmail.split('@')[0],
                 image: user.image,
                 status: 'ACTIVE',
-                securityKeyHash: accessKeyHash,
-                authKeyUpdatedAt: new Date(),
                 emailVerified: new Date(),
                 userRoles: {
                   create: [{ role: 'CUSTOMER' }],
                 },
                 customerProfile: {
                   create: {
-                    city: 'Mumbai',
+                    city: 'India',
+                    onboardingCompleted: false,
                   },
                 },
                 oauthAccounts: {
@@ -494,26 +498,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               },
             });
 
-            // Stage for mandatory one-time display to user
-            stageOneTimeAccessKey(existingUser.id, plaintextKey);
-
             void createSecurityEvent('LOGIN_SUCCESS', {
               userId: existingUser.id,
               data: { provider: account.provider, method: 'oauth_created' },
             });
+
+            user.id = existingUser.id;
+            (user as unknown as { roles: string[] }).roles = ['CUSTOMER'];
+            (user as unknown as { needsRegistration: boolean }).needsRegistration = true;
+            return true;
           } else {
-            // Provision access key if migrating/existing account lacks one
-            if (!existingUser.securityKeyHash) {
-              const { plaintextKey, hash: accessKeyHash } = await generateProventaAccessKey();
-              await db.user.update({
-                where: { id: existingUser.id },
-                data: {
-                  securityKeyHash: accessKeyHash,
-                  authKeyUpdatedAt: new Date(),
-                },
-              });
-              stageOneTimeAccessKey(existingUser.id, plaintextKey);
-            }
             // Prevent suspended users from signing in via OAuth
             if (
               existingUser.status === 'SUSPENDED' ||
@@ -556,6 +550,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               return '/sign-in?error=OAuthAccountNotLinked';
             }
 
+            // Link this OAuth account
             await db.oAuthAccount.create({
               data: {
                 userId: existingUser.id,
@@ -577,7 +572,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               await db.customerProfile.upsert({
                 where: { userId: existingUser.id },
                 update: {},
-                create: { userId: existingUser.id, city: 'Ahmedabad' },
+                create: { userId: existingUser.id, city: 'India' },
               });
             }
 
@@ -585,12 +580,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               userId: existingUser.id,
               data: { provider: account.provider, method: 'oauth_verified_link' },
             });
-          }
 
-          user.id = existingUser.id;
-          (user as unknown as { roles: string[] }).roles =
-            existingUser.userRoles.map((r) => r.role);
-          return true;
+            user.id = existingUser.id;
+            (user as unknown as { roles: string[] }).roles =
+              existingUser.userRoles.map((r) => r.role);
+            (user as unknown as { needsRegistration: boolean }).needsRegistration =
+              !existingUser.phone || !existingUser.securityKeyHash;
+            return true;
+          }
         } catch (e) {
           logger.error(
             { error: e, provider: account.provider },
@@ -603,6 +600,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async redirect({ url, baseUrl }) {
+      if (url.includes('/register-details')) {
+        return `${baseUrl}/register-details`;
+      }
       const safePath = sanitizeCallbackPath(url, baseUrl);
       return `${baseUrl}${safePath}`;
     },
@@ -610,6 +610,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async jwt({ token, user, trigger }) {
       if (user) {
         token.id = user.id;
+        token.needsRegistration = (user as unknown as { needsRegistration?: boolean }).needsRegistration ?? false;
         token.roles =
           (user as unknown as { roles?: string[] }).roles ?? ['CUSTOMER'];
       }
@@ -620,7 +621,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             include: { userRoles: true },
           });
           if (dbUser) {
+            token.needsRegistration = !dbUser.phone || !dbUser.securityKeyHash;
             token.roles = dbUser.userRoles.map((r) => r.role);
+          }
+        } catch {
+          // ignore
+        }
+      } else if (token.id && token.needsRegistration === undefined) {
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: { phone: true, securityKeyHash: true },
+          });
+          if (dbUser) {
+            token.needsRegistration = !dbUser.phone || !dbUser.securityKeyHash;
           }
         } catch {
           // ignore
@@ -632,6 +646,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id as string;
+        (session.user as unknown as { needsRegistration?: boolean }).needsRegistration =
+          Boolean(token.needsRegistration);
         (session.user as unknown as { roles?: string[] }).roles =
           (token.roles as string[]) ?? ['CUSTOMER'];
       }
