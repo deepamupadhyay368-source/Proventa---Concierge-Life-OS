@@ -4,13 +4,14 @@ import { db } from '@/lib/db';
 import { logger } from '@/lib/logger';
 import { IdempotencyEngine } from '@/lib/orchestration/automation/idempotency';
 
-// Initialize Razorpay SDK instance
-const key_id = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_proventa_dev_key';
-const key_secret = process.env.RAZORPAY_KEY_SECRET || 'rzp_test_secret_dev_key_32chars';
+// Initialize Razorpay SDK instance safely
+const isProd = process.env.NODE_ENV === 'production';
+const key_id = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || (isProd ? '' : 'rzp_test_proventa_dev_key');
+const key_secret = process.env.RAZORPAY_KEY_SECRET || (isProd ? '' : 'rzp_test_secret_dev_key_32chars');
 
 export const razorpayClient = new Razorpay({
-  key_id,
-  key_secret,
+  key_id: key_id || 'rzp_unconfigured',
+  key_secret: key_secret || 'unconfigured_secret',
 });
 
 export interface CreateOrderParams {
@@ -192,7 +193,11 @@ export function verifyPaymentSignature(params: {
  * Verifies incoming Razorpay webhook signature.
  */
 export function verifyWebhookSignature(rawBody: string, signature: string, secret?: string): boolean {
-  const webhookSecret = secret || process.env.RAZORPAY_WEBHOOK_SECRET || 'proventa_webhook_secret_dev';
+  const webhookSecret = secret || process.env.RAZORPAY_WEBHOOK_SECRET || (isProd ? '' : 'proventa_webhook_secret_dev');
+  if (!webhookSecret) {
+    logger.error('[Razorpay] Webhook signature verification rejected: RAZORPAY_WEBHOOK_SECRET is not configured.');
+    return false;
+  }
   if (!signature || !rawBody) return false;
 
   const expectedSignature = crypto

@@ -3,8 +3,12 @@ import { auth } from '@/lib/auth/config';
 import { db } from '@/lib/db';
 import { generateProventaAccessKey } from '@/lib/auth/access-key';
 import { createSecurityEvent } from '@/lib/audit';
+import { rateLimitMiddleware } from '@/lib/security/rate-limit';
 
 export async function POST(req: NextRequest) {
+  const rl = rateLimitMiddleware(req, { max: 10, windowMs: 60_000, keyPrefix: 'auth-complete-reg' });
+  if (rl) return rl;
+
   try {
     const session = await auth();
     if (!session?.user?.id) {

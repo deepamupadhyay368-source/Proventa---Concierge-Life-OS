@@ -16,6 +16,8 @@ import {
   DocumentDTO,
   BusinessOwnershipGraphDTO,
   FamilyContinuityDTO,
+  FamilyWorkspaceDTO,
+  FamilyInvitationDTO,
 } from './types';
 import { Prisma } from '@prisma/client';
 
@@ -182,4 +184,22 @@ export async function loadPersistedContinuity(familyId: string, userId: string):
 
 export async function savePersistedContinuity(familyId: string, userId: string, data: FamilyContinuityDTO): Promise<void> {
   await savePersistedCategory('wealth_continuity', familyId, userId, data);
+}
+
+export async function loadPersistedWorkspaces(userId: string): Promise<FamilyWorkspaceDTO[]> {
+  const data = await loadPersistedCategory<FamilyWorkspaceDTO[]>('wealth_workspaces', 'user_families', userId);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePersistedWorkspaces(userId: string, workspaces: FamilyWorkspaceDTO[]): Promise<void> {
+  await savePersistedCategory('wealth_workspaces', 'user_families', userId, workspaces);
+}
+
+export async function loadPersistedInvitations(email: string, userId: string): Promise<FamilyInvitationDTO[]> {
+  const data = await loadPersistedCategory<FamilyInvitationDTO[]>('wealth_invitations', email.toLowerCase().trim(), userId);
+  return Array.isArray(data) ? data : [];
+}
+
+export async function savePersistedInvitations(email: string, userId: string, invs: FamilyInvitationDTO[]): Promise<void> {
+  await savePersistedCategory('wealth_invitations', email.toLowerCase().trim(), userId, invs);
 }

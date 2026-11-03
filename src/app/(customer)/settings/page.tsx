@@ -35,23 +35,48 @@ export default function SettingsPage() {
     }
   }, [currentWorkspaceId, isLoaded]);
 
-  function handleDataExport() {
-    setExportStatus('Compiling complete encrypted archive of all family assets, documents metadata, and cashflows...');
-    setTimeout(() => {
-      setExportStatus('Archive compiled! Downloading proventa_family_wealth_export.json');
-      const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), entity: currentWorkspace?.name || 'Primary Workspace', status: 'VERIFIED' }, null, 2)], { type: 'application/json' });
+  async function handleDataExport() {
+    setExportStatus('Compiling verified cryptographic export from institutional ledger...');
+    try {
+      const res = await fetch('/api/customer/data-export');
+      if (!res.ok) {
+        throw new Error('Export compilation failed');
+      }
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `proventa_wealth_export_${new Date().toISOString().split('T')[0]}.json`;
+      a.download = `proventa_wealth_dossier_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
-    }, 1200);
+      URL.revokeObjectURL(url);
+      setExportStatus('Verified machine-readable export dossier successfully downloaded.');
+    } catch (err: any) {
+      setExportStatus(`Export failed: ${err.message || 'Please retry'}`);
+    }
   }
 
-  function handleDataErasure() {
-    const confirmation = prompt('Under India’s DPDP Act, typing "DELETE MY DATA" will initiate complete irreversible cryptographic erasure of your personal workspace. This cannot be undone.');
-    if (confirmation === 'DELETE MY DATA') {
-      alert('Erasure request registered. You will receive cryptographic confirmation at your email within 48 hours.');
+  async function handleDataErasure() {
+    const confirmation = prompt('Under India’s DPDP Act, type "PERMANENT_ERASURE" to execute irreversible cryptographic erasure of your personal workspace and financial records.');
+    if (confirmation !== 'PERMANENT_ERASURE') {
+      if (confirmation !== null) alert('Erasure cancelled: Confirmation string did not match.');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/privacy/account-closure', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirmation: 'PERMANENT_ERASURE' }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert('Your account and financial records have been permanently erased in compliance with DPDP Act 2023. You will now be redirected.');
+        window.location.href = '/';
+      } else {
+        alert(`Erasure failed: ${data.error || 'Server error'}`);
+      }
+    } catch (err: any) {
+      alert(`Erasure request error: ${err.message}`);
     }
   }
 
@@ -165,10 +190,25 @@ export default function SettingsPage() {
             )}
           </div>
 
+          <div className="border border-[#252C38] bg-[#171C26] p-8 space-y-4 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center gap-2 text-[#7595FF]">
+              <Lock className="w-4 h-4" />
+              <h3 className="font-display font-bold text-2xl text-[#F4F6FA]">Statutory Data Retention &amp; Privacy Safeguards</h3>
+            </div>
+            <p className="font-sans text-xs text-[#C5CAD3] leading-relaxed">
+              PROVENTA implements strict purpose-limitation under the DPDP Act 2023. Financial transactions are archived for 7 years in accordance with Section 128 of the Companies Act 2013 and Section 44AA of the Income Tax Act 1961. Vault documents and personal data are held only for the duration of active subscription.
+            </p>
+            <div className="pt-2 font-mono text-[11px] text-[#858D9B] space-y-1">
+              <div>• Sensitive Data Encryption: AES-256-GCM symmetric authenticated storage.</div>
+              <div>• Document Access: Private S3 presigned URLs with 15-minute expiration (Zero public URLs).</div>
+              <div>• Legal Disclaimer: Technical controls reflect DPDP alignment. Final certification subject to legal review.</div>
+            </div>
+          </div>
+
           <div className="border border-[#FF7A70]/50 bg-[#171C26] p-8 space-y-4 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
             <div className="flex items-center gap-2 text-[#FF7A70]">
               <Trash2 className="w-4 h-4" />
-              <h3 className="font-display font-bold text-2xl">Right to Erasure (Complete Account Deletion)</h3>
+              <h3 className="font-display font-bold text-2xl text-[#FF7A70]">Right to Erasure (Complete Account Deletion)</h3>
             </div>
             <p className="font-sans text-xs text-[#C5CAD3] leading-relaxed">
               Under India&apos;s Digital Personal Data Protection Act, you may request permanent erasure of your personal records and vault documents.

@@ -58,7 +58,13 @@ export function generateNumericOTP(digits = 6): string {
 const ALGORITHM = 'aes-256-gcm';
 
 function getEncryptionKey(): Buffer {
-  const secret = process.env.ENCRYPTION_KEY || process.env.AUTH_SECRET || 'proventa_secure_symmetric_encryption_key_32bytes!';
+  const secret = process.env.ENCRYPTION_KEY || process.env.AUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('[PROVENTA SECURITY] Critical: ENCRYPTION_KEY or AUTH_SECRET is required in production.');
+    }
+    return createHash('sha256').update('proventa_dev_symmetric_encryption_key_non_production!').digest();
+  }
   return createHash('sha256').update(secret).digest();
 }
 

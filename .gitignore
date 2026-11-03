@@ -10,6 +10,7 @@ test-results/
 
 # Next.js
 .next/
+.next_prod/
 out/
 build/
 dist/

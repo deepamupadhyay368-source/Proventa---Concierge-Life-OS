@@ -21,7 +21,8 @@ import {
 /**
  * Formats integer paise into standard Indian Rupee representation (e.g. ₹1,25,00,000)
  */
-export function formatInr(paise: number | bigint): string {
+export function formatInr(paise?: number | bigint | null): string {
+  if (paise === undefined || paise === null || isNaN(Number(paise))) return '₹0';
   const isNegative = paise < 0;
   const absPaise = isNegative ? -BigInt(paise) : BigInt(paise);
   const rupees = absPaise / BigInt(100);

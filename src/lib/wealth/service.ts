@@ -630,6 +630,33 @@ export function getAssetById(id: string): AssetDTO | null {
 
 export function createAsset(params: Omit<AssetDTO, 'id' | 'formattedCurrentValue' | 'valuationHistory' | 'createdAt' | 'updatedAt'>): AssetDTO {
   const store = getWealthStore();
+
+  // Financial Data Validation
+  if (params.currentValuePaise < 0) {
+    throw new Error('Asset current valuation cannot be negative.');
+  }
+  if (params.acquisitionValuePaise !== null && params.acquisitionValuePaise !== undefined && params.acquisitionValuePaise < 0) {
+    throw new Error('Asset acquisition value cannot be negative.');
+  }
+
+  // Ownership allocation verification
+  const primaryPct = params.ownershipPercentage !== undefined ? Number(params.ownershipPercentage) : 100;
+  if (primaryPct < 0 || primaryPct > 100) {
+    throw new Error(`Primary owner percentage must be between 0% and 100%. Received: ${primaryPct}%`);
+  }
+
+  const coOwnersPct = (params.coOwners || []).reduce((sum, co) => {
+    const pct = Number(co.ownershipPercentage) || 0;
+    if (pct < 0 || pct > 100) {
+      throw new Error(`Co-owner percentage for ${co.name || 'member'} must be between 0% and 100%.`);
+    }
+    return sum + pct;
+  }, 0);
+
+  if (primaryPct + coOwnersPct > 100) {
+    throw new Error(`Total allocated ownership cannot exceed 100%. Allocated: ${primaryPct + coOwnersPct}% (Primary: ${primaryPct}%, Co-owners: ${coOwnersPct}%)`);
+  }
+
   const id = `ast_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const now = new Date().toISOString();
 
@@ -722,6 +749,17 @@ export function listLiabilities(params: {
 
 export function createLiability(params: Omit<LiabilityDTO, 'id' | 'formattedOutstandingBalance' | 'createdAt' | 'updatedAt'>): LiabilityDTO {
   const store = getWealthStore();
+
+  if (params.originalPrincipalPaise < 0 || params.outstandingBalancePaise < 0) {
+    throw new Error('Liability principal and outstanding balance cannot be negative.');
+  }
+  if (params.emiPaise !== null && params.emiPaise !== undefined && params.emiPaise < 0) {
+    throw new Error('EMI amount cannot be negative.');
+  }
+  if (params.interestRateAnnual < 0 || params.interestRateAnnual > 100) {
+    throw new Error('Annual interest rate must be between 0% and 100%.');
+  }
+
   const id = `liab_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
   const now = new Date().toISOString();
 

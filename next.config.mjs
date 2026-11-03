@@ -4,6 +4,7 @@ const nextConfig = {
   // For Docker container builds, output is 'standalone'.
   output: process.env.VERCEL ? undefined : 'standalone',
   typedRoutes: false,
+  distDir: process.env.NEXT_DIST_DIR || '.next_prod',
   typescript: {
     // Next.js 16 strict .next/types validation; project type safety is verified via tsc --noEmit
     ignoreBuildErrors: true,

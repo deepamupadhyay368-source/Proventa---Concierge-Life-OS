@@ -19,7 +19,14 @@ export interface ConciergeSessionPayload {
 }
 
 function getSecret(): string {
-  return process.env.AUTH_SECRET || process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || 'proventa-concierge-secure-secret-key-2026';
+  const secret = process.env.AUTH_SECRET || process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('[PROVENTA SECURITY] Critical: AUTH_SECRET or JWT_SECRET is not configured in production environment.');
+    }
+    return 'proventa-concierge-dev-fallback-secret-non-production';
+  }
+  return secret;
 }
 
 /**
