@@ -32,7 +32,6 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [oauthLoading, setOauthLoading] = useState<string | null>(null);
 
   // Form input states
   const [email, setEmail] = useState('');
@@ -128,26 +127,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setOauthLoading('google');
-    setError(null);
-    try {
-      await signIn(
-        'google',
-        {
-          callbackUrl: safeCallback,
-        },
-        { prompt: 'select_account' },
-      );
-    } catch (err: unknown) {
-      const msg =
-        err instanceof Error
-          ? err.message
-          : 'Continue with Google failed. Please try again.';
-      setError(msg);
-      setOauthLoading(null);
-    }
-  };
+
 
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -217,26 +197,29 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         </div>
       )}
 
-      {/* PRIMARY AUTHENTICATION: 12-DIGIT PASS KEY FORM */}
+      {/* Primary Login Form */}
       <form onSubmit={handlePassKeySubmit} className="space-y-4">
         {/* Email Address */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
             Registered Institutional Email
           </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="e.g. trustee@familyoffice.in"
-            required
-            autoComplete="email"
-            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
-          />
+          <div className="relative">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="trustee@familyoffice.in"
+              required
+              autoComplete="email"
+              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+            />
+            <Mail className="w-4 h-4 text-[#858D9B] absolute right-3 top-3 pointer-events-none" />
+          </div>
         </div>
 
         {/* 12-Digit Numeric Pass Key */}
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex items-center justify-between">
             <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
               12-Digit PROVENTA Pass Key
@@ -245,7 +228,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               href="/recover-passkey"
               className="text-[10px] font-mono uppercase text-[#7595FF] hover:underline"
             >
-              Lost Pass Key?
+              Forgot Pass Key?
             </Link>
           </div>
           <div className="relative">
@@ -263,7 +246,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
             <KeyRound className="w-4 h-4 text-[#858D9B] absolute right-3 top-3 pointer-events-none" />
           </div>
           <p className="text-[10px] font-mono text-[#858D9B]">
-            Enter the 12-digit sovereign key issued during your initial registration.
+            Enter the 12-digit numeric Pass Key you established during registration.
           </p>
         </div>
 
@@ -277,66 +260,27 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <span>Sign In with Pass Key</span>
+              <span>Sign In</span>
               <ArrowRight className="h-4 w-4" />
             </>
           )}
         </button>
       </form>
 
-      {/* Recover with Google Link */}
-      <div className="text-center">
-        <Link
-          href="/recover-passkey"
-          className="text-xs font-mono text-[#858D9B] hover:text-[#7595FF] transition-colors"
-        >
-          Forgot or lost your 12-digit pass key? <span className="text-[#7595FF] underline">Recover with Google</span>
-        </Link>
-      </div>
-
-      {/* Divider */}
-      <div className="relative flex items-center justify-center pt-2">
-        <div className="border-t border-[#252C38] w-full" />
-        <span className="bg-[#171C26] px-3 font-mono text-[10px] uppercase tracking-widest text-[#858D9B] absolute">
-          First-Time Registration
-        </span>
-      </div>
-
-      {/* Google OAuth (For first-time registration and identity verification) */}
-      <div>
-        <button
-          type="button"
-          onClick={handleGoogleSignIn}
-          disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#252C38] rounded-xs bg-[#090B10] hover:bg-[#252C38]/60 text-xs font-heading font-bold uppercase tracking-wider text-[#F4F6FA] transition-all shadow-sm disabled:opacity-50"
-        >
-          {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-white" />
-          ) : (
-            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-              />
-            </svg>
-          )}
-          <span>Continue with Google</span>
-        </button>
-        <p className="text-[10px] font-mono text-[#858D9B] text-center mt-1.5">
-          New users verify their Google identity to establish a 12-digit pass key.
-        </p>
+      {/* Account Links & Recovery Actions */}
+      <div className="pt-2 border-t border-[#252C38] flex flex-col gap-2.5 text-center text-xs font-mono">
+        <div className="flex items-center justify-between text-[#858D9B]">
+          <span>Need a new account?</span>
+          <Link href="/sign-up" className="text-[#7595FF] hover:underline font-bold">
+            Create Account →
+          </Link>
+        </div>
+        <div className="flex items-center justify-between text-[#858D9B]">
+          <span>Lost your 12-digit key?</span>
+          <Link href="/recover-passkey" className="text-[#C5CAD3] hover:text-[#7595FF] hover:underline">
+            Recover Pass Key →
+          </Link>
+        </div>
       </div>
 
       {/* Alternative Credentials Collapsible */}

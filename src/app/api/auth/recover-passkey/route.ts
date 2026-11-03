@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/config';
 import { db } from '@/lib/db';
-import { generateProventaAccessKey } from '@/lib/auth/access-key';
+import bcrypt from 'bcryptjs';
 import { createSecurityEvent } from '@/lib/audit';
 import { checkRateLimitAsync, getRateLimitKey } from '@/lib/security/rate-limit';
 
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { success: false, error: 'Too many recovery requests. Please wait before retrying.' },
+        { success: false, error: 'Too many recovery requests. Please wait 15 minutes before retrying.' },
         { status: 429, headers: { 'Retry-After': '900' } },
       );
     }
@@ -23,15 +23,35 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: 'Authentication with Google required to recover pass key' },
+        { success: false, error: 'Google identity verification required to recover pass key' },
         { status: 401 },
+      );
+    }
+
+    const body = await req.json();
+    const { newPassKey, confirmPassKey } = body;
+
+    const cleanNew = typeof newPassKey === 'string' ? newPassKey.replace(/[^0-9]/g, '') : '';
+    const cleanConfirm = typeof confirmPassKey === 'string' ? confirmPassKey.replace(/[^0-9]/g, '') : '';
+
+    if (!/^\d{12}$/.test(cleanNew)) {
+      return NextResponse.json(
+        { success: false, error: 'New PROVENTA Pass Key must be exactly 12 numeric digits.' },
+        { status: 400 },
+      );
+    }
+
+    if (cleanNew !== cleanConfirm) {
+      return NextResponse.json(
+        { success: false, error: 'Pass Key confirmation does not match.' },
+        { status: 400 },
       );
     }
 
     const userId = session.user.id;
 
-    // Generate brand-new 12-digit numeric PROVENTA Pass Key
-    const { plaintextKey, formattedKey, hash: passKeyHash } = await generateProventaAccessKey();
+    // Hash the customer's chosen 12-digit pass key using salted bcrypt (cost factor 12)
+    const passKeyHash = await bcrypt.hash(cleanNew, 12);
 
     // Rotate the user's security key hash
     await db.user.update({
@@ -44,13 +64,12 @@ export async function POST(req: NextRequest) {
 
     void createSecurityEvent('AUTH_KEY_ROTATED', {
       userId,
-      data: { source: 'google_identity_recovery' },
+      data: { source: 'customer_created_recovery' },
     });
 
     return NextResponse.json({
       success: true,
-      passKey: formattedKey,
-      rawDigits: plaintextKey,
+      message: 'PROVENTA Pass Key updated successfully. Please sign in with your new key.',
       userId,
     });
   } catch (error) {

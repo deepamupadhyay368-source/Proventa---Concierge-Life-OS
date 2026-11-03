@@ -27,7 +27,7 @@ const FOOTER_SECTIONS = [
     title: 'Membership',
     links: [
       { label: 'Pricing & Plans', href: '/pricing' },
-      { label: 'Sign In with Google', href: '/sign-in' },
+      { label: 'Member Sign In', href: '/sign-in' },
       { label: 'Family Workspaces', href: '/family' },
       { label: 'Settings & Security', href: '/settings' },
     ],

@@ -1,17 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import {
-  ShieldAlert,
-  ShieldCheck,
   KeyRound,
   Check,
-  Copy,
   ArrowRight,
   Loader2,
-  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -20,10 +17,28 @@ export default function RecoverPassKeyPage() {
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [newPassKey, setNewPassKey] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [confirmedSaved, setConfirmedSaved] = useState(false);
+  const [newPassKey, setNewPassKey] = useState('');
+  const [confirmPassKey, setConfirmPassKey] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const formatDigits = (raw: string): string => {
+    const digits = raw.replace(/[^0-9]/g, '').slice(0, 12);
+    if (digits.length > 8) {
+      return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+    } else if (digits.length > 4) {
+      return `${digits.slice(0, 4)}-${digits.slice(4, 8)}`;
+    }
+    return digits;
+  };
+
+  const handlePassKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPassKey(formatDigits(e.target.value));
+  };
+
+  const handleConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmPassKey(formatDigits(e.target.value));
+  };
 
   const handleGoogleAuth = async () => {
     setLoading(true);
@@ -35,47 +50,52 @@ export default function RecoverPassKeyPage() {
         { prompt: 'select_account' },
       );
     } catch {
-      setError('Google verification failed. Please try again.');
+      setError('Google identity verification failed. Please try again.');
       setLoading(false);
     }
   };
 
-  const handleGenerateNewKey = async () => {
-    setLoading(true);
+  const handleResetPassKey = async (e: React.FormEvent) => {
+    e.preventDefault();
     setError(null);
+
+    const cleanNew = newPassKey.replace(/[^0-9]/g, '');
+    const cleanConfirm = confirmPassKey.replace(/[^0-9]/g, '');
+
+    if (cleanNew.length !== 12) {
+      setError('Your new PROVENTA Pass Key must be exactly 12 numeric digits.');
+      return;
+    }
+
+    if (cleanNew !== cleanConfirm) {
+      setError('12-digit Pass Key confirmation does not match.');
+      return;
+    }
+
+    setLoading(true);
     try {
       const res = await fetch('/api/auth/recover-passkey', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newPassKey: cleanNew,
+          confirmPassKey: cleanConfirm,
+        }),
       });
+
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setError(data.error || 'Failed to rotate pass key.');
+        setError(data.error || 'Failed to update pass key.');
         setLoading(false);
         return;
       }
-      setNewPassKey(data.passKey);
+
+      setIsSuccess(true);
+      await signOut({ redirect: false });
     } catch {
-      setError('Network error rotating pass key.');
-    } finally {
+      setError('Network error updating pass key. Please retry.');
       setLoading(false);
     }
-  };
-
-  const handleCopy = async () => {
-    if (!newPassKey) return;
-    try {
-      await navigator.clipboard.writeText(newPassKey);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
-    } catch {
-      // Fallback
-    }
-  };
-
-  const handleEnterCockpit = () => {
-    if (!confirmedSaved) return;
-    router.push('/dashboard');
-    router.refresh();
   };
 
   return (
@@ -90,136 +110,112 @@ export default function RecoverPassKeyPage() {
             Recover Pass Key
           </h1>
           <p className="font-mono text-xs text-[#858D9B]">
-            Google-authenticated key rotation &amp; reissuance protocol.
+            Google-authenticated key rotation protocol.
           </p>
         </div>
 
         <div className="mt-8 bg-[#171C26] border border-[#252C38] rounded-xs p-6 sm:p-8 space-y-6 shadow-2xl">
           {error && (
-            <div className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium">
+            <div
+              role="alert"
+              className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
+            >
               {error}
             </div>
           )}
 
-          {/* Phase 3: NEW PASS KEY DISPLAY */}
-          {newPassKey ? (
+          {isSuccess ? (
             <div className="space-y-6">
-              <div className="p-4 bg-[#2457FF]/10 border border-[#2457FF]/30 rounded-xs flex items-start gap-3">
-                <ShieldCheck className="w-5 h-5 text-[#7595FF] shrink-0 mt-0.5" />
+              <div className="p-4 bg-[#2457FF]/10 border border-[#2457FF]/40 rounded-xs flex items-start gap-3">
+                <Check className="w-5 h-5 text-[#2457FF] shrink-0 mt-0.5" />
                 <div className="text-xs text-[#C5CAD3] space-y-1">
                   <span className="font-bold text-[#F4F6FA] uppercase tracking-wider block">
-                    New 12-Digit Numeric Pass Key Issued
+                    Pass Key Updated Successfully
                   </span>
                   <p>
-                    Your previous pass key has been permanently revoked. Store this new 12-digit pass key safely. 
-                    You will use it with your email address for all future logins.
+                    Your new 12-digit numeric Pass Key has been encrypted and secured.
+                    Please sign in using your registered email and your new pass key.
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-[10px] font-mono uppercase tracking-widest text-[#858D9B]">
-                  Your New 12-Digit Pass Key
-                </label>
-                <div className="p-4 bg-[#090B10] border border-[#2457FF] rounded-xs flex items-center justify-between gap-2">
-                  <span className="font-mono font-black text-lg sm:text-2xl text-[#7595FF] tracking-[0.15em] select-all break-all">
-                    {newPassKey}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    className="px-3.5 py-2 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-mono text-xs uppercase font-bold rounded-xs flex items-center gap-1.5 transition-colors shrink-0"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="w-3.5 h-3.5 text-white" />
-                        <span>Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3.5 h-3.5" />
-                        <span>Copy</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-
-              <label className="flex items-start gap-3 p-3 bg-[#090B10] border border-[#252C38] rounded-xs cursor-pointer hover:border-[#7595FF] transition-colors">
-                <input
-                  type="checkbox"
-                  checked={confirmedSaved}
-                  onChange={(e) => setConfirmedSaved(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded-xs border-[#252C38] bg-[#171C26] text-[#2457FF] focus:ring-0 cursor-pointer"
-                />
-                <span className="text-xs text-[#C5CAD3] leading-snug">
-                  I have securely copied and saved my new <strong className="text-white">12-Digit PROVENTA Pass Key</strong>.
-                </span>
-              </label>
-
-              <button
-                type="button"
-                onClick={handleEnterCockpit}
-                disabled={!confirmedSaved}
-                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] disabled:opacity-40 disabled:cursor-not-allowed font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-all flex items-center justify-center gap-2"
+              <Link
+                href="/sign-in?recovered=true"
+                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2457FF]/20"
               >
-                <span>Enter Financial Cockpit</span>
+                <span>Proceed to Sign In</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </Link>
             </div>
-          ) : status === 'authenticated' && session?.user ? (
-            /* Phase 2: GOOGLE AUTHENTICATED -> ISSUE NEW KEY */
-            <div className="space-y-5">
-              <div className="p-4 bg-[#090B10] border border-[#252C38] rounded-xs space-y-2">
-                <div className="font-mono text-[10px] uppercase text-[#7595FF] tracking-wider font-semibold">
-                  Verified Google Identity
+          ) : session?.user ? (
+            /* STEP 2: CREATE NEW 12-DIGIT PASS KEY */
+            <form onSubmit={handleResetPassKey} className="space-y-5">
+              <div className="p-3.5 bg-[#090B10] border border-[#252C38] rounded-xs space-y-1">
+                <div className="flex items-center justify-between text-xs font-mono">
+                  <span className="text-[#858D9B]">VERIFIED IDENTITY:</span>
+                  <span className="text-[#7595FF] flex items-center gap-1 font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2457FF]" />
+                    {session.user.email}
+                  </span>
                 </div>
-                <div className="text-sm font-bold text-[#F4F6FA]">{session.user.name}</div>
-                <div className="text-xs text-[#858D9B] font-mono">{session.user.email}</div>
               </div>
 
-              <p className="text-xs text-[#C5CAD3] leading-relaxed">
-                Clicking below will revoke your old pass key and generate a fresh, unique 12-digit numeric PROVENTA Pass Key for your account.
-              </p>
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  Enter New 12-Digit Pass Key
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={newPassKey}
+                  onChange={handlePassKeyChange}
+                  placeholder="1234-5678-9012"
+                  maxLength={14}
+                  required
+                  autoComplete="new-password"
+                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  Confirm New 12-Digit Pass Key
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={confirmPassKey}
+                  onChange={handleConfirmChange}
+                  placeholder="1234-5678-9012"
+                  maxLength={14}
+                  required
+                  autoComplete="new-password"
+                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                />
+              </div>
 
               <button
-                type="button"
-                onClick={handleGenerateNewKey}
+                type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
               >
                 {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Reissuing Sovereign Key...</span>
-                  </>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    <span>Generate New 12-Digit Pass Key</span>
+                    <span>Set New 12-Digit Pass Key</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
-
-              <div className="text-center pt-2">
-                <Link href="/sign-in" className="text-xs font-mono text-[#858D9B] hover:text-white uppercase tracking-wider">
-                  ← Back to Sign In
-                </Link>
-              </div>
-            </div>
+            </form>
           ) : (
-            /* Phase 1: REQUEST GOOGLE IDENTITY VERIFICATION */
-            <div className="space-y-5">
-              <div className="p-4 bg-[#FF7A70]/10 border border-[#FF7A70]/30 rounded-xs flex items-start gap-3">
-                <ShieldAlert className="w-5 h-5 text-[#FF7A70] shrink-0 mt-0.5" />
-                <div className="text-xs text-[#C5CAD3] space-y-1">
-                  <span className="font-bold text-[#F4F6FA] uppercase tracking-wider block">
-                    Zero-Knowledge Protection
-                  </span>
-                  <p>
-                    PROVENTA servers never store your plaintext pass key. To reissue a lost key, you must authenticate through your verified Google account.
-                  </p>
-                </div>
+            /* STEP 1: VERIFY IDENTITY WITH GOOGLE */
+            <div className="space-y-6">
+              <div className="p-4 bg-[#090B10] border border-[#252C38] rounded-xs text-xs font-mono text-[#C5CAD3] space-y-2">
+                <p>
+                  To rotate your private 12-digit Pass Key, you must verify ownership of your registered Google account.
+                </p>
               </div>
 
               <button
@@ -250,16 +246,19 @@ export default function RecoverPassKeyPage() {
                     />
                   </svg>
                 )}
-                <span>Verify with Google to Reissue Key</span>
+                <span>Verify with Google</span>
               </button>
-
-              <div className="text-center pt-2">
-                <Link href="/sign-in" className="text-xs font-mono text-[#858D9B] hover:text-white uppercase tracking-wider">
-                  ← Back to Sign In
-                </Link>
-              </div>
             </div>
           )}
+
+          <div className="pt-2 border-t border-[#252C38] text-center">
+            <Link
+              href="/sign-in"
+              className="text-xs font-mono text-[#858D9B] hover:text-white uppercase tracking-wider"
+            >
+              ← Back to Sign In
+            </Link>
+          </div>
         </div>
       </div>
     </div>

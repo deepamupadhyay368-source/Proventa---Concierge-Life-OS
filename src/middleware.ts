@@ -85,8 +85,9 @@ export default auth(async (req) => {
   const userRoles: string[] = (session?.user as { roles?: string[] } | undefined)?.roles ?? [];
   const conciergeToken = req.cookies.get('proventa_concierge_session')?.value;
 
-  // Redirect logged-in users away from customer auth pages
-  if (isAuthRoute && isLoggedIn) {
+  // Customer auth pages: Never redirect away from /sign-in directly to dashboard.
+  // When a visitor clicks Sign In, the dedicated login form must always be presented.
+  if (isAuthRoute && pathname !== '/sign-in' && isLoggedIn) {
     const callbackUrl = nextUrl.searchParams.get('callbackUrl');
     if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
       return NextResponse.redirect(new URL(callbackUrl, nextUrl));
@@ -178,6 +179,19 @@ export default auth(async (req) => {
     const signInUrl = new URL('/sign-in', nextUrl);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
+  }
+
+  // Enforce mandatory registration completion and 12-digit pass key creation
+  const needsRegistration = Boolean(
+    (session?.user as { needsRegistration?: boolean } | undefined)?.needsRegistration,
+  );
+  if (
+    needsRegistration &&
+    !pathname.startsWith('/register-details') &&
+    !pathname.startsWith('/api/') &&
+    !pathname.startsWith('/sign-in')
+  ) {
+    return NextResponse.redirect(new URL('/register-details', nextUrl));
   }
 
   const response = NextResponse.next();

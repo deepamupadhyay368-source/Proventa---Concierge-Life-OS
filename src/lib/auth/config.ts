@@ -120,6 +120,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             image: user.image,
             roles: user.userRoles.map((r) => r.role),
             emailVerified: user.emailVerified,
+            passKeyVerified: true,
+            needsRegistration: false,
           };
         }
 
@@ -232,6 +234,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           image: user.image,
           roles: user.userRoles.map((r) => r.role),
           emailVerified: user.emailVerified,
+          passKeyVerified: true,
+          needsRegistration: false,
         };
       },
     }),
@@ -415,6 +419,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           }
         }
 
+        let isRecoveryFlow = false;
+        try {
+          const { cookies } = await import('next/headers');
+          const cookieStore = await cookies();
+          const callbackUrlCookie =
+            cookieStore.get('authjs.callback-url')?.value ||
+            cookieStore.get('__Secure-authjs.callback-url')?.value ||
+            cookieStore.get('next-auth.callback-url')?.value ||
+            cookieStore.get('__Secure-next-auth.callback-url')?.value ||
+            '';
+          isRecoveryFlow = callbackUrlCookie.includes('/recover-passkey');
+        } catch {
+          // Fallback if cookies() unavailable outside request context
+        }
+
         try {
           // 1. Check if this exact (provider, providerAccountId) is already linked
           const existingOAuthLink = await db.oAuthAccount.findUnique({
@@ -446,6 +465,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 data: { provider: account.provider, reason: 'account_suspended' },
               });
               return '/sign-in?error=account_suspended';
+            }
+
+            // Existing registered customer cannot bypass 12-digit pass key login via Google OAuth
+            // (Unless specifically authenticating for pass key recovery)
+            if (linkedUser.securityKeyHash && !isRecoveryFlow) {
+              void createSecurityEvent('LOGIN_BLOCKED', {
+                userId: linkedUser.id,
+                data: {
+                  provider: account.provider,
+                  reason: 'passkey_required_for_existing_user',
+                },
+              });
+              return '/sign-in?error=PassKeyRequired';
             }
 
             user.id = linkedUser.id;
@@ -534,6 +566,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               return '/sign-in?error=account_suspended';
             }
 
+            // Existing registered customer cannot bypass 12-digit pass key login via Google OAuth
+            if (existingUser.securityKeyHash && !isRecoveryFlow) {
+              void createSecurityEvent('LOGIN_BLOCKED', {
+                userId: existingUser.id,
+                data: {
+                  provider: account.provider,
+                  reason: 'passkey_required_for_existing_user',
+                },
+              });
+              return '/sign-in?error=PassKeyRequired';
+            }
+
             // Never auto-link a privileged administrator account via email match alone
             const hasPrivilegedRole = existingUser.userRoles.some((r) =>
               PRIVILEGED_ROLES.has(r.role),
@@ -614,6 +658,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async redirect({ url, baseUrl }) {
+      if (url.includes('/recover-passkey')) {
+        return `${baseUrl}/recover-passkey`;
+      }
       if (url.includes('/register-details')) {
         return `${baseUrl}/register-details`;
       }
@@ -625,6 +672,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.needsRegistration = (user as unknown as { needsRegistration?: boolean }).needsRegistration ?? false;
+        token.passKeyVerified = (user as unknown as { passKeyVerified?: boolean }).passKeyVerified ?? false;
         token.roles =
           (user as unknown as { roles?: string[] }).roles ?? ['CUSTOMER'];
       }
@@ -662,6 +710,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         (session.user as unknown as { needsRegistration?: boolean }).needsRegistration =
           Boolean(token.needsRegistration);
+        (session.user as unknown as { passKeyVerified?: boolean }).passKeyVerified =
+          Boolean(token.passKeyVerified);
         (session.user as unknown as { roles?: string[] }).roles =
           (token.roles as string[]) ?? ['CUSTOMER'];
       }

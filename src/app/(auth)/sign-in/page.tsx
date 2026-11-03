@@ -11,10 +11,14 @@ export const metadata: Metadata = {
 function getAuthErrorMessage(errorCode?: string): string | null {
   if (!errorCode) return null;
   switch (errorCode) {
+    case 'PassKeyRequired':
+      return 'Existing PROVENTA account detected. For your security, please sign in with your registered email and 12-digit Pass Key.';
+    case 'SessionExpired':
+      return 'Your session has expired. Please authenticate with your 12-digit Pass Key.';
     case 'AccessDenied':
-      return 'Google sign-in was cancelled or access was denied.';
+      return 'Authentication was cancelled or access was denied.';
     case 'OAuthAccountNotLinked':
-      return 'This email is already registered under an existing account. Please sign in with your email and password to link Google.';
+      return 'This email is already registered under an existing account. Please sign in with your email and 12-digit Pass Key.';
     case 'unverified_oauth_email':
       return 'Your Google account email address must be verified before signing in.';
     case 'account_suspended':
@@ -22,7 +26,7 @@ function getAuthErrorMessage(errorCode?: string): string | null {
     case 'OAuthSignin':
     case 'OAuthCallback':
     case 'Callback':
-      return 'Google authentication could not be completed. Please try again.';
+      return 'Authentication could not be completed. Please enter your email and 12-digit Pass Key.';
     case 'invalid_token':
     case 'invalid_or_expired_token':
       return 'This verification link is invalid or has expired.';
@@ -38,6 +42,7 @@ export default async function SignInPage({
     error?: string;
     verified?: string;
     registered?: string;
+    recovered?: string;
     callbackUrl?: string;
   }>;
 }) {
@@ -62,9 +67,21 @@ export default async function SignInPage({
           </p>
         </div>
 
+        {params.registered && (
+          <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#7595FF] font-mono text-center">
+            Registration complete. Please sign in using your registered email and 12-digit Pass Key.
+          </div>
+        )}
+
+        {params.recovered && (
+          <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#7595FF] font-mono text-center">
+            Pass Key updated successfully. Sign in with your new 12-digit Pass Key.
+          </div>
+        )}
+
         {params.verified && (
           <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#F4F6FA] font-mono text-center">
-            Account verified. Sign in with Google or your credentials.
+            Account verified. Sign in with your registered email and 12-digit Pass Key.
           </div>
         )}
 
