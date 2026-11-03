@@ -36,6 +36,8 @@ const PUBLIC_ROUTES = [
   '/verify',
   '/reset-password',
   '/forgot-password',
+  '/recover-passkey',
+  '/register-details',
   '/demo',
 ];
 
