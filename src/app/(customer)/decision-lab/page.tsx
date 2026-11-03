@@ -53,7 +53,8 @@ export default function DecisionLabPage() {
     const investmentGainsPaise = investedFutureValuePaise - totalInvestedCapitalPaise;
 
     const netAdvantagePaise = investmentGainsPaise - prepaySim.interestSavedPaise;
-    const recommendation = netAdvantagePaise > 0 ? 'INVEST_IN_EQUITY' : 'PREPAY_MORTGAGE';
+    const scenarioAdvantage = netAdvantagePaise > 0 ? 'INVEST_IN_EQUITY' : 'PREPAY_MORTGAGE';
+    const recommendation = scenarioAdvantage;
 
     return {
       standardEmiPaise,
@@ -296,7 +297,7 @@ export default function DecisionLabPage() {
             {/* Recommendation Hero Card */}
             <div className="border border-[#252C38] bg-[#171C26] p-6 rounded-[2px] shadow-[0_4px_20px_rgba(0,0,0,0.3)] space-y-4">
               <div className="font-mono text-[10px] uppercase tracking-wider text-[#858D9B]">
-                DECISION ENGINE SYNTHESIS
+                COMPARATIVE MODELING SYNTHESIS
               </div>
               <div className="flex items-center gap-3">
                 <div className={`p-2.5 rounded-[2px] ${
@@ -309,8 +310,8 @@ export default function DecisionLabPage() {
                 <div>
                   <div className="font-display font-bold text-2xl text-[#F4F6FA]">
                     {prepayVsInvestResult.recommendation === 'INVEST_IN_EQUITY'
-                      ? 'Optimal Strategy: Invest Capital in Equity Index SIP'
-                      : 'Optimal Strategy: Accelerate Home Loan Prepayment'}
+                      ? 'Comparative Advantage: Systematic Equity Index Compounding'
+                      : 'Comparative Advantage: Guaranteed Debt Interest Reduction'}
                   </div>
                   <p className="font-sans text-xs text-[#C5CAD3] mt-1">
                     {prepayVsInvestResult.recommendation === 'INVEST_IN_EQUITY'
@@ -642,7 +643,7 @@ export default function DecisionLabPage() {
                 </div>
                 <div>
                   <div className="font-display font-bold text-2xl text-[#F4F6FA]">
-                    Recommendation: {buyVsRentResult.recommendation === 'BUY' ? 'Acquire Property (Buy)' : 'Rent & Invest Difference'}
+                    15-Year Projected Capital Differential: {buyVsRentResult.recommendation === 'BUY' ? 'Real Estate Equity Accumulation' : 'Liquid Portfolio Compounding'}
                   </div>
                   <p className="font-sans text-xs text-[#C5CAD3] mt-1">
                     Over a {projectionHorizonYears}-year holding period, {buyVsRentResult.recommendation === 'BUY' ? 'buying real estate' : 'renting and systematically investing the down payment and EMI differential in equities'} creates an estimated {formatInr(buyVsRentResult.financialAdvantagePaise)} net wealth surplus.

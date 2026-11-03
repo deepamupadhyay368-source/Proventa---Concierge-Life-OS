@@ -739,6 +739,11 @@ export function createLiability(params: Omit<LiabilityDTO, 'id' | 'formattedOuts
   return newLiability;
 }
 
+export function getLiabilityById(id: string): LiabilityDTO | null {
+  const store = getWealthStore();
+  return store.liabilities.get(id) || null;
+}
+
 export function deleteLiability(id: string): boolean {
   const store = getWealthStore();
   return store.liabilities.delete(id);

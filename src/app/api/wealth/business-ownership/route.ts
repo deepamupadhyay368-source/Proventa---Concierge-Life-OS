@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/config';
 import {
   getFamilyBusinessOwnershipGraph,
   syncWorkspaceBusinessMap,
 } from '@/lib/wealth/business-ownership';
 import { loadPersistedBusinessMap, savePersistedBusinessMap } from '@/lib/wealth/persistence';
+import { assertAuthorizedWorkspace } from '@/lib/wealth/auth-guard';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const familyId = searchParams.get('familyId') || searchParams.get('workspaceId');
 
@@ -17,18 +15,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
     }
 
-    if (userId && familyId.startsWith('ind_') && familyId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot access another user business graph' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization
+    const authResult = await assertAuthorizedWorkspace(familyId);
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
-    if (userId) {
-      const persisted = await loadPersistedBusinessMap(familyId, userId);
-      if (persisted) {
-        syncWorkspaceBusinessMap(familyId, persisted);
-      }
+    const persisted = await loadPersistedBusinessMap(familyId, userId);
+    if (persisted) {
+      syncWorkspaceBusinessMap(familyId, persisted);
     }
 
     const graph = getFamilyBusinessOwnershipGraph(familyId);
@@ -40,8 +34,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const body = await req.json();
     const familyId = body.familyId || body.workspaceId;
 
@@ -49,18 +41,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
     }
 
-    if (userId && familyId.startsWith('ind_') && familyId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot edit another user business graph' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization (Requires MEMBER role)
+    const authResult = await assertAuthorizedWorkspace(familyId, { requiredRole: 'MEMBER' });
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
     if (body.graph) {
       syncWorkspaceBusinessMap(familyId, body.graph);
-      if (userId) {
-        await savePersistedBusinessMap(familyId, userId, body.graph);
-      }
+      await savePersistedBusinessMap(familyId, userId, body.graph);
       return NextResponse.json({ success: true, data: body.graph });
     }
 

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/config';
 import {
   listGoals,
   createGoal,
@@ -8,11 +7,10 @@ import {
 } from '@/lib/wealth/goals';
 import { rupeesToPaise } from '@/lib/wealth/engine';
 import { loadPersistedGoals, savePersistedGoals } from '@/lib/wealth/persistence';
+import { assertAuthorizedWorkspace } from '@/lib/wealth/auth-guard';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get('workspaceId');
 
@@ -20,18 +18,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
 
-    if (userId && workspaceId.startsWith('ind_') && workspaceId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot access another user goals' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization
+    const authResult = await assertAuthorizedWorkspace(workspaceId);
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
-    if (userId) {
-      const persisted = await loadPersistedGoals(workspaceId, userId);
-      if (persisted.length > 0) {
-        syncWorkspaceGoals(workspaceId, persisted);
-      }
+    const persisted = await loadPersistedGoals(workspaceId, userId);
+    if (persisted.length > 0) {
+      syncWorkspaceGoals(workspaceId, persisted);
     }
 
     const goals = listGoals(workspaceId);
@@ -43,11 +37,15 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const body = await req.json();
 
     if (body.action === 'SIMULATE_SCENARIO') {
+      const workspaceId = body.workspaceId;
+      if (workspaceId) {
+        const authResult = await assertAuthorizedWorkspace(workspaceId);
+        if (authResult.errorResponse) return authResult.errorResponse;
+      }
+
       const baseNetWorthPaise = body.baseNetWorthPaise || rupeesToPaise(body.baseNetWorthRupees || 25000000);
       const monthlySavingsPaise = body.monthlyAdditionalSavingsRupees ? rupeesToPaise(body.monthlyAdditionalSavingsRupees) : 0;
       const loanPrepayPaise = body.loanPrepaymentRupees ? rupeesToPaise(body.loanPrepaymentRupees) : 0;
@@ -65,23 +63,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: simulation });
     }
 
-    if (!body.workspaceId) {
+    const workspaceId = body.workspaceId;
+    if (!workspaceId) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
 
-    if (userId && body.workspaceId.startsWith('ind_') && body.workspaceId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot record goals in another user workspace' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization (Requires MEMBER role)
+    const authResult = await assertAuthorizedWorkspace(workspaceId, { requiredRole: 'MEMBER' });
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
     const targetPaise = body.targetAmountPaise || rupeesToPaise(body.targetAmountRupees || 0);
     const currentPaise = body.currentAmountPaise || rupeesToPaise(body.currentAmountRupees || 0);
 
     const goal = createGoal({
-      workspaceId: body.workspaceId,
-      familyId: body.familyId || body.workspaceId,
+      workspaceId,
+      familyId: body.familyId || workspaceId,
       title: body.title || 'Milestone Goal',
       category: body.category || 'RETIREMENT',
       targetAmountPaise: targetPaise,
@@ -92,10 +89,8 @@ export async function POST(req: NextRequest) {
       notes: body.notes,
     });
 
-    if (userId) {
-      const all = listGoals(body.workspaceId);
-      await savePersistedGoals(body.workspaceId, userId, all);
-    }
+    const all = listGoals(workspaceId);
+    await savePersistedGoals(workspaceId, userId, all);
 
     return NextResponse.json({ success: true, data: goal }, { status: 201 });
   } catch (error) {

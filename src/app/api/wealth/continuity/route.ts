@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/config';
 import {
   getFamilyContinuity,
   updateEmergencyInstructions,
@@ -7,11 +6,10 @@ import {
   syncWorkspaceContinuity,
 } from '@/lib/wealth/continuity';
 import { loadPersistedContinuity, savePersistedContinuity } from '@/lib/wealth/persistence';
+import { assertAuthorizedWorkspace } from '@/lib/wealth/auth-guard';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const familyId = searchParams.get('familyId') || searchParams.get('workspaceId');
 
@@ -19,18 +17,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
     }
 
-    if (userId && familyId.startsWith('ind_') && familyId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot access another user continuity protocols' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization
+    const authResult = await assertAuthorizedWorkspace(familyId);
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
-    if (userId) {
-      const persisted = await loadPersistedContinuity(familyId, userId);
-      if (persisted) {
-        syncWorkspaceContinuity(familyId, persisted);
-      }
+    const persisted = await loadPersistedContinuity(familyId, userId);
+    if (persisted) {
+      syncWorkspaceContinuity(familyId, persisted);
     }
 
     const continuity = getFamilyContinuity(familyId);
@@ -42,8 +36,6 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const body = await req.json();
     const familyId = body.familyId || body.workspaceId;
 
@@ -51,18 +43,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'familyId is required' }, { status: 400 });
     }
 
-    if (userId && familyId.startsWith('ind_') && familyId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot alter another user continuity protocol' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization (Requires MEMBER role)
+    const authResult = await assertAuthorizedWorkspace(familyId, { requiredRole: 'MEMBER' });
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
     if (body.action === 'UPDATE_INSTRUCTIONS') {
       const updated = updateEmergencyInstructions(familyId, body.instructions);
-      if (userId) {
-        await savePersistedContinuity(familyId, userId, updated);
-      }
+      await savePersistedContinuity(familyId, userId, updated);
       return NextResponse.json({ success: true, data: updated });
     }
 
@@ -76,10 +64,8 @@ export async function POST(req: NextRequest) {
         notes: body.notes,
       });
 
-      if (userId) {
-        const continuity = getFamilyContinuity(familyId);
-        await savePersistedContinuity(familyId, userId, continuity);
-      }
+      const continuity = getFamilyContinuity(familyId);
+      await savePersistedContinuity(familyId, userId, continuity);
 
       return NextResponse.json({ success: true, data: contact }, { status: 201 });
     }

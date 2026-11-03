@@ -669,8 +669,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   trustHost: true,
-  secret:
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    'proventa_default_auth_secret_session_key_32chars_min_2026',
+  secret: (() => {
+    const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+    if (!secret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          'FATAL SECURITY CONFIGURATION: AUTH_SECRET or NEXTAUTH_SECRET environment variable is missing in production.'
+        );
+      }
+      return 'proventa_dev_secret_only_for_local_testing_do_not_use_in_prod';
+    }
+    if (secret.length < 32 && process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'FATAL SECURITY CONFIGURATION: AUTH_SECRET must be at least 32 characters long in production.'
+      );
+    }
+    return secret;
+  })(),
 });

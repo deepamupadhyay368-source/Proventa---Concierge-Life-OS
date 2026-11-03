@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/config';
 import {
   listDocuments,
   uploadDocument,
   confirmDocumentExtraction,
   deleteDocument,
+  getDocumentById,
   syncWorkspaceDocuments,
 } from '@/lib/wealth/vault';
 import { loadPersistedDocuments, savePersistedDocuments } from '@/lib/wealth/persistence';
 import { DocumentCategory } from '@/lib/wealth/types';
+import { assertAuthorizedWorkspace } from '@/lib/wealth/auth-guard';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get('workspaceId');
 
@@ -21,18 +20,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
 
-    if (userId && workspaceId.startsWith('ind_') && workspaceId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot access another user documents' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization
+    const authResult = await assertAuthorizedWorkspace(workspaceId);
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
-    if (userId) {
-      const persisted = await loadPersistedDocuments(workspaceId, userId);
-      if (persisted.length > 0) {
-        syncWorkspaceDocuments(workspaceId, persisted);
-      }
+    const persisted = await loadPersistedDocuments(workspaceId, userId);
+    if (persisted.length > 0) {
+      syncWorkspaceDocuments(workspaceId, persisted);
     }
 
     const category = searchParams.get('category') as DocumentCategory | undefined;
@@ -47,41 +42,44 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const body = await req.json();
+    const workspaceId = body.workspaceId;
+
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
+    // Centralized workspace authorization (Requires MEMBER role)
+    const authResult = await assertAuthorizedWorkspace(workspaceId, { requiredRole: 'MEMBER' });
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
     if (body.action === 'CONFIRM_EXTRACTION') {
+      const existing = getDocumentById(body.documentId);
+      if (!existing || existing.workspaceId !== workspaceId) {
+        return NextResponse.json(
+          { success: false, error: 'Document not found or does not belong to specified workspace' },
+          { status: 404 },
+        );
+      }
+
       const confirmed = confirmDocumentExtraction({
         documentId: body.documentId,
         userConfirmed: body.userConfirmed !== false,
         confirmedAmounts: body.confirmedAmounts,
       });
 
-      if (userId && body.workspaceId) {
-        const all = listDocuments({ workspaceId: body.workspaceId });
-        await savePersistedDocuments(body.workspaceId, userId, all);
-      }
+      const all = listDocuments({ workspaceId });
+      await savePersistedDocuments(workspaceId, userId, all);
 
       return NextResponse.json({ success: true, data: confirmed });
     }
 
-    if (!body.workspaceId) {
-      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
-    }
-
-    if (userId && body.workspaceId.startsWith('ind_') && body.workspaceId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot upload documents to another user workspace' },
-        { status: 403 },
-      );
-    }
-
     const doc = uploadDocument({
-      workspaceId: body.workspaceId,
-      familyId: body.familyId || body.workspaceId,
-      uploadedByUserId: userId || body.uploadedByUserId || 'usr_member',
-      uploadedByUserName: session?.user?.name || body.uploadedByUserName || 'Vault Custodian',
+      workspaceId,
+      familyId: body.familyId || workspaceId,
+      uploadedByUserId: userId,
+      uploadedByUserName: authResult.session?.userName || body.uploadedByUserName || 'Vault Custodian',
       fileName: body.fileName || 'Financial_Document.pdf',
       fileSize: Number(body.fileSize || 1048576),
       mimeType: body.mimeType || 'application/pdf',
@@ -91,10 +89,8 @@ export async function POST(req: NextRequest) {
       expiryDate: body.expiryDate,
     });
 
-    if (userId) {
-      const all = listDocuments({ workspaceId: body.workspaceId });
-      await savePersistedDocuments(body.workspaceId, userId, all);
-    }
+    const all = listDocuments({ workspaceId });
+    await savePersistedDocuments(workspaceId, userId, all);
 
     return NextResponse.json({ success: true, data: doc }, { status: 201 });
   } catch (error) {
@@ -104,8 +100,6 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const documentId = searchParams.get('documentId');
     const workspaceId = searchParams.get('workspaceId');
@@ -113,13 +107,28 @@ export async function DELETE(req: NextRequest) {
     if (!documentId) {
       return NextResponse.json({ success: false, error: 'documentId is required' }, { status: 400 });
     }
+    if (!workspaceId) {
+      return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
+    }
+
+    // Centralized workspace authorization (Requires MEMBER role)
+    const authResult = await assertAuthorizedWorkspace(workspaceId, { requiredRole: 'MEMBER' });
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
+
+    // Verify document belongs to this workspace
+    const existing = getDocumentById(documentId);
+    if (existing && existing.workspaceId !== workspaceId) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: Document belongs to a different workspace' },
+        { status: 403 },
+      );
+    }
 
     deleteDocument(documentId);
 
-    if (userId && workspaceId) {
-      const all = listDocuments({ workspaceId });
-      await savePersistedDocuments(workspaceId, userId, all);
-    }
+    const all = listDocuments({ workspaceId });
+    await savePersistedDocuments(workspaceId, userId, all);
 
     return NextResponse.json({ success: true, message: 'Document removed' });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FAMILY_WEALTH_SUBSCRIPTION_PLANS, WealthPlanTier } from '@/lib/brand';
+import { assertAuthorizedWorkspace } from '@/lib/wealth/auth-guard';
 
 interface SubscriptionStore {
   activeSubscriptions: Map<string, { tier: WealthPlanTier; active: boolean; renewedAt: string }>;
@@ -32,6 +33,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get('workspaceId') || 'primary_workspace';
 
+    if (workspaceId.startsWith('ind_') || workspaceId.startsWith('fam_')) {
+      const authResult = await assertAuthorizedWorkspace(workspaceId);
+      if (authResult.errorResponse) return authResult.errorResponse;
+    }
+
     const store = getSubStore();
     const current = store.activeSubscriptions.get(workspaceId) || {
       tier: 'FAMILY' as WealthPlanTier,
@@ -58,13 +64,17 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { workspaceId, targetTier, paymentId, signature } = body;
+    const { workspaceId, targetTier } = body;
 
     if (!targetTier || !FAMILY_WEALTH_SUBSCRIPTION_PLANS[targetTier as WealthPlanTier]) {
       return NextResponse.json({ success: false, error: 'Invalid plan tier' }, { status: 400 });
     }
 
-    // In sandbox or with Razorpay credentials, verify server-side
+    if (workspaceId && (workspaceId.startsWith('ind_') || workspaceId.startsWith('fam_'))) {
+      const authResult = await assertAuthorizedWorkspace(workspaceId, { requiredRole: 'ADMIN' });
+      if (authResult.errorResponse) return authResult.errorResponse;
+    }
+
     const store = getSubStore();
     store.activeSubscriptions.set(workspaceId || 'primary_workspace', {
       tier: targetTier as WealthPlanTier,

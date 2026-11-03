@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth/config';
 import {
   listCashflows,
   createCashflowTransaction,
@@ -8,11 +7,10 @@ import {
 } from '@/lib/wealth/cashflow';
 import { rupeesToPaise } from '@/lib/wealth/engine';
 import { loadPersistedCashflows, savePersistedCashflows } from '@/lib/wealth/persistence';
+import { assertAuthorizedWorkspace } from '@/lib/wealth/auth-guard';
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const { searchParams } = new URL(req.url);
     const workspaceId = searchParams.get('workspaceId');
 
@@ -20,18 +18,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
 
-    if (userId && workspaceId.startsWith('ind_') && workspaceId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot access another user cashflows' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization
+    const authResult = await assertAuthorizedWorkspace(workspaceId);
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
-    if (userId) {
-      const persisted = await loadPersistedCashflows(workspaceId, userId);
-      if (persisted.length > 0) {
-        syncWorkspaceCashflows(workspaceId, persisted);
-      }
+    const persisted = await loadPersistedCashflows(workspaceId, userId);
+    if (persisted.length > 0) {
+      syncWorkspaceCashflows(workspaceId, persisted);
     }
 
     const periodMonth = searchParams.get('periodMonth') || undefined;
@@ -52,28 +46,25 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    const userId = session?.user?.id;
     const body = await req.json();
+    const workspaceId = body.workspaceId;
 
-    if (!body.workspaceId) {
+    if (!workspaceId) {
       return NextResponse.json({ success: false, error: 'workspaceId is required' }, { status: 400 });
     }
 
-    if (userId && body.workspaceId.startsWith('ind_') && body.workspaceId !== `ind_${userId}`) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden: Cannot create cashflow entries in another workspace' },
-        { status: 403 },
-      );
-    }
+    // Centralized workspace authorization (Requires MEMBER role)
+    const authResult = await assertAuthorizedWorkspace(workspaceId, { requiredRole: 'MEMBER' });
+    if (authResult.errorResponse) return authResult.errorResponse;
+    const userId = authResult.session!.userId;
 
     const amountPaise = body.amountPaise || rupeesToPaise(body.amountRupees || 0);
 
     const tx = createCashflowTransaction({
-      workspaceId: body.workspaceId,
-      familyId: body.familyId || body.workspaceId,
-      userId: userId || body.userId || 'usr_member',
-      userName: session?.user?.name || body.userName || 'Account Member',
+      workspaceId,
+      familyId: body.familyId || workspaceId,
+      userId,
+      userName: authResult.session?.userName || body.userName || 'Account Member',
       title: body.title || 'Cashflow Entry',
       type: body.type || 'INCOME',
       category: body.category || 'OTHER_INCOME',
@@ -86,10 +77,8 @@ export async function POST(req: NextRequest) {
       notes: body.notes,
     });
 
-    if (userId) {
-      const all = listCashflows({ workspaceId: body.workspaceId });
-      await savePersistedCashflows(body.workspaceId, userId, all);
-    }
+    const all = listCashflows({ workspaceId });
+    await savePersistedCashflows(workspaceId, userId, all);
 
     return NextResponse.json({ success: true, data: tx }, { status: 201 });
   } catch (error) {

@@ -510,9 +510,8 @@ export function generateAmortisationSchedule(
     let interest = Math.round(balance * monthlyRate);
     let principal = emiPaise - interest;
 
-    if (principal > balance || m === tenureMonths) {
+    if (balance <= principal || m === tenureMonths) {
       principal = balance;
-      interest = Math.max(0, emiPaise - principal);
       balance = 0;
     } else {
       balance -= principal;
@@ -555,7 +554,11 @@ export function simulateLoanPrepayment(
   const baseSchedule = generateAmortisationSchedule(principalPaise, annualInterestRate, tenureMonths);
   const originalTotalInterestPaise = baseSchedule.reduce((acc, row) => acc + row.interestPaidPaise, 0);
 
-  if (extraMonthlyPaise <= 0 && lumpSumPaise <= 0) {
+  const sanitizedExtraPaise = Math.max(0, extraMonthlyPaise);
+  const sanitizedLumpSumPaise = Math.max(0, lumpSumPaise);
+  const sanitizedLumpSumMonth = Math.max(1, lumpSumMonth);
+
+  if (sanitizedExtraPaise <= 0 && sanitizedLumpSumPaise <= 0) {
     return {
       originalTotalInterestPaise,
       newTotalInterestPaise: originalTotalInterestPaise,
@@ -580,10 +583,10 @@ export function simulateLoanPrepayment(
     month++;
     const opening = balance;
     const interest = Math.round(balance * monthlyRate);
-    let totalPayment = standardEmiPaise + extraMonthlyPaise;
+    let totalPayment = standardEmiPaise + sanitizedExtraPaise;
 
-    if (month === lumpSumMonth) {
-      totalPayment += lumpSumPaise;
+    if (month === sanitizedLumpSumMonth) {
+      totalPayment += sanitizedLumpSumPaise;
     }
 
     let principal = totalPayment - interest;
@@ -949,6 +952,7 @@ export function calculateBuyVsRent(
   const finalBuyWealth = yearlyComparison[yearlyComparison.length - 1].buyWealthPaise;
   const finalRentWealth = yearlyComparison[yearlyComparison.length - 1].rentWealthPaise;
   const recommendation = finalBuyWealth >= finalRentWealth ? 'BUY' : 'RENT';
+  const scenarioAdvantage = recommendation;
   const financialAdvantagePaise = Math.abs(finalBuyWealth - finalRentWealth);
 
   return {
