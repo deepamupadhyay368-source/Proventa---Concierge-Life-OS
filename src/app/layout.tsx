@@ -28,14 +28,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. | Experimental Digital Art',
+    default: 'PROVENTA — FINANCIAL INTELLIGENCE | Financial Intelligence Platform',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM. A fusion of experimental digital art, computational architecture, and family financial infrastructure.',
+    'PROVENTA — FINANCIAL INTELLIGENCE. The comprehensive Financial Intelligence Platform for individuals and families.',
   keywords: [
     'PROVENTA',
-    'Family Wealth OS',
+    'Financial Intelligence Platform',
     'Experimental Digital Art',
     'The Proventa Object',
     'Wealth Topology',
@@ -50,23 +50,23 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://proventa.in',
     siteName: 'PROVENTA',
-    title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
+    title: 'PROVENTA — FINANCIAL INTELLIGENCE',
     description:
-      'A fusion of experimental digital art, computational architecture, and family financial infrastructure.',
+      'The comprehensive Financial Intelligence Platform for individuals and families.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
+        alt: 'PROVENTA — FINANCIAL INTELLIGENCE',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
+    title: 'PROVENTA — FINANCIAL INTELLIGENCE',
     description:
-      'A fusion of experimental digital art, computational architecture, and family financial infrastructure.',
+      'The comprehensive Financial Intelligence Platform for individuals and families.',
     images: ['/og-image.jpg'],
   },
   robots: {

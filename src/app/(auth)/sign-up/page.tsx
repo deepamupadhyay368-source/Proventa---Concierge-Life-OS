@@ -3,9 +3,9 @@ import { SignUpForm } from '@/components/auth/sign-up-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Create Account | PROVENTA — Family Wealth OS',
+  title: 'Create Account | PROVENTA — Financial Intelligence',
   description:
-    'Create your PROVENTA Family Wealth OS account to organise, monitor, and preserve your complete financial universe.',
+    'Create your PROVENTA account on the Financial Intelligence Platform for individuals and families.',
 };
 
 export default function SignUpPage() {
@@ -22,7 +22,7 @@ export default function SignUpPage() {
             </span>
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#858D9B]">
-            Family Wealth OS · One Living System
+            Financial Intelligence Platform
           </p>
         </div>
 
@@ -32,7 +32,7 @@ export default function SignUpPage() {
               Create Account
             </h1>
             <p className="text-xs text-[#C5CAD3] mt-1">
-              Start with Google or create an encrypted family wealth workspace.
+              Start with Google or create an encrypted financial intelligence workspace.
             </p>
           </div>
           <SignUpForm />

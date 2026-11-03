@@ -3,9 +3,9 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA — Family Wealth OS',
+  title: 'Sign In | PROVENTA — Financial Intelligence',
   description:
-    'Sign in to your PROVENTA Family Wealth OS command cockpit with Google or your credentials.',
+    'Sign in to your PROVENTA Financial Intelligence Platform command cockpit with Google or your credentials.',
 };
 
 function getAuthErrorMessage(errorCode?: string): string | null {
@@ -58,7 +58,7 @@ export default async function SignInPage({
             </span>
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#858D9B]">
-            Family Wealth OS · One Living System
+            Financial Intelligence Platform
           </p>
         </div>
 

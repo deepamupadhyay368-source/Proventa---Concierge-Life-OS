@@ -4,9 +4,9 @@ import { CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import { FAMILY_WEALTH_SUBSCRIPTION_PLANS } from '@/lib/brand';
 
 export const metadata: Metadata = {
-  title: 'Pricing & Membership | PROVENTA — Family Wealth OS',
+  title: 'Pricing & Membership | PROVENTA — Financial Intelligence',
   description:
-    'Flat, transparent annual software membership for Indian families. Zero AUM fees. Zero commissions.',
+    'Flat, transparent annual software membership for individuals and families. Zero AUM fees. Zero commissions.',
 };
 
 export default function PricingPage() {

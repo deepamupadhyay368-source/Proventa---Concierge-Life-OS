@@ -190,7 +190,7 @@ export function SignUpForm() {
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <span>Enter Family Wealth Cockpit</span>
+                <span>Enter Financial Cockpit</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}

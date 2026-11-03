@@ -68,7 +68,7 @@ export default function OnboardingPage() {
             <span>PROVENTA // TITANIUM INTAKE PROTOCOL</span>
           </div>
           <h1 className="font-display font-bold text-3xl sm:text-5xl text-[#F4F6FA] tracking-tight mt-2">
-            Establish Your Wealth Institution
+            Establish Your Financial Intelligence Platform
           </h1>
           <p className="font-mono text-xs text-[#858D9B] uppercase tracking-wider">
             Protocol Phase {String(currentStep).padStart(2, '0')} of 10: <strong className="text-[#F4F6FA]">{STEPS[currentStep - 1].desc}</strong>

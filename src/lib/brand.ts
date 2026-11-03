@@ -1,21 +1,21 @@
 /**
  * PROVENTA — Single Source of Truth for Brand & Platform Configuration
- * Product Category: Family Financial Infrastructure / Family Wealth OS
- * Tagline: YOUR WEALTH. ONE LIVING SYSTEM.
+ * Product Category: Financial Intelligence Platform
+ * Tagline: FINANCIAL INTELLIGENCE
  */
 
 export const BRAND_CONFIG = {
   name: 'PROVENTA',
   displayName: 'Proventa',
-  tagline: 'YOUR WEALTH. ONE LIVING SYSTEM.',
-  supportingStatement: 'The unified financial operating system for individuals and multi-generational families.',
-  valueProposition: 'One individual identity. Multiple family relationships. One connected financial universe.',
-  centralValueProposition: 'Organise, understand, monitor, manage and preserve your complete financial universe in one living system.',
+  tagline: 'FINANCIAL INTELLIGENCE',
+  supportingStatement: 'The comprehensive Financial Intelligence Platform for individuals and families.',
+  valueProposition: 'One verified identity. Complete financial intelligence for individuals and families.',
+  centralValueProposition: 'Organise, understand, monitor, and master your complete financial picture with verified precision.',
   description:
-    'PROVENTA is an intelligent digital platform that brings together an individual\'s and family\'s entire financial life into one secure, connected living system with granular privacy controls.',
+    'PROVENTA is a comprehensive Financial Intelligence Platform that brings together an individual\'s and family\'s entire financial life into one secure, unified system with granular privacy controls.',
   shortDescription:
-    'Family financial infrastructure for consolidated net worth, multi-generational wealth preservation, and private intelligence.',
-  category: 'Family Financial Infrastructure',
+    'Comprehensive financial intelligence platform for consolidated net worth, balance sheet mastery, and private analysis.',
+  category: 'Financial Intelligence Platform',
   domain: process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in',
   supportEmail: process.env.SUPPORT_EMAIL || 'support@proventa.in',
   currency: 'INR',
@@ -64,11 +64,11 @@ export const BRAND_CONFIG = {
     privacyEmail: 'privacy@proventa.in',
   },
   seo: {
-    defaultTitle: 'PROVENTA — YOUR WEALTH. ONE LIVING SYSTEM.',
+    defaultTitle: 'PROVENTA — FINANCIAL INTELLIGENCE',
     titleTemplate: '%s | PROVENTA',
     keywords: [
       'PROVENTA',
-      'family wealth OS',
+      'financial intelligence platform',
       'family financial infrastructure',
       'consolidated net worth India',
       'multi-generational wealth management',

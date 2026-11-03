@@ -147,7 +147,7 @@ export default function RegisterDetailsPage() {
           <p className="font-mono text-xs text-[#858D9B]">
             {passKey
               ? 'Save your 12-digit private credential. Displayed once only.'
-              : 'Configure your primary institutional identity to initialize your personal wealth workspace.'}
+              : 'Configure your verified identity to initialize your financial intelligence workspace.'}
           </p>
         </div>
 

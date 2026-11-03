@@ -193,9 +193,9 @@ h2 { font-size: 22px; font-weight: 600; margin: 0 0 20px; letter-spacing: -0.5px
 </head>
 <body>
 <div class="wrapper">
-<div class="header"><div class="logo">Proventa<span>Concierge Life OS</span></div></div>
+<div class="header"><div class="logo">PROVENTA<span>Financial Intelligence</span></div></div>
 ${content}
-<div class="footer"><p>Proventa Concierge Life OS<br>If you did not request this, you can ignore this email safely.</p></div>
+<div class="footer"><p>PROVENTA — Financial Intelligence Platform<br>If you did not request this, you can ignore this email safely.</p></div>
 </div>
 </body>
 </html>`;
@@ -488,7 +488,7 @@ function buildDetailedBookingConfirmationEmail(params: DetailedBookingConfirmati
 
 ${docsHtml}
 
-<a href="${actionUrl}" class="cta">View in Your Proventa Life OS</a>
+<a href="${actionUrl}" class="cta">View in PROVENTA</a>
 
 <p style="font-size:13px;color:#928f88;margin-top:24px;">
   Your service is secured under this reference. If you require schedule modifications or additional concierge assistance, reply directly to this email or reach your dedicated desk.

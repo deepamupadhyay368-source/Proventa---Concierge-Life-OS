@@ -34,7 +34,7 @@ export function MarketingNav() {
                 {BRAND_CONFIG.name}
               </span>
               <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#858D9B]">
-                Family Wealth OS
+                Financial Intelligence
               </span>
             </div>
           </Link>

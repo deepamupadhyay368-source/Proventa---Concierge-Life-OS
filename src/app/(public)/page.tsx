@@ -32,19 +32,19 @@ export default function MarketingHomePage() {
                 <span className="w-2 h-2 rounded-full bg-[#2457FF] animate-pulse" />
                 <span className="text-[#F4F6FA] font-bold">PROVENTA</span>
                 <span className="text-[#858D9B]">/</span>
-                <span>Family Wealth OS</span>
+                <span>Financial Intelligence Platform</span>
               </div>
 
               {/* Exact Homepage Headline */}
               <h1 className="font-heading font-black text-5xl sm:text-7xl lg:text-8xl tracking-tight text-[#F4F6FA] leading-[0.98] uppercase">
-                Your wealth.
+                Financial
                 <br />
-                <span className="text-[#2457FF]">One living system.</span>
+                <span className="text-[#2457FF]">Intelligence.</span>
               </h1>
 
               {/* Exact Supporting Text */}
               <p className="text-xl sm:text-2xl text-[#C5CAD3] max-w-2xl font-normal leading-relaxed">
-                Everything your family owns, owes and plans. Together in one place.
+                Everything you own, owe and plan. Unified for individuals and families with verified precision.
               </p>
 
               {/* Primary Call to Actions */}
@@ -376,10 +376,10 @@ export default function MarketingHomePage() {
       <section className="py-24 lg:py-32 bg-[#171C26]">
         <div className="max-w-4xl mx-auto px-6 text-center space-y-8">
           <h2 className="font-heading font-black text-4xl sm:text-6xl uppercase tracking-tight text-[#F4F6FA] leading-tight">
-            Start your family&apos;s living system today.
+            Take control with financial intelligence today.
           </h2>
           <p className="text-lg sm:text-xl text-[#C5CAD3] max-w-2xl mx-auto">
-            Take complete control of your family assets, debts and future planning with verified precision.
+            Take complete control of your assets, liabilities and future planning with verified precision.
           </p>
           <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link

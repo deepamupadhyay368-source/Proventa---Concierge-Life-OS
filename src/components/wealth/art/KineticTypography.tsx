@@ -12,8 +12,8 @@ interface KineticHeroTitleProps {
 }
 
 export function KineticHeroTitle({
-  title = 'YOUR WEALTH. ONE LIVING SYSTEM.',
-  subtitle = 'An experimental architecture for family capital, sovereign estates, and multi-generational continuity.',
+  title = 'FINANCIAL INTELLIGENCE',
+  subtitle = 'Comprehensive financial intelligence platform for individuals and families.',
   badge = 'SYS.VER // 2.4.0 — EXPERIMENTAL DIGITAL ART',
   className = '',
 }: KineticHeroTitleProps) {

@@ -8,7 +8,7 @@ import { uploadDocument, confirmDocumentExtraction, listDocuments } from '@/lib/
 import { routeUserQueryToAgent, executeAIAssistantQuery } from '@/lib/wealth/ai-agents';
 import { getFamilyBusinessOwnershipGraph } from '@/lib/wealth/business-ownership';
 
-describe('Family Wealth OS Modules', () => {
+describe('Financial Intelligence Platform Modules', () => {
   describe('Cashflow Intelligence & Internal Transfer Filtering', () => {
     it('strictly excludes internal transfers from income and expenditure calculations', () => {
       const summary = getCashflowSummary('fam_sharma_heritage');

@@ -74,7 +74,7 @@ export default function FamilyWealthDashboard() {
           P
         </div>
         <div className="font-mono text-xs uppercase tracking-widest text-[#F4F6FA] font-bold">
-          LOADING LIVING FINANCIAL UNIVERSE
+          LOADING FINANCIAL INTELLIGENCE PLATFORM
         </div>
         <div className="font-mono text-[11px] text-[#7595FF] mt-2 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#2457FF] animate-ping" />

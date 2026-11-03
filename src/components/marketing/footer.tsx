@@ -50,7 +50,7 @@ export function MarketingFooter() {
               </span>
             </div>
             <p className="text-sm text-[#C5CAD3] max-w-sm leading-relaxed">
-              Everything your family owns, owes and plans. Together in one living system.
+              Comprehensive Financial Intelligence Platform for individuals and families.
             </p>
             <div className="pt-2 flex items-center gap-4 text-xs font-mono text-[#858D9B]">
               <span className="flex items-center gap-1.5 text-[#C5CAD3]">
