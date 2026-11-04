@@ -13,11 +13,11 @@ const geistMono = { variable: '--font-mono' };
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — FINANCIAL INTELLIGENCE | Financial Intelligence Platform',
+    default: 'PROVENTA — Construction Procurement Platform | Require. Compare. Select. Deliver.',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — FINANCIAL INTELLIGENCE. The comprehensive Financial Intelligence Platform for individuals and families.',
+    'PROVENTA — Construction Procurement Platform. Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
   keywords: [
     'PROVENTA',
     'Financial Intelligence Platform',
@@ -35,23 +35,23 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://proventa.in',
     siteName: 'PROVENTA',
-    title: 'PROVENTA — FINANCIAL INTELLIGENCE',
+    title: 'PROVENTA — Construction Procurement Platform',
     description:
-      'The comprehensive Financial Intelligence Platform for individuals and families.',
+      'Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'PROVENTA — FINANCIAL INTELLIGENCE',
+        alt: 'PROVENTA — Construction Procurement Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PROVENTA — FINANCIAL INTELLIGENCE',
+    title: 'PROVENTA — Construction Procurement Platform',
     description:
-      'The comprehensive Financial Intelligence Platform for individuals and families.',
+      'Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
     images: ['/og-image.jpg'],
   },
   robots: {
