@@ -123,21 +123,18 @@ function RfqCreateForm() {
       });
       const json = await res.json();
       if (json.success && json.data) {
-        if (json.data.title) setTitle(json.data.title);
-        if (json.data.projectType) setProjectType(json.data.projectType);
-        if (json.data.urgency) setUrgency(json.data.urgency);
-        if (json.data.items && json.data.items.length > 0) {
-          setItems(json.data.items);
+        const parsed = json.data;
+        if (parsed.items && parsed.items.length > 0) {
+          setItems(parsed.items);
         }
-        if (json.data.delivery) {
-          if (json.data.delivery.siteName) setSiteName(json.data.delivery.siteName);
-          if (json.data.delivery.addressLine) setAddressLine(json.data.delivery.addressLine);
-          if (json.data.delivery.city) setCity(json.data.delivery.city);
-        }
-        setAiMessage('Requirement details extracted successfully.');
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.location?.city) setCity(parsed.location.city);
+        if (parsed.location?.siteName) setSiteName(parsed.location.siteName);
+        if (parsed.location?.addressLine) setAddressLine(parsed.location.addressLine);
+        setAiMessage(`✓ Parsed ${parsed.items?.length || 0} items successfully.`);
       }
     } catch (err: any) {
-      setAiMessage('Could not parse natural language text automatically.');
+      setAiMessage('Could not auto-parse note. Please enter manually.');
     } finally {
       setAiParsing(false);
     }
@@ -153,24 +150,24 @@ function RfqCreateForm() {
         gradeOrSpec: '',
         brandPreference: '',
         quantity: 10,
-        unit: 'Bags',
+        unit: 'Metric tonnes (MT)',
         itemNotes: '',
       },
     ]);
   };
 
-  const removeItem = (index: number) => {
+  const removeItem = (idx: number) => {
     if (items.length <= 1) return;
-    setItems((prev) => prev.filter((_, idx) => idx !== index));
+    setItems((prev) => prev.filter((_, i) => i !== idx));
   };
 
-  const updateItem = (index: number, field: keyof MaterialItemInput, val: any) => {
+  const updateItem = (idx: number, field: keyof MaterialItemInput, value: any) => {
     setItems((prev) => {
       const copy = [...prev];
-      copy[index] = { ...copy[index], [field]: val };
+      copy[idx] = { ...copy[idx], [field]: value };
       if (field === 'categorySlug') {
-        const found = CATEGORY_OPTIONS.find((c) => c.slug === val);
-        if (found) copy[index].categoryName = found.name.split(' (')[0];
+        const opt = CATEGORY_OPTIONS.find((c) => c.slug === value);
+        if (opt) copy[idx].categoryName = opt.name.split(' (')[0];
       }
       return copy;
     });
@@ -178,25 +175,17 @@ function RfqCreateForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
-    if (!title.trim()) {
-      setError('Project requirement title is required.');
-      return;
-    }
-
-    if (items.some((it) => !it.materialName.trim() || it.quantity <= 0)) {
-      setError('All items must have a valid name and quantity greater than zero.');
+    if (items.length === 0) {
+      setError('Please add at least one material item.');
       return;
     }
 
     setLoading(true);
+    setError(null);
+
     try {
       const payload = {
-        buyerId: 'user-buyer-active',
-        buyerName: siteContactPerson || 'Apex Infrastructure & Builders',
-        buyerEmail: 'procurement@apexinfra.in',
-        buyerPhone: siteContactPhone,
+        buyerId: 'buyer-demo-ahmedabad',
         buyerRole,
         title,
         projectType,
@@ -244,43 +233,43 @@ function RfqCreateForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-10">
+    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-10">
       <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-mono text-[#777970]">
-          <Link href="/" className="hover:text-[#171A17]">PROVENTA</Link>
+        <div className="flex items-center gap-2 text-xs font-mono text-[#A8ADB7]">
+          <Link href="/" className="hover:text-[#FFFFFF]">PROVENTA</Link>
           <span>/</span>
-          <Link href="/buyer/dashboard" className="hover:text-[#171A17]">Buyer Portal</Link>
+          <Link href="/buyer/dashboard" className="hover:text-[#FFFFFF]">Buyer Portal</Link>
           <span>/</span>
-          <span className="text-[#53634A] font-bold">New Requirement (RFQ)</span>
+          <span className="text-[#536B88] font-bold">New Requirement (RFQ)</span>
         </div>
 
         {/* Page Title & Tagline */}
-        <div className="space-y-2 border-b border-[#D9D8CF] pb-6 bg-[#FFFFFF] p-6 sm:p-8 border shadow-sm">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#E7E5DC] border border-[#D9D8CF] text-[11px] font-mono text-[#53634A] font-bold">
+        <div className="space-y-2 border-b border-[#414957] pb-6 bg-[#303746] p-6 sm:p-8 border shadow-sm rounded-sm">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#191B20] border border-[#414957] text-[11px] font-mono text-[#536B88] font-bold rounded-sm">
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>STEP 1 · CREATE REQUIREMENT</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
             Post Material Requirement (RFQ)
           </h1>
-          <p className="text-sm text-[#777970]">
+          <p className="text-sm text-[#A8ADB7]">
             Specify multiple materials, standard units of measurement, delivery location in Gujarat, and receive competitive quotations from verified suppliers.
           </p>
         </div>
 
         {/* AI Assistant Extraction Box */}
-        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-4 shadow-sm">
+        <div className="bg-[#303746] border border-[#414957] p-6 space-y-4 shadow-sm rounded-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#53634A]" />
-              <span className="font-heading font-bold text-sm uppercase tracking-wider text-[#171A17]">
+              <Sparkles className="w-4 h-4 text-[#536B88]" />
+              <span className="font-heading font-bold text-sm uppercase tracking-wider text-[#FFFFFF]">
                 Natural Language BOQ Extractor
               </span>
             </div>
-            <span className="text-[11px] font-mono text-[#777970]">Auto-Parses Quantities & Units</span>
+            <span className="text-[11px] font-mono text-[#A8ADB7]">Auto-Parses Quantities & Units</span>
           </div>
-          <p className="text-xs text-[#777970]">
+          <p className="text-xs text-[#A8ADB7]">
             Paste your site engineer&apos;s note or material schedule below. The assistant extracts items, quantities, standard units, and delivery location automatically.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -289,40 +278,40 @@ function RfqCreateForm() {
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               placeholder="e.g. Need 40 MT Tata Tiscon Fe 550D TMT steel and 1000 bags UltraTech 53G cement delivered to South Bopal, Ahmedabad"
-              className="flex-1 bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-4 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+              className="flex-1 bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-4 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
             />
             <button
               type="button"
               onClick={() => handleAiParse()}
               disabled={aiParsing || !aiPrompt.trim()}
-              className="px-5 py-2.5 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
+              className="px-5 py-2.5 bg-[#536B88] hover:bg-[#435770] disabled:opacity-50 text-[#FFFFFF] text-xs font-bold uppercase tracking-wider transition-colors shrink-0 rounded-sm"
             >
               {aiParsing ? 'Extracting...' : 'Parse Items'}
             </button>
           </div>
           {aiMessage && (
-            <div className="text-xs font-mono text-[#53634A]">{aiMessage}</div>
+            <div className="text-xs font-mono text-[#536B88]">{aiMessage}</div>
           )}
         </div>
 
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
-            <div className="p-4 bg-[#F7EFE9] border border-[#B87948] text-[#A9433B] text-xs font-mono flex items-center gap-2">
+            <div className="p-4 bg-[#252B38] border border-[#D9534F] text-[#D9534F] text-xs font-mono flex items-center gap-2 rounded-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {/* Project Details */}
-          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-5 shadow-sm">
-            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+          <div className="bg-[#303746] border border-[#414957] p-6 space-y-5 shadow-sm rounded-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#FFFFFF] border-b border-[#414957] pb-3">
               1. Project Information
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Requirement Title *
                 </label>
                 <input
@@ -331,18 +320,18 @@ function RfqCreateForm() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Foundation Structural Steel & Cement Supply - Phase 1"
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Buyer Profile
                 </label>
                 <select
                   value={buyerRole}
                   onChange={(e: any) => setBuyerRole(e.target.value)}
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 >
                   <option value="CONTRACTOR">Civil Contractor</option>
                   <option value="BUILDER">Builder / Developer</option>
@@ -352,13 +341,13 @@ function RfqCreateForm() {
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Project Type
                 </label>
                 <select
                   value={projectType}
                   onChange={(e: any) => setProjectType(e.target.value)}
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 >
                   <option value="RESIDENTIAL">Residential Construction</option>
                   <option value="COMMERCIAL">Commercial Development</option>
@@ -371,15 +360,15 @@ function RfqCreateForm() {
           </div>
 
           {/* Material Items List */}
-          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-5 shadow-sm">
-            <div className="flex items-center justify-between border-b border-[#D9D8CF] pb-3">
-              <h2 className="font-heading font-bold text-base uppercase text-[#171A17]">
+          <div className="bg-[#303746] border border-[#414957] p-6 space-y-5 shadow-sm rounded-sm">
+            <div className="flex items-center justify-between border-b border-[#414957] pb-3">
+              <h2 className="font-heading font-bold text-base uppercase text-[#FFFFFF]">
                 2. Material Items ({items.length})
               </h2>
               <button
                 type="button"
                 onClick={addItem}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E7E5DC] hover:bg-[#D9D8CF] text-[#171A17] text-xs font-mono font-bold uppercase transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#252B38] hover:bg-[#191B20] text-[#FFFFFF] border border-[#414957] text-xs font-mono font-bold uppercase transition-colors rounded-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Item</span>
@@ -388,14 +377,14 @@ function RfqCreateForm() {
 
             <div className="space-y-4">
               {items.map((it, idx) => (
-                <div key={idx} className="p-4 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
-                  <div className="flex items-center justify-between text-xs font-mono text-[#777970]">
-                    <span className="font-bold text-[#53634A]">ITEM #{idx + 1}</span>
+                <div key={idx} className="p-4 bg-[#252B38] border border-[#414957] space-y-3 rounded-sm">
+                  <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7]">
+                    <span className="font-bold text-[#536B88]">ITEM #{idx + 1}</span>
                     {items.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeItem(idx)}
-                        className="text-[#A9433B] hover:underline flex items-center gap-1 text-[11px]"
+                        className="text-[#D9534F] hover:underline flex items-center gap-1 text-[11px]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Remove</span>
@@ -405,13 +394,13 @@ function RfqCreateForm() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                      <label className="block text-[11px] font-mono uppercase text-[#A8ADB7] mb-1">
                         Category
                       </label>
                       <select
                         value={it.categorySlug}
                         onChange={(e) => updateItem(idx, 'categorySlug', e.target.value)}
-                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-2.5 py-2 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                       >
                         {CATEGORY_OPTIONS.map((c) => (
                           <option key={c.slug} value={c.slug}>{c.name}</option>
@@ -420,7 +409,7 @@ function RfqCreateForm() {
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                      <label className="block text-[11px] font-mono uppercase text-[#A8ADB7] mb-1">
                         Material Name & Diameter/Grade *
                       </label>
                       <input
@@ -429,12 +418,12 @@ function RfqCreateForm() {
                         value={it.materialName}
                         onChange={(e) => updateItem(idx, 'materialName', e.target.value)}
                         placeholder="e.g. TMT Steel Rebars 16mm Fe 550D"
-                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-2.5 py-2 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                      <label className="block text-[11px] font-mono uppercase text-[#A8ADB7] mb-1">
                         Quantity *
                       </label>
                       <input
@@ -443,18 +432,18 @@ function RfqCreateForm() {
                         required
                         value={it.quantity}
                         onChange={(e) => updateItem(idx, 'quantity', Number(e.target.value))}
-                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-2.5 py-2 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                      <label className="block text-[11px] font-mono uppercase text-[#A8ADB7] mb-1">
                         Procurement Unit *
                       </label>
                       <select
                         value={it.unit}
                         onChange={(e: any) => updateItem(idx, 'unit', e.target.value)}
-                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-2.5 py-2 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                       >
                         {CONSTRUCTION_UNITS.map((u) => (
                           <option key={u} value={u}>{u}</option>
@@ -463,7 +452,7 @@ function RfqCreateForm() {
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                      <label className="block text-[11px] font-mono uppercase text-[#A8ADB7] mb-1">
                         Preferred Brand
                       </label>
                       <input
@@ -471,7 +460,7 @@ function RfqCreateForm() {
                         value={it.brandPreference}
                         onChange={(e) => updateItem(idx, 'brandPreference', e.target.value)}
                         placeholder="e.g. Tata Tiscon / UltraTech"
-                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-2.5 py-2 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                       />
                     </div>
                   </div>
@@ -481,14 +470,14 @@ function RfqCreateForm() {
           </div>
 
           {/* Delivery & Site Address */}
-          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-5 shadow-sm">
-            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+          <div className="bg-[#303746] border border-[#414957] p-6 space-y-5 shadow-sm rounded-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#FFFFFF] border-b border-[#414957] pb-3">
               3. Delivery & Site Address
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Site Name & Project *
                 </label>
                 <input
@@ -497,24 +486,24 @@ function RfqCreateForm() {
                   value={siteName}
                   onChange={(e) => setSiteName(e.target.value)}
                   placeholder="e.g. Skylark Heights Phase 2"
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   City (Gujarat)
                 </label>
                 <input
                   type="text"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Street Address Line
                 </label>
                 <input
@@ -522,24 +511,24 @@ function RfqCreateForm() {
                   value={addressLine}
                   onChange={(e) => setAddressLine(e.target.value)}
                   placeholder="e.g. Near SP Ring Road, South Bopal"
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Pincode
                 </label>
                 <input
                   type="text"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Site Contact Person
                 </label>
                 <input
@@ -547,12 +536,12 @@ function RfqCreateForm() {
                   value={siteContactPerson}
                   onChange={(e) => setSiteContactPerson(e.target.value)}
                   placeholder="e.g. Ramesh Patel (Site Engineer)"
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Contact Phone
                 </label>
                 <input
@@ -560,18 +549,18 @@ function RfqCreateForm() {
                   value={siteContactPhone}
                   onChange={(e) => setSiteContactPhone(e.target.value)}
                   placeholder="+91 98250 12345"
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                <label className="block text-xs font-mono uppercase text-[#A8ADB7] mb-1 font-bold">
                   Vehicle Accessibility
                 </label>
                 <select
                   value={vehicleAccessibility}
                   onChange={(e: any) => setVehicleAccessibility(e.target.value)}
-                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 >
                   <option value="10-Wheeler Truck">10-Wheeler Heavy Truck</option>
                   <option value="Tata Ace / Small Truck">Tata Ace / Small Truck (Narrow Lane)</option>
@@ -587,14 +576,14 @@ function RfqCreateForm() {
           <div className="flex items-center justify-end gap-4 pt-4">
             <Link
               href="/buyer/dashboard"
-              className="px-6 py-3 bg-[#FFFFFF] border border-[#D9D8CF] hover:bg-[#E7E5DC] text-[#171A17] font-bold text-xs uppercase tracking-wider transition-colors"
+              className="px-6 py-3 bg-[#252B38] border border-[#414957] hover:bg-[#191B20] text-[#F1F2F4] font-bold text-xs uppercase tracking-wider transition-colors rounded-sm"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="px-8 py-3 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm"
+              className="px-8 py-3 bg-[#C66A42] hover:bg-[#B35A33] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm rounded-sm"
             >
               <span>{loading ? 'Broadcasting RFQ...' : 'Submit Requirement & Invite Bids'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -608,7 +597,7 @@ function RfqCreateForm() {
 
 export default function RfqCreatePage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs font-mono text-[#777970]">Loading RFQ Composer...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-xs font-mono text-[#A8ADB7]">Loading RFQ Composer...</div>}>
       <RfqCreateForm />
     </Suspense>
   );

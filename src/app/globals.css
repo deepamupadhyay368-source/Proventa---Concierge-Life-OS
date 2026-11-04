@@ -4,73 +4,73 @@
 
 @layer base {
   :root {
-    /* PROVENTA MINERAL OLIVE DESIGN SYSTEM */
-    /* Primary: #53634A | Background: #F2F0E9 | Typography: #171A17 | Accent: #B87948 */
-    /* White: #FFFFFF | Light Stone: #E7E5DC | Muted: #777970 | Border: #D9D8CF */
+    /* PROVENTA DARK INFRASTRUCTURE CORPORATE PALETTE */
+    /* Primary Background: #292F3D | Navigation: #191B20 | Secondary: #252B38 */
+    /* Working Surface: #303746 | Steel Blue: #536B88 | Primary Typography: #F1F2F4 */
+    /* Secondary Typography: #A8ADB7 | Structural Borders: #414957 | Accent Orange: #C66A42 */
 
-    --background: 44 20% 93%;     /* #F2F0E9 Warm Stone Base */
-    --foreground: 120 6% 10%;     /* #171A17 Near Black Typography */
+    --background: 223 20% 21%;     /* #292F3D Primary Background */
+    --foreground: 220 10% 95%;     /* #F1F2F4 Primary Typography */
 
-    --card: 0 0% 100%;           /* #FFFFFF Pure White Surface */
-    --card-foreground: 120 6% 10%;
+    --card: 220 19% 23%;           /* #303746 Working Surface */
+    --card-foreground: 220 10% 95%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 120 6% 10%;
+    --popover: 220 19% 23%;
+    --popover-foreground: 220 10% 95%;
 
-    /* Primary: Mineral Olive (#53634A) */
-    --primary: 96 14% 34%;
+    /* Primary: Steel Blue (#536B88) */
+    --primary: 213 24% 43%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Light Stone (#E7E5DC) */
-    --secondary: 48 18% 89%;
-    --secondary-foreground: 120 6% 10%;
+    /* Secondary Background (#252B38) */
+    --secondary: 222 20% 18%;
+    --secondary-foreground: 220 10% 95%;
 
-    /* Muted: Muted Stone Text (#777970) */
-    --muted: 48 18% 89%;
-    --muted-foreground: 73 4% 46%;
+    /* Muted Typography (#A8ADB7) */
+    --muted: 222 20% 18%;
+    --muted-foreground: 220 8% 69%;
 
-    /* Accent: Muted Copper (#B87948) */
-    --accent: 26 44% 50%;
+    /* Accent Orange (#C66A42) */
+    --accent: 18 54% 52%;
     --accent-foreground: 0 0% 100%;
 
-    /* Destructive / Error: #A9433B */
-    --destructive: 5 48% 45%;
+    /* Destructive / Error: #D9534F */
+    --destructive: 2 64% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Structural Borders: #D9D8CF */
-    --border: 50 11% 83%;
-    --input: 50 11% 83%;
-    --ring: 96 14% 34%;
+    /* Structural Borders (#414957) */
+    --border: 220 15% 30%;
+    --input: 220 15% 30%;
+    --ring: 213 24% 43%;
 
     --radius: 2px;
 
     /* Typographic System */
-    --font-sans: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
-    --font-display: 'Manrope', 'Inter', system-ui, sans-serif;
+    --font-sans: 'Inter', 'Manrope', 'DM Sans', system-ui, -apple-system, sans-serif;
+    --font-display: 'Inter', 'Manrope', 'DM Sans', system-ui, sans-serif;
     --font-mono: 'IBM Plex Mono', 'Geist Mono', 'SFMono-Regular', monospace;
   }
 
   .dark {
-    /* Maintained consistent with Mineral Olive specification */
-    --background: 44 20% 93%;
-    --foreground: 120 6% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 120 6% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 120 6% 10%;
-    --primary: 96 14% 34%;
+    --background: 223 20% 21%;
+    --foreground: 220 10% 95%;
+    --card: 220 19% 23%;
+    --card-foreground: 220 10% 95%;
+    --popover: 220 19% 23%;
+    --popover-foreground: 220 10% 95%;
+    --primary: 213 24% 43%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 48 18% 89%;
-    --secondary-foreground: 120 6% 10%;
-    --muted: 48 18% 89%;
-    --muted-foreground: 73 4% 46%;
-    --accent: 26 44% 50%;
+    --secondary: 222 20% 18%;
+    --secondary-foreground: 220 10% 95%;
+    --muted: 222 20% 18%;
+    --muted-foreground: 220 8% 69%;
+    --accent: 18 54% 52%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 5 48% 45%;
+    --destructive: 2 64% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 50 11% 83%;
-    --input: 50 11% 83%;
-    --ring: 96 14% 34%;
+    --border: 220 15% 30%;
+    --input: 220 15% 30%;
+    --ring: 213 24% 43%;
   }
 }
 
@@ -81,26 +81,26 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #F2F0E9;
-    color: #171A17;
+    background-color: #292F3D;
+    color: #F1F2F4;
   }
 
   body {
-    background-color: #F2F0E9;
-    color: #171A17;
+    background-color: #292F3D;
+    color: #F1F2F4;
     font-family: var(--font-sans);
     min-height: 100vh;
     letter-spacing: -0.011em;
   }
 
   ::selection {
-    background-color: #53634A;
+    background-color: #536B88;
     color: #FFFFFF;
   }
 
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: var(--font-display);
-    color: #171A17;
+    color: #F1F2F4;
     letter-spacing: -0.025em;
   }
 }
@@ -110,25 +110,25 @@
     text-wrap: balance;
   }
 
-  /* Mineral Olive Architecture System Helpers */
-  .olive-card {
-    background-color: #FFFFFF;
-    border: 1px solid #D9D8CF;
-    color: #171A17;
+  /* Infrastructure Corporate Design System Helpers */
+  .infra-card {
+    background-color: #303746;
+    border: 1px solid #414957;
+    color: #F1F2F4;
   }
 
-  .olive-panel {
-    background-color: #FFFFFF;
-    border: 1px solid #D9D8CF;
+  .infra-panel {
+    background-color: #252B38;
+    border: 1px solid #414957;
   }
 
-  .olive-btn-primary {
+  .infra-btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background-color: #53634A;
+    background-color: #536B88;
     color: #FFFFFF;
     font-weight: 600;
     text-transform: uppercase;
@@ -136,28 +136,46 @@
     font-size: 0.75rem;
     transition: background-color 0.15s ease-in-out;
   }
-  .olive-btn-primary:hover {
-    background-color: #43503B;
+  .infra-btn-primary:hover {
+    background-color: #435770;
   }
 
-  .olive-btn-secondary {
+  .infra-btn-orange {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background-color: #FFFFFF;
-    border: 1px solid #D9D8CF;
-    color: #171A17;
+    background-color: #C66A42;
+    color: #FFFFFF;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .infra-btn-orange:hover {
+    background-color: #B35A33;
+  }
+
+  .infra-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background-color: #303746;
+    border: 1px solid #414957;
+    color: #F1F2F4;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.75rem;
     transition: all 0.15s ease-in-out;
   }
-  .olive-btn-secondary:hover {
-    background-color: #E7E5DC;
-    border-color: #777970;
+  .infra-btn-secondary:hover {
+    background-color: #252B38;
+    border-color: #536B88;
   }
 }
 
@@ -170,21 +188,21 @@
   }
 }
 
-/* Restrained Architectural Scrollbar */
+/* Dark Infrastructure Architectural Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #F2F0E9;
+  background: #191B20;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #D9D8CF;
+  background: #414957;
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #777970;
+  background: #536B88;
 }

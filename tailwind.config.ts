@@ -10,55 +10,24 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
-        serif: ['var(--font-display)', 'Georgia', 'Cambria', 'serif'],
+        sans: ['var(--font-sans)', 'Inter', 'Manrope', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-display)', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
-        // PROVENTA MINERAL OLIVE DESIGN SYSTEM TOKENS
-        olive: {
-          DEFAULT: '#53634A', // Primary Mineral Olive
-          hover: '#43503B',
-          dark: '#384332',
-          light: '#6B7F60',
-          subtle: '#EEF1EC',
-          border: '#6B7F60',
-        },
-        stone: {
-          DEFAULT: '#F2F0E9', // Warm Stone Background
-          light: '#E7E5DC',   // Light Stone
-          surface: '#FFFFFF', // Pure White
-          border: '#D9D8CF',  // Structural Border
-          muted: '#777970',   // Muted Text
-          dark: '#171A17',    // Near Black
-        },
-        copper: {
-          DEFAULT: '#B87948', // Accent Muted Copper
-          hover: '#9F6539',
-          light: '#D18E5C',
-          subtle: '#F7EFE9',
-        },
-        status: {
-          success: '#496B4B',
-          warning: '#B87948',
-          error: '#A9433B',
-        },
-        // PROVENTA Construction Procurement Design System Tokens (Mapped to Mineral Olive)
-        construct: {
-          black: '#171A17',
-          olive: '#53634A',
-          'olive-hover': '#43503B',
-          copper: '#B87948',
-          stone: '#F2F0E9',
-          'stone-light': '#E7E5DC',
-          slate: '#2C302B',
-          surface: '#FFFFFF',
-          elevated: '#FFFFFF',
-          steel: '#D9D8CF',
-          border: '#D9D8CF',
-          muted: '#777970',
-          light: '#F2F0E9',
+        // PROVENTA DARK INFRASTRUCTURE CORPORATE PALETTE
+        infra: {
+          bg: '#292F3D',         // Primary background
+          nav: '#191B20',        // Navigation charcoal
+          secondary: '#252B38',  // Secondary background
+          surface: '#303746',    // Working surface / panel
+          steel: '#536B88',      // Steel blue
+          'steel-hover': '#435770',
+          orange: '#C66A42',     // Accent orange
+          'orange-hover': '#B35A33',
+          border: '#414957',     // Structural borders
+          text: '#F1F2F4',       // Primary typography
+          muted: '#A8ADB7',      // Secondary typography
           white: '#FFFFFF',
         },
         background: 'hsl(var(--background))',
@@ -102,9 +71,9 @@ const config: Config = {
         xs: '2px',
       },
       boxShadow: {
-        subtle: '0 1px 3px 0 rgba(23, 26, 23, 0.05), 0 1px 2px -1px rgba(23, 26, 23, 0.05)',
-        card: '0 4px 6px -1px rgba(23, 26, 23, 0.06), 0 2px 4px -2px rgba(23, 26, 23, 0.06)',
-        elevated: '0 10px 15px -3px rgba(23, 26, 23, 0.08), 0 4px 6px -4px rgba(23, 26, 23, 0.08)',
+        subtle: '0 1px 3px 0 rgba(0, 0, 0, 0.25), 0 1px 2px -1px rgba(0, 0, 0, 0.25)',
+        card: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3)',
+        elevated: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4)',
       },
       animation: {
         'fade-in': 'fadeIn 0.35s ease-out',

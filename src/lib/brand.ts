@@ -6,17 +6,20 @@
 
 
 export const BRAND_COLORS = {
-  primary: '#53634A', // Mineral Olive
-  background: '#F2F0E9', // Warm Stone
-  typography: '#171A17', // Near Black
-  accent: '#B87948', // Muted Copper
+  primary: '#536B88', // Steel Blue
+  background: '#292F3D', // Primary Background
+  nav: '#191B20', // Navigation Charcoal
+  secondaryBackground: '#252B38', // Secondary Background
+  surface: '#303746', // Working Surface
+  typography: '#F1F2F4', // Primary Typography
+  accent: '#C66A42', // Accent Orange
   white: '#FFFFFF', // Pure White
-  lightStone: '#E7E5DC', // Light Stone
-  mutedText: '#777970', // Muted Text
-  border: '#D9D8CF', // Border
-  success: '#496B4B',
-  warning: '#B87948',
-  error: '#A9433B',
+  steelBlue: '#536B88', // Steel Blue
+  mutedText: '#A8ADB7', // Secondary Typography
+  border: '#414957', // Structural Border
+  success: '#4A7C59',
+  warning: '#C66A42',
+  error: '#D9534F',
 } as const;
 
 export const BRAND_CONFIG = {

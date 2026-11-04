@@ -56,68 +56,68 @@ const BUYER_PROFILES = [
 
 export default function ForBuyersPage() {
   return (
-    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans">
+    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans">
       {/* Header Banner */}
-      <section className="border-b border-[#D9D8CF] bg-[#FFFFFF] py-16 lg:py-24">
+      <section className="border-b border-[#414957] bg-[#252B38] py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] text-xs font-mono text-[#53634A] uppercase tracking-wider font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#191B20] border border-[#414957] text-xs font-mono text-[#C66A42] uppercase tracking-wider font-semibold rounded-sm">
             <span>FOR BUYERS & BUILDERS</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#171A17] max-w-4xl font-heading leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] max-w-4xl font-heading leading-tight">
             COMMERCIAL PROCUREMENT. DIRECT WHOLESALE BIDDING.
           </h1>
-          <p className="text-sm sm:text-base text-[#777970] max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[#A8ADB7] max-w-3xl leading-relaxed">
             Eliminate intermediary broker fees and opaque dealer markups. Receive itemized quotations from verified material stockists across Gujarat in 2 to 4 hours.
           </p>
         </div>
       </section>
 
       {/* Buyer Profiles Grid */}
-      <section className="py-20 bg-[#F2F0E9]">
+      <section className="py-20 bg-[#292F3D]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {BUYER_PROFILES.map((profile) => (
               <div
                 key={profile.title}
-                className="bg-[#FFFFFF] border border-[#D9D8CF] p-8 flex flex-col justify-between space-y-6 shadow-sm"
+                className="bg-[#303746] border border-[#414957] p-8 flex flex-col justify-between space-y-6 shadow-sm rounded-sm hover:border-[#536B88] transition-colors"
               >
                 <div className="space-y-4">
-                  <div className="border-b border-[#D9D8CF] pb-3">
-                    <span className="font-mono text-xs uppercase tracking-wider text-[#53634A] font-bold">
+                  <div className="border-b border-[#414957] pb-3">
+                    <span className="font-mono text-xs uppercase tracking-wider text-[#536B88] font-bold">
                       {profile.focus}
                     </span>
-                    <h2 className="font-heading font-black text-xl uppercase tracking-wide text-[#171A17] mt-1">
+                    <h2 className="font-heading font-black text-xl uppercase tracking-wide text-[#FFFFFF] mt-1">
                       {profile.title}
                     </h2>
                   </div>
 
-                  <div className="text-xs font-mono text-[#B87948] font-bold">
+                  <div className="text-xs font-mono text-[#C66A42] font-bold">
                     Primary Materials: {profile.metrics}
                   </div>
 
-                  <p className="text-xs text-[#777970] leading-relaxed">
+                  <p className="text-xs text-[#A8ADB7] leading-relaxed">
                     {profile.description}
                   </p>
 
-                  <div className="pt-2 border-t border-[#D9D8CF]">
-                    <div className="font-mono text-[11px] uppercase tracking-wider text-[#171A17] font-bold mb-3">
+                  <div className="pt-2 border-t border-[#414957]">
+                    <div className="font-mono text-[11px] uppercase tracking-wider text-[#FFFFFF] font-bold mb-3">
                       Procurement Capabilities
                     </div>
-                    <ul className="space-y-2.5 text-xs text-[#171A17]">
+                    <ul className="space-y-2.5 text-xs text-[#F1F2F4]">
                       {profile.highlights.map((h, idx) => (
                         <li key={idx} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-[#53634A] shrink-0 mt-0.5" />
-                          <span className="leading-relaxed">{h}</span>
+                          <Check className="w-4 h-4 text-[#536B88] shrink-0 mt-0.5" />
+                          <span className="leading-relaxed text-[#A8ADB7]">{h}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#D9D8CF]">
+                <div className="pt-4 border-t border-[#414957]">
                   <Link
                     href="/rfq/new"
-                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors"
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors rounded-sm shadow-sm"
                   >
                     <span>Post Requirement</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -130,49 +130,49 @@ export default function ForBuyersPage() {
       </section>
 
       {/* Commercial Safeguards Section */}
-      <section className="py-20 bg-[#FFFFFF] border-t border-[#D9D8CF]">
+      <section className="py-20 bg-[#252B38] border-t border-[#414957]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
           <div className="max-w-2xl space-y-3">
-            <div className="font-mono text-xs uppercase tracking-widest text-[#53634A] font-bold">
+            <div className="font-mono text-xs uppercase tracking-widest text-[#C66A42] font-bold">
               COMMERCIAL SAFEGUARDS
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
               How PROVENTA Protects Buyers
             </h2>
-            <p className="text-sm text-[#777970]">
+            <p className="text-sm text-[#A8ADB7]">
               Built with enterprise-grade governance to guarantee material authenticity, accurate weight slips, and auditable invoicing.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
-              <ShieldCheck className="w-6 h-6 text-[#53634A]" />
-              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">100% GST Verified</h3>
-              <p className="text-xs text-[#777970] leading-relaxed">
+            <div className="p-6 bg-[#303746] border border-[#414957] space-y-3 rounded-sm">
+              <ShieldCheck className="w-6 h-6 text-[#536B88]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#FFFFFF]">100% GST Verified</h3>
+              <p className="text-xs text-[#A8ADB7] leading-relaxed">
                 Every supplier is verified against government GSTIN portals with matching corporate banking details.
               </p>
             </div>
 
-            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
-              <Scale className="w-6 h-6 text-[#53634A]" />
-              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">Transparent Landed Cost</h3>
-              <p className="text-xs text-[#777970] leading-relaxed">
+            <div className="p-6 bg-[#303746] border border-[#414957] space-y-3 rounded-sm">
+              <Scale className="w-6 h-6 text-[#536B88]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#FFFFFF]">Transparent Landed Cost</h3>
+              <p className="text-xs text-[#A8ADB7] leading-relaxed">
                 Quotations strictly separate basic rate, GST percentage, and transport freight. Zero hidden markups.
               </p>
             </div>
 
-            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
-              <Truck className="w-6 h-6 text-[#53634A]" />
-              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">Vehicle & Driver Tracking</h3>
-              <p className="text-xs text-[#777970] leading-relaxed">
+            <div className="p-6 bg-[#303746] border border-[#414957] space-y-3 rounded-sm">
+              <Truck className="w-6 h-6 text-[#536B88]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#FFFFFF]">Vehicle & Driver Tracking</h3>
+              <p className="text-xs text-[#A8ADB7] leading-relaxed">
                 Assigned registration numbers, vehicle capacity, driver contact, and E-Way bills recorded per dispatch.
               </p>
             </div>
 
-            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
-              <CheckCircle2 className="w-6 h-6 text-[#53634A]" />
-              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">Physical Sign-Off</h3>
-              <p className="text-xs text-[#777970] leading-relaxed">
+            <div className="p-6 bg-[#303746] border border-[#414957] space-y-3 rounded-sm">
+              <CheckCircle2 className="w-6 h-6 text-[#536B88]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#FFFFFF]">Physical Sign-Off</h3>
+              <p className="text-xs text-[#A8ADB7] leading-relaxed">
                 Transactions close only after site engineers verify physical delivery count and report any shortages.
               </p>
             </div>

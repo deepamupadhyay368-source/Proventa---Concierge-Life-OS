@@ -42,9 +42,9 @@ export default function RegisterDetailsPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-[#F2F0E9] flex items-center justify-center text-[#171A17]">
-        <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-[#777970]">
-          <Loader2 className="w-4 h-4 animate-spin text-[#53634A]" />
+      <div className="min-h-screen bg-[#292F3D] flex items-center justify-center text-[#F1F2F4]">
+        <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-[#A8ADB7]">
+          <Loader2 className="w-4 h-4 animate-spin text-[#536B88]" />
           <span>Verifying credentials...</span>
         </div>
       </div>
@@ -138,18 +138,18 @@ export default function RegisterDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] font-mono text-[10px] uppercase tracking-widest text-[#53634A] font-bold">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#53634A]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#191B20] border border-[#414957] font-mono text-[10px] uppercase tracking-widest text-[#536B88] font-bold rounded-sm">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#536B88]" />
             <span>REGISTRATION PROTOCOL</span>
           </div>
-          <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-[#171A17] uppercase">
+          <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-[#FFFFFF] uppercase">
             {isSuccess ? 'Account Established' : 'Complete Registration'}
           </h1>
-          <p className="font-mono text-xs text-[#777970]">
+          <p className="font-mono text-xs text-[#A8ADB7]">
             {isSuccess
               ? 'Your 12-digit Pass Key has been encrypted and saved.'
               : 'Create your 12-digit private Pass Key to initialize your procurement workspace.'}
@@ -158,24 +158,24 @@ export default function RegisterDetailsPage() {
 
         {/* Success Card */}
         {isSuccess ? (
-          <div className="mt-8 bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-6 shadow-sm">
-            <div className="p-4 bg-[#EEF1EC] border border-[#53634A] flex items-start gap-3">
-              <Check className="w-5 h-5 text-[#53634A] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#171A17] space-y-1">
-                <span className="font-bold uppercase tracking-wider block">
+          <div className="mt-8 bg-[#303746] border border-[#414957] p-6 sm:p-8 space-y-6 shadow-sm rounded-sm">
+            <div className="p-4 bg-[#252B38] border border-[#4A7C59] flex items-start gap-3 rounded-sm">
+              <Check className="w-5 h-5 text-[#4A7C59] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#F1F2F4] space-y-1">
+                <span className="font-bold uppercase tracking-wider block text-[#FFFFFF]">
                   Registration &amp; Key Creation Successful
                 </span>
-                <p className="text-[#777970]">
+                <p className="text-[#A8ADB7]">
                   Your PROVENTA account and private 12-digit numeric Pass Key have been established.
                   A confirmation email has been dispatched to your verified address.
                 </p>
               </div>
             </div>
 
-            <div className="p-4 bg-[#F2F0E9] border border-[#D9D8CF] text-xs font-mono text-[#777970] space-y-2">
-              <div className="flex items-center gap-2 text-[#53634A] font-bold">
+            <div className="p-4 bg-[#252B38] border border-[#414957] text-xs font-mono text-[#A8ADB7] space-y-2 rounded-sm">
+              <div className="flex items-center gap-2 text-[#536B88] font-bold">
                 <KeyRound className="w-4 h-4" />
-                <span className="uppercase">Mandatory Sign-In Requirement</span>
+                <span className="uppercase text-[#FFFFFF]">Mandatory Sign-In Requirement</span>
               </div>
               <p>
                 To enter your procurement portal, you must now sign in using your registered email and the 12-digit Pass Key you just created.
@@ -184,7 +184,7 @@ export default function RegisterDetailsPage() {
 
             <Link
               href="/sign-in?registered=true"
-              className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] font-heading font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm"
+              className="w-full py-3.5 bg-[#C66A42] text-white hover:bg-[#B35A33] font-heading font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm rounded-sm"
             >
               <span>Proceed to Sign In</span>
               <ArrowRight className="w-4 h-4" />
@@ -192,11 +192,11 @@ export default function RegisterDetailsPage() {
           </div>
         ) : (
           /* REGISTRATION DETAILS & PASS KEY CREATION FORM */
-          <div className="mt-8 bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-6 shadow-sm">
+          <div className="mt-8 bg-[#303746] border border-[#414957] p-6 sm:p-8 space-y-6 shadow-sm rounded-sm">
             {error && (
               <div
                 role="alert"
-                className="p-3.5 bg-[#A9433B]/10 border border-[#A9433B] text-xs text-[#A9433B] font-medium"
+                className="p-3.5 bg-[#252B38] border border-[#D9534F] text-xs text-[#D9534F] font-medium rounded-sm"
               >
                 {error}
               </div>
@@ -205,7 +205,7 @@ export default function RegisterDetailsPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Full Legal Name */}
               <div className="space-y-1">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
                   Full Name
                 </label>
                 <input
@@ -214,18 +214,18 @@ export default function RegisterDetailsPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Vikramaditya Singhania"
                   required
-                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
                 />
               </div>
 
               {/* Verified Email */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
                     Verified Email Address
                   </label>
-                  <span className="font-mono text-[10px] text-[#53634A] flex items-center gap-1 font-bold">
-                    <CheckCircle2 className="w-3 h-3 text-[#53634A]" />
+                  <span className="font-mono text-[10px] text-[#536B88] flex items-center gap-1 font-bold">
+                    <CheckCircle2 className="w-3 h-3 text-[#536B88]" />
                     Google Verified
                   </span>
                 </div>
@@ -233,13 +233,13 @@ export default function RegisterDetailsPage() {
                   type="email"
                   value={verifiedEmail}
                   disabled
-                  className="w-full px-3.5 py-2.5 bg-[#E7E5DC] border border-[#D9D8CF] text-sm text-[#777970] cursor-not-allowed select-all font-mono"
+                  className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] text-sm text-[#A8ADB7] cursor-not-allowed select-all font-mono rounded-sm"
                 />
               </div>
 
               {/* Mobile Number */}
               <div className="space-y-1">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
                   Mobile Contact Number
                 </label>
                 <input
@@ -248,38 +248,38 @@ export default function RegisterDetailsPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
                   required
-                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
                 />
               </div>
 
               {/* Country */}
               <div className="space-y-1">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
                   State / Jurisdiction
                 </label>
                 <input
                   type="text"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] transition-colors rounded-sm"
                 />
               </div>
 
               {/* SECTION: CUSTOMER CREATES THEIR OWN 12-DIGIT PASS KEY */}
-              <div className="pt-3 border-t border-[#D9D8CF] space-y-3">
+              <div className="pt-3 border-t border-[#414957] space-y-3">
                 <div className="flex items-center gap-2">
-                  <KeyRound className="w-4 h-4 text-[#53634A]" />
-                  <span className="font-heading text-xs uppercase font-bold tracking-wider text-[#171A17]">
+                  <KeyRound className="w-4 h-4 text-[#536B88]" />
+                  <span className="font-heading text-xs uppercase font-bold tracking-wider text-[#FFFFFF]">
                     Create Your 12-Digit PROVENTA Pass Key
                   </span>
                 </div>
-                <p className="text-[11px] font-mono text-[#777970] leading-relaxed">
+                <p className="text-[11px] font-mono text-[#A8ADB7] leading-relaxed">
                   Choose 12 numeric digits to serve as your private authentication key. You will enter this key alongside your email whenever you log in.
                 </p>
 
                 {/* Create 12-Digit Pass Key */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
                     Create 12-Digit Pass Key
                   </label>
                   <input
@@ -291,13 +291,13 @@ export default function RegisterDetailsPage() {
                     maxLength={14}
                     required
                     autoComplete="new-password"
-                    className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
                   />
                 </div>
 
                 {/* Confirm 12-Digit Pass Key */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
                     Confirm 12-Digit Pass Key
                   </label>
                   <input
@@ -309,19 +309,19 @@ export default function RegisterDetailsPage() {
                     maxLength={14}
                     required
                     autoComplete="new-password"
-                    className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
                   />
                 </div>
               </div>
 
               {/* Terms Checkbox */}
               <div className="pt-2">
-                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#777970]">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#A8ADB7]">
                   <input
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 accent-[#53634A]"
+                    className="mt-0.5 h-4 w-4 accent-[#C66A42]"
                   />
                   <span>
                     I accept the PROVENTA Terms of Service and Privacy Policy.
@@ -333,7 +333,7 @@ export default function RegisterDetailsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3.5 bg-[#C66A42] text-white hover:bg-[#B35A33] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm rounded-sm"
               >
                 {submitting ? (
                   <Loader2 className="w-4 h-4 animate-spin" />

@@ -105,92 +105,93 @@ const CATEGORIES = [
 
 export default function CategoriesCataloguePage() {
   return (
-    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans">
+    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans">
       {/* Header Banner */}
-      <section className="border-b border-[#D9D8CF] bg-[#FFFFFF] py-16 lg:py-24">
+      <section className="border-b border-[#414957] bg-[#252B38] py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] text-xs font-mono text-[#53634A] uppercase tracking-wider font-semibold">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#191B20] border border-[#414957] text-xs font-mono text-[#C66A42] uppercase tracking-wider font-semibold rounded-sm">
             <span>TECHNICAL SPECIFICATIONS DIRECTORY</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#171A17] max-w-4xl font-heading leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] max-w-4xl font-heading leading-tight">
             COMMERCIAL MATERIAL CATALOGUE
           </h1>
-          <p className="text-sm sm:text-base text-[#777970] max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[#A8ADB7] max-w-3xl leading-relaxed">
             Standard construction materials available for wholesale procurement, competitive quotation bidding, and coordinated site delivery across Gujarat.
           </p>
         </div>
       </section>
 
       {/* Catalogue Sections */}
-      <section className="py-20 bg-[#F2F0E9]">
+      <section className="py-20 bg-[#292F3D]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-16">
           {CATEGORIES.map((cat) => (
             <div
               key={cat.slug}
               id={cat.slug}
-              className="bg-[#FFFFFF] border border-[#D9D8CF] shadow-sm scroll-mt-24 overflow-hidden"
+              className="bg-[#303746] border border-[#414957] shadow-sm scroll-mt-24 overflow-hidden rounded-sm"
             >
               {/* Category Top Banner */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 border-b border-[#D9D8CF]">
+              <div className="grid grid-cols-1 lg:grid-cols-12 border-b border-[#414957]">
                 <div className="lg:col-span-8 p-8 lg:p-10 space-y-4">
-                  <div className="font-mono text-xs uppercase tracking-widest text-[#53634A] font-bold">
+                  <div className="font-mono text-xs uppercase tracking-widest text-[#536B88] font-bold">
                     PRIMARY MATERIAL DIVISION
                   </div>
-                  <h2 className="font-heading text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#171A17]">
+                  <h2 className="font-heading text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF]">
                     {cat.title}
                   </h2>
-                  <div className="text-xs font-mono text-[#B87948] font-bold">
+                  <div className="text-xs font-mono text-[#C66A42] font-bold">
                     {cat.subtitle}
                   </div>
-                  <p className="text-xs sm:text-sm text-[#777970] leading-relaxed max-w-3xl">
+                  <p className="text-xs sm:text-sm text-[#A8ADB7] leading-relaxed max-w-3xl">
                     {cat.description}
                   </p>
                 </div>
 
-                <div className="lg:col-span-4 relative aspect-[16/9] lg:aspect-auto bg-[#E7E5DC] border-t lg:border-t-0 lg:border-l border-[#D9D8CF]">
+                <div className="lg:col-span-4 relative aspect-[16/9] lg:aspect-auto bg-[#191B20] border-t lg:border-t-0 lg:border-l border-[#414957]">
                   <Image
                     src={cat.image}
                     alt={cat.title}
                     fill
-                    className="object-cover"
+                    className="object-cover brightness-90"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#303746]/80 via-transparent to-transparent" />
                 </div>
               </div>
 
               {/* Items Table */}
               <div className="p-6 lg:p-8">
-                <div className="font-mono text-xs uppercase tracking-wider text-[#171A17] font-bold pb-3 mb-4 border-b border-[#D9D8CF]">
+                <div className="font-mono text-xs uppercase tracking-wider text-[#FFFFFF] font-bold pb-3 mb-4 border-b border-[#414957]">
                   Standard Specification & Order Units
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs font-sans">
                     <thead>
-                      <tr className="border-b border-[#D9D8CF] font-mono uppercase text-[#777970]">
+                      <tr className="border-b border-[#414957] font-mono uppercase text-[#A8ADB7]">
                         <th className="py-2.5 pr-4">Material Classification</th>
                         <th className="py-2.5 px-4">Standard Procurement Unit</th>
                         <th className="py-2.5 pl-4">Engineering Spec & Primary Brands</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#D9D8CF]">
+                    <tbody className="divide-y divide-[#414957]">
                       {cat.materials.map((m, idx) => (
-                        <tr key={idx} className="hover:bg-[#F2F0E9]/60 transition-colors">
-                          <td className="py-3 pr-4 font-bold text-[#171A17]">{m.name}</td>
-                          <td className="py-3 px-4 font-mono text-[#53634A] font-bold">{m.unit}</td>
-                          <td className="py-3 pl-4 text-[#777970] font-mono text-[11px]">{m.spec}</td>
+                        <tr key={idx} className="hover:bg-[#252B38] transition-colors">
+                          <td className="py-3 pr-4 font-bold text-[#F1F2F4]">{m.name}</td>
+                          <td className="py-3 px-4 font-mono text-[#536B88] font-bold">{m.unit}</td>
+                          <td className="py-3 pl-4 text-[#A8ADB7] font-mono text-[11px]">{m.spec}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
 
-                <div className="pt-6 mt-6 border-t border-[#D9D8CF] flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-xs text-[#777970]">
+                <div className="pt-6 mt-6 border-t border-[#414957] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-xs text-[#A8ADB7]">
                     Need custom volumes, non-standard lengths, or specific test certificates?
                   </div>
                   <Link
                     href={`/rfq/new?category=${cat.slug}`}
-                    className="px-6 py-2.5 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors inline-flex items-center gap-2"
+                    className="px-6 py-2.5 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors inline-flex items-center gap-2 rounded-sm shadow-sm"
                   >
                     <span>Request Quotation for {cat.title.split(' (')[0]}</span>
                     <ArrowRight className="w-3.5 h-3.5" />

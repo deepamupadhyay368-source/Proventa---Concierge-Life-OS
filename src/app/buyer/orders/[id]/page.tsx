@@ -99,20 +99,20 @@ export default function PurchaseOrderDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-20 text-center space-y-3">
-        <Truck className="w-8 h-8 text-[#53634A] animate-bounce mx-auto" />
-        <div className="font-mono text-xs text-[#777970]">Loading Delivery Tracking & Purchase Order Details...</div>
+      <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-20 text-center space-y-3">
+        <Truck className="w-8 h-8 text-[#536B88] animate-bounce mx-auto" />
+        <div className="font-mono text-xs text-[#A8ADB7]">Loading Delivery Tracking & Purchase Order Details...</div>
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-20 text-center space-y-4">
-        <AlertTriangle className="w-8 h-8 text-[#A9433B] mx-auto" />
-        <div className="text-lg font-bold text-[#171A17]">Purchase Order Not Found</div>
-        <p className="text-xs text-[#777970]">{error || 'Invalid Order Reference'}</p>
-        <Link href="/buyer/dashboard" className="inline-block px-4 py-2 bg-[#FFFFFF] border border-[#D9D8CF] text-xs font-bold uppercase">
+      <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-20 text-center space-y-4">
+        <AlertTriangle className="w-8 h-8 text-[#D9534F] mx-auto" />
+        <div className="text-lg font-bold text-[#FFFFFF]">Purchase Order Not Found</div>
+        <p className="text-xs text-[#A8ADB7]">{error || 'Invalid Order Reference'}</p>
+        <Link href="/buyer/dashboard" className="inline-block px-4 py-2 bg-[#303746] border border-[#414957] text-xs font-bold uppercase text-[#F1F2F4] rounded-sm">
           Return to Dashboard
         </Link>
       </div>
@@ -123,81 +123,81 @@ export default function PurchaseOrderDetailPage() {
   const isCompleted = order.deliveryStatus === 'COMPLETED';
 
   return (
-    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-10">
+    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-mono text-[#777970]">
-          <Link href="/buyer/dashboard" className="hover:text-[#171A17] flex items-center gap-1">
+        <div className="flex items-center gap-2 text-xs font-mono text-[#A8ADB7]">
+          <Link href="/buyer/dashboard" className="hover:text-[#FFFFFF] flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Buyer Dashboard</span>
           </Link>
           <span>/</span>
           <span>Orders</span>
           <span>/</span>
-          <span className="text-[#53634A] font-bold">{order.referenceCode}</span>
+          <span className="text-[#536B88] font-bold">{order.referenceCode}</span>
         </div>
 
         {/* PO Header Card */}
-        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 lg:p-8 space-y-5 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D9D8CF] pb-4">
+        <div className="bg-[#303746] border border-[#414957] p-6 lg:p-8 space-y-5 shadow-sm rounded-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#414957] pb-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-[#171A17] px-2 py-0.5 bg-[#F2F0E9] border border-[#D9D8CF]">
+                <span className="font-mono text-xs font-bold text-[#FFFFFF] px-2 py-0.5 bg-[#191B20] border border-[#414957] rounded-sm">
                   {order.referenceCode}
                 </span>
-                <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#E7E5DC] text-[#53634A] border border-[#D9D8CF] font-bold">
+                <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#252B38] text-[#536B88] border border-[#414957] font-bold rounded-sm">
                   {order.deliveryStatus.replace(/_/g, ' ')}
                 </span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
                 Purchase Order Coordination
               </h1>
-              <div className="text-xs text-[#777970] font-mono">
-                Awarded from RFQ: <span className="text-[#171A17] font-bold">{order.rfqReferenceCode}</span> • Quote: <span className="text-[#171A17] font-bold">{order.quotationReferenceCode}</span>
+              <div className="text-xs text-[#A8ADB7] font-mono">
+                Awarded from RFQ: <span className="text-[#FFFFFF] font-bold">{order.rfqReferenceCode}</span> • Quote: <span className="text-[#FFFFFF] font-bold">{order.quotationReferenceCode}</span>
               </div>
             </div>
 
             <div className="text-right">
-              <div className="text-xs font-mono text-[#777970]">Grand Total Landed Cost</div>
-              <div className="font-mono text-2xl font-black text-[#53634A]">
+              <div className="text-xs font-mono text-[#A8ADB7]">Grand Total Landed Cost</div>
+              <div className="font-mono text-2xl font-black text-[#C66A42]">
                 ₹{order.grandTotal.toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] text-[#777970]">Inclusive of all GST & Freight</div>
+              <div className="text-[11px] text-[#A8ADB7]">Inclusive of all GST & Freight</div>
             </div>
           </div>
 
           {/* Supplier & Delivery Site Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <div className="bg-[#F2F0E9] p-4 border border-[#D9D8CF] space-y-2 text-xs">
-              <div className="font-mono text-[#53634A] font-bold uppercase">Awarded Supplier:</div>
-              <div className="text-sm font-bold text-[#171A17]">{order.supplierName}</div>
-              <div className="font-mono text-[#777970]">GSTIN: {order.supplierGstin}</div>
-              <div className="text-[#171A17]">Authorized Stockist Depot, Gujarat</div>
+            <div className="bg-[#252B38] p-4 border border-[#414957] space-y-2 text-xs rounded-sm">
+              <div className="font-mono text-[#536B88] font-bold uppercase">Awarded Supplier:</div>
+              <div className="text-sm font-bold text-[#FFFFFF]">{order.supplierName}</div>
+              <div className="font-mono text-[#A8ADB7]">GSTIN: {order.supplierGstin}</div>
+              <div className="text-[#F1F2F4]">Authorized Stockist Depot, Gujarat</div>
             </div>
 
-            <div className="bg-[#F2F0E9] p-4 border border-[#D9D8CF] space-y-2 text-xs">
-              <div className="font-mono text-[#53634A] font-bold uppercase">Delivery Site Address:</div>
-              <div className="text-sm font-bold text-[#171A17]">{order.delivery?.siteName}</div>
-              <div className="text-[#171A17]">{order.delivery?.addressLine}, {order.delivery?.city} - {order.delivery?.pincode}</div>
-              <div className="font-mono text-[#777970]">Site Contact: {order.delivery?.siteContactPerson} ({order.delivery?.siteContactPhone})</div>
+            <div className="bg-[#252B38] p-4 border border-[#414957] space-y-2 text-xs rounded-sm">
+              <div className="font-mono text-[#536B88] font-bold uppercase">Delivery Site Address:</div>
+              <div className="text-sm font-bold text-[#FFFFFF]">{order.delivery?.siteName}</div>
+              <div className="text-[#F1F2F4]">{order.delivery?.addressLine}, {order.delivery?.city} - {order.delivery?.pincode}</div>
+              <div className="font-mono text-[#A8ADB7]">Site Contact: {order.delivery?.siteContactPerson} ({order.delivery?.siteContactPhone})</div>
             </div>
           </div>
         </div>
 
         {/* 7-STAGE DELIVERY TRACKER */}
-        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 lg:p-8 space-y-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D9D8CF] pb-4">
+        <div className="bg-[#303746] border border-[#414957] p-6 lg:p-8 space-y-6 shadow-sm rounded-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#414957] pb-4">
             <div>
-              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#53634A] font-bold">
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#536B88] font-bold">
                 <Truck className="w-3.5 h-3.5" />
                 <span>STEP 5 · 7-STAGE MILESTONE DISPATCH</span>
               </div>
-              <h2 className="text-xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+              <h2 className="text-xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
                 Live Delivery Milestones
               </h2>
             </div>
-            <div className="font-mono text-xs text-[#777970]">
-              Stage {currentStageIndex + 1} of 7: <strong className="text-[#171A17]">{order.deliveryStatus}</strong>
+            <div className="font-mono text-xs text-[#A8ADB7]">
+              Stage {currentStageIndex + 1} of 7: <strong className="text-[#FFFFFF]">{order.deliveryStatus}</strong>
             </div>
           </div>
 
@@ -210,18 +210,18 @@ export default function PurchaseOrderDetailPage() {
               return (
                 <div
                   key={stage}
-                  className={`p-3 border text-xs space-y-1.5 transition-all ${
+                  className={`p-3 border text-xs space-y-1.5 transition-all rounded-sm ${
                     isCurrent
-                      ? 'bg-[#EEF1EC] border-[#53634A] text-[#171A17] shadow-sm'
+                      ? 'bg-[#252B38] border-[#C66A42] text-[#FFFFFF] shadow-sm'
                       : isPast
-                      ? 'bg-[#E7E5DC] border-[#D9D8CF] text-[#496B4B]'
-                      : 'bg-[#F2F0E9] border-[#D9D8CF] text-[#777970] opacity-60'
+                      ? 'bg-[#252B38] border-[#414957] text-[#4A7C59]'
+                      : 'bg-[#191B20] border-[#414957] text-[#A8ADB7] opacity-60'
                   }`}
                 >
                   <div className="flex items-center justify-between font-mono text-[10px]">
                     <span>0{idx + 1}</span>
-                    {isPast && <CheckCircle2 className="w-3 h-3 text-[#496B4B]" />}
-                    {isCurrent && <span className="w-2 h-2 bg-[#53634A]" />}
+                    {isPast && <CheckCircle2 className="w-3 h-3 text-[#4A7C59]" />}
+                    {isCurrent && <span className="w-2 h-2 bg-[#C66A42]" />}
                   </div>
                   <div className="font-heading font-bold text-[11px] uppercase tracking-tight leading-tight">
                     {stage.replace(/_/g, ' ')}
@@ -233,99 +233,99 @@ export default function PurchaseOrderDetailPage() {
 
           {/* Live Dispatch Vehicle & Driver Details */}
           {order.dispatchDetails ? (
-            <div className="bg-[#F2F0E9] border border-[#D9D8CF] p-5 space-y-4">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#53634A] font-bold">
+            <div className="bg-[#252B38] border border-[#414957] p-5 space-y-4 rounded-sm">
+              <div className="font-mono text-xs uppercase tracking-wider text-[#536B88] font-bold">
                 Vehicle Dispatch & Driver Assignment
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                 <div>
-                  <div className="text-[#777970] font-mono">Vehicle Number:</div>
-                  <div className="font-bold text-[#171A17] text-sm font-mono mt-0.5">{order.dispatchDetails.vehicleNumber}</div>
-                  <div className="text-[11px] text-[#777970]">{order.dispatchDetails.vehicleType}</div>
+                  <div className="text-[#A8ADB7] font-mono">Vehicle Number:</div>
+                  <div className="font-bold text-[#FFFFFF] text-sm font-mono mt-0.5">{order.dispatchDetails.vehicleNumber}</div>
+                  <div className="text-[11px] text-[#A8ADB7]">{order.dispatchDetails.vehicleType}</div>
                 </div>
 
                 <div>
-                  <div className="text-[#777970] font-mono">Driver In-Charge:</div>
-                  <div className="font-bold text-[#171A17] text-sm mt-0.5">{order.dispatchDetails.driverName}</div>
-                  <div className="text-[11px] text-[#53634A] font-mono flex items-center gap-1 mt-0.5 font-bold">
+                  <div className="text-[#A8ADB7] font-mono">Driver In-Charge:</div>
+                  <div className="font-bold text-[#FFFFFF] text-sm mt-0.5">{order.dispatchDetails.driverName}</div>
+                  <div className="text-[11px] text-[#536B88] font-mono flex items-center gap-1 mt-0.5 font-bold">
                     <Phone className="w-3 h-3" />
                     <span>{order.dispatchDetails.driverPhone}</span>
                   </div>
                 </div>
 
                 <div>
-                  <div className="text-[#777970] font-mono">Transporter:</div>
-                  <div className="font-bold text-[#171A17] text-sm mt-0.5">{order.dispatchDetails.transporterName}</div>
+                  <div className="text-[#A8ADB7] font-mono">Transporter:</div>
+                  <div className="font-bold text-[#FFFFFF] text-sm mt-0.5">{order.dispatchDetails.transporterName}</div>
                   {order.dispatchDetails.eWayBillNumber && (
-                    <div className="text-[11px] text-[#777970] font-mono">E-Way Bill: {order.dispatchDetails.eWayBillNumber}</div>
+                    <div className="text-[11px] text-[#A8ADB7] font-mono">E-Way Bill: {order.dispatchDetails.eWayBillNumber}</div>
                   )}
                 </div>
 
                 <div>
-                  <div className="text-[#777970] font-mono">Estimated Arrival:</div>
-                  <div className="font-bold text-[#171A17] text-sm font-mono mt-0.5">
+                  <div className="text-[#A8ADB7] font-mono">Estimated Arrival:</div>
+                  <div className="font-bold text-[#FFFFFF] text-sm font-mono mt-0.5">
                     {new Date(order.dispatchDetails.estimatedDeliveryTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
-                  <div className="text-[11px] text-[#777970]">
+                  <div className="text-[11px] text-[#A8ADB7]">
                     {new Date(order.dispatchDetails.estimatedDeliveryTime).toLocaleDateString()}
                   </div>
                 </div>
               </div>
 
               {order.dispatchDetails.trackingNotes && (
-                <div className="pt-2 border-t border-[#D9D8CF] text-xs text-[#171A17] font-mono">
+                <div className="pt-2 border-t border-[#414957] text-xs text-[#F1F2F4] font-mono">
                   Transit Note: &ldquo;{order.dispatchDetails.trackingNotes}&rdquo;
                 </div>
               )}
             </div>
           ) : (
-            <div className="bg-[#F2F0E9] border border-[#D9D8CF] p-4 text-center text-xs font-mono text-[#777970]">
+            <div className="bg-[#252B38] border border-[#414957] p-4 text-center text-xs font-mono text-[#A8ADB7] rounded-sm">
               Supplier has been notified to allocate warehouse stock and generate dispatch vehicle details.
             </div>
           )}
         </div>
 
         {/* PHYSICAL SITE DELIVERY SIGN-OFF */}
-        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 lg:p-8 space-y-6 shadow-sm">
-          <div className="border-b border-[#D9D8CF] pb-4">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#53634A] font-bold">
+        <div className="bg-[#303746] border border-[#414957] p-6 lg:p-8 space-y-6 shadow-sm rounded-sm">
+          <div className="border-b border-[#414957] pb-4">
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#536B88] font-bold">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>STEP 6 · CONFIRM & COMPLETE</span>
             </div>
-            <h2 className="text-xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+            <h2 className="text-xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
               Physical Site Delivery Sign-Off
             </h2>
-            <p className="text-xs text-[#777970]">
+            <p className="text-xs text-[#A8ADB7]">
               Upon truck arrival at site, verify material quantities, log any shortages, rate the supplier, and finalize the transaction.
             </p>
           </div>
 
           {isCompleted && order.receiptConfirmation ? (
-            <div className="bg-[#EEF1EC] border border-[#496B4B] p-6 space-y-4">
-              <div className="flex items-center gap-2 text-[#496B4B] font-bold text-sm font-heading uppercase tracking-wide">
+            <div className="bg-[#252B38] border border-[#4A7C59] p-6 space-y-4 rounded-sm">
+              <div className="flex items-center gap-2 text-[#4A7C59] font-bold text-sm font-heading uppercase tracking-wide">
                 <CheckCircle2 className="w-5 h-5" />
                 <span>Delivery Verified & Order Successfully Closed</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono text-[#171A17]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono text-[#F1F2F4]">
                 <div>
-                  <div className="text-[#777970]">Received By:</div>
+                  <div className="text-[#A8ADB7]">Received By:</div>
                   <div className="font-bold">{order.receiptConfirmation.receivedBy} ({order.receiptConfirmation.receiverPhone})</div>
                 </div>
                 <div>
-                  <div className="text-[#777970]">Delivered Quantity:</div>
+                  <div className="text-[#A8ADB7]">Delivered Quantity:</div>
                   <div className="font-bold">{order.receiptConfirmation.confirmedReceivedQuantity}</div>
                 </div>
                 <div>
-                  <div className="text-[#777970]">Supplier Rating:</div>
-                  <div className="font-bold text-[#B87948] flex items-center gap-1">
+                  <div className="text-[#A8ADB7]">Supplier Rating:</div>
+                  <div className="font-bold text-[#C66A42] flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-current" />
                     <span>{order.receiptConfirmation.supplierRating} / 5 Stars</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2 text-xs text-[#777970]">
+              <div className="pt-2 text-xs text-[#A8ADB7]">
                 Buyer Sign-Off Feedback: &ldquo;{order.receiptConfirmation.buyerFeedback}&rdquo;
               </div>
             </div>
@@ -333,7 +333,7 @@ export default function PurchaseOrderDetailPage() {
             <form onSubmit={handleConfirmReceipt} className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-[#777970] mb-1.5 font-bold">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#A8ADB7] mb-1.5 font-bold">
                     Site Receiver / Engineer Name *
                   </label>
                   <input
@@ -342,12 +342,12 @@ export default function PurchaseOrderDetailPage() {
                     value={receivedBy}
                     onChange={(e) => setReceivedBy(e.target.value)}
                     placeholder="e.g. Pravinbhai Patel"
-                    className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                    className="w-full bg-[#252B38] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-[#777970] mb-1.5 font-bold">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#A8ADB7] mb-1.5 font-bold">
                     Receiver Phone Number *
                   </label>
                   <input
@@ -356,12 +356,12 @@ export default function PurchaseOrderDetailPage() {
                     value={receiverPhone}
                     onChange={(e) => setReceiverPhone(e.target.value)}
                     placeholder="+91 98250 12345"
-                    className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                    className="w-full bg-[#252B38] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-[#777970] mb-1.5 font-bold">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#A8ADB7] mb-1.5 font-bold">
                     Delivered Quantity Check
                   </label>
                   <input
@@ -369,18 +369,18 @@ export default function PurchaseOrderDetailPage() {
                     value={confirmedQuantity}
                     onChange={(e) => setConfirmedQuantity(e.target.value)}
                     placeholder="e.g. 100% Full Order Verified on Site"
-                    className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                    className="w-full bg-[#252B38] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono uppercase tracking-wider text-[#777970] mb-1.5 font-bold">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-[#A8ADB7] mb-1.5 font-bold">
                     Supplier Rating (1 to 5)
                   </label>
                   <select
                     value={supplierRating}
                     onChange={(e) => setSupplierRating(Number(e.target.value))}
-                    className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                    className="w-full bg-[#252B38] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                   >
                     <option value={5}>5 Stars - Excellent on-time delivery</option>
                     <option value={4}>4 Stars - Good delivery</option>
@@ -392,14 +392,14 @@ export default function PurchaseOrderDetailPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#777970] mb-1.5 font-bold">
+                <label className="block text-xs font-mono uppercase tracking-wider text-[#A8ADB7] mb-1.5 font-bold">
                   Site Verification Feedback & Notes
                 </label>
                 <textarea
                   rows={2}
                   value={feedback}
                   onChange={(e) => setFeedback(e.target.value)}
-                  className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                  className="w-full bg-[#252B38] border border-[#414957] text-[#FFFFFF] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
                 />
               </div>
 
@@ -407,7 +407,7 @@ export default function PurchaseOrderDetailPage() {
                 <button
                   type="submit"
                   disabled={confirming}
-                  className="px-8 py-3 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-8 py-3 bg-[#C66A42] hover:bg-[#B35A33] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors shadow-sm rounded-sm"
                 >
                   {confirming ? 'Submitting Receipt...' : 'Confirm Delivery Receipt & Close PO'}
                 </button>
