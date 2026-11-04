@@ -168,7 +168,7 @@ export default function HomePage() {
         {/* Full-width authentic infrastructure photograph background with dark navy/slate gradient overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?auto=format&fit=crop&w=2400&q=85"
+            src="/images/hero-arch-cityscape.jpg"
             alt="Large Infrastructure Engineering & Construction"
             fill
             className="object-cover object-center"
