@@ -59,66 +59,76 @@ export default function RecoverPassKeyPage() {
     e.preventDefault();
     setError(null);
 
-    const cleanNew = newPassKey.replace(/[^0-9]/g, '');
+    const cleanPassKey = newPassKey.replace(/[^0-9]/g, '');
     const cleanConfirm = confirmPassKey.replace(/[^0-9]/g, '');
 
-    if (cleanNew.length !== 12) {
+    if (cleanPassKey.length !== 12) {
       setError('Your new PROVENTA Pass Key must be exactly 12 numeric digits.');
       return;
     }
 
-    if (cleanNew !== cleanConfirm) {
-      setError('12-digit Pass Key confirmation does not match.');
+    if (cleanPassKey !== cleanConfirm) {
+      setError('The confirmation Pass Key does not match.');
       return;
     }
 
     setLoading(true);
+
     try {
-      const res = await fetch('/api/auth/recover-passkey', {
+      const res = await fetch('/api/auth/passkey/reset', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          newPassKey: cleanNew,
-          confirmPassKey: cleanConfirm,
+          newPassKey: cleanPassKey,
         }),
       });
 
       const data = await res.json();
-      if (!res.ok || !data.success) {
-        setError(data.error || 'Failed to update pass key.');
-        setLoading(false);
-        return;
-      }
 
-      setIsSuccess(true);
-      await signOut({ redirect: false });
+      if (!res.ok) {
+        setError(data.error || 'Failed to update Pass Key. Please try again.');
+      } else {
+        setIsSuccess(true);
+        await signOut({ redirect: false });
+      }
     } catch {
-      setError('Network error updating pass key. Please retry.');
+      setError('Network error while resetting Pass Key. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#53634A] selection:text-white">
+      <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] rounded-xs font-mono text-[10px] uppercase tracking-widest text-[#7595FF]">
-            <KeyRound className="w-3 h-3 text-[#2457FF]" />
-            <span>SOVEREIGN KEY RECOVERY</span>
-          </div>
-          <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-[#F4F6FA] uppercase">
-            Recover Pass Key
-          </h1>
-          <p className="font-mono text-xs text-[#858D9B]">
-            Google-authenticated key rotation protocol.
+          <Link href="/" className="inline-flex items-center gap-3">
+            <div className="w-10 h-10 bg-[#53634A] text-[#FFFFFF] flex items-center justify-center font-heading font-black text-lg shadow-sm">
+              P
+            </div>
+            <span className="font-heading text-2xl tracking-[0.14em] uppercase font-black text-[#171A17]">
+              PROVENTA
+            </span>
+          </Link>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#777970] font-semibold">
+            Construction Procurement Platform
           </p>
         </div>
 
-        <div className="mt-8 bg-[#171C26] border border-[#252C38] rounded-xs p-6 sm:p-8 space-y-6 shadow-2xl">
+        <div className="border border-[#D9D8CF] bg-[#FFFFFF] p-8 shadow-sm space-y-6">
+          <div className="border-b border-[#D9D8CF] pb-4">
+            <h1 className="font-heading font-black text-2xl uppercase tracking-tight text-[#171A17]">
+              Recover Pass Key
+            </h1>
+            <p className="text-xs text-[#777970] mt-1">
+              Verify your identity via Google to set a new 12-digit numeric Pass Key.
+            </p>
+          </div>
+
           {error && (
             <div
               role="alert"
-              className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
+              className="p-3.5 bg-[#A9433B]/10 border border-[#A9433B] text-xs text-[#A9433B] font-medium"
             >
               {error}
             </div>
@@ -126,13 +136,13 @@ export default function RecoverPassKeyPage() {
 
           {isSuccess ? (
             <div className="space-y-6">
-              <div className="p-4 bg-[#2457FF]/10 border border-[#2457FF]/40 rounded-xs flex items-start gap-3">
-                <Check className="w-5 h-5 text-[#2457FF] shrink-0 mt-0.5" />
-                <div className="text-xs text-[#C5CAD3] space-y-1">
-                  <span className="font-bold text-[#F4F6FA] uppercase tracking-wider block">
+              <div className="p-4 bg-[#EEF1EC] border border-[#53634A] flex items-start gap-3">
+                <Check className="w-5 h-5 text-[#53634A] shrink-0 mt-0.5" />
+                <div className="text-xs text-[#171A17] space-y-1">
+                  <span className="font-bold text-[#171A17] uppercase tracking-wider block">
                     Pass Key Updated Successfully
                   </span>
-                  <p>
+                  <p className="text-[#777970]">
                     Your new 12-digit numeric Pass Key has been encrypted and secured.
                     Please sign in using your registered email and your new pass key.
                   </p>
@@ -141,7 +151,7 @@ export default function RecoverPassKeyPage() {
 
               <Link
                 href="/sign-in?recovered=true"
-                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2457FF]/20"
+                className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] font-heading font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm"
               >
                 <span>Proceed to Sign In</span>
                 <ArrowRight className="w-4 h-4" />
@@ -150,18 +160,18 @@ export default function RecoverPassKeyPage() {
           ) : session?.user ? (
             /* STEP 2: CREATE NEW 12-DIGIT PASS KEY */
             <form onSubmit={handleResetPassKey} className="space-y-5">
-              <div className="p-3.5 bg-[#090B10] border border-[#252C38] rounded-xs space-y-1">
+              <div className="p-3.5 bg-[#F2F0E9] border border-[#D9D8CF] space-y-1">
                 <div className="flex items-center justify-between text-xs font-mono">
-                  <span className="text-[#858D9B]">VERIFIED IDENTITY:</span>
-                  <span className="text-[#7595FF] flex items-center gap-1 font-bold">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-[#2457FF]" />
+                  <span className="text-[#777970]">VERIFIED IDENTITY:</span>
+                  <span className="text-[#53634A] flex items-center gap-1 font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#53634A]" />
                     {session.user.email}
                   </span>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
                   Enter New 12-Digit Pass Key
                 </label>
                 <input
@@ -173,12 +183,12 @@ export default function RecoverPassKeyPage() {
                   maxLength={14}
                   required
                   autoComplete="new-password"
-                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
                   Confirm New 12-Digit Pass Key
                 </label>
                 <input
@@ -190,14 +200,14 @@ export default function RecoverPassKeyPage() {
                   maxLength={14}
                   required
                   autoComplete="new-password"
-                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm"
               >
                 {loading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -212,7 +222,7 @@ export default function RecoverPassKeyPage() {
           ) : (
             /* STEP 1: VERIFY IDENTITY WITH GOOGLE */
             <div className="space-y-6">
-              <div className="p-4 bg-[#090B10] border border-[#252C38] rounded-xs text-xs font-mono text-[#C5CAD3] space-y-2">
+              <div className="p-4 bg-[#F2F0E9] border border-[#D9D8CF] text-xs font-mono text-[#777970] space-y-2">
                 <p>
                   To rotate your private 12-digit Pass Key, you must verify ownership of your registered Google account.
                 </p>
@@ -222,10 +232,10 @@ export default function RecoverPassKeyPage() {
                 type="button"
                 onClick={handleGoogleAuth}
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#252C38] rounded-xs bg-[#F4F6FA] hover:bg-white text-xs font-heading font-bold uppercase tracking-wider text-[#090B10] transition-all shadow-sm disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#D9D8CF] bg-[#FFFFFF] hover:bg-[#F2F0E9] text-xs font-heading font-bold uppercase tracking-wider text-[#171A17] transition-all shadow-sm disabled:opacity-50"
               >
                 {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin text-[#090B10]" />
+                  <Loader2 className="h-4 w-4 animate-spin text-[#171A17]" />
                 ) : (
                   <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
                     <path
@@ -251,10 +261,10 @@ export default function RecoverPassKeyPage() {
             </div>
           )}
 
-          <div className="pt-2 border-t border-[#252C38] text-center">
+          <div className="pt-2 border-t border-[#D9D8CF] text-center">
             <Link
               href="/sign-in"
-              className="text-xs font-mono text-[#858D9B] hover:text-white uppercase tracking-wider"
+              className="text-xs font-mono text-[#777970] hover:text-[#171A17] uppercase tracking-wider font-bold"
             >
               ← Back to Sign In
             </Link>

@@ -3,9 +3,9 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA — Financial Intelligence',
+  title: 'Sign In | PROVENTA — Construction Procurement Platform',
   description:
-    'Sign in to your PROVENTA Financial Intelligence Platform command cockpit with Google or your credentials.',
+    'Sign in to your PROVENTA Construction Procurement Platform command portal with your credentials.',
 };
 
 function getAuthErrorMessage(errorCode?: string): string | null {
@@ -50,37 +50,37 @@ export default async function SignInPage({
   const errorMessage = getAuthErrorMessage(params.error);
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#2457FF] selection:text-white">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#53634A] selection:text-white">
       <div className="w-full max-w-md space-y-8">
         {/* Architectural Header */}
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#2457FF] text-[#F4F6FA] flex items-center justify-center font-heading font-black text-lg rounded-xs shadow-md">
+            <div className="w-10 h-10 bg-[#53634A] text-[#FFFFFF] flex items-center justify-center font-heading font-black text-lg shadow-sm">
               P
             </div>
-            <span className="font-heading text-2xl tracking-[0.1em] uppercase font-black text-[#F4F6FA]">
+            <span className="font-heading text-2xl tracking-[0.14em] uppercase font-black text-[#171A17]">
               PROVENTA
             </span>
           </Link>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#858D9B]">
-            Financial Intelligence Platform
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#777970] font-semibold">
+            Construction Procurement Platform
           </p>
         </div>
 
         {params.registered && (
-          <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#7595FF] font-mono text-center">
+          <div className="p-4 bg-[#EEF1EC] border border-[#53634A] text-xs text-[#53634A] font-mono text-center font-bold">
             Registration complete. Please sign in using your registered email and 12-digit Pass Key.
           </div>
         )}
 
         {params.recovered && (
-          <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#7595FF] font-mono text-center">
+          <div className="p-4 bg-[#EEF1EC] border border-[#53634A] text-xs text-[#53634A] font-mono text-center font-bold">
             Pass Key updated successfully. Sign in with your new 12-digit Pass Key.
           </div>
         )}
 
         {params.verified && (
-          <div className="p-4 bg-[#171C26] border border-[#2457FF] rounded-xs text-xs text-[#F4F6FA] font-mono text-center">
+          <div className="p-4 bg-[#EEF1EC] border border-[#53634A] text-xs text-[#53634A] font-mono text-center font-bold">
             Account verified. Sign in with your registered email and 12-digit Pass Key.
           </div>
         )}
@@ -88,20 +88,20 @@ export default async function SignInPage({
         {errorMessage && (
           <div
             role="alert"
-            className="p-4 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-mono text-center"
+            className="p-4 bg-[#A9433B]/10 border border-[#A9433B] text-xs text-[#A9433B] font-mono text-center font-bold"
           >
             {errorMessage}
           </div>
         )}
 
         {/* Clean Auth Card */}
-        <div className="rounded-xs border border-[#252C38] bg-[#171C26] p-8 shadow-2xl space-y-6">
-          <div className="border-b border-[#252C38] pb-4">
-            <h1 className="font-heading font-black text-2xl uppercase tracking-tight text-[#F4F6FA]">
+        <div className="border border-[#D9D8CF] bg-[#FFFFFF] p-8 shadow-sm space-y-6">
+          <div className="border-b border-[#D9D8CF] pb-4">
+            <h1 className="font-heading font-black text-2xl uppercase tracking-tight text-[#171A17]">
               Sign In
             </h1>
-            <p className="text-xs text-[#C5CAD3] mt-1">
-              Access your family balance sheet, encrypted vault, and wealth cockpits.
+            <p className="text-xs text-[#777970] mt-1">
+              Access your buyer dashboard, RFQ comparison matrices, and delivery trackers.
             </p>
           </div>
 
@@ -109,12 +109,12 @@ export default async function SignInPage({
         </div>
 
         {/* Bottom Registration Switcher */}
-        <div className="rounded-xs border border-[#252C38] bg-[#171C26]/60 p-4 font-mono text-xs text-[#C5CAD3]">
+        <div className="border border-[#D9D8CF] bg-[#FFFFFF] p-4 font-mono text-xs text-[#171A17] shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[#858D9B]">NEW TO PROVENTA?</span>
+            <span className="text-[#777970]">NEW TO PROVENTA?</span>
             <Link
               href="/sign-up"
-              className="text-[#2457FF] hover:underline font-bold"
+              className="text-[#53634A] hover:underline font-bold"
             >
               CREATE ACCOUNT →
             </Link>

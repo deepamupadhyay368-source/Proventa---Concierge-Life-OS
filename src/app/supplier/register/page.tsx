@@ -10,7 +10,6 @@ import {
   ArrowRight,
   AlertCircle,
   Building2,
-  MapPin,
 } from 'lucide-react';
 
 const CATEGORY_LIST = [
@@ -129,49 +128,49 @@ export default function SupplierRegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans py-10">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-10">
       <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-mono text-[#858D9B]">
-          <Link href="/" className="hover:text-white">PROVENTA</Link>
+        <div className="flex items-center gap-2 text-xs font-mono text-[#777970]">
+          <Link href="/" className="hover:text-[#171A17]">PROVENTA</Link>
           <span>/</span>
-          <Link href="/supplier/dashboard" className="hover:text-white">Supplier Portal</Link>
+          <Link href="/supplier/dashboard" className="hover:text-[#171A17]">Supplier Portal</Link>
           <span>/</span>
-          <span className="text-[#F25C05]">Supplier Onboarding</span>
+          <span className="text-[#53634A] font-bold">Supplier Onboarding</span>
         </div>
 
-        {/* Page Title */}
-        <div className="space-y-2 border-b border-[#252C38] pb-6">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#171C26] border border-[#252C38] rounded-xs text-[11px] font-mono text-[#F25C05]">
+        {/* Title Header */}
+        <div className="space-y-2 border-b border-[#D9D8CF] pb-6 bg-[#FFFFFF] p-6 sm:p-8 border shadow-sm">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#E7E5DC] border border-[#D9D8CF] text-[11px] font-mono text-[#53634A] font-bold">
             <Store className="w-3.5 h-3.5" />
-            <span>DEALERSHIP & STOCKIST ONBOARDING</span>
+            <span>VERIFIED SUPPLIER ENROLMENT</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white font-heading">
-            Register as Verified Material Supplier
+          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+            Supplier & Stockist Registration
           </h1>
-          <p className="text-sm text-[#C5CAD3]">
-            Connect your inventory and stockyards to builders, contractors, and developers across Ahmedabad & Gujarat.
+          <p className="text-sm text-[#777970]">
+            Join the verified Gujarat construction supply network. Receive active contractor RFQs and quote wholesale rates directly.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
-            <div className="p-4 bg-red-950/40 border border-red-800 rounded-xs text-red-200 text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+            <div className="p-4 bg-[#F7EFE9] border border-[#B87948] text-[#A9433B] text-xs font-mono flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Section 1: Business Identity & GST */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white border-b border-[#252C38] pb-3">
-              1. Business Identity & GST Details
+          {/* Section 1: Business & Tax Verification */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-5 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              1. Business Profile & GSTIN Verification
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Business / Firm Trading Name *
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Registered Firm / Business Name *
                 </label>
                 <input
                   type="text"
@@ -179,169 +178,173 @@ export default function SupplierRegisterPage() {
                   value={businessName}
                   onChange={(e) => setBusinessName(e.target.value)}
                   placeholder="e.g. Gujarat Building Materials Syndicate"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  15-Digit GSTIN Number *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  GSTIN (15 Digits) *
                 </label>
                 <input
                   type="text"
                   required
                   maxLength={15}
                   value={gstin}
-                  onChange={(e) => setGstin(e.target.value.toUpperCase())}
-                  placeholder="e.g. 24AAACG1928K1Z5"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm font-mono rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  onChange={(e) => setGstin(e.target.value)}
+                  placeholder="24AAAAA0000A1Z5"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs font-mono uppercase focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Authorised Contact Person *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Contact Person *
                 </label>
                 <input
                   type="text"
                   required
                   value={contactPerson}
                   onChange={(e) => setContactPerson(e.target.value)}
-                  placeholder="e.g. Kiritbhai Patel"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  placeholder="e.g. Mukeshbhai Patel"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Direct Mobile / WhatsApp Phone *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Business Email
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="sales@gujaratmaterials.in"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Dispatch Contact Phone *
                 </label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+91 98250 14829"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  placeholder="+91 98251 23456"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Official Orders Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="sales@gujaratbuildingmaterials.in"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Stockyard / Warehouse Physical Address *
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Stockyard / Depot Street Address
                 </label>
                 <input
                   type="text"
-                  required
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder="e.g. Plot 42, GIDC Odhav Industrial Estate, Ahmedabad - 382415"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  placeholder="Plot 42, GIDC Phase 2, Sanand-Bavla Road"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
             </div>
           </div>
 
-          {/* Section 2: Material Categories & Brands */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white border-b border-[#252C38] pb-3">
-              2. Material Categories & Brands Distributed
+          {/* Section 2: Material Categories Offered */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-5 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              2. Material Categories & Dealerships
             </h2>
 
             <div className="space-y-3">
-              <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B]">
-                Primary Material Categories (Select All That Apply) *
+              <label className="block text-xs font-mono uppercase text-[#777970] font-bold">
+                Select Supplied Categories *
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {CATEGORY_LIST.map((c) => (
-                  <button
-                    key={c.slug}
-                    type="button"
-                    onClick={() => toggleCategory(c.slug)}
-                    className={`p-3 rounded-xs border text-xs text-left transition-colors flex items-center justify-between ${
-                      selectedCategories.includes(c.slug)
-                        ? 'bg-[#090B10] border-[#F25C05] text-white font-bold'
-                        : 'bg-[#090B10] border-[#252C38] text-[#858D9B] hover:border-[#858D9B]'
-                    }`}
-                  >
-                    <span>{c.name}</span>
-                    {selectedCategories.includes(c.slug) && (
-                      <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0" />
-                    )}
-                  </button>
-                ))}
+                {CATEGORY_LIST.map((c) => {
+                  const isChecked = selectedCategories.includes(c.slug);
+                  return (
+                    <button
+                      type="button"
+                      key={c.slug}
+                      onClick={() => toggleCategory(c.slug)}
+                      className={`p-3 text-left border text-xs transition-colors flex items-center justify-between ${
+                        isChecked
+                          ? 'bg-[#EEF1EC] border-[#53634A] text-[#171A17]'
+                          : 'bg-[#F2F0E9] border-[#D9D8CF] text-[#777970] hover:text-[#171A17]'
+                      }`}
+                    >
+                      <span className="font-bold">{c.name}</span>
+                      {isChecked && <CheckCircle2 className="w-4 h-4 text-[#53634A] shrink-0" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                Authorized Brands Offered (Comma-separated)
+            <div className="pt-2">
+              <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                Authorized Brands & Dealerships Held
               </label>
               <input
                 type="text"
                 value={brands}
                 onChange={(e) => setBrands(e.target.value)}
                 placeholder="UltraTech, Ambuja, Tata Tiscon, Jindal Panther, Astral, Polycab"
-                className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
               />
             </div>
           </div>
 
-          {/* Section 3: Delivery Zones in Gujarat */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white border-b border-[#252C38] pb-3">
-              3. Operating Delivery Coverage (Ahmedabad & Gujarat)
+          {/* Section 3: Operating Zones in Gujarat */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-5 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              3. Delivery Reach & Operating Zones
             </h2>
 
             <div className="space-y-3">
-              <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B]">
-                Active Transit Zones (You will receive RFQs for these areas)
+              <label className="block text-xs font-mono uppercase text-[#777970] font-bold">
+                Zones you can service with guaranteed dispatch:
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {AHMEDABAD_ZONES.map((zone) => (
-                  <button
-                    key={zone}
-                    type="button"
-                    onClick={() => toggleZone(zone)}
-                    className={`p-2.5 rounded-xs border text-xs text-left transition-colors font-mono ${
-                      selectedZones.includes(zone)
-                        ? 'bg-[#090B10] border-[#F25C05] text-[#F25C05] font-bold'
-                        : 'bg-[#090B10] border-[#252C38] text-[#858D9B] hover:border-[#858D9B]'
-                    }`}
-                  >
-                    <span>{selectedZones.includes(zone) ? '✓ ' : '+ '}{zone}</span>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+                {AHMEDABAD_ZONES.map((zone) => {
+                  const isChecked = selectedZones.includes(zone);
+                  return (
+                    <button
+                      type="button"
+                      key={zone}
+                      onClick={() => toggleZone(zone)}
+                      className={`p-2.5 text-left border text-[11px] font-mono transition-colors ${
+                        isChecked
+                          ? 'bg-[#EEF1EC] border-[#53634A] text-[#171A17] font-bold'
+                          : 'bg-[#F2F0E9] border-[#D9D8CF] text-[#777970]'
+                      }`}
+                    >
+                      {isChecked ? '✓ ' : '+ '} {zone}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
 
-          {/* Submit */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#252C38]">
-            <div className="text-xs text-[#858D9B] flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#F25C05]" />
-              <span>Free registration • 100% verified leads directly to your dashboard</span>
-            </div>
-
+          {/* Submit Actions */}
+          <div className="flex items-center justify-end gap-4 pt-4">
+            <Link
+              href="/"
+              className="px-6 py-3 bg-[#FFFFFF] border border-[#D9D8CF] hover:bg-[#E7E5DC] text-[#171A17] font-bold text-xs uppercase tracking-wider transition-colors"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-xl shadow-[#F25C05]/20"
+              className="px-8 py-3 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm"
             >
-              <span>{loading ? 'Submitting Details...' : 'Complete Dealership Registration'}</span>
+              <span>{loading ? 'Submitting Application...' : 'Complete Supplier Onboarding'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

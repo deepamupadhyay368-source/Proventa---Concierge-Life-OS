@@ -8,20 +8,19 @@ import {
   CheckCircle2,
   Truck,
   ShieldCheck,
-  ArrowUpRight,
   Building2,
-  MapPin,
   Check,
+  ArrowRight,
 } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/brand';
 
 const DETAILED_STEPS = [
   {
     step: '01',
-    title: 'CREATE REQUIREMENT',
+    title: 'SUBMIT REQUIREMENTS',
     subtitle: 'Standardized Multi-Item Schedule',
     code: 'STAGE 01 · SPECIFICATION',
-    badge: 'RFQ-XXXXX',
+    badge: 'RFQ Schedule',
     icon: FileText,
     overview:
       'Contractors, builders, and developers submit structured procurement schedules specifying material grades, quantities in standard industrial units, project site location, and preferred delivery dates.',
@@ -30,21 +29,21 @@ const DETAILED_STEPS = [
       'Standardized units: Metric Tonnes (MT), Bags (50kg), Cu.ft, Cu.m, Sq.ft, Pieces (Nos), Litres',
       'BOQ & technical specification PDF or Excel document attachments',
       'Site delivery address with vehicle access specifications (10-wheeler, Tata Ace, Transit Mixer)',
-      'Unique auto-generated RFQ ID (e.g., RFQ-74102) with privacy-protected buyer contact',
+      'Unique auto-generated RFQ ID with privacy-protected buyer contact',
     ],
   },
   {
     step: '02',
     title: 'INVITE SUPPLIERS',
     subtitle: 'Zone & Category Routing',
-    code: 'STAGE 02 · DISPATCH',
-    badge: '100% Verified',
+    code: 'STAGE 02 · BROADCAST',
+    badge: 'Verified Stockists',
     icon: Users,
     overview:
-      'The requirement is routed to authorised stockists and manufacturers with active physical yards in the delivery zone across Ahmedabad and Gujarat.',
+      'The requirement is routed to authorized stockists and manufacturers with active physical stockyards in the project delivery zone.',
     deliverables: [
       'Matching by primary category (Building Materials, Electrical, Plumbing, Tiles, Finishing, Doors/Windows)',
-      'Geographic filtering matching active stockyards in Odhav, Changodar, Sanand, Sola, Bopal, etc.',
+      'Geographic filtering matching active stockyards across Ahmedabad, Sanand, Changodar, and Gujarat',
       'Manual admin invitation override facility for specialized or high-tonnage institutional tenders',
       'Buyer contact privacy: Supplier sees project site zone, not raw phone numbers until order confirmation',
     ],
@@ -54,7 +53,7 @@ const DETAILED_STEPS = [
     title: 'RECEIVE QUOTATIONS',
     subtitle: 'Itemized Commercial Bids',
     code: 'STAGE 03 · BIDDING',
-    badge: 'Full Line Items',
+    badge: 'Itemized Pricing',
     icon: Scale,
     overview:
       'Suppliers submit formal, binding quotations detailing item-level rates, applicable GST percentages, transportation freight, validity windows, and payment terms.',
@@ -68,10 +67,10 @@ const DETAILED_STEPS = [
   },
   {
     step: '04',
-    title: 'COMPARE & SELECT',
-    subtitle: 'Apples-to-Apples Decision Matrix',
+    title: 'COMPARE OFFERS',
+    subtitle: 'Side-by-Side Evaluation Matrix',
     code: 'STAGE 04 · SELECTION',
-    badge: 'Buyer Confirms',
+    badge: 'Explicit Approval',
     icon: CheckCircle2,
     overview:
       'Buyers view all received quotes in an objective comparison matrix comparing landed cost, brand, lead time, and verification. No supplier is ever selected automatically.',
@@ -85,30 +84,30 @@ const DETAILED_STEPS = [
   },
   {
     step: '05',
-    title: 'COORDINATE DELIVERY',
-    subtitle: 'Assigned Vehicle & E-Way Bill',
-    code: 'STAGE 05 · LOGISTICS',
-    badge: 'PO-XXXXX',
+    title: 'SELECT SUPPLIER & GENERATE PO',
+    subtitle: 'Official Purchase Order',
+    code: 'STAGE 05 · CONTRACT',
+    badge: 'PO Generation',
     icon: Truck,
     overview:
       'Upon quotation selection, a formal Purchase Order is issued. The supplier inputs vehicle details, driver credentials, and government E-Way Bill for site coordination.',
     deliverables: [
-      'Official Purchase Order generation (e.g., PO-58219) with contractual terms',
+      'Official Purchase Order generation with binding commercial terms',
       'Dispatch payload: Vehicle registration number, vehicle type, driver name & direct phone number',
       'Transporter company name and government E-Way Bill number',
-      '6 Sequential Delivery Stages: ORDER_CONFIRMED → PROCESSING → READY_FOR_DISPATCH → DISPATCHED → IN_TRANSIT → DELIVERED',
+      '7-stage milestone dispatch tracking from stockyard to construction site',
       'Real-time status updates and direct site supervisor alerts',
     ],
   },
   {
     step: '06',
-    title: 'CONFIRM & COMPLETE',
+    title: 'COORDINATE DELIVERY & SIGN-OFF',
     subtitle: 'Physical Inspection & Digital POD',
-    code: 'STAGE 06 · CLOSEOUT',
-    badge: 'Closed PO',
+    code: 'STAGE 06 · DELIVERY',
+    badge: 'Proof of Delivery',
     icon: ShieldCheck,
     overview:
-      'Site engineers physically inspect the delivered consignment upon arrival, record delivered quantities against challan, record any damages or shortages with photo logs, and confirm receipt.',
+      'Site engineers physically inspect the delivered consignment upon arrival, record delivered quantities against challan, log any shortages or damages, and confirm receipt.',
     deliverables: [
       'Delivered quantity verification against ordered BOQ count',
       'Shortage and transit damage incident logging with photo uploads',
@@ -121,70 +120,69 @@ const DETAILED_STEPS = [
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans">
       {/* Header Banner */}
-      <section className="border-b border-[#252C38] bg-[#090B10] py-16 lg:py-24">
+      <section className="border-b border-[#D9D8CF] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] text-[11px] font-mono text-[#F25C05] uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] text-xs font-mono text-[#53634A] uppercase tracking-wider font-semibold">
             <span>OPERATIONAL BLUEPRINT</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] max-w-4xl font-sans">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#171A17] max-w-4xl font-heading leading-tight">
             HOW CONSTRUCTION PROCUREMENT WORKS ON PROVENTA
           </h1>
-          <p className="text-sm sm:text-base text-[#C5CAD3] max-w-3xl leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-[#777970] max-w-3xl leading-relaxed">
             A structured six-step workflow engineered to eliminate broker markups, inaccurate material grades, and uncoordinated site deliveries across India&apos;s construction industry.
           </p>
         </div>
       </section>
 
       {/* Six Steps Breakdown */}
-      <section className="py-20 bg-[#090B10]">
+      <section className="py-20 bg-[#F2F0E9]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
           {DETAILED_STEPS.map((step) => {
-            const Icon = step.icon;
             return (
               <div
                 key={step.step}
-                className="bg-[#171C26] border border-[#252C38] p-8 lg:p-10"
+                className="bg-[#FFFFFF] border border-[#D9D8CF] p-8 lg:p-10 shadow-sm"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                   {/* Left: Step Info */}
                   <div className="lg:col-span-5 space-y-4">
-                    <div className="flex items-center justify-between border-b border-[#252C38] pb-3">
-                      <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
+                    <div className="flex items-center justify-between border-b border-[#D9D8CF] pb-3">
+                      <span className="font-mono text-xs uppercase tracking-widest text-[#53634A] font-bold">
                         {step.code}
                       </span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#090B10] border border-[#252C38] text-[#858D9B]">
+                      <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#E7E5DC] text-[#171A17]">
                         {step.badge}
                       </span>
                     </div>
 
                     <div className="flex items-baseline gap-4 pt-1">
-                      <span className="font-mono text-3xl font-black text-[#F25C05]">{step.step}</span>
-                      <h2 className="font-sans font-black text-xl uppercase tracking-wide text-[#FFFFFF]">
+                      <span className="font-mono text-3xl font-black text-[#53634A]">{step.step}</span>
+                      <h2 className="font-heading font-black text-xl uppercase tracking-wide text-[#171A17]">
                         {step.title}
                       </h2>
                     </div>
 
-                    <div className="text-xs font-mono text-[#858D9B] uppercase tracking-wider">
+                    <div className="text-xs font-mono text-[#777970] uppercase tracking-wider font-medium">
                       {step.subtitle}
                     </div>
 
-                    <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed pt-1 font-normal">
+                    <p className="text-xs sm:text-sm text-[#777970] leading-relaxed pt-1">
                       {step.overview}
                     </p>
                   </div>
 
                   {/* Right: Deliverables List */}
-                  <div className="lg:col-span-7 bg-[#090B10] border border-[#252C38] p-6 lg:p-8 space-y-4">
-                    <div className="font-mono text-[11px] uppercase tracking-wider text-[#858D9B] pb-2 border-b border-[#252C38]">
-                      OPERATIONAL PROTOCOLS & SYSTEM OUTPUTS
+                  <div className="lg:col-span-7 bg-[#F2F0E9] border border-[#D9D8CF] p-6 lg:p-8 space-y-4">
+                    <div className="font-mono text-xs uppercase tracking-wider text-[#171A17] font-bold pb-2 border-b border-[#D9D8CF]">
+                      OPERATIONAL PROTOCOLS & OUTPUTS
                     </div>
-                    <ul className="space-y-3 text-xs sm:text-sm text-[#C5CAD3]">
+                    <ul className="space-y-3 text-xs sm:text-sm text-[#171A17]">
                       {step.deliverables.map((item, idx) => (
                         <li key={idx} className="flex items-start gap-3">
-                          <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                          <span>{item}</span>
+                          <Check className="w-4 h-4 text-[#53634A] shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{item}</span>
                         </li>
                       ))}
                     </ul>
@@ -197,19 +195,19 @@ export default function HowItWorksPage() {
       </section>
 
       {/* ABOUT US SECTION — Authority, Infrastructure & Corporate Verification */}
-      <section id="about" className="py-20 lg:py-28 bg-[#171C26] border-t border-[#252C38]">
+      <section id="about" className="py-20 lg:py-28 bg-[#FFFFFF] border-t border-[#D9D8CF]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
-          <div className="pb-8 border-b border-[#252C38]">
-            <div className="font-mono text-xs uppercase tracking-widest text-[#F25C05] mb-2 font-semibold">
+          <div className="pb-8 border-b border-[#D9D8CF]">
+            <div className="font-mono text-xs uppercase tracking-widest text-[#53634A] mb-2 font-bold">
               ABOUT PROVENTA
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF]">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#171A17] font-heading">
               ENTERPRISE PROCUREMENT INFRASTRUCTURE
             </h2>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            <div className="lg:col-span-7 space-y-6 text-sm text-[#C5CAD3] leading-relaxed">
+            <div className="lg:col-span-7 space-y-6 text-sm text-[#777970] leading-relaxed">
               <p>
                 PROVENTA is a dedicated construction procurement platform built to establish operational transparency, competitive bidding, and reliable site logistics for India&apos;s construction and infrastructure sector.
               </p>
@@ -221,29 +219,29 @@ export default function HowItWorksPage() {
               </p>
             </div>
 
-            <div className="lg:col-span-5 bg-[#090B10] border border-[#252C38] p-8 space-y-6 font-mono text-xs">
-              <div className="border-b border-[#252C38] pb-3 font-bold text-sm text-[#F4F6FA] uppercase">
+            <div className="lg:col-span-5 bg-[#F2F0E9] border border-[#D9D8CF] p-8 space-y-6 font-mono text-xs">
+              <div className="border-b border-[#D9D8CF] pb-3 font-bold text-xs text-[#171A17] uppercase">
                 OPERATIONAL COMMITMENTS
               </div>
-              <div className="space-y-4 text-[#C5CAD3]">
+              <div className="space-y-4 text-[#171A17]">
                 <div className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F25C05] mt-1 shrink-0" />
+                  <span className="w-2 h-2 bg-[#53634A] mt-1 shrink-0" />
                   <div>
-                    <strong className="text-[#F4F6FA] block">Direct Commercial Pricing:</strong>
+                    <strong className="text-[#171A17] block">Direct Commercial Pricing:</strong>
                     Quotations reflect genuine wholesale mill and distributor prices without intermediary brokerage.
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F25C05] mt-1 shrink-0" />
+                  <span className="w-2 h-2 bg-[#53634A] mt-1 shrink-0" />
                   <div>
-                    <strong className="text-[#F4F6FA] block">Independent Buyer Authority:</strong>
+                    <strong className="text-[#171A17] block">Independent Buyer Authority:</strong>
                     The buyer maintains complete discretion over vendor selection. No automated algorithmic lock-in.
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <span className="w-2 h-2 bg-[#F25C05] mt-1 shrink-0" />
+                  <span className="w-2 h-2 bg-[#53634A] mt-1 shrink-0" />
                   <div>
-                    <strong className="text-[#F4F6FA] block">Auditable Logistics Trail:</strong>
+                    <strong className="text-[#171A17] block">Auditable Logistics Trail:</strong>
                     Designated vehicle numbers, driver phone contacts, and formal E-Way bills recorded on every dispatch.
                   </div>
                 </div>
@@ -254,30 +252,30 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-[#090B10] border-t border-[#252C38]">
+      <section className="py-16 bg-[#E7E5DC] border-t border-[#D9D8CF]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="bg-[#171C26] border border-[#252C38] p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="space-y-2 max-w-xl">
-              <h2 className="text-2xl sm:text-3xl font-black uppercase text-[#FFFFFF]">
+              <h2 className="text-2xl sm:text-3xl font-black uppercase text-[#171A17] font-heading">
                 COMMENCE YOUR REQUIREMENT
               </h2>
-              <p className="text-xs sm:text-sm text-[#C5CAD3]">
-                Submit your project specifications or Bill of Quantities to receive itemized commercial bids from verified Gujarat distributors.
+              <p className="text-xs sm:text-sm text-[#777970]">
+                Submit your project specifications or Bill of Quantities to receive itemized commercial bids from verified distributors.
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 font-mono text-xs shrink-0">
               <Link
                 href="/rfq/new"
-                className="px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black uppercase tracking-widest text-center transition-colors"
+                className="px-8 py-4 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] font-bold uppercase tracking-wider text-center transition-colors"
               >
-                POST REQUIREMENT
+                POST A REQUIREMENT
               </Link>
               <Link
                 href="/supplier/register"
-                className="px-6 py-4 bg-[#090B10] border border-[#252C38] hover:border-[#858D9B] text-[#F4F6FA] font-bold uppercase tracking-widest text-center transition-colors"
+                className="px-6 py-4 bg-[#FFFFFF] border border-[#D9D8CF] hover:bg-[#F2F0E9] text-[#171A17] font-bold uppercase tracking-wider text-center transition-colors"
               >
-                SUPPLIER REGISTRATION
+                BECOME A SUPPLIER
               </Link>
             </div>
           </div>

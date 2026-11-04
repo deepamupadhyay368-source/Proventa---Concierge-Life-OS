@@ -4,78 +4,73 @@
 
 @layer base {
   :root {
-    /* PROVENTA EXPERIMENTAL DIGITAL ART — ART DIRECTION SYSTEM */
-    /* Void (#080A0F), Carbon (#171B23), Titanium (#B9C1CC), Porcelain (#F4F2ED), Cobalt (#2457E8), Ice (#A9D8F5), Signal (#D5A85D) */
-    --background: 43 20% 94%;    /* #F4F2ED Porcelain Base */
-    --foreground: 224 45% 5%;    /* #080A0F Void Obsidian */
+    /* PROVENTA MINERAL OLIVE DESIGN SYSTEM */
+    /* Primary: #53634A | Background: #F2F0E9 | Typography: #171A17 | Accent: #B87948 */
+    /* White: #FFFFFF | Light Stone: #E7E5DC | Muted: #777970 | Border: #D9D8CF */
 
-    --card: 48 33% 97%;          /* #FAF9F6 Pure Porcelain Surface */
-    --card-foreground: 224 45% 5%;
+    --background: 44 20% 93%;     /* #F2F0E9 Warm Stone Base */
+    --foreground: 120 6% 10%;     /* #171A17 Near Black Typography */
 
-    --popover: 48 33% 97%;
-    --popover-foreground: 224 45% 5%;
+    --card: 0 0% 100%;           /* #FFFFFF Pure White Surface */
+    --card-foreground: 120 6% 10%;
 
-    /* Primary: Electric Cobalt (#2457E8) */
-    --primary: 224 82% 52%;
-    --primary-foreground: 43 20% 94%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 6% 10%;
 
-    /* Secondary: Titanium Surface (#B9C1CC) */
-    --secondary: 217 14% 76%;
-    --secondary-foreground: 224 45% 5%;
+    /* Primary: Mineral Olive (#53634A) */
+    --primary: 96 14% 34%;
+    --primary-foreground: 0 0% 100%;
 
-    --muted: 40 10% 90%;         /* Porcelain Muted */
-    --muted-foreground: 220 10% 40%;
+    /* Secondary: Light Stone (#E7E5DC) */
+    --secondary: 48 18% 89%;
+    --secondary-foreground: 120 6% 10%;
 
-    /* Accent: Signal Gold (#D5A85D) */
-    --accent: 38 57% 60%;
-    --accent-foreground: 224 45% 5%;
+    /* Muted: Muted Stone Text (#777970) */
+    --muted: 48 18% 89%;
+    --muted-foreground: 73 4% 46%;
 
-    /* Destructive / Risk */
-    --destructive: 0 78% 55%;
-    --destructive-foreground: 43 20% 94%;
+    /* Accent: Muted Copper (#B87948) */
+    --accent: 26 44% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Precision Brushed Titanium Borders */
-    --border: 217 14% 82%;       /* #D8DEE7 Brushed Border */
-    --input: 217 14% 82%;
-    --ring: 224 82% 52%;
+    /* Destructive / Error: #A9433B */
+    --destructive: 5 48% 45%;
+    --destructive-foreground: 0 0% 100%;
 
-    --radius: 4px;
+    /* Structural Borders: #D9D8CF */
+    --border: 50 11% 83%;
+    --input: 50 11% 83%;
+    --ring: 96 14% 34%;
 
-    /* Distinctive Typographic System */
-    --font-sans: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
-    --font-display: 'Space Grotesk', system-ui, sans-serif;
-    --font-mono: 'Geist Mono', 'IBM Plex Mono', 'SFMono-Regular', monospace;
+    --radius: 2px;
+
+    /* Typographic System */
+    --font-sans: 'Manrope', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-display: 'Manrope', 'Inter', system-ui, sans-serif;
+    --font-mono: 'IBM Plex Mono', 'Geist Mono', 'SFMono-Regular', monospace;
   }
 
   .dark {
-    /* Atmospheric Void & Carbon Space */
-    --background: 224 45% 5%;    /* #080A0F Void Base */
-    --foreground: 43 20% 94%;    /* #F4F2ED Porcelain Text */
-
-    --card: 221 21% 11%;         /* #171B23 Carbon */
-    --card-foreground: 43 20% 94%;
-
-    --popover: 221 21% 11%;
-    --popover-foreground: 43 20% 94%;
-
-    --primary: 224 82% 52%;     /* #2457E8 Cobalt */
-    --primary-foreground: 43 20% 94%;
-
-    --secondary: 220 22% 15%;    /* #1E242F */
-    --secondary-foreground: 217 14% 76%;
-
-    --muted: 220 22% 15%;
-    --muted-foreground: 217 14% 65%;
-
-    --accent: 38 57% 60%;       /* #D5A85D Signal */
-    --accent-foreground: 224 45% 5%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 43 20% 94%;
-
-    --border: 218 22% 21%;       /* #2A3342 Carbon Border */
-    --input: 218 22% 21%;
-    --ring: 224 82% 52%;
+    /* Maintained consistent with Mineral Olive specification */
+    --background: 44 20% 93%;
+    --foreground: 120 6% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 120 6% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 120 6% 10%;
+    --primary: 96 14% 34%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 48 18% 89%;
+    --secondary-foreground: 120 6% 10%;
+    --muted: 48 18% 89%;
+    --muted-foreground: 73 4% 46%;
+    --accent: 26 44% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 5 48% 45%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 50 11% 83%;
+    --input: 50 11% 83%;
+    --ring: 96 14% 34%;
   }
 }
 
@@ -86,27 +81,27 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #080A0F;
-    color: #F4F2ED;
+    background-color: #F2F0E9;
+    color: #171A17;
   }
 
   body {
-    background-color: #080A0F;
-    color: #F4F2ED;
+    background-color: #F2F0E9;
+    color: #171A17;
     font-family: var(--font-sans);
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11', 'tnum';
     min-height: 100vh;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.011em;
   }
 
   ::selection {
-    background-color: #2457E8;
-    color: #F4F2ED;
+    background-color: #53634A;
+    color: #FFFFFF;
   }
 
-  h1, h2, h3, .font-display {
+  h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: var(--font-display);
-    letter-spacing: -0.03em;
+    color: #171A17;
+    letter-spacing: -0.025em;
   }
 }
 
@@ -115,123 +110,54 @@
     text-wrap: balance;
   }
 
-  /* ========================================================= */
-  /* PROVENTA EXPERIMENTAL DIGITAL ART MATERIAL LANGUAGE       */
-  /* ========================================================= */
-
-  /* Brushed Titanium Material */
-  .mat-titanium {
-    background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 50%, #B9C1CC 100%);
-    color: #080A0F;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 2px 8px rgba(8, 10, 15, 0.2);
+  /* Mineral Olive Architecture System Helpers */
+  .olive-card {
+    background-color: #FFFFFF;
+    border: 1px solid #D9D8CF;
+    color: #171A17;
   }
 
-  /* Matte Carbon Material */
-  .mat-carbon {
-    background-color: #171B23;
-    border: 1px solid #2A3342;
-    color: #F4F2ED;
-    box-shadow: 0 4px 24px -4px rgba(8, 10, 15, 0.6);
+  .olive-panel {
+    background-color: #FFFFFF;
+    border: 1px solid #D9D8CF;
   }
 
-  .mat-carbon-elevated {
-    background-color: #1E242F;
-    border: 1px solid #384356;
-    color: #F4F2ED;
-    box-shadow: 0 12px 36px -8px rgba(8, 10, 15, 0.7);
+  .olive-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background-color: #53634A;
+    color: #FFFFFF;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    transition: background-color 0.15s ease-in-out;
+  }
+  .olive-btn-primary:hover {
+    background-color: #43503B;
   }
 
-  /* Matte Ceramic Porcelain Material */
-  .mat-porcelain {
-    background-color: #FAF9F6;
-    border: 1px solid #E4E0D6;
-    color: #080A0F;
-    box-shadow: 0 4px 20px -2px rgba(8, 10, 15, 0.05);
+  .olive-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    background-color: #FFFFFF;
+    border: 1px solid #D9D8CF;
+    color: #171A17;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.75rem;
+    transition: all 0.15s ease-in-out;
   }
-
-  /* Translucent Resin Material */
-  .mat-resin {
-    background: rgba(23, 27, 35, 0.75);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(185, 193, 204, 0.18);
-    color: #F4F2ED;
-  }
-
-  .mat-resin-light {
-    background: rgba(250, 249, 246, 0.85);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(228, 224, 214, 0.8);
-    color: #080A0F;
-  }
-
-  /* Electric Cobalt Signature Accent */
-  .mat-cobalt {
-    background-color: #2457E8;
-    color: #F4F2ED;
-    box-shadow: 0 0 24px rgba(36, 87, 232, 0.35);
-  }
-
-  /* Signal Gold Highlight */
-  .mat-signal {
-    background-color: rgba(213, 168, 93, 0.12);
-    border: 1px solid rgba(213, 168, 93, 0.4);
-    color: #D5A85D;
-  }
-
-  /* Volumetric Atmospheric Glow */
-  .volumetric-glow {
-    background: radial-gradient(circle at 50% 30%, rgba(36, 87, 232, 0.15) 0%, rgba(169, 216, 245, 0.04) 40%, transparent 70%);
-  }
-
-  .volumetric-gold {
-    background: radial-gradient(circle at 50% 50%, rgba(213, 168, 93, 0.12) 0%, transparent 60%);
-  }
-
-  /* Structural Spatial Grid */
-  .spatial-grid {
-    background-image: 
-      linear-gradient(to right, rgba(185, 193, 204, 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(185, 193, 204, 0.06) 1px, transparent 1px);
-    background-size: 40px 40px;
-  }
-
-  /* Kinetic Typography helpers */
-  .kinetic-display {
-    font-family: var(--font-display);
-    letter-spacing: -0.04em;
-    line-height: 0.92;
-  }
-
-  /* Backward-compatible aliases mapping into the new material language */
-  .universe-container, .tc-container {
-    @apply max-w-[1520px] mx-auto px-4 sm:px-6 lg:px-8;
-  }
-  .universe-card, .tc-panel {
-    @apply bg-[#171B23] border border-[#2A3342] text-[#F4F2ED] rounded-[4px] shadow-lg;
-  }
-  .universe-panel, .inst-panel {
-    @apply bg-[#171B23] border border-[#2A3342] text-[#F4F2ED] rounded-[4px];
-  }
-  .tc-panel-obsidian {
-    @apply bg-[#080A0F] border border-[#2A3342] text-[#F4F2ED] rounded-[4px];
-  }
-  .universe-badge-royal, .tc-badge-cobalt {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#2457E8]/15 text-[#A9D8F5] border border-[#2457E8]/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
-  }
-  .universe-badge-aqua, .badge-forest {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-teal-500/15 text-teal-300 border border-teal-500/40 font-mono text-[10px] uppercase tracking-wider rounded-[2px];
-  }
-  .tc-badge-titanium, .universe-badge-silver {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-[#262D3B] text-[#B9C1CC] border border-[#384356] font-mono text-[10px] uppercase tracking-wider rounded-[2px];
-  }
-  .universe-btn-primary, .tc-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#2457E8] text-[#F4F2ED] font-mono text-xs uppercase tracking-wider font-semibold rounded-[2px] shadow-[0_0_20px_rgba(36,87,232,0.35)] hover:bg-[#1B46CB] transition-all;
-  }
-  .universe-btn-secondary, .tc-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#171B23] text-[#B9C1CC] border border-[#2A3342] font-mono text-xs uppercase tracking-wider font-medium rounded-[2px] hover:text-[#F4F2ED] hover:border-[#B9C1CC]/40 transition-all;
-  }
-  .universe-input, .tc-input {
-    @apply w-full bg-[#080A0F] border border-[#2A3342] text-[#F4F2ED] px-3.5 py-2 text-xs font-mono placeholder:text-[#848E9D] rounded-[2px] focus:outline-none focus:border-[#2457E8];
+  .olive-btn-secondary:hover {
+    background-color: #E7E5DC;
+    border-color: #777970;
   }
 }
 
@@ -244,21 +170,21 @@
   }
 }
 
-/* Precision Experimental Scrollbar */
+/* Restrained Architectural Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #080A0F;
+  background: #F2F0E9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2A3342;
+  background: #D9D8CF;
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #2457E8;
+  background: #777970;
 }

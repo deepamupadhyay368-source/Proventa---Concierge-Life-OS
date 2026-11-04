@@ -3,192 +3,199 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowUpRight,
+  Building2,
+  FileSpreadsheet,
+  ArrowRight,
   ShieldCheck,
-  Check,
-  Package,
+  CheckCircle2,
+  Scale,
+  Sparkles,
 } from 'lucide-react';
 
 const CATEGORIES = [
   {
-    id: 'building-materials',
-    name: 'Building Materials',
-    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=800&auto=format&fit=crop',
-    description: 'Foundation, framing and structural materials essential for all commercial and civil construction phases.',
-    subcategories: [
-      { name: 'Cement (OPC 43/53, PPC, White)', specs: '50kg HDPE laminated moisture-proof bags, IS 269:2015', unit: 'Bags (50kg)' },
-      { name: 'TMT Steel Rebars (Fe 500D / 550D)', specs: '8mm to 32mm mixed diameter bundles, IS 1786 primary mill certified', unit: 'Metric Tonnes (MT)' },
-      { name: 'Sand & Crushed Aggregates', specs: 'Washed river sand, M-sand, Kapchi (10mm, 20mm crushed blue metal)', unit: 'Cubic Feet (Cu.ft)' },
-      { name: 'Bricks & AAC Lightweight Blocks', specs: 'Kiln clay bricks, fly-ash bricks, high-strength AAC autoclaved blocks', unit: 'Pieces (Nos)' },
-      { name: 'Ready-Mix Concrete (RMC M20 - M40)', specs: 'Transit-mixer delivery with automated batch plant quality slips', unit: 'Cubic Metres (Cu.m)' },
+    slug: 'building-materials',
+    title: 'BUILDING MATERIALS (CEMENT & STEEL)',
+    subtitle: 'Primary Producer Fe 550D TMT Rebars, OPC/PPC Cement & Structural Aggregates',
+    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?auto=format&fit=crop&w=1200&q=80',
+    description:
+      'Direct mill dispatch of TMT steel reinforcement bars, bulk 53-grade ordinary Portland cement, PPC, fly-ash bricks, sand, and blue metal aggregates.',
+    materials: [
+      { name: 'Fe 550D TMT Steel Rebars (8mm - 32mm)', unit: 'Metric tonnes (MT)', spec: 'IS 1786:2008 Primary Producers (Tata Tiscon, Jindal Panther)' },
+      { name: '53 Grade Ordinary Portland Cement (OPC)', unit: '50kg Bags / Bulk Tankers', spec: 'IS 269:2015 Fresh Factory Dispatches (UltraTech, Ambuja)' },
+      { name: 'Portland Pozzolana Cement (PPC)', unit: '50kg Bags', spec: 'IS 1489:2015 Fly-Ash Based High Durability' },
+      { name: 'AAC Autoclaved Aerated Concrete Blocks', unit: 'Cubic metres (Cu.m)', spec: 'IS 2185 Part 3 Precision Tongue & Groove' },
+      { name: 'Coarse Sand & Crushed River Sand', unit: 'Cubic feet (Cu.ft)', spec: 'Zone II Silt Content Under 3%' },
+      { name: 'Blue Metal Aggregates (10mm & 20mm)', unit: 'Metric tonnes (MT)', spec: 'IS 383:2016 Angular Hard Basalt Crushed' },
     ],
-    brands: ['UltraTech', 'Ambuja', 'Tata Tiscon', 'Jindal Panther', 'Kamdhenu', 'ACC', 'Siporex'],
   },
   {
-    id: 'electrical',
-    name: 'Electrical Supplies',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop',
-    description: 'Industrial cables, building wire, circuit protection switchgear, and architectural distribution systems.',
-    subcategories: [
-      { name: 'FRLS Copper Wires & Armoured Cables', specs: '1.5 sq mm to 16 sq mm building wire, 1100V LT/HT armoured cables', unit: '100m Coils / Metres' },
-      { name: 'Modular Switches, Plates & Sockets', specs: '6A to 32A polycarbonate flame-retardant accessories with child safety', unit: 'Pieces (Nos)' },
-      { name: 'Distribution Boards & MCBs', specs: 'SPN, TPN, 4-Pole isolators, 30mA RCCB protection with IP43 enclosures', unit: 'Pieces (Nos)' },
-      { name: 'Commercial & Architectural Lighting', specs: 'Recessed LED panels, high-bay factory lights, floodlights', unit: 'Pieces (Nos)' },
-      { name: 'PVC Conduits & Cable Trays', specs: 'Heavy mechanical strength 20mm/25mm conduit pipes & perforated GI trays', unit: 'Metres / Pieces' },
+    slug: 'electrical',
+    title: 'ELECTRICAL SUPPLIES & DISTRIBUTION',
+    subtitle: 'FRLSH Copper Wires, Armoured Power Cables & Heavy Switchgear',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
+    description:
+      'Commercial electrical infrastructure materials from authorized dealers including multi-strand house wires, industrial cables, distribution boards, and conduit pipes.',
+    materials: [
+      { name: 'FR-LSH Multi-Strand Single Core Copper Wires', unit: '90m Coils / Metres', spec: 'IS 694:2010 Electrolytic Pure Copper (Polycab, Havells)' },
+      { name: 'LT / HT XLPE Armoured Aluminium Cables', unit: 'Metres', spec: 'IS 7098 Part 1 & 2 Underground Grade' },
+      { name: 'Heavy Duty PVC Conduit Pipes & Fittings (20mm - 32mm)', unit: 'Lengths (3m)', spec: 'IS 9537 Part 3 Flame Retardant' },
+      { name: 'Distribution Boards & MCBs (10kA Breaking)', unit: 'Pieces (Nos)', spec: 'IEC 60898-1 C-Curve Protection' },
+      { name: 'Modular Switches & Commercial Wall Plates', unit: 'Boxes', spec: 'IS 3854:1997 Silver Inlay Contacts' },
     ],
-    brands: ['Polycab', 'Havells', 'RR Kabel', 'Schneider Electric', 'Legrand', 'Philips'],
   },
   {
-    id: 'plumbing',
-    name: 'Plumbing & Water Systems',
-    image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=800&auto=format&fit=crop',
-    description: 'Internal water distribution, drainage pipelines, heavy pressure fittings, and sanitary fixtures.',
-    subcategories: [
-      { name: 'CPVC & UPVC Pressure Pipes & Fittings', specs: 'SDR 11, Schedule 40/80 hot and cold water certified pipelines', unit: 'Pieces (3m/5m Lengths)' },
-      { name: 'Submersible Pumps & Pressure Boosters', specs: 'Single-phase & 3-phase open-well, borewell, and hydrostatic boosters', unit: 'Pieces (Nos)' },
-      { name: 'Overhead Anti-Bacterial Storage Tanks', specs: '3-layer and 4-layer virgin food-grade polymer (500L to 5000L)', unit: 'Capacity (Litres)' },
-      { name: 'Commercial Sanitaryware & Brass Faucets', specs: 'Vitreous china water closets, sensor urinals, and chrome brass fittings', unit: 'Pieces (Nos)' },
+    slug: 'plumbing',
+    title: 'PLUMBING & WATER SUPPLY SYSTEMS',
+    subtitle: 'CPVC, UPVC, SWR Piping & Heavy Booster Pumps',
+    image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
+    description:
+      'Complete water supply and drainage infrastructure for commercial and residential developments with hot/cold potable pressure ratings.',
+    materials: [
+      { name: 'SDR 11 / SDR 13.5 CPVC Pipes & Fittings', unit: 'Lengths (3m/5m)', spec: 'IS 15778 / ASTM D2846 Class 1 Hot Water (Astral, Ashirvad)' },
+      { name: 'SCH 40 / SCH 80 Lead-Free UPVC Pipes', unit: 'Lengths (3m/6m)', spec: 'ASTM D1785 Potable Cold Water Distribution' },
+      { name: 'Ring-Fit SWR Drainage & Soil Waste Pipes', unit: 'Lengths (3m)', spec: 'IS 13592 Type B Rubber Ring Seal' },
+      { name: 'Multi-Stage Commercial Hydro-Pneumatic Booster Pumps', unit: 'Units', spec: 'Stainless Steel Impeller High Head' },
+      { name: 'Triple-Layer Anti-Bacterial Overhead Water Tanks', unit: 'Litres (L)', spec: '1,000L - 10,000L Virgin Food Grade Polyethylene' },
     ],
-    brands: ['Astral', 'Ashirvad', 'Supreme', 'Sintex', 'Jaquar', 'Cera', 'Kohler'],
   },
   {
-    id: 'tiles-flooring',
-    name: 'Tiles & Flooring',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
-    description: 'High-traffic vitrified floor tiles, ceramic wall decor, natural marble slabs, and granite.',
-    subcategories: [
-      { name: 'Vitrified Tiles (GVT / PGVT / Double Charge)', specs: '600x1200mm, 800x1600mm, high breaking strength and abrasion resistance', unit: 'Square Feet (Sq.ft)' },
-      { name: 'Natural Italian & Indian Marble Slabs', specs: 'Direct gangsaw polished slabs with consistent veining and hardness', unit: 'Square Feet (Sq.ft)' },
-      { name: 'Granite Countertops & Step Slabs', specs: 'Flamed, leather-finish, and mirror polished Black Galaxy and Rajasthan stone', unit: 'Square Feet (Sq.ft)' },
-      { name: 'Exterior Paver Blocks & Interlocking Stone', specs: '60mm / 80mm industrial heavy-traffic pavers with M35 grade concrete', unit: 'Square Feet (Sq.ft)' },
+    slug: 'tiles-flooring',
+    title: 'TILES, MARBLE & COMMERCIAL FLOORING',
+    subtitle: 'Double-Charge Vitrified Tiles, Granite Slabs & Pavers',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+    description:
+      'High-traffic flooring systems sourced directly from Morbi ceramic manufacturing hubs and Rajasthan quarry stockyards.',
+    materials: [
+      { name: 'Full-Body Double Charge Vitrified Floor Tiles (800x1600mm)', unit: 'Boxes / Sq.ft', spec: 'ISO 13006 Group BIa High Abrasion Resistance' },
+      { name: 'Glazed Vitrified Architectural Wall Claddings', unit: 'Boxes / Sq.ft', spec: 'Stain Proof Nanotech Surface Finish' },
+      { name: 'Black Galaxy & Premium Polished Granite Slabs', unit: 'Square feet (Sq.ft)', spec: '18mm Uniform Thickness High Gloss' },
+      { name: 'Precast Heavy-Duty Concrete Interlocking Pavers (80mm)', unit: 'Square feet (Sq.ft)', spec: 'M40 Grade Industrial Vehicle Load' },
     ],
-    brands: ['Kajaria', 'Somany', 'Simpolo', 'Qutone', 'Natural Morbi Stone'],
   },
   {
-    id: 'finishing-materials',
-    name: 'Finishing Materials',
-    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop',
-    description: 'Exterior weatherproof coatings, waterproof membranes, polymer putty, and tile adhesives.',
-    subcategories: [
-      { name: 'Interior & Exterior Emulsion Paint', specs: 'UV-resistant exterior silicon coatings, low VOC anti-fungal emulsions', unit: 'Litres (20L Buckets)' },
-      { name: 'Waterproofing Membranes & Chemicals', specs: 'Polyurethane coatings, elastomeric cementitious systems, SBR bond agents', unit: 'Bags / Kilograms' },
-      { name: 'Polymer Tile Adhesives & Epoxy Grouts', specs: 'Type 1, Type 2, Type 3 high shear-bond adhesives for large slabs', unit: 'Bags (20kg/40kg)' },
-      { name: 'Polymer Wall Putty & Base Plaster', specs: 'White cement based water-resistant smooth leveling skim coats', unit: 'Bags (40kg)' },
+    slug: 'finishing-materials',
+    title: 'FINISHING, PAINT & CONSTRUCTION CHEMICALS',
+    subtitle: 'Elastomeric Waterproofing, Putty & Industrial Epoxies',
+    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=1200&q=80',
+    description:
+      'Authorized distribution channels for professional building protection, waterproofing membranes, structural bonding, and exterior paints.',
+    materials: [
+      { name: 'Two-Component Acrylic Polymer Waterproofing Coating', unit: 'Pails (20kg)', spec: 'ASTM C836 Elastomeric Positive & Negative Pressure' },
+      { name: 'White Cement Based Water-Resistant Wall Putty', unit: '40kg Bags', spec: 'Silicone Enriched High Adhesion' },
+      { name: 'Heavy Commercial Epoxy Floor Coating System', unit: 'Litres (L)', spec: 'Solvent-Free High Impact Anti-Skid' },
+      { name: 'Exterior Anti-Fungal Weatherproof Acrylic Emulsion', unit: 'Buckets (20L)', spec: '10-Year Comprehensive Warranty Performance' },
     ],
-    brands: ['Asian Paints', 'Berger', 'Dr. Fixit', 'Pidilite Roff', 'Birla White', 'Fosroc'],
   },
   {
-    id: 'doors-windows',
-    name: 'Doors, Windows & Hardware',
-    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop',
-    description: 'Aluminium architectural framing, UPVC soundproof systems, flush doors, and architectural locks.',
-    subcategories: [
-      { name: 'Aluminium Section Sliding Systems', specs: '27mm, 35mm Domal series, Euro groove powder coated and anodized', unit: 'Square Feet (Sq.ft)' },
-      { name: 'UPVC Acoustic Casement & Sliding Windows', specs: 'Multi-chamber galvanized steel reinforced UPVC, DGU acoustic glass', unit: 'Square Feet (Sq.ft)' },
-      { name: 'Flush Doors & Waterproof BWP Plywood', specs: 'IS 2202 solid core hardwood flush doors, IS 710 marine grade plywood', unit: 'Pieces (Nos)' },
-      { name: 'Architectural Hardware & Mortise Locks', specs: 'SS 304 architectural mortise handles, heavy-duty concealed hinges', unit: 'Sets / Pieces' },
+    slug: 'doors-windows',
+    title: 'DOORS, WINDOWS & HARDWARE',
+    subtitle: 'Aluminium Glazing, UPVC Profiles & Fire-Rated Doors',
+    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
+    description:
+      'Factory fabricated structural windows, commercial entryways, fire-rated shaft doors, and stainless steel hardware collections.',
+    materials: [
+      { name: 'Thermal-Break Architectural Aluminium Sliding Windows', unit: 'Square Metres (Sq.m)', spec: '6063 T6 Alloy Powder Coated Toughened Glass' },
+      { name: 'Multi-Chamber UPVC Casement Windows & Doors', unit: 'Square Metres (Sq.m)', spec: 'EPDM Gaskets High Wind Load Compliant' },
+      { name: '2-Hour Fire-Rated Galvanized Steel Emergency Doors', unit: 'Units / Sets', spec: 'BS 476 Part 22 & IS 3614 Panic Hardware' },
+      { name: 'SS 304 Grade Heavy-Duty Ball Bearing Mortise Locks & Hinges', unit: 'Sets (Nos)', spec: 'EN 12209 Cycle Tested Heavy Duty' },
     ],
-    brands: ['Jindal Aluminium', 'Fenesta', 'Century Plywood', 'Godrej', 'Dorset', 'Yale'],
   },
 ];
 
-export default function CategoriesPage() {
+export default function CategoriesCataloguePage() {
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans">
-      {/* Header */}
-      <section className="border-b border-[#252C38] bg-[#090B10] py-16 lg:py-24">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans">
+      {/* Header Banner */}
+      <section className="border-b border-[#D9D8CF] bg-[#FFFFFF] py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] text-[11px] font-mono text-[#F25C05] uppercase tracking-wider font-semibold">
-            <span>MATERIAL TAXONOMY & STANDARDIZED UNITS</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] text-xs font-mono text-[#53634A] uppercase tracking-wider font-semibold">
+            <span>TECHNICAL SPECIFICATIONS DIRECTORY</span>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] max-w-4xl font-sans">
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#171A17] max-w-4xl font-heading leading-tight">
             COMMERCIAL MATERIAL CATALOGUE
           </h1>
-          <p className="text-sm sm:text-base text-[#C5CAD3] max-w-3xl leading-relaxed font-normal">
-            Standard industrial specifications, units of measurement, authorized brands, and verified supplier networks covering Ahmedabad, Gandhinagar, and Gujarat.
+          <p className="text-sm sm:text-base text-[#777970] max-w-3xl leading-relaxed">
+            Standard construction materials available for wholesale procurement, competitive quotation bidding, and coordinated site delivery across Gujarat.
           </p>
         </div>
       </section>
 
-      {/* Categories Detailed List */}
-      <section className="py-20 bg-[#090B10]">
+      {/* Catalogue Sections */}
+      <section className="py-20 bg-[#F2F0E9]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-16">
           {CATEGORIES.map((cat) => (
             <div
-              key={cat.id}
-              id={cat.id}
-              className="bg-[#171C26] border border-[#252C38] p-8 lg:p-10 space-y-8"
+              key={cat.slug}
+              id={cat.slug}
+              className="bg-[#FFFFFF] border border-[#D9D8CF] shadow-sm scroll-mt-24 overflow-hidden"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pb-6 border-b border-[#252C38]">
-                <div className="lg:col-span-8 space-y-2">
-                  <h2 className="font-sans font-black text-2xl uppercase tracking-tight text-[#FFFFFF]">
-                    {cat.name}
+              {/* Category Top Banner */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 border-b border-[#D9D8CF]">
+                <div className="lg:col-span-8 p-8 lg:p-10 space-y-4">
+                  <div className="font-mono text-xs uppercase tracking-widest text-[#53634A] font-bold">
+                    PRIMARY MATERIAL DIVISION
+                  </div>
+                  <h2 className="font-heading text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#171A17]">
+                    {cat.title}
                   </h2>
-                  <p className="text-xs sm:text-sm text-[#C5CAD3] font-normal leading-relaxed">
+                  <div className="text-xs font-mono text-[#B87948] font-bold">
+                    {cat.subtitle}
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#777970] leading-relaxed max-w-3xl">
                     {cat.description}
                   </p>
                 </div>
-                <div className="lg:col-span-4 flex lg:justify-end">
-                  <Link
-                    href={`/rfq/new?category=${cat.id}`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black text-xs font-mono uppercase tracking-widest transition-colors"
-                  >
-                    <span>POST {cat.name.toUpperCase()} RFQ</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </Link>
+
+                <div className="lg:col-span-4 relative aspect-[16/9] lg:aspect-auto bg-[#E7E5DC] border-t lg:border-t-0 lg:border-l border-[#D9D8CF]">
+                  <Image
+                    src={cat.image}
+                    alt={cat.title}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
 
-              {/* Subcategories Data Table */}
-              <div className="overflow-x-auto border border-[#252C38] bg-[#090B10]">
-                <table className="w-full text-left font-mono text-xs border-collapse">
-                  <thead>
-                    <tr className="bg-[#171C26] text-[#858D9B] border-b border-[#252C38] text-[11px] uppercase tracking-wider">
-                      <th className="p-4 border-r border-[#252C38]">MATERIAL CLASSIFICATION</th>
-                      <th className="p-4 border-r border-[#252C38]">TECHNICAL SPECIFICATION / STANDARDS</th>
-                      <th className="p-4 border-r border-[#252C38]">STANDARD ORDER UNIT</th>
-                      <th className="p-4 text-center">ACTION</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#252C38] text-[#C5CAD3]">
-                    {cat.subcategories.map((sub, i) => (
-                      <tr key={i} className="hover:bg-[#171C26]/60 transition-colors">
-                        <td className="p-4 border-r border-[#252C38] font-bold text-[#F4F6FA]">
-                          {sub.name}
-                        </td>
-                        <td className="p-4 border-r border-[#252C38] text-xs font-sans text-[#C5CAD3]">
-                          {sub.specs}
-                        </td>
-                        <td className="p-4 border-r border-[#252C38] text-xs font-mono text-[#F25C05] font-semibold">
-                          {sub.unit}
-                        </td>
-                        <td className="p-4 text-center">
-                          <Link
-                            href={`/rfq/new?category=${cat.id}&item=${encodeURIComponent(sub.name)}`}
-                            className="px-3 py-1 bg-[#171C26] hover:bg-[#F25C05] hover:text-[#090B10] text-[#F4F6FA] text-[10px] font-mono uppercase tracking-wider border border-[#252C38] transition-colors"
-                          >
-                            QUOTE
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              {/* Items Table */}
+              <div className="p-6 lg:p-8">
+                <div className="font-mono text-xs uppercase tracking-wider text-[#171A17] font-bold pb-3 mb-4 border-b border-[#D9D8CF]">
+                  Standard Specification & Order Units
+                </div>
 
-              {/* Brand Distribution Network */}
-              <div className="pt-4 flex flex-wrap items-center gap-2">
-                <span className="font-mono text-xs uppercase tracking-wider text-[#858D9B]">
-                  AUTHORIZED BRANDS SOURCED:
-                </span>
-                {cat.brands.map((b) => (
-                  <span
-                    key={b}
-                    className="px-2.5 py-1 bg-[#090B10] border border-[#252C38] text-xs font-mono text-[#F4F6FA]"
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs font-sans">
+                    <thead>
+                      <tr className="border-b border-[#D9D8CF] font-mono uppercase text-[#777970]">
+                        <th className="py-2.5 pr-4">Material Classification</th>
+                        <th className="py-2.5 px-4">Standard Procurement Unit</th>
+                        <th className="py-2.5 pl-4">Engineering Spec & Primary Brands</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#D9D8CF]">
+                      {cat.materials.map((m, idx) => (
+                        <tr key={idx} className="hover:bg-[#F2F0E9]/60 transition-colors">
+                          <td className="py-3 pr-4 font-bold text-[#171A17]">{m.name}</td>
+                          <td className="py-3 px-4 font-mono text-[#53634A] font-bold">{m.unit}</td>
+                          <td className="py-3 pl-4 text-[#777970] font-mono text-[11px]">{m.spec}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="pt-6 mt-6 border-t border-[#D9D8CF] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-xs text-[#777970]">
+                    Need custom volumes, non-standard lengths, or specific test certificates?
+                  </div>
+                  <Link
+                    href={`/rfq/new?category=${cat.slug}`}
+                    className="px-6 py-2.5 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors inline-flex items-center gap-2"
                   >
-                    {b}
-                  </span>
-                ))}
+                    <span>Request Quotation for {cat.title.split(' (')[0]}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

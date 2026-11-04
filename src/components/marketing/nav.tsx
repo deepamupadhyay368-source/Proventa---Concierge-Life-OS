@@ -8,11 +8,10 @@ import { BRAND_CONFIG } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { label: 'How It Works', href: '/how-it-works' },
-  { label: 'For Buyers', href: '/for-buyers' },
-  { label: 'For Suppliers', href: '/for-suppliers' },
+  { label: 'How it works', href: '/how-it-works' },
   { label: 'Materials', href: '/categories' },
-  { label: 'About Us', href: '/how-it-works#about' },
+  { label: 'For suppliers', href: '/for-suppliers' },
+  { label: 'About', href: '/how-it-works#about' },
 ];
 
 export function MarketingNav() {
@@ -20,27 +19,28 @@ export function MarketingNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#090B10] border-b border-[#252C38] text-[#F4F6FA] font-sans">
+    <header className="sticky top-0 z-50 w-full bg-[#FFFFFF] border-b border-[#D9D8CF] text-[#171A17] font-sans">
       {/* Top Utility Bar */}
-      <div className="hidden lg:block bg-[#171C26] border-b border-[#252C38]/60 text-xs text-[#858D9B] py-1.5">
+      <div className="hidden lg:block bg-[#E7E5DC] border-b border-[#D9D8CF] text-xs text-[#777970] py-1.5">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between font-mono">
           <div className="flex items-center gap-6">
-            <span className="flex items-center gap-1.5 text-[#C5CAD3]">
-              <span className="w-1.5 h-1.5 bg-[#F25C05]" />
-              ESTABLISHED PROCUREMENT NETWORK · GUJARAT
+            <span className="flex items-center gap-2 text-[#171A17] font-medium">
+              <span className="w-2 h-2 bg-[#53634A]" />
+              PROVENTA INFRASTRUCTURE & CONSTRUCTION PROCUREMENT
             </span>
-            <span>SUPPORT: support@proventa.in</span>
+            <span className="text-[#D9D8CF]">|</span>
+            <span>AHMEDABAD & GUJARAT REGION</span>
           </div>
-          <div className="flex items-center gap-6 text-[#C5CAD3]">
-            <Link href="/buyer/dashboard" className="hover:text-[#F25C05] transition-colors">
+          <div className="flex items-center gap-6 text-[#171A17] font-medium">
+            <Link href="/buyer/dashboard" className="hover:text-[#53634A] transition-colors">
               Buyer Portal
             </Link>
-            <span className="text-[#252C38]">|</span>
-            <Link href="/supplier/dashboard" className="hover:text-[#F25C05] transition-colors">
+            <span className="text-[#D9D8CF]">|</span>
+            <Link href="/supplier/dashboard" className="hover:text-[#53634A] transition-colors">
               Supplier Portal
             </Link>
-            <span className="text-[#252C38]">|</span>
-            <Link href="/admin/procurement" className="hover:text-[#F25C05] transition-colors">
+            <span className="text-[#D9D8CF]">|</span>
+            <Link href="/admin/procurement" className="hover:text-[#53634A] transition-colors">
               Procurement Desk
             </Link>
           </div>
@@ -50,16 +50,16 @@ export function MarketingNav() {
       {/* Main Bar */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between gap-6">
-          {/* PROVENTA Industrial Logo */}
+          {/* PROVENTA Architectural Wordmark */}
           <Link href="/" className="flex items-center gap-3.5 focus:outline-none">
-            <div className="w-9 h-9 bg-[#F25C05] text-[#090B10] flex items-center justify-center font-mono font-black text-lg tracking-tighter">
+            <div className="w-8 h-8 bg-[#53634A] text-[#FFFFFF] flex items-center justify-center font-mono font-bold text-sm tracking-tight">
               P
             </div>
             <div className="flex flex-col">
-              <span className="font-sans text-xl tracking-[0.14em] uppercase font-black text-[#F4F6FA] leading-none">
+              <span className="font-heading text-xl tracking-[0.16em] uppercase font-black text-[#171A17] leading-none">
                 {BRAND_CONFIG.name}
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-[#858D9B] mt-1 font-semibold">
+              <span className="font-mono text-[9px] uppercase tracking-[0.24em] text-[#777970] mt-1 font-semibold">
                 Construction Procurement
               </span>
             </div>
@@ -76,8 +76,8 @@ export function MarketingNav() {
                   className={cn(
                     'text-xs uppercase tracking-wider font-semibold transition-colors py-2 border-b-2',
                     isActive
-                      ? 'text-[#F25C05] border-[#F25C05]'
-                      : 'text-[#C5CAD3] border-transparent hover:text-[#FFFFFF] hover:border-[#858D9B]'
+                      ? 'text-[#53634A] border-[#53634A]'
+                      : 'text-[#777970] border-transparent hover:text-[#171A17] hover:border-[#D9D8CF]'
                   )}
                 >
                   {item.label}
@@ -86,29 +86,29 @@ export function MarketingNav() {
             })}
           </nav>
 
-          {/* Right Action CTAs: Login + Post Requirement */}
-          <div className="hidden sm:flex items-center gap-4">
+          {/* Right Action CTAs: Sign in + Post a requirement (primary olive button) */}
+          <div className="hidden sm:flex items-center gap-5">
             <Link
               href="/sign-in"
-              className="text-xs uppercase tracking-wider font-semibold text-[#C5CAD3] hover:text-[#FFFFFF] px-3 py-2 transition-colors font-mono"
+              className="text-xs uppercase tracking-wider font-semibold text-[#171A17] hover:text-[#53634A] transition-colors font-mono"
             >
-              Login
+              Sign in
             </Link>
             <Link
               href="/rfq/new"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black text-xs tracking-wider uppercase transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] font-bold text-xs tracking-wider uppercase transition-colors"
             >
-              <span>Post Requirement</span>
-              <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>Post a requirement</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile Menu Button */}
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
+            className="lg:hidden p-2 text-[#171A17] hover:bg-[#E7E5DC] transition-colors"
             aria-label="Toggle navigation menu"
-            className="lg:hidden p-2 text-[#C5CAD3] hover:text-[#F4F6FA] focus:outline-none"
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -117,51 +117,35 @@ export function MarketingNav() {
 
       {/* Mobile Drawer */}
       {mobileOpen && (
-        <div className="lg:hidden border-b border-[#252C38] bg-[#171C26] px-6 py-6 space-y-4 font-sans">
-          <nav className="flex flex-col space-y-2">
+        <div className="lg:hidden bg-[#FFFFFF] border-b border-[#D9D8CF] px-6 py-6 space-y-4 font-sans">
+          <nav className="flex flex-col space-y-3">
             {NAV_ITEMS.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
                 onClick={() => setMobileOpen(false)}
-                className="text-sm uppercase tracking-wider font-semibold text-[#C5CAD3] hover:text-[#F4F6FA] py-2 border-b border-[#252C38]/50"
+                className="text-sm uppercase tracking-wider font-semibold text-[#171A17] hover:text-[#53634A] py-1"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
-          <div className="pt-4 flex flex-col gap-3 font-mono">
+
+          <div className="pt-4 border-t border-[#D9D8CF] flex flex-col gap-3 font-mono">
             <Link
               href="/sign-in"
               onClick={() => setMobileOpen(false)}
-              className="w-full text-center py-2.5 text-xs uppercase tracking-wider font-semibold text-[#C5CAD3] border border-[#252C38]"
+              className="text-center py-2 text-xs uppercase tracking-wider font-bold text-[#171A17] border border-[#D9D8CF] bg-[#F2F0E9]"
             >
-              Login
+              Sign in
             </Link>
             <Link
               href="/rfq/new"
               onClick={() => setMobileOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-[#F25C05] text-[#090B10] font-black text-xs tracking-wider uppercase"
+              className="text-center py-2.5 bg-[#53634A] text-[#FFFFFF] text-xs uppercase tracking-wider font-bold"
             >
-              <span>Post Requirement</span>
-              <ArrowUpRight className="w-4 h-4" />
+              Post a requirement
             </Link>
-            <div className="grid grid-cols-2 gap-2 pt-2 text-center text-xs">
-              <Link
-                href="/buyer/dashboard"
-                onClick={() => setMobileOpen(false)}
-                className="py-2 text-[#858D9B] hover:text-[#F4F6FA] border border-[#252C38]/60"
-              >
-                Buyer Portal
-              </Link>
-              <Link
-                href="/supplier/dashboard"
-                onClick={() => setMobileOpen(false)}
-                className="py-2 text-[#858D9B] hover:text-[#F4F6FA] border border-[#252C38]/60"
-              >
-                Supplier Portal
-              </Link>
-            </div>
           </div>
         </div>
       )}

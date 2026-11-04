@@ -10,7 +10,6 @@ import {
   Loader2,
   KeyRound,
   Check,
-  AlertTriangle,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -34,7 +33,6 @@ export default function RegisterDetailsPage() {
       if (session.user.name && !name) {
         setName(session.user.name);
       }
-      // If user already completed registration and established pass key, direct to sign in
       const needsReg = (session.user as unknown as { needsRegistration?: boolean }).needsRegistration;
       if (needsReg === false && !isSuccess) {
         router.replace('/sign-in');
@@ -44,10 +42,10 @@ export default function RegisterDetailsPage() {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-[#090B10] flex items-center justify-center text-[#F4F6FA]">
-        <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-[#858D9B]">
-          <Loader2 className="w-4 h-4 animate-spin text-[#2457FF]" />
-          <span>Verifying sovereign credentials...</span>
+      <div className="min-h-screen bg-[#F2F0E9] flex items-center justify-center text-[#171A17]">
+        <div className="flex items-center gap-3 font-mono text-xs uppercase tracking-wider text-[#777970]">
+          <Loader2 className="w-4 h-4 animate-spin text-[#53634A]" />
+          <span>Verifying credentials...</span>
         </div>
       </div>
     );
@@ -105,7 +103,7 @@ export default function RegisterDetailsPage() {
     }
 
     if (!termsAccepted) {
-      setError('You must accept the Terms of Service & DPDP Privacy Policy.');
+      setError('You must accept the Terms of Service & Privacy Policy.');
       return;
     }
 
@@ -131,7 +129,6 @@ export default function RegisterDetailsPage() {
         return;
       }
 
-      // Registration successful! Clear temporary OAuth registration session
       setIsSuccess(true);
       await signOut({ redirect: false });
     } catch (err: unknown) {
@@ -141,53 +138,53 @@ export default function RegisterDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] rounded-xs font-mono text-[10px] uppercase tracking-widest text-[#7595FF]">
-            <ShieldCheck className="w-3 h-3 text-[#2457FF]" />
-            <span>SOVEREIGN REGISTRATION PROTOCOL</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] font-mono text-[10px] uppercase tracking-widest text-[#53634A] font-bold">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#53634A]" />
+            <span>REGISTRATION PROTOCOL</span>
           </div>
-          <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-[#F4F6FA] uppercase">
+          <h1 className="font-heading font-black text-2xl sm:text-3xl tracking-tight text-[#171A17] uppercase">
             {isSuccess ? 'Account Established' : 'Complete Registration'}
           </h1>
-          <p className="font-mono text-xs text-[#858D9B]">
+          <p className="font-mono text-xs text-[#777970]">
             {isSuccess
               ? 'Your 12-digit Pass Key has been encrypted and saved.'
-              : 'Create your 12-digit private Pass Key to initialize your sovereign workspace.'}
+              : 'Create your 12-digit private Pass Key to initialize your procurement workspace.'}
           </p>
         </div>
 
         {/* Success Card */}
         {isSuccess ? (
-          <div className="mt-8 bg-[#171C26] border border-[#252C38] rounded-xs p-6 sm:p-8 space-y-6 shadow-2xl">
-            <div className="p-4 bg-[#2457FF]/10 border border-[#2457FF]/40 rounded-xs flex items-start gap-3">
-              <Check className="w-5 h-5 text-[#2457FF] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#C5CAD3] space-y-1">
-                <span className="font-bold text-[#F4F6FA] uppercase tracking-wider block">
+          <div className="mt-8 bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-6 shadow-sm">
+            <div className="p-4 bg-[#EEF1EC] border border-[#53634A] flex items-start gap-3">
+              <Check className="w-5 h-5 text-[#53634A] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#171A17] space-y-1">
+                <span className="font-bold uppercase tracking-wider block">
                   Registration &amp; Key Creation Successful
                 </span>
-                <p>
-                  Your PROVENTA customer account and private 12-digit numeric Pass Key have been established.
+                <p className="text-[#777970]">
+                  Your PROVENTA account and private 12-digit numeric Pass Key have been established.
                   A confirmation email has been dispatched to your verified address.
                 </p>
               </div>
             </div>
 
-            <div className="p-4 bg-[#090B10] border border-[#252C38] rounded-xs text-xs font-mono text-[#858D9B] space-y-2">
-              <div className="flex items-center gap-2 text-[#7595FF]">
+            <div className="p-4 bg-[#F2F0E9] border border-[#D9D8CF] text-xs font-mono text-[#777970] space-y-2">
+              <div className="flex items-center gap-2 text-[#53634A] font-bold">
                 <KeyRound className="w-4 h-4" />
-                <span className="font-bold uppercase">Mandatory Sign-In Requirement</span>
+                <span className="uppercase">Mandatory Sign-In Requirement</span>
               </div>
               <p>
-                To enter your wealth cockpit, you must now sign in using your registered email and the 12-digit Pass Key you just created.
+                To enter your procurement portal, you must now sign in using your registered email and the 12-digit Pass Key you just created.
               </p>
             </div>
 
             <Link
               href="/sign-in?registered=true"
-              className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-[#2457FF]/20"
+              className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] font-heading font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               <span>Proceed to Sign In</span>
               <ArrowRight className="w-4 h-4" />
@@ -195,11 +192,11 @@ export default function RegisterDetailsPage() {
           </div>
         ) : (
           /* REGISTRATION DETAILS & PASS KEY CREATION FORM */
-          <div className="mt-8 bg-[#171C26] border border-[#252C38] rounded-xs p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="mt-8 bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-6 shadow-sm">
             {error && (
               <div
                 role="alert"
-                className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
+                className="p-3.5 bg-[#A9433B]/10 border border-[#A9433B] text-xs text-[#A9433B] font-medium"
               >
                 {error}
               </div>
@@ -208,8 +205,8 @@ export default function RegisterDetailsPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Full Legal Name */}
               <div className="space-y-1">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
-                  Full Legal Name
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                  Full Name
                 </label>
                 <input
                   type="text"
@@ -217,18 +214,18 @@ export default function RegisterDetailsPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Vikramaditya Singhania"
                   required
-                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
                 />
               </div>
 
               {/* Verified Email */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
                     Verified Email Address
                   </label>
-                  <span className="font-mono text-[10px] text-[#7595FF] flex items-center gap-1 font-semibold">
-                    <CheckCircle2 className="w-3 h-3 text-[#2457FF]" />
+                  <span className="font-mono text-[10px] text-[#53634A] flex items-center gap-1 font-bold">
+                    <CheckCircle2 className="w-3 h-3 text-[#53634A]" />
                     Google Verified
                   </span>
                 </div>
@@ -236,13 +233,13 @@ export default function RegisterDetailsPage() {
                   type="email"
                   value={verifiedEmail}
                   disabled
-                  className="w-full px-3.5 py-2.5 bg-[#090B10]/60 border border-[#252C38] rounded-xs text-sm text-[#858D9B] cursor-not-allowed select-all"
+                  className="w-full px-3.5 py-2.5 bg-[#E7E5DC] border border-[#D9D8CF] text-sm text-[#777970] cursor-not-allowed select-all font-mono"
                 />
               </div>
 
               {/* Mobile Number */}
               <div className="space-y-1">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
                   Mobile Contact Number
                 </label>
                 <input
@@ -251,47 +248,38 @@ export default function RegisterDetailsPage() {
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
                   required
-                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
                 />
-                <p className="text-[10px] font-mono text-[#858D9B]">
-                  Required for DPDP security alerts and trustee mandates.
-                </p>
               </div>
 
               {/* Country */}
               <div className="space-y-1">
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
-                  Tax &amp; Legal Jurisdiction
+                <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+                  State / Jurisdiction
                 </label>
-                <select
+                <input
+                  type="text"
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] transition-colors"
-                >
-                  <option value="India">India (Income Tax Act &amp; Indian Trusts Act)</option>
-                  <option value="United Arab Emirates">United Arab Emirates (DIFC / ADGM)</option>
-                  <option value="Singapore">Singapore (MAS / VCC)</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  <option value="United States">United States</option>
-                  <option value="Other">Other Global Jurisdiction</option>
-                </select>
+                  className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] transition-colors"
+                />
               </div>
 
               {/* SECTION: CUSTOMER CREATES THEIR OWN 12-DIGIT PASS KEY */}
-              <div className="pt-3 border-t border-[#252C38] space-y-3">
+              <div className="pt-3 border-t border-[#D9D8CF] space-y-3">
                 <div className="flex items-center gap-2">
-                  <KeyRound className="w-4 h-4 text-[#2457FF]" />
-                  <span className="font-heading text-xs uppercase font-bold tracking-wider text-[#F4F6FA]">
+                  <KeyRound className="w-4 h-4 text-[#53634A]" />
+                  <span className="font-heading text-xs uppercase font-bold tracking-wider text-[#171A17]">
                     Create Your 12-Digit PROVENTA Pass Key
                   </span>
                 </div>
-                <p className="text-[11px] font-mono text-[#858D9B] leading-relaxed">
-                  Choose 12 numeric digits to serve as your sovereign authentication key. You will enter this key alongside your email whenever you log in.
+                <p className="text-[11px] font-mono text-[#777970] leading-relaxed">
+                  Choose 12 numeric digits to serve as your private authentication key. You will enter this key alongside your email whenever you log in.
                 </p>
 
                 {/* Create 12-Digit Pass Key */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
                     Create 12-Digit Pass Key
                   </label>
                   <input
@@ -303,13 +291,13 @@ export default function RegisterDetailsPage() {
                     maxLength={14}
                     required
                     autoComplete="new-password"
-                    className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
                   />
                 </div>
 
                 {/* Confirm 12-Digit Pass Key */}
                 <div className="space-y-1">
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+                  <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
                     Confirm 12-Digit Pass Key
                   </label>
                   <input
@@ -321,39 +309,22 @@ export default function RegisterDetailsPage() {
                     maxLength={14}
                     required
                     autoComplete="new-password"
-                    className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+                    className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
                   />
-                  {passKey && confirmPassKey && passKey !== confirmPassKey && (
-                    <p className="text-[10px] font-mono text-[#FF7A70]">
-                      Keys do not match.
-                    </p>
-                  )}
-                  {passKey && confirmPassKey && passKey === confirmPassKey && passKey.replace(/[^0-9]/g, '').length === 12 && (
-                    <p className="text-[10px] font-mono text-[#7595FF] flex items-center gap-1">
-                      <Check className="w-3 h-3" /> 12-Digit Pass Key verified and confirmed.
-                    </p>
-                  )}
                 </div>
               </div>
 
-              {/* Terms & Privacy Acceptance */}
+              {/* Terms Checkbox */}
               <div className="pt-2">
-                <label className="flex items-start gap-3 p-3 bg-[#090B10] border border-[#252C38] rounded-xs cursor-pointer hover:border-[#7595FF] transition-colors">
+                <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#777970]">
                   <input
                     type="checkbox"
                     checked={termsAccepted}
                     onChange={(e) => setTermsAccepted(e.target.checked)}
-                    className="mt-1 h-4 w-4 rounded-xs border-[#252C38] bg-[#171C26] text-[#2457FF] focus:ring-0 cursor-pointer"
+                    className="mt-0.5 h-4 w-4 accent-[#53634A]"
                   />
-                  <span className="text-xs text-[#858D9B] leading-snug">
-                    I accept PROVENTA&apos;s{' '}
-                    <Link href="/terms" target="_blank" className="text-[#7595FF] underline hover:text-white">
-                      Terms of Service
-                    </Link>{' '}
-                    and acknowledge statutory data processing under{' '}
-                    <Link href="/privacy" target="_blank" className="text-[#7595FF] underline hover:text-white">
-                      DPDP Privacy Standards
-                    </Link>.
+                  <span>
+                    I accept the PROVENTA Terms of Service and Privacy Policy.
                   </span>
                 </label>
               </div>
@@ -362,16 +333,13 @@ export default function RegisterDetailsPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] disabled:opacity-50 font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm"
               >
                 {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Establishing 12-Digit Pass Key...</span>
-                  </>
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
-                    <span>Create Account &amp; Pass Key</span>
+                    <span>Complete Registration</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}

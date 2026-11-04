@@ -1,192 +1,181 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import {
-  Building2,
-  CheckCircle2,
-  ArrowUpRight,
   ShieldCheck,
-  Truck,
-  FileText,
+  FileSpreadsheet,
   Scale,
+  Truck,
+  CheckCircle2,
+  Building2,
   Check,
+  ArrowRight,
 } from 'lucide-react';
+
+const BUYER_PROFILES = [
+  {
+    title: 'CIVIL CONTRACTORS',
+    focus: 'Commercial & Infrastructure Execution',
+    metrics: 'TMT Steel, Bulk Cement & Aggregates',
+    description:
+      'Direct mill test certificates, guaranteed vehicle dispatch windows, and consistent batch pricing for large-scale structural works.',
+    highlights: [
+      'Multi-tonnage direct mill pricing (Tata Tiscon, Jindal Panther, AM/NS)',
+      'Bulk 53-grade OPC and PPC cement dispatch in dedicated trailers',
+      'Mill test certificates uploaded to your digital vault per batch',
+      'Weighbridge slip verification and driver dispatch tracking',
+    ],
+  },
+  {
+    title: 'COMMERCIAL BUILDERS & DEVELOPERS',
+    focus: 'Multi-Story Residential & Corporate Projects',
+    metrics: 'Full BOQ Sourcing & Technical Delivery',
+    description:
+      'Manage multi-phase procurement across architectural, electrical, plumbing, and finishing trades with transparent side-by-side supplier bidding.',
+    highlights: [
+      'Single BOQ uploads parsed across multiple trades in one RFQ',
+      'Transparent landed cost breakdown: basic rate + GST + delivery freight',
+      'Independent supplier selection without algorithmic lock-in',
+      'Formal digital Purchase Orders generated with binding payment terms',
+    ],
+  },
+  {
+    title: 'INDIVIDUAL HOME BUILDERS',
+    focus: 'Bungalow & Villa Construction',
+    metrics: 'Standard Retail Packages with Wholesale Pricing',
+    description:
+      'Avoid retail distributor markups. Source directly from primary stockyards with verified GSTIN invoices and tracked site delivery.',
+    highlights: [
+      'Wholesale rates for standard residential batches (15-50 MT steel, 500-1500 bags cement)',
+      'Vehicle accessibility coordination for narrow residential access roads',
+      'On-site delivery sign-off and physical material count verification',
+      'Direct supplier support and technical product documentation',
+    ],
+  },
+];
 
 export default function ForBuyersPage() {
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans">
-      {/* Hero */}
-      <section className="border-b border-[#252C38] bg-[#090B10] py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] text-[11px] font-mono text-[#F25C05] uppercase tracking-wider font-semibold">
-                <span>PROCUREMENT FOR CONTRACTORS, BUILDERS & DEVELOPERS</span>
-              </div>
-              <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] leading-tight font-sans">
-                COMMERCIAL PROCUREMENT. DIRECT WHOLESALE BIDDING.
-              </h1>
-              <p className="text-sm sm:text-base text-[#C5CAD3] max-w-xl leading-relaxed font-normal">
-                Eliminate unverified brokers and inconsistent material deliveries. Source TMT steel, bulk cement, electrical, plumbing, and architectural finishes from verified Gujarat distributors with transparent freight.
-              </p>
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 font-mono text-xs">
-                <Link
-                  href="/rfq/new"
-                  className="px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black uppercase tracking-widest text-center transition-colors flex items-center justify-center gap-2"
-                >
-                  <span>POST MATERIAL REQUIREMENT</span>
-                  <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                </Link>
-                <Link
-                  href="/buyer/dashboard"
-                  className="px-6 py-4 bg-[#171C26] border border-[#252C38] hover:border-[#858D9B] text-[#F4F6FA] font-bold uppercase tracking-widest text-center transition-colors"
-                >
-                  <span>BUYER PORTAL</span>
-                </Link>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans">
+      {/* Header Banner */}
+      <section className="border-b border-[#D9D8CF] bg-[#FFFFFF] py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#E7E5DC] border border-[#D9D8CF] text-xs font-mono text-[#53634A] uppercase tracking-wider font-semibold">
+            <span>FOR BUYERS & BUILDERS</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#171A17] max-w-4xl font-heading leading-tight">
+            COMMERCIAL PROCUREMENT. DIRECT WHOLESALE BIDDING.
+          </h1>
+          <p className="text-sm sm:text-base text-[#777970] max-w-3xl leading-relaxed">
+            Eliminate intermediary broker fees and opaque dealer markups. Receive itemized quotations from verified material stockists across Gujarat in 2 to 4 hours.
+          </p>
+        </div>
+      </section>
 
-            <div className="lg:col-span-5 relative">
-              <div className="relative w-full h-[340px] bg-[#171C26] border border-[#252C38] overflow-hidden">
-                <Image
-                  src="https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=800&auto=format&fit=crop"
-                  alt="Contractors and site engineers inspecting structural steel fabrication on site"
-                  fill
-                  className="object-cover object-center filter grayscale contrast-125"
-                />
-                <div className="absolute bottom-0 inset-x-0 p-4 bg-[#090B10]/95 border-t border-[#252C38] font-mono text-xs">
-                  <div className="text-[10px] text-[#858D9B] uppercase">COMMERCIAL CONTRACTOR SPECIFICATION</div>
-                  <div className="text-xs text-[#F4F6FA] font-bold mt-0.5">Primary producer Fe 550D TMT rebar packages with batch test certificates.</div>
+      {/* Buyer Profiles Grid */}
+      <section className="py-20 bg-[#F2F0E9]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {BUYER_PROFILES.map((profile) => (
+              <div
+                key={profile.title}
+                className="bg-[#FFFFFF] border border-[#D9D8CF] p-8 flex flex-col justify-between space-y-6 shadow-sm"
+              >
+                <div className="space-y-4">
+                  <div className="border-b border-[#D9D8CF] pb-3">
+                    <span className="font-mono text-xs uppercase tracking-wider text-[#53634A] font-bold">
+                      {profile.focus}
+                    </span>
+                    <h2 className="font-heading font-black text-xl uppercase tracking-wide text-[#171A17] mt-1">
+                      {profile.title}
+                    </h2>
+                  </div>
+
+                  <div className="text-xs font-mono text-[#B87948] font-bold">
+                    Primary Materials: {profile.metrics}
+                  </div>
+
+                  <p className="text-xs text-[#777970] leading-relaxed">
+                    {profile.description}
+                  </p>
+
+                  <div className="pt-2 border-t border-[#D9D8CF]">
+                    <div className="font-mono text-[11px] uppercase tracking-wider text-[#171A17] font-bold mb-3">
+                      Procurement Capabilities
+                    </div>
+                    <ul className="space-y-2.5 text-xs text-[#171A17]">
+                      {profile.highlights.map((h, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-[#53634A] shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-[#D9D8CF]">
+                  <Link
+                    href="/rfq/new"
+                    className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors"
+                  >
+                    <span>Post Requirement</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Target Buyer Profiles */}
-      <section className="py-20 border-b border-[#252C38] bg-[#171C26]">
+      {/* Commercial Safeguards Section */}
+      <section className="py-20 bg-[#FFFFFF] border-t border-[#D9D8CF]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
-          <div className="pb-8 border-b border-[#252C38]">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-semibold">
-              SCALABLE CAPABILITY
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] mt-1 font-sans">
-              STRUCTURED SOURCING FOR EVERY COMMERCIAL SCALE
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#090B10] border border-[#252C38] p-8 space-y-4">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#F25C05] font-bold">PROFILE 01</div>
-              <h3 className="font-sans font-black text-lg uppercase text-[#FFFFFF]">General Contractors & Civil Engineers</h3>
-              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed">
-                Source heavy structural packages—TMT rebars, bulk 53/43 Grade OPC cement, ready-mix concrete, and aggregate fill—scheduled across multi-phase casting dates.
-              </p>
-              <ul className="space-y-2 text-xs font-mono text-[#C5CAD3] pt-3 border-t border-[#252C38]">
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Staggered multi-axle trailer dispatch</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Mill test certificates provided</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> GST input tax credit compliance</li>
-              </ul>
-            </div>
-
-            <div className="bg-[#090B10] border border-[#252C38] p-8 space-y-4">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#F25C05] font-bold">PROFILE 02</div>
-              <h3 className="font-sans font-black text-lg uppercase text-[#FFFFFF]">Commercial Builders & Developers</h3>
-              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed">
-                Consolidate procurement for high-rise residential towers and commercial parks: FRLS electrical cables, CPVC water distribution, and vitrified tiles directly from factory stockists.
-              </p>
-              <ul className="space-y-2 text-xs font-mono text-[#C5CAD3] pt-3 border-t border-[#252C38]">
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Direct brand authorized dealership pricing</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Single BOQ upload for multi-item RFQs</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Auditable purchase order repository</li>
-              </ul>
-            </div>
-
-            <div className="bg-[#090B10] border border-[#252C38] p-8 space-y-4">
-              <div className="font-mono text-xs uppercase tracking-wider text-[#F25C05] font-bold">PROFILE 03</div>
-              <h3 className="font-sans font-black text-lg uppercase text-[#FFFFFF]">Individual Home Builders & Villa Owners</h3>
-              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed">
-                Procure architectural finish materials, plumbing fixtures, and waterproofing with wholesale clarity. Access the exact prices institutional contractors pay.
-              </p>
-              <ul className="space-y-2 text-xs font-mono text-[#C5CAD3] pt-3 border-t border-[#252C38]">
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Transparent landed delivery quotes</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Direct truck unloading coordination</li>
-                <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-[#F25C05]" /> Digital verification upon site arrival</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Commercial Safeguards */}
-      <section className="py-20 border-b border-[#252C38] bg-[#090B10]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
-          <div className="pb-8 border-b border-[#252C38]">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-semibold">
+          <div className="max-w-2xl space-y-3">
+            <div className="font-mono text-xs uppercase tracking-widest text-[#53634A] font-bold">
               COMMERCIAL SAFEGUARDS
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] mt-1 font-sans">
-              HOW PROVENTA PROTECTS YOUR PROJECT
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+              How PROVENTA Protects Buyers
             </h2>
+            <p className="text-sm text-[#777970]">
+              Built with enterprise-grade governance to guarantee material authenticity, accurate weight slips, and auditable invoicing.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-[#171C26] border border-[#252C38] p-6 space-y-3 font-mono text-xs">
-              <div className="text-[#F25C05] font-bold">01 · BINDING QUOTATIONS</div>
-              <div className="text-sm font-bold text-[#F4F6FA]">No Price Creep</div>
-              <p className="text-xs text-[#C5CAD3] font-sans">
-                Once a supplier submits a quotation with defined validity, the unit rates are locked. No on-site upward revisions.
+            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
+              <ShieldCheck className="w-6 h-6 text-[#53634A]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">100% GST Verified</h3>
+              <p className="text-xs text-[#777970] leading-relaxed">
+                Every supplier is verified against government GSTIN portals with matching corporate banking details.
               </p>
             </div>
 
-            <div className="bg-[#171C26] border border-[#252C38] p-6 space-y-3 font-mono text-xs">
-              <div className="text-[#F25C05] font-bold">02 · E-WAY BILL ENFORCEMENT</div>
-              <div className="text-sm font-bold text-[#F4F6FA]">Valid Transit Documents</div>
-              <p className="text-xs text-[#C5CAD3] font-sans">
-                Commercial vehicles carry valid government E-Way bills and mill delivery challans, preventing seizure or GST disputes.
+            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
+              <Scale className="w-6 h-6 text-[#53634A]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">Transparent Landed Cost</h3>
+              <p className="text-xs text-[#777970] leading-relaxed">
+                Quotations strictly separate basic rate, GST percentage, and transport freight. Zero hidden markups.
               </p>
             </div>
 
-            <div className="bg-[#171C26] border border-[#252C38] p-6 space-y-3 font-mono text-xs">
-              <div className="text-[#F25C05] font-bold">03 · SHORTAGE LOGGING</div>
-              <div className="text-sm font-bold text-[#F4F6FA]">Digital Proof of Delivery</div>
-              <p className="text-xs text-[#C5CAD3] font-sans">
-                Site engineers sign off physical bag or rebar counts. Shortages or transit damages are logged digitally with photo proofs.
+            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
+              <Truck className="w-6 h-6 text-[#53634A]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">Vehicle & Driver Tracking</h3>
+              <p className="text-xs text-[#777970] leading-relaxed">
+                Assigned registration numbers, vehicle capacity, driver contact, and E-Way bills recorded per dispatch.
               </p>
             </div>
 
-            <div className="bg-[#171C26] border border-[#252C38] p-6 space-y-3 font-mono text-xs">
-              <div className="text-[#F25C05] font-bold">04 · DIRECT DISPATCH DETAILS</div>
-              <div className="text-sm font-bold text-[#F4F6FA]">Driver & Truck Tracking</div>
-              <p className="text-xs text-[#C5CAD3] font-sans">
-                Vehicle registration number and assigned driver phone number are communicated directly to site supervisors before departure.
+            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
+              <CheckCircle2 className="w-6 h-6 text-[#53634A]" />
+              <h3 className="font-heading font-bold text-base uppercase text-[#171A17]">Physical Sign-Off</h3>
+              <p className="text-xs text-[#777970] leading-relaxed">
+                Transactions close only after site engineers verify physical delivery count and report any shortages.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Action Banner */}
-      <section className="py-16 bg-[#171C26]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="bg-[#090B10] border border-[#252C38] p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="space-y-2 max-w-xl">
-              <h2 className="text-2xl sm:text-3xl font-black uppercase text-[#FFFFFF]">
-                SUBMIT YOUR MATERIAL REQUIREMENTS
-              </h2>
-              <p className="text-xs sm:text-sm text-[#C5CAD3]">
-                Receive itemized commercial bids from verified distributors in your project zone within 24 hours.
-              </p>
-            </div>
-
-            <Link
-              href="/rfq/new"
-              className="px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black text-xs font-mono uppercase tracking-widest text-center transition-colors shrink-0"
-            >
-              POST REQUIREMENT (RFQ)
-            </Link>
           </div>
         </div>
       </section>

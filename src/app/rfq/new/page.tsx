@@ -7,16 +7,11 @@ import {
   Plus,
   Trash2,
   FileSpreadsheet,
-  MapPin,
-  Calendar,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
-  CheckCircle2,
-  Upload,
-  Clock,
   Building2,
   AlertCircle,
+  Sparkles,
 } from 'lucide-react';
 import { CONSTRUCTION_UNITS, type ConstructionUnit } from '@/lib/brand';
 
@@ -93,7 +88,6 @@ function RfqCreateForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize from searchParams if prompt or category passed
   useEffect(() => {
     const prompt = searchParams.get('prompt');
     const cat = searchParams.get('category');
@@ -139,18 +133,17 @@ function RfqCreateForm() {
           if (json.data.delivery.siteName) setSiteName(json.data.delivery.siteName);
           if (json.data.delivery.addressLine) setAddressLine(json.data.delivery.addressLine);
           if (json.data.delivery.city) setCity(json.data.delivery.city);
-          if (json.data.delivery.pincode) setPincode(json.data.delivery.pincode);
         }
-        setAiMessage(`✓ Successfully extracted ${json.data.items.length} line items with units and delivery specifications!`);
+        setAiMessage('Requirement details extracted successfully.');
       }
-    } catch (err) {
-      console.error('AI parse error:', err);
+    } catch (err: any) {
+      setAiMessage('Could not parse natural language text automatically.');
     } finally {
       setAiParsing(false);
     }
   };
 
-  const addItemRow = () => {
+  const addItem = () => {
     setItems((prev) => [
       ...prev,
       {
@@ -159,25 +152,25 @@ function RfqCreateForm() {
         materialName: '',
         gradeOrSpec: '',
         brandPreference: '',
-        quantity: 100,
-        unit: 'Pieces (Nos)',
+        quantity: 10,
+        unit: 'Bags',
         itemNotes: '',
       },
     ]);
   };
 
-  const removeItemRow = (idx: number) => {
+  const removeItem = (index: number) => {
     if (items.length <= 1) return;
-    setItems((prev) => prev.filter((_, i) => i !== idx));
+    setItems((prev) => prev.filter((_, idx) => idx !== index));
   };
 
-  const updateItem = (idx: number, field: keyof MaterialItemInput, value: any) => {
+  const updateItem = (index: number, field: keyof MaterialItemInput, val: any) => {
     setItems((prev) => {
       const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: value };
+      copy[index] = { ...copy[index], [field]: val };
       if (field === 'categorySlug') {
-        const found = CATEGORY_OPTIONS.find((c) => c.slug === value);
-        if (found) copy[idx].categoryName = found.name.split(' (')[0];
+        const found = CATEGORY_OPTIONS.find((c) => c.slug === val);
+        if (found) copy[index].categoryName = found.name.split(' (')[0];
       }
       return copy;
     });
@@ -188,11 +181,12 @@ function RfqCreateForm() {
     setError(null);
 
     if (!title.trim()) {
-      setError('Please provide a descriptive requirement title');
+      setError('Project requirement title is required.');
       return;
     }
-    if (!addressLine.trim() || !siteContactPhone.trim()) {
-      setError('Site delivery address and contact phone are mandatory for supplier matching');
+
+    if (items.some((it) => !it.materialName.trim() || it.quantity <= 0)) {
+      setError('All items must have a valid name and quantity greater than zero.');
       return;
     }
 
@@ -250,44 +244,44 @@ function RfqCreateForm() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans py-10">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-10">
       <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-mono text-[#858D9B]">
-          <Link href="/" className="hover:text-[#F4F6FA]">PROVENTA</Link>
+        <div className="flex items-center gap-2 text-xs font-mono text-[#777970]">
+          <Link href="/" className="hover:text-[#171A17]">PROVENTA</Link>
           <span>/</span>
-          <Link href="/buyer/dashboard" className="hover:text-[#F4F6FA]">Buyer Portal</Link>
+          <Link href="/buyer/dashboard" className="hover:text-[#171A17]">Buyer Portal</Link>
           <span>/</span>
-          <span className="text-[#F25C05]">New Requirement (RFQ)</span>
+          <span className="text-[#53634A] font-bold">New Requirement (RFQ)</span>
         </div>
 
         {/* Page Title & Tagline */}
-        <div className="space-y-2 border-b border-[#252C38] pb-6">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#171C26] border border-[#252C38] rounded-xs text-[11px] font-mono text-[#F25C05]">
+        <div className="space-y-2 border-b border-[#D9D8CF] pb-6 bg-[#FFFFFF] p-6 sm:p-8 border shadow-sm">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#E7E5DC] border border-[#D9D8CF] text-[11px] font-mono text-[#53634A] font-bold">
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>STEP 1 · CREATE REQUIREMENT</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
+          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#171A17] font-heading">
             Post Material Requirement (RFQ)
           </h1>
-          <p className="text-sm text-[#C5CAD3]">
+          <p className="text-sm text-[#777970]">
             Specify multiple materials, standard units of measurement, delivery location in Gujarat, and receive competitive quotations from verified suppliers.
           </p>
         </div>
 
-        {/* AI Natural Language Assistant Box */}
-        <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-4">
+        {/* AI Assistant Extraction Box */}
+        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#F25C05]" />
-              <span className="font-heading font-bold text-sm uppercase tracking-wider text-white">
-                AI BOQ & Natural Language Extractor
+              <Sparkles className="w-4 h-4 text-[#53634A]" />
+              <span className="font-heading font-bold text-sm uppercase tracking-wider text-[#171A17]">
+                Natural Language BOQ Extractor
               </span>
             </div>
-            <span className="text-[11px] font-mono text-[#858D9B]">Auto-Parses Quantities & Units</span>
+            <span className="text-[11px] font-mono text-[#777970]">Auto-Parses Quantities & Units</span>
           </div>
-          <p className="text-xs text-[#C5CAD3]">
-            Paste your site engineer&apos;s WhatsApp note, BOQ excerpt, or material schedule below. The assistant extracts items, quantities, standard units, and delivery location automatically.
+          <p className="text-xs text-[#777970]">
+            Paste your site engineer&apos;s note or material schedule below. The assistant extracts items, quantities, standard units, and delivery location automatically.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
@@ -295,43 +289,40 @@ function RfqCreateForm() {
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
               placeholder="e.g. Need 40 MT Tata Tiscon Fe 550D TMT steel and 1000 bags UltraTech 53G cement delivered to South Bopal, Ahmedabad"
-              className="flex-1 bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+              className="flex-1 bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-4 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
             />
             <button
               type="button"
-              disabled={aiParsing || !aiPrompt.trim()}
               onClick={() => handleAiParse()}
-              className="px-5 py-2.5 bg-[#F25C05] hover:bg-[#D94E00] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors shrink-0 flex items-center justify-center gap-2"
+              disabled={aiParsing || !aiPrompt.trim()}
+              className="px-5 py-2.5 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
             >
-              {aiParsing ? 'Extracting...' : 'Auto-Fill Form'}
+              {aiParsing ? 'Extracting...' : 'Parse Items'}
             </button>
           </div>
           {aiMessage && (
-            <div className="text-xs font-mono text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>{aiMessage}</span>
-            </div>
+            <div className="text-xs font-mono text-[#53634A]">{aiMessage}</div>
           )}
         </div>
 
         {/* Main Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
           {error && (
-            <div className="p-4 bg-red-950/40 border border-red-800 rounded-xs text-red-200 text-sm flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+            <div className="p-4 bg-[#F7EFE9] border border-[#B87948] text-[#A9433B] text-xs font-mono flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {/* Section 1: Basic Information */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white border-b border-[#252C38] pb-3">
-              1. Project & Procurement Details
+          {/* Project Details */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-5 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              1. Project Information
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div className="md:col-span-2">
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
                   Requirement Title *
                 </label>
                 <input
@@ -339,88 +330,56 @@ function RfqCreateForm() {
                   required
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. 50 MT TMT Steel & 1,200 Bags 53 Grade Cement for High-Rise Scheme"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  placeholder="e.g. Foundation Structural Steel & Cement Supply - Phase 1"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  I am a *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Buyer Profile
                 </label>
                 <select
                   value={buyerRole}
                   onChange={(e: any) => setBuyerRole(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 >
-                  <option value="CONTRACTOR">Contractor / Civil Contractor</option>
-                  <option value="BUILDER">Builder / Real Estate Developer</option>
-                  <option value="CONSTRUCTION_COMPANY">Construction & EPC Company</option>
-                  <option value="INDIVIDUAL_BUYER">Individual Home Builder / Owner</option>
+                  <option value="CONTRACTOR">Civil Contractor</option>
+                  <option value="BUILDER">Builder / Developer</option>
+                  <option value="CONSTRUCTION_COMPANY">Construction Company</option>
+                  <option value="INDIVIDUAL_BUYER">Individual Home Builder</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
                   Project Type
                 </label>
                 <select
                   value={projectType}
                   onChange={(e: any) => setProjectType(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 >
-                  <option value="RESIDENTIAL">Residential Scheme / Villas</option>
-                  <option value="COMMERCIAL">Commercial Office Tower / Retail</option>
-                  <option value="INFRASTRUCTURE">Infrastructure / Roads / Bridges</option>
-                  <option value="INDUSTRIAL">Industrial Shed / GIDC Factory</option>
-                  <option value="RENOVATION">Interior Fit-out / Renovation</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Required Site Delivery Date
-                </label>
-                <input
-                  type="date"
-                  value={requiredDate}
-                  onChange={(e) => setRequiredDate(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Procurement Urgency
-                </label>
-                <select
-                  value={urgency}
-                  onChange={(e: any) => setUrgency(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                >
-                  <option value="STANDARD">Standard (Within 5-7 days)</option>
-                  <option value="URGENT">Urgent Site Dispatch (Within 24-48 hrs)</option>
-                  <option value="FLEXIBLE">Flexible / Advance Tendering</option>
+                  <option value="RESIDENTIAL">Residential Construction</option>
+                  <option value="COMMERCIAL">Commercial Development</option>
+                  <option value="INFRASTRUCTURE">Infrastructure & Roadworks</option>
+                  <option value="INDUSTRIAL">Industrial Warehouse / Plant</option>
+                  <option value="RENOVATION">Renovation / Retrofitting</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Section 2: Multi-Material Items Table */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <div className="flex items-center justify-between border-b border-[#252C38] pb-3">
-              <div>
-                <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white">
-                  2. Material Line Items ({items.length})
-                </h2>
-                <p className="text-xs text-[#858D9B]">
-                  Add multiple materials with required quantity and standard units.
-                </p>
-              </div>
+          {/* Material Items List */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-5 shadow-sm">
+            <div className="flex items-center justify-between border-b border-[#D9D8CF] pb-3">
+              <h2 className="font-heading font-bold text-base uppercase text-[#171A17]">
+                2. Material Items ({items.length})
+              </h2>
               <button
                 type="button"
-                onClick={addItemRow}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#090B10] hover:bg-[#252C38] border border-[#252C38] text-xs font-bold uppercase tracking-wider rounded-xs text-[#F25C05] transition-colors"
+                onClick={addItem}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#E7E5DC] hover:bg-[#D9D8CF] text-[#171A17] text-xs font-mono font-bold uppercase transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Item</span>
@@ -428,20 +387,15 @@ function RfqCreateForm() {
             </div>
 
             <div className="space-y-4">
-              {items.map((item, idx) => (
-                <div
-                  key={idx}
-                  className="bg-[#090B10] border border-[#252C38] p-4 rounded-xs space-y-4 relative"
-                >
-                  <div className="flex items-center justify-between pb-2 border-b border-[#252C38]/60">
-                    <span className="font-mono text-xs uppercase tracking-wider text-[#F25C05] font-bold">
-                      Item #{idx + 1}
-                    </span>
+              {items.map((it, idx) => (
+                <div key={idx} className="p-4 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
+                  <div className="flex items-center justify-between text-xs font-mono text-[#777970]">
+                    <span className="font-bold text-[#53634A]">ITEM #{idx + 1}</span>
                     {items.length > 1 && (
                       <button
                         type="button"
-                        onClick={() => removeItemRow(idx)}
-                        className="text-red-400 hover:text-red-300 text-xs flex items-center gap-1"
+                        onClick={() => removeItem(idx)}
+                        className="text-[#A9433B] hover:underline flex items-center gap-1 text-[11px]"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>Remove</span>
@@ -449,92 +403,75 @@ function RfqCreateForm() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Category *
+                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                        Category
                       </label>
                       <select
-                        value={item.categorySlug}
+                        value={it.categorySlug}
                         onChange={(e) => updateItem(idx, 'categorySlug', e.target.value)}
-                        className="w-full bg-[#171C26] border border-[#252C38] text-[#F4F6FA] px-2.5 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
+                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
                       >
                         {CATEGORY_OPTIONS.map((c) => (
-                          <option key={c.slug} value={c.slug}>
-                            {c.name}
-                          </option>
+                          <option key={c.slug} value={c.slug}>{c.name}</option>
                         ))}
                       </select>
                     </div>
 
-                    <div className="md:col-span-2">
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Material Name & Description *
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                        Material Name & Diameter/Grade *
                       </label>
                       <input
                         type="text"
                         required
-                        value={item.materialName}
+                        value={it.materialName}
                         onChange={(e) => updateItem(idx, 'materialName', e.target.value)}
-                        placeholder="e.g. 53 Grade OPC Cement or TMT Fe 550D Rebars 12mm"
-                        className="w-full bg-[#171C26] border border-[#252C38] text-[#F4F6FA] px-3 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
+                        placeholder="e.g. TMT Steel Rebars 16mm Fe 550D"
+                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
+                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
                         Quantity *
                       </label>
                       <input
                         type="number"
-                        min={1}
+                        min="1"
                         required
-                        value={item.quantity}
-                        onChange={(e) => updateItem(idx, 'quantity', parseFloat(e.target.value) || 1)}
-                        className="w-full bg-[#171C26] border border-[#252C38] text-[#F4F6FA] px-3 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
+                        value={it.quantity}
+                        onChange={(e) => updateItem(idx, 'quantity', Number(e.target.value))}
+                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Standard Unit of Measurement *
+                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                        Procurement Unit *
                       </label>
                       <select
-                        value={item.unit}
-                        onChange={(e) => updateItem(idx, 'unit', e.target.value as ConstructionUnit)}
-                        className="w-full bg-[#171C26] border border-[#252C38] text-[#F4F6FA] px-2.5 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
+                        value={it.unit}
+                        onChange={(e: any) => updateItem(idx, 'unit', e.target.value)}
+                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
                       >
                         {CONSTRUCTION_UNITS.map((u) => (
-                          <option key={u} value={u}>
-                            {u}
-                          </option>
+                          <option key={u} value={u}>{u}</option>
                         ))}
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Brand Preference (Optional)
+                      <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1">
+                        Preferred Brand
                       </label>
                       <input
                         type="text"
-                        value={item.brandPreference}
+                        value={it.brandPreference}
                         onChange={(e) => updateItem(idx, 'brandPreference', e.target.value)}
-                        placeholder="e.g. UltraTech / Ambuja / Tata"
-                        className="w-full bg-[#171C26] border border-[#252C38] text-[#F4F6FA] px-3 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
-                      />
-                    </div>
-
-                    <div className="md:col-span-3">
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Technical Grade / Specifications / Notes
-                      </label>
-                      <input
-                        type="text"
-                        value={item.gradeOrSpec}
-                        onChange={(e) => updateItem(idx, 'gradeOrSpec', e.target.value)}
-                        placeholder="e.g. Fe 550D primary steel with test cert, fresh stock within 15 days"
-                        className="w-full bg-[#171C26] border border-[#252C38] text-[#F4F6FA] px-3 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
+                        placeholder="e.g. Tata Tiscon / UltraTech"
+                        className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
                       />
                     </div>
                   </div>
@@ -543,163 +480,123 @@ function RfqCreateForm() {
             </div>
           </div>
 
-          {/* Section 3: Site Delivery Details (Ahmedabad & Gujarat) */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <div className="border-b border-[#252C38] pb-3">
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white">
-                3. Site Delivery Location (Gujarat)
-              </h2>
-              <p className="text-xs text-[#858D9B]">
-                Suppliers use your site location to calculate accurate freight charges and vehicle clearance.
-              </p>
-            </div>
+          {/* Delivery & Site Address */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 space-y-5 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              3. Delivery & Site Address
+            </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Project / Site Name
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Site Name & Project *
                 </label>
                 <input
                   type="text"
+                  required
                   value={siteName}
                   onChange={(e) => setSiteName(e.target.value)}
-                  placeholder="e.g. Grand Vista Commercial Project"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  placeholder="e.g. Skylark Heights Phase 2"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Site Street Address *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  City (Gujarat)
                 </label>
                 <input
                   type="text"
-                  required
-                  value={addressLine}
-                  onChange={(e) => setAddressLine(e.target.value)}
-                  placeholder="e.g. Off SG Highway, Near Sola Science City Circle"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  City (Gujarat) *
-                </label>
-                <select
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                >
-                  <option value="Ahmedabad">Ahmedabad</option>
-                  <option value="Gandhinagar">Gandhinagar / GIFT City</option>
-                  <option value="Sanand">Sanand GIDC</option>
-                  <option value="Changodar">Changodar / Bavla</option>
-                  <option value="Vadodara">Vadodara</option>
-                  <option value="Surat">Surat</option>
-                  <option value="Rajkot">Rajkot</option>
-                </select>
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                />
               </div>
 
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  PIN Code *
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Street Address Line
                 </label>
                 <input
                   type="text"
-                  required
+                  value={addressLine}
+                  onChange={(e) => setAddressLine(e.target.value)}
+                  placeholder="e.g. Near SP Ring Road, South Bopal"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Pincode
+                </label>
+                <input
+                  type="text"
                   value={pincode}
                   onChange={(e) => setPincode(e.target.value)}
-                  placeholder="380060"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Site Contact Person / Engineer Name *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Site Contact Person
                 </label>
                 <input
                   type="text"
-                  required
                   value={siteContactPerson}
                   onChange={(e) => setSiteContactPerson(e.target.value)}
-                  placeholder="e.g. Pravinbhai Patel"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  placeholder="e.g. Ramesh Patel (Site Engineer)"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Site Contact Phone Number *
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Contact Phone
                 </label>
                 <input
                   type="tel"
-                  required
                   value={siteContactPhone}
                   onChange={(e) => setSiteContactPhone(e.target.value)}
                   placeholder="+91 98250 12345"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Vehicle Access Clearance
+                <label className="block text-xs font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Vehicle Accessibility
                 </label>
                 <select
                   value={vehicleAccessibility}
                   onChange={(e: any) => setVehicleAccessibility(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3.5 py-2.5 text-xs focus:outline-none focus:border-[#53634A]"
                 >
-                  <option value="10-Wheeler Truck">10-Wheeler Heavy Truck Accessible</option>
-                  <option value="Tata Ace / Small Truck">Tata Ace / Small Truck Only (Narrow Access)</option>
-                  <option value="Transit Mixer (RMC)">Transit Mixer (RMC Concrete Accessible)</option>
-                  <option value="Trailer Accessible">16-Wheeler Multi-Axle Trailer Accessible</option>
-                  <option value="Standard Access">Standard Road Access</option>
+                  <option value="10-Wheeler Truck">10-Wheeler Heavy Truck</option>
+                  <option value="Tata Ace / Small Truck">Tata Ace / Small Truck (Narrow Lane)</option>
+                  <option value="Transit Mixer (RMC)">Transit Mixer (RMC)</option>
+                  <option value="Trailer Accessible">Heavy 16/22-Wheeler Trailer</option>
+                  <option value="Standard Access">Standard City Access</option>
                 </select>
               </div>
-
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Unloading & Site Instructions
-                </label>
-                <input
-                  type="text"
-                  value={siteAccessNotes}
-                  onChange={(e) => setSiteAccessNotes(e.target.value)}
-                  placeholder="e.g. Unloading labor available on site after 9 AM"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                />
-              </div>
             </div>
           </div>
 
-          {/* Section 4: BOQ Attachment Simulator */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-4">
-            <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white border-b border-[#252C38] pb-3">
-              4. Attach BOQ / Structural Drawings (Optional)
-            </h2>
-            <div className="border-2 border-dashed border-[#252C38] hover:border-[#F25C05] p-6 text-center rounded-xs transition-colors cursor-pointer bg-[#090B10]">
-              <Upload className="w-8 h-8 text-[#858D9B] mx-auto mb-2" />
-              <div className="text-sm font-semibold text-white">Upload BOQ Schedule (PDF / Excel)</div>
-              <div className="text-xs text-[#858D9B] mt-1">Supports up to 25 MB • Auto-shared with matching suppliers</div>
-            </div>
-          </div>
-
-          {/* Submit Action */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#252C38]">
-            <div className="text-xs text-[#858D9B] flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#F25C05]" />
-              <span>Matching verified Ahmedabad suppliers. Buyer contact kept private until selection.</span>
-            </div>
-
+          {/* Submit Actions */}
+          <div className="flex items-center justify-end gap-4 pt-4">
+            <Link
+              href="/buyer/dashboard"
+              className="px-6 py-3 bg-[#FFFFFF] border border-[#D9D8CF] hover:bg-[#E7E5DC] text-[#171A17] font-bold text-xs uppercase tracking-wider transition-colors"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] disabled:opacity-50 text-white font-bold text-sm uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-xl shadow-[#F25C05]/20"
+              className="px-8 py-3 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm"
             >
-              <span>{loading ? 'Posting RFQ...' : 'Submit RFQ & Invite Suppliers'}</span>
+              <span>{loading ? 'Broadcasting RFQ...' : 'Submit Requirement & Invite Bids'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -709,9 +606,9 @@ function RfqCreateForm() {
   );
 }
 
-export default function RfqNewPage() {
+export default function RfqCreatePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#090B10] text-white p-12 text-center">Loading RFQ Form...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-xs font-mono text-[#777970]">Loading RFQ Composer...</div>}>
       <RfqCreateForm />
     </Suspense>
   );

@@ -5,10 +5,9 @@ import { SessionProvider } from '@/components/providers/session-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
-// Institutional Typographic System (offline-resilient system & web font variables)
-const geist = { variable: '--font-sans' };
-const spaceGrotesk = { variable: '--font-display' };
-const geistMono = { variable: '--font-mono' };
+const sansFont = { variable: '--font-sans' };
+const displayFont = { variable: '--font-display' };
+const monoFont = { variable: '--font-mono' };
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
@@ -20,12 +19,13 @@ export const metadata: Metadata = {
     'PROVENTA — Construction Procurement Platform. Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
   keywords: [
     'PROVENTA',
-    'Financial Intelligence Platform',
-    'Experimental Digital Art',
-    'The Proventa Object',
-    'Wealth Topology',
-    'Family Financial Infrastructure',
-    'Consolidated Net Worth India',
+    'construction procurement platform',
+    'building materials Gujarat',
+    'TMT steel wholesale',
+    'cement procurement',
+    'supplier quotation comparison',
+    'contractor purchasing network',
+    'Ahmedabad construction supplies',
   ],
   authors: [{ name: 'PROVENTA' }],
   creator: 'PROVENTA',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     siteName: 'PROVENTA',
     title: 'PROVENTA — Construction Procurement Platform',
     description:
-      'Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
+      'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
     images: [
       {
         url: '/og-image.jpg',
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PROVENTA — Construction Procurement Platform',
     description:
-      'Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
+      'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -77,10 +77,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F4F2ED' },
-    { media: '(prefers-color-scheme: dark)', color: '#080A0F' },
-  ],
+  themeColor: '#53634A',
 };
 
 export default function RootLayout({
@@ -92,12 +89,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geist.variable} ${spaceGrotesk.variable} ${geistMono.variable} dark`}
+      className={`${sansFont.variable} ${displayFont.variable} ${monoFont.variable}`}
     >
-      <body className="min-h-screen bg-[#080A0F] text-[#F4F2ED] antialiased selection:bg-[#2457E8] selection:text-[#F4F2ED]">
+      <body className="min-h-screen bg-[#F2F0E9] text-[#171A17] antialiased selection:bg-[#53634A] selection:text-[#FFFFFF]">
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          defaultTheme="light"
+          forcedTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >

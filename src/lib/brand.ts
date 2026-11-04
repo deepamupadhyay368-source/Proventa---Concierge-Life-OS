@@ -4,6 +4,21 @@
  * Tagline: Require. Compare. Select. Deliver.
  */
 
+
+export const BRAND_COLORS = {
+  primary: '#53634A', // Mineral Olive
+  background: '#F2F0E9', // Warm Stone
+  typography: '#171A17', // Near Black
+  accent: '#B87948', // Muted Copper
+  white: '#FFFFFF', // Pure White
+  lightStone: '#E7E5DC', // Light Stone
+  mutedText: '#777970', // Muted Text
+  border: '#D9D8CF', // Border
+  success: '#496B4B',
+  warning: '#B87948',
+  error: '#A9433B',
+} as const;
+
 export const BRAND_CONFIG = {
   name: 'PROVENTA',
   displayName: 'Proventa',

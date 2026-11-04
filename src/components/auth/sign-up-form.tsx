@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -65,38 +64,30 @@ export function SignUpForm() {
         setError(json.error || 'Failed to create account.');
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError('An error occurred during registration. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCopyKey = () => {
-    if (generatedAuthKey) {
-      navigator.clipboard.writeText(generatedAuthKey);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    if (!generatedAuthKey) return;
+    navigator.clipboard.writeText(generatedAuthKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleProceedToProventa = async () => {
-    if (!credentials || !generatedAuthKey) {
-      router.push('/sign-in');
-      return;
-    }
-
+    if (!credentials || !keyConfirmed) return;
     setEntering(true);
-    setError(null);
     try {
-      const signInResult = await signIn('credentials', {
+      const res = await signIn('credentials', {
         email: credentials.email,
         password: credentials.password,
-        securityKey: generatedAuthKey,
         redirect: false,
       });
-
-      if (signInResult?.ok) {
-        router.push('/dashboard');
+      if (res?.ok) {
+        router.push('/buyer/dashboard');
         router.refresh();
       } else {
         router.push('/sign-in?registered=true');
@@ -112,11 +103,9 @@ export function SignUpForm() {
     setOauthLoading('google');
     setError(null);
     try {
-      await signIn(
-        'google',
-        { callbackUrl: '/dashboard' },
-        { prompt: 'select_account' },
-      );
+      await signIn('google', {
+        callbackUrl: '/buyer/dashboard',
+      });
     } catch (err: unknown) {
       setError(
         err instanceof Error
@@ -130,32 +119,32 @@ export function SignUpForm() {
   if (generatedAuthKey) {
     return (
       <div className="space-y-6">
-        <div className="p-6 bg-[#090B10] border border-[#252C38] rounded-xs text-center space-y-4">
-          <div className="inline-flex p-3 rounded-xs bg-[#171C26] text-[#2457FF] mx-auto border border-[#252C38]">
-            <KeyRound className="h-6 w-6 text-[#2457FF]" />
+        <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] text-center space-y-4">
+          <div className="inline-flex p-3 bg-[#FFFFFF] text-[#53634A] mx-auto border border-[#D9D8CF]">
+            <KeyRound className="h-6 w-6 text-[#53634A]" />
           </div>
 
           <div className="space-y-1">
-            <h2 className="font-heading font-bold text-sm tracking-widest uppercase text-[#F4F6FA]">
+            <h2 className="font-heading font-bold text-sm tracking-widest uppercase text-[#171A17]">
               YOUR PROVENTA AUTHENTICATION KEY
             </h2>
-            <p className="text-xs text-[#858D9B]">
-              Your unique account key for emergency vault recovery.
+            <p className="text-xs text-[#777970]">
+              Your unique account key for emergency verification.
             </p>
           </div>
 
-          <div className="p-3 bg-[#171C26] border border-[#252C38] rounded-xs font-mono text-sm tracking-wider break-all text-[#F4F6FA] select-all">
+          <div className="p-3 bg-[#FFFFFF] border border-[#D9D8CF] font-mono text-sm tracking-wider break-all text-[#171A17] select-all font-bold">
             {generatedAuthKey}
           </div>
 
           <button
             type="button"
             onClick={handleCopyKey}
-            className="inline-flex items-center gap-2 px-4 py-2 border border-[#252C38] bg-[#090B10] hover:bg-[#171C26] text-xs font-mono uppercase tracking-wider text-[#C5CAD3] rounded-xs transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 border border-[#D9D8CF] bg-[#FFFFFF] hover:bg-[#E7E5DC] text-xs font-mono uppercase tracking-wider text-[#171A17] transition-colors"
           >
             {copied ? (
               <>
-                <Check className="h-3.5 w-3.5 text-[#2457FF]" />
+                <Check className="h-3.5 w-3.5 text-[#53634A]" />
                 <span>Copied to Clipboard</span>
               </>
             ) : (
@@ -173,9 +162,9 @@ export function SignUpForm() {
               type="checkbox"
               checked={keyConfirmed}
               onChange={(e) => setKeyConfirmed(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-[#2457FF] rounded-xs"
+              className="mt-1 h-4 w-4 accent-[#53634A]"
             />
-            <span className="text-xs text-[#C5CAD3]">
+            <span className="text-xs text-[#777970]">
               I have safely copied and stored my Authentication Key in my records.
             </span>
           </label>
@@ -184,13 +173,13 @@ export function SignUpForm() {
             type="button"
             onClick={handleProceedToProventa}
             disabled={!keyConfirmed || entering}
-            className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+            className="w-full py-3.5 bg-[#53634A] text-white hover:bg-[#43503B] font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {entering ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <span>Enter Financial Cockpit</span>
+                <span>Enter Procurement Portal</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -205,7 +194,7 @@ export function SignUpForm() {
       {error && (
         <div
           role="alert"
-          className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
+          className="p-3.5 bg-[#A9433B]/10 border border-[#A9433B] text-xs text-[#A9433B] font-medium"
         >
           {error}
         </div>
@@ -217,10 +206,10 @@ export function SignUpForm() {
           type="button"
           onClick={handleGoogleSignUp}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#252C38] rounded-xs bg-[#F4F6FA] hover:bg-white text-xs font-heading font-bold uppercase tracking-wider text-[#090B10] transition-all shadow-sm disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#D9D8CF] bg-[#FFFFFF] hover:bg-[#F2F0E9] text-xs font-heading font-bold uppercase tracking-wider text-[#171A17] transition-all shadow-sm disabled:opacity-50"
         >
           {oauthLoading === 'google' ? (
-            <Loader2 className="h-4 w-4 animate-spin text-[#090B10]" />
+            <Loader2 className="h-4 w-4 animate-spin text-[#171A17]" />
           ) : (
             <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -246,82 +235,82 @@ export function SignUpForm() {
       </div>
 
       <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#252C38] w-full" />
-        <span className="bg-[#171C26] px-3 font-mono text-[10px] uppercase tracking-widest text-[#858D9B] absolute">
+        <div className="border-t border-[#D9D8CF] w-full" />
+        <span className="bg-[#FFFFFF] px-3 font-mono text-[10px] uppercase tracking-widest text-[#777970] absolute">
           Or create account with email
         </span>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
             Full Name
           </label>
           <input
             {...register('name')}
             type="text"
-            placeholder="Aditya Verma"
-            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+            placeholder="Pravin Patel"
+            className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
           />
           {errors.name && (
-            <p className="text-xs text-[#FF7A70]">{errors.name.message}</p>
+            <p className="text-xs text-[#A9433B]">{errors.name.message}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
             Email Address
           </label>
           <input
             {...register('email')}
             type="email"
-            placeholder="aditya@familytrust.in"
-            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+            placeholder="pravin@patelinfra.in"
+            className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
           />
           {errors.email && (
-            <p className="text-xs text-[#FF7A70]">{errors.email.message}</p>
+            <p className="text-xs text-[#A9433B]">{errors.email.message}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
             Password
           </label>
           <input
             {...register('password')}
             type="password"
             placeholder="••••••••••••"
-            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+            className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
           />
           {errors.password && (
-            <p className="text-xs text-[#FF7A70]">{errors.password.message}</p>
+            <p className="text-xs text-[#A9433B]">{errors.password.message}</p>
           )}
         </div>
 
         <div className="space-y-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
             Confirm Password
           </label>
           <input
             {...register('confirmPassword')}
             type="password"
             placeholder="••••••••••••"
-            className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+            className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
           />
           {errors.confirmPassword && (
-            <p className="text-xs text-[#FF7A70]">{errors.confirmPassword.message}</p>
+            <p className="text-xs text-[#A9433B]">{errors.confirmPassword.message}</p>
           )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-3 bg-[#53634A] text-white hover:bg-[#43503B] font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <span>Create Encrypted Account</span>
+            <span>Create Procurement Account</span>
           )}
         </button>
       </form>

@@ -2,19 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { loginSchema } from '@/lib/validation/schemas';
-import { Phone, Mail, ArrowRight, Loader2, KeyRound, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
-import type { z } from 'zod';
-import { format12DigitPassKey } from '@/lib/auth/access-key';
-
-type FormData = z.infer<typeof loginSchema>;
+import { Mail, ArrowRight, Loader2, KeyRound, ChevronDown, ChevronUp } from 'lucide-react';
 
 function getSafeCallbackUrl(raw?: string): string {
-  if (!raw || typeof raw !== 'string') return '/dashboard';
+  if (!raw || typeof raw !== 'string') return '/buyer/dashboard';
   const trimmed = raw.trim();
   if (
     trimmed.startsWith('/') &&
@@ -23,7 +16,7 @@ function getSafeCallbackUrl(raw?: string): string {
   ) {
     return trimmed;
   }
-  return '/dashboard';
+  return '/buyer/dashboard';
 }
 
 export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
@@ -49,10 +42,9 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const [devOtpHint, setDevOtpHint] = useState<string | null>(null);
   const [phoneLoading, setPhoneLoading] = useState(false);
 
-  // Auto-format 12-digit pass key with hyphens XXXX-XXXX-XXXX as user types
+  // Auto-format 12-digit pass key with hyphens XXXX-XXXX-XXXX
   const handlePassKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
-    // Remove non-numeric characters for digits
     const digits = raw.replace(/[^0-9]/g, '').slice(0, 12);
     let formatted = digits;
     if (digits.length > 8) {
@@ -127,8 +119,6 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     }
   };
 
-
-
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber.trim()) {
@@ -191,7 +181,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       {error && (
         <div
           role="alert"
-          className="p-3.5 bg-[#FF7A70]/10 border border-[#FF7A70] rounded-xs text-xs text-[#FF7A70] font-medium"
+          className="p-3.5 bg-[#A9433B]/10 border border-[#A9433B] text-xs text-[#A9433B] font-medium"
         >
           {error}
         </div>
@@ -201,32 +191,32 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       <form onSubmit={handlePassKeySubmit} className="space-y-4">
         {/* Email Address */}
         <div className="space-y-1.5">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
-            Registered Institutional Email
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
+            Registered Email
           </label>
           <div className="relative">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="trustee@familyoffice.in"
+              placeholder="buyer@construction.in"
               required
               autoComplete="email"
-              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-sm text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+              className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-sm text-[#171A17] placeholder-[#777970] transition-colors"
             />
-            <Mail className="w-4 h-4 text-[#858D9B] absolute right-3 top-3 pointer-events-none" />
+            <Mail className="w-4 h-4 text-[#777970] absolute right-3 top-3 pointer-events-none" />
           </div>
         </div>
 
         {/* 12-Digit Numeric Pass Key */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between">
-            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#C5CAD3]">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#171A17] font-bold">
               12-Digit PROVENTA Pass Key
             </label>
             <Link
               href="/recover-passkey"
-              className="text-[10px] font-mono uppercase text-[#7595FF] hover:underline"
+              className="text-[10px] font-mono uppercase text-[#53634A] hover:underline font-bold"
             >
               Forgot Pass Key?
             </Link>
@@ -241,12 +231,12 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               maxLength={14}
               required
               autoComplete="one-time-code"
-              className="w-full px-3.5 py-2.5 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs font-mono font-bold text-sm tracking-widest text-[#F4F6FA] placeholder-[#858D9B]/50 transition-colors"
+              className="w-full px-3.5 py-2.5 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#171A17] placeholder-[#777970] transition-colors"
             />
-            <KeyRound className="w-4 h-4 text-[#858D9B] absolute right-3 top-3 pointer-events-none" />
+            <KeyRound className="w-4 h-4 text-[#777970] absolute right-3 top-3 pointer-events-none" />
           </div>
-          <p className="text-[10px] font-mono text-[#858D9B]">
-            Enter the 12-digit numeric Pass Key you established during registration.
+          <p className="text-[10px] font-mono text-[#777970]">
+            Enter the 12-digit numeric Pass Key established during registration.
           </p>
         </div>
 
@@ -254,7 +244,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-heading font-bold text-xs uppercase tracking-wider rounded-xs transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full py-3.5 bg-[#53634A] text-[#FFFFFF] hover:bg-[#43503B] font-heading font-bold text-xs uppercase tracking-wider transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -268,42 +258,42 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       </form>
 
       {/* Account Links & Recovery Actions */}
-      <div className="pt-2 border-t border-[#252C38] flex flex-col gap-2.5 text-center text-xs font-mono">
-        <div className="flex items-center justify-between text-[#858D9B]">
+      <div className="pt-2 border-t border-[#D9D8CF] flex flex-col gap-2.5 text-center text-xs font-mono">
+        <div className="flex items-center justify-between text-[#777970]">
           <span>Need a new account?</span>
-          <Link href="/sign-up" className="text-[#7595FF] hover:underline font-bold">
+          <Link href="/sign-up" className="text-[#53634A] hover:underline font-bold">
             Create Account →
           </Link>
         </div>
-        <div className="flex items-center justify-between text-[#858D9B]">
+        <div className="flex items-center justify-between text-[#777970]">
           <span>Lost your 12-digit key?</span>
-          <Link href="/recover-passkey" className="text-[#C5CAD3] hover:text-[#7595FF] hover:underline">
+          <Link href="/recover-passkey" className="text-[#777970] hover:text-[#53634A] hover:underline">
             Recover Pass Key →
           </Link>
         </div>
       </div>
 
       {/* Alternative Credentials Collapsible */}
-      <div className="pt-2 border-t border-[#252C38]">
+      <div className="pt-2 border-t border-[#D9D8CF]">
         <button
           type="button"
           onClick={() => setShowAlternative(!showAlternative)}
-          className="w-full flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#858D9B] hover:text-[#C5CAD3] py-1"
+          className="w-full flex items-center justify-between text-[11px] font-mono uppercase tracking-wider text-[#777970] hover:text-[#171A17] py-1"
         >
           <span>Administrative Sign-In (Password / Phone)</span>
           {showAlternative ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
 
         {showAlternative && (
-          <div className="mt-3 space-y-4 pt-3 border-t border-[#252C38]/60">
+          <div className="mt-3 space-y-4 pt-3 border-t border-[#D9D8CF]">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => setAltMethod('password')}
-                className={`flex-1 py-1.5 font-mono text-[10px] uppercase tracking-wider rounded-xs border ${
+                className={`flex-1 py-1.5 font-mono text-[10px] uppercase tracking-wider border ${
                   altMethod === 'password'
-                    ? 'border-[#2457FF] text-[#7595FF] bg-[#2457FF]/10'
-                    : 'border-[#252C38] text-[#858D9B]'
+                    ? 'border-[#53634A] text-[#53634A] bg-[#EEF1EC] font-bold'
+                    : 'border-[#D9D8CF] text-[#777970]'
                 }`}
               >
                 Password
@@ -311,10 +301,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               <button
                 type="button"
                 onClick={() => setAltMethod('phone')}
-                className={`flex-1 py-1.5 font-mono text-[10px] uppercase tracking-wider rounded-xs border ${
+                className={`flex-1 py-1.5 font-mono text-[10px] uppercase tracking-wider border ${
                   altMethod === 'phone'
-                    ? 'border-[#2457FF] text-[#7595FF] bg-[#2457FF]/10'
-                    : 'border-[#252C38] text-[#858D9B]'
+                    ? 'border-[#53634A] text-[#53634A] bg-[#EEF1EC] font-bold'
+                    : 'border-[#D9D8CF] text-[#777970]'
                 }`}
               >
                 Phone OTP
@@ -329,12 +319,12 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Account Password"
                   required
-                  className="w-full px-3.5 py-2 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-xs text-[#F4F6FA]"
+                  className="w-full px-3.5 py-2 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-xs text-[#171A17]"
                 />
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-2.5 bg-[#252C38] hover:bg-[#2457FF] text-white font-mono text-xs uppercase font-bold rounded-xs transition-colors"
+                  className="w-full py-2.5 bg-[#53634A] hover:bg-[#43503B] text-white font-mono text-xs uppercase font-bold transition-colors"
                 >
                   Sign In with Password
                 </button>
@@ -350,12 +340,12 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
                       placeholder="+91 98765 43210"
-                      className="w-full px-3.5 py-2 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-xs text-[#F4F6FA]"
+                      className="w-full px-3.5 py-2 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-xs text-[#171A17]"
                     />
                     <button
                       type="submit"
                       disabled={phoneLoading}
-                      className="w-full py-2.5 bg-[#252C38] hover:bg-[#2457FF] text-white font-mono text-xs uppercase font-bold rounded-xs transition-colors"
+                      className="w-full py-2.5 bg-[#53634A] hover:bg-[#43503B] text-white font-mono text-xs uppercase font-bold transition-colors"
                     >
                       {phoneLoading ? 'Sending...' : 'Send SMS OTP'}
                     </button>
@@ -368,15 +358,15 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                       placeholder="6-digit OTP"
-                      className="w-full px-3.5 py-2 bg-[#090B10] border border-[#252C38] focus:border-[#2457FF] focus:outline-none rounded-xs text-xs text-[#F4F6FA] text-center font-mono tracking-widest"
+                      className="w-full px-3.5 py-2 bg-[#F2F0E9] border border-[#D9D8CF] focus:border-[#53634A] focus:outline-none text-xs text-[#171A17] text-center font-mono tracking-widest"
                     />
                     {devOtpHint && (
-                      <p className="text-[10px] font-mono text-[#2457FF]">Development OTP: {devOtpHint}</p>
+                      <p className="text-[10px] font-mono text-[#53634A]">Development OTP: {devOtpHint}</p>
                     )}
                     <button
                       type="submit"
                       disabled={phoneLoading}
-                      className="w-full py-2.5 bg-[#2457FF] text-white font-mono text-xs uppercase font-bold rounded-xs transition-colors"
+                      className="w-full py-2.5 bg-[#53634A] hover:bg-[#43503B] text-white font-mono text-xs uppercase font-bold transition-colors"
                     >
                       Verify OTP
                     </button>

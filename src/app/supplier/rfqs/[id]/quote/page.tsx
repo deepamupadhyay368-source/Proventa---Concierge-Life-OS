@@ -13,8 +13,6 @@ import {
   Building2,
   FileSpreadsheet,
   ChevronLeft,
-  Truck,
-  Plus,
 } from 'lucide-react';
 import type { ConstructionRfq } from '@/lib/procurement/types';
 
@@ -88,7 +86,6 @@ export default function SupplierSubmitQuotePage() {
     });
   };
 
-  // Calculations
   const calculateTotals = () => {
     let subtotal = 0;
     let totalGst = 0;
@@ -146,20 +143,20 @@ export default function SupplierSubmitQuotePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans py-20 text-center space-y-3">
-        <Scale className="w-8 h-8 text-[#F25C05] animate-spin mx-auto" />
-        <div className="font-mono text-sm text-[#858D9B]">Loading Requirement Specifications...</div>
+      <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-20 text-center space-y-3">
+        <Scale className="w-8 h-8 text-[#53634A] animate-spin mx-auto" />
+        <div className="font-mono text-xs text-[#777970]">Loading Buyer RFQ Specifications...</div>
       </div>
     );
   }
 
   if (error || !rfq) {
     return (
-      <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans py-20 text-center space-y-4">
-        <AlertTriangle className="w-8 h-8 text-red-400 mx-auto" />
-        <div className="text-lg font-bold text-white">Requirement Not Found</div>
-        <p className="text-xs text-[#858D9B]">{error || 'Invalid RFQ Reference'}</p>
-        <Link href="/supplier/dashboard" className="inline-block px-4 py-2 bg-[#171C26] border border-[#252C38] text-xs font-bold uppercase rounded-xs">
+      <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-20 text-center space-y-4">
+        <AlertTriangle className="w-8 h-8 text-[#A9433B] mx-auto" />
+        <div className="text-lg font-bold text-[#171A17]">Requirement Not Found</div>
+        <p className="text-xs text-[#777970]">{error || 'Invalid RFQ Reference'}</p>
+        <Link href="/supplier/dashboard" className="inline-block px-4 py-2 bg-[#FFFFFF] border border-[#D9D8CF] text-xs font-bold uppercase">
           Return to Dashboard
         </Link>
       </div>
@@ -167,284 +164,220 @@ export default function SupplierSubmitQuotePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans py-10">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-10">
       <div className="max-w-5xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs font-mono text-[#858D9B]">
-          <Link href="/supplier/dashboard" className="hover:text-white flex items-center gap-1">
+        <div className="flex items-center gap-2 text-xs font-mono text-[#777970]">
+          <Link href="/supplier/dashboard" className="hover:text-[#171A17] flex items-center gap-1">
             <ChevronLeft className="w-3.5 h-3.5" />
             <span>Supplier Dashboard</span>
           </Link>
           <span>/</span>
           <span>Submit Quotation</span>
           <span>/</span>
-          <span className="text-[#F25C05]">{rfq.referenceCode}</span>
+          <span className="text-[#53634A] font-bold">{rfq.referenceCode}</span>
         </div>
 
-        {/* RFQ Header Summary Card */}
-        <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 lg:p-8 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#252C38] pb-4">
+        {/* Header Summary */}
+        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 lg:p-8 space-y-4 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D9D8CF] pb-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <span className="font-mono text-xs font-bold text-[#F25C05] px-2 py-0.5 bg-[#090B10] border border-[#252C38] rounded-xs">
-                  {rfq.referenceCode}
-                </span>
-                <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#252C38] text-[#C5CAD3] rounded-xs">
-                  {rfq.projectType}
-                </span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white font-heading">
-                {rfq.title}
+              <span className="font-mono text-xs font-bold text-[#53634A] px-2 py-0.5 bg-[#E7E5DC] border border-[#D9D8CF]">
+                {rfq.referenceCode}
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#171A17] font-heading">
+                Quotation Submission: {rfq.title}
               </h1>
+              <div className="text-xs text-[#777970] font-mono">
+                Site: {rfq.delivery?.addressLine}, {rfq.delivery?.city} ({rfq.delivery?.vehicleAccessibility})
+              </div>
             </div>
 
             <div className="text-right">
-              <div className="text-xs font-mono text-[#858D9B]">Site Delivery Target</div>
-              <div className="text-sm font-bold text-white">{rfq.requiredDeliveryDate}</div>
-              <div className="text-xs text-[#F25C05] font-semibold">{rfq.delivery?.addressLine}, {rfq.delivery?.city}</div>
+              <div className="text-xs font-mono text-[#777970]">Buyer Required Date</div>
+              <div className="font-bold text-sm text-[#171A17]">{rfq.requiredDeliveryDate}</div>
+              <div className="text-xs text-[#53634A] font-semibold">{rfq.urgency} Urgency</div>
             </div>
-          </div>
-
-          <div className="text-xs text-[#C5CAD3]">
-            Site Vehicle Access: <strong className="text-white">{rfq.delivery?.vehicleAccessibility || '10-Wheeler Truck'}</strong>
-            {rfq.specialInstructions && (
-              <span className="ml-3 text-[#858D9B]">Instructions: {rfq.specialInstructions}</span>
-            )}
           </div>
         </div>
 
-        {/* Quotation Submission Form */}
+        {/* Main Bidding Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Section 1: Itemized Pricing Table */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <div className="border-b border-[#252C38] pb-3">
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white">
-                1. Itemized Unit Rates & GST ({rfq.items.length} Items)
-              </h2>
-              <p className="text-xs text-[#858D9B]">
-                Enter competitive unit prices in INR (excluding GST). GST is calculated automatically.
-              </p>
-            </div>
+          {/* Itemized Rates Table */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 lg:p-8 space-y-6 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              1. Itemized Rates & GST Calculation
+            </h2>
 
             <div className="space-y-4">
-              {rfq.items.map((it, idx) => (
-                <div
-                  key={it.id}
-                  className="bg-[#090B10] border border-[#252C38] p-4 rounded-xs space-y-4"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-[#252C38]">
-                    <div className="space-y-0.5">
-                      <div className="font-bold text-white text-sm">{it.materialName}</div>
-                      <div className="font-mono text-xs text-[#F25C05]">
-                        Required Quantity: {it.quantity} {it.unit}
+              {rfq.items.map((it, idx) => {
+                const iq = itemQuotes[idx] || { unitPrice: 0, gstRatePercent: 18, brandSupplied: '', technicalNotes: '' };
+                const lineTotal = (it.quantity || 1) * (iq.unitPrice || 0);
+                const lineGst = Math.round((lineTotal * (iq.gstRatePercent || 0)) / 100);
+
+                return (
+                  <div key={it.id || idx} className="p-4 bg-[#F2F0E9] border border-[#D9D8CF] space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D9D8CF] pb-2 text-xs">
+                      <div className="font-bold text-[#171A17]">
+                        {it.materialName} ({it.quantity} {it.unit})
+                      </div>
+                      <div className="font-mono text-[#53634A] font-bold">
+                        Line Total: ₹{(lineTotal + lineGst).toLocaleString('en-IN')} (incl. GST)
                       </div>
                     </div>
-                    {it.gradeOrSpec && (
-                      <div className="text-xs text-[#858D9B] font-mono">
-                        Spec: {it.gradeOrSpec}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1 font-bold">
+                          Basic Unit Rate (₹/{it.unit}) *
+                        </label>
+                        <input
+                          type="number"
+                          required
+                          min="0"
+                          value={iq.unitPrice}
+                          onChange={(e) => updateItemQuote(idx, 'unitPrice', Number(e.target.value))}
+                          className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 font-mono text-xs focus:outline-none focus:border-[#53634A]"
+                        />
                       </div>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Unit Rate (₹ per {it.unit}) *
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min={1}
-                        value={itemQuotes[idx]?.unitPrice || ''}
-                        onChange={(e) => updateItemQuote(idx, 'unitPrice', parseFloat(e.target.value) || 0)}
-                        className="w-full bg-[#171C26] border border-[#252C38] text-white px-3 py-2 text-xs font-mono rounded-xs focus:outline-none focus:border-[#F25C05]"
-                      />
-                    </div>
+                      <div>
+                        <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1 font-bold">
+                          GST Rate (%)
+                        </label>
+                        <select
+                          value={iq.gstRatePercent}
+                          onChange={(e) => updateItemQuote(idx, 'gstRatePercent', Number(e.target.value))}
+                          className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        >
+                          <option value={18}>18% (Steel, Hardware, Wire)</option>
+                          <option value={28}>28% (Cement, Paints, Tiles)</option>
+                          <option value={12}>12% (Standard Building Blocks)</option>
+                          <option value={5}>5% (Sand / Blue Metal Aggregate)</option>
+                        </select>
+                      </div>
 
-                    <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        GST Rate *
-                      </label>
-                      <select
-                        value={itemQuotes[idx]?.gstRatePercent || 18}
-                        onChange={(e) => updateItemQuote(idx, 'gstRatePercent', parseInt(e.target.value, 10))}
-                        className="w-full bg-[#171C26] border border-[#252C38] text-white px-3 py-2 text-xs font-mono rounded-xs focus:outline-none focus:border-[#F25C05]"
-                      >
-                        <option value="18">18% (Steel, Hardware, Cables, Tiles)</option>
-                        <option value="28">28% (Cement, Wall Putty, Chemicals)</option>
-                        <option value="12">12% (Pipes, Certain Fittings)</option>
-                        <option value="5">5% (Aggregates, Sand, Bricks)</option>
-                        <option value="0">0% (Nil / Exempt)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Brand Supplied *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={itemQuotes[idx]?.brandSupplied || ''}
-                        onChange={(e) => updateItemQuote(idx, 'brandSupplied', e.target.value)}
-                        placeholder="e.g. UltraTech 53G / Tata Tiscon"
-                        className="w-full bg-[#171C26] border border-[#252C38] text-white px-3 py-2 text-xs rounded-xs focus:outline-none focus:border-[#F25C05]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-[11px] font-mono text-[#858D9B] mb-1">
-                        Line Total (incl. GST)
-                      </label>
-                      <div className="w-full bg-[#171C26] border border-[#252C38] text-emerald-400 px-3 py-2 text-xs font-mono rounded-xs">
-                        ₹
-                        {(
-                          it.quantity *
-                          (itemQuotes[idx]?.unitPrice || 0) *
-                          (1 + (itemQuotes[idx]?.gstRatePercent || 0) / 100)
-                        ).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                      <div className="sm:col-span-2">
+                        <label className="block text-[11px] font-mono uppercase text-[#777970] mb-1 font-bold">
+                          Brand Supplied & Mill Specs
+                        </label>
+                        <input
+                          type="text"
+                          value={iq.brandSupplied}
+                          onChange={(e) => updateItemQuote(idx, 'brandSupplied', e.target.value)}
+                          placeholder="e.g. UltraTech 53G / Tata Tiscon Primary"
+                          className="w-full bg-[#FFFFFF] border border-[#D9D8CF] text-[#171A17] px-2.5 py-2 text-xs focus:outline-none focus:border-[#53634A]"
+                        />
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
-          {/* Section 2: Freight, Delivery Timeline & Commercial Terms */}
-          <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-            <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white border-b border-[#252C38] pb-3">
-              2. Freight, Delivery Date & Commercial Terms
+          {/* Freight & Commercial Terms */}
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 lg:p-8 space-y-6 shadow-sm">
+            <h2 className="font-heading font-bold text-base uppercase text-[#171A17] border-b border-[#D9D8CF] pb-3">
+              2. Freight, Delivery & Commercial Terms
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Transportation Freight & Handling Charges (₹)
+                <label className="block font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Delivery Freight (₹)
                 </label>
                 <input
                   type="number"
+                  min="0"
                   value={deliveryCharges}
-                  onChange={(e) => setDeliveryCharges(parseFloat(e.target.value) || 0)}
-                  placeholder="15000"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm font-mono rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  onChange={(e) => setDeliveryCharges(Number(e.target.value))}
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3 py-2 font-mono focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Special Project Discount (₹)
+                <label className="block font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Volume Discount (₹)
                 </label>
                 <input
                   type="number"
+                  min="0"
                   value={discountAmount}
-                  onChange={(e) => setDiscountAmount(parseFloat(e.target.value) || 0)}
-                  placeholder="0"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm font-mono rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  onChange={(e) => setDiscountAmount(Number(e.target.value))}
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3 py-2 font-mono focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Guaranteed Site Delivery Date *
+                <label className="block font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Promised Delivery Date *
                 </label>
                 <input
                   type="date"
                   required
                   value={promisedDate}
                   onChange={(e) => setPromisedDate(e.target.value)}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3 py-2 font-mono focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Quote Validity Period
-                </label>
-                <select
-                  value={validityDays}
-                  onChange={(e) => setValidityDays(parseInt(e.target.value, 10))}
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                >
-                  <option value="3">3 Days (Fast-Moving Commodity)</option>
-                  <option value="5">5 Days</option>
-                  <option value="7">7 Days (Standard)</option>
-                  <option value="14">14 Days</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Payment Milestones & Commercial Terms *
+              <div className="sm:col-span-3">
+                <label className="block font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Payment Terms
                 </label>
                 <input
                   type="text"
-                  required
                   value={paymentTerms}
                   onChange={(e) => setPaymentTerms(e.target.value)}
-                  placeholder="e.g. 20% Token Advance on PO, 80% against Site Weighbridge Slip"
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3 py-2 focus:outline-none focus:border-[#53634A]"
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                  Supplier Notes & Vehicle Fleet Details
+              <div className="sm:col-span-3">
+                <label className="block font-mono uppercase text-[#777970] mb-1 font-bold">
+                  Supplier Notes & Vehicle Allocation
                 </label>
-                <input
-                  type="text"
+                <textarea
+                  rows={2}
                   value={supplierNotes}
                   onChange={(e) => setSupplierNotes(e.target.value)}
-                  placeholder="e.g. Dispatched from Odhav stockyard via 16-wheeler trailer. Test certs included."
-                  className="w-full bg-[#090B10] border border-[#252C38] text-white px-4 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
+                  className="w-full bg-[#F2F0E9] border border-[#D9D8CF] text-[#171A17] px-3 py-2 focus:outline-none focus:border-[#53634A]"
                 />
               </div>
             </div>
-          </div>
 
-          {/* Section 3: Financial Summary Card */}
-          <div className="bg-[#090B10] border border-[#252C38] rounded-xs p-6 space-y-3">
-            <div className="flex justify-between text-xs text-[#858D9B]">
-              <span>Materials Subtotal:</span>
-              <span className="font-mono text-white">₹{subtotal.toLocaleString('en-IN')}</span>
-            </div>
-            <div className="flex justify-between text-xs text-[#858D9B]">
-              <span>Estimated GST Total:</span>
-              <span className="font-mono text-white">₹{totalGst.toLocaleString('en-IN')}</span>
-            </div>
-            <div className="flex justify-between text-xs text-[#858D9B]">
-              <span>Transportation Freight:</span>
-              <span className="font-mono text-white">₹{Number(deliveryCharges).toLocaleString('en-IN')}</span>
-            </div>
-            {Number(discountAmount) > 0 && (
-              <div className="flex justify-between text-xs text-emerald-400">
-                <span>Discount:</span>
-                <span className="font-mono">-₹{Number(discountAmount).toLocaleString('en-IN')}</span>
+            {/* Total Landed Cost Summary Box */}
+            <div className="p-6 bg-[#F2F0E9] border border-[#D9D8CF] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono">
+              <div className="space-y-1 text-xs text-[#777970]">
+                <div>Subtotal: ₹{subtotal.toLocaleString('en-IN')}</div>
+                <div>GST: ₹{totalGst.toLocaleString('en-IN')}</div>
+                <div>Freight: ₹{Number(deliveryCharges || 0).toLocaleString('en-IN')}</div>
               </div>
-            )}
-            <div className="pt-3 border-t border-[#252C38] flex justify-between items-baseline">
-              <span className="font-heading font-black text-sm uppercase text-white">
-                Grand Total Landed Cost (INR):
-              </span>
-              <span className="font-mono text-2xl font-black text-[#F25C05]">
-                ₹{grandTotal.toLocaleString('en-IN')}
-              </span>
+
+              <div className="text-right">
+                <div className="text-xs uppercase text-[#777970] font-bold">Total Landed Price</div>
+                <div className="text-2xl sm:text-3xl font-black text-[#53634A]">
+                  ₹{grandTotal.toLocaleString('en-IN')}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Submit Action */}
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#252C38]">
-            <div className="text-xs text-[#858D9B] flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#F25C05]" />
-              <span>Quotes can be revised before the buyer formally selects and awards the PO.</span>
-            </div>
-
+          {/* Action CTAs */}
+          <div className="flex items-center justify-end gap-4 pt-2">
+            <Link
+              href="/supplier/dashboard"
+              className="px-6 py-3 bg-[#FFFFFF] border border-[#D9D8CF] hover:bg-[#E7E5DC] text-[#171A17] font-bold text-xs uppercase tracking-wider transition-colors"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
               disabled={submitting}
-              className="w-full sm:w-auto px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] disabled:opacity-50 text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-xl shadow-[#F25C05]/20"
+              className="px-8 py-3 bg-[#53634A] hover:bg-[#43503B] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm"
             >
-              <span>{submitting ? 'Submitting Formal Quotation...' : 'Submit Quotation to Buyer'}</span>
+              <span>{submitting ? 'Submitting Quotation...' : 'Submit Binding Quotation to Buyer'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

@@ -6,13 +6,8 @@ import {
   ShieldCheck,
   Building2,
   FileSpreadsheet,
-  Scale,
-  Truck,
   CheckCircle2,
-  AlertTriangle,
   ArrowRight,
-  TrendingUp,
-  Users,
 } from 'lucide-react';
 import type { ConstructionSupplierProfile, ConstructionRfq, PurchaseOrder } from '@/lib/procurement/types';
 
@@ -52,19 +47,19 @@ export default function AdminProcurementControlPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans py-10">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] font-sans py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#252C38] pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#D9D8CF] pb-6 bg-[#FFFFFF] p-6 sm:p-8 border shadow-sm">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#F25C05]">
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#53634A] font-bold uppercase tracking-wider">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>ADMINISTRATIVE PROCUREMENT DESK</span>
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tight text-white font-heading">
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#171A17] font-heading">
               Platform Procurement Governance
             </h1>
-            <p className="text-xs text-[#858D9B]">
+            <p className="text-xs text-[#777970]">
               Monitor Gujarat construction GMV, verify supplier GSTINs, and supervise delivery dispatches.
             </p>
           </div>
@@ -72,7 +67,7 @@ export default function AdminProcurementControlPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/rfq/new"
-              className="px-4 py-2 bg-[#F25C05] text-white text-xs font-bold uppercase rounded-xs"
+              className="px-4 py-2 bg-[#53634A] hover:bg-[#43503B] text-[#FFFFFF] text-xs font-bold uppercase transition-colors shadow-sm"
             >
               Post Test RFQ
             </Link>
@@ -81,64 +76,64 @@ export default function AdminProcurementControlPage() {
 
         {/* Global KPI Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="bg-[#171C26] border border-[#252C38] p-5 rounded-xs space-y-2">
-            <div className="text-xs font-mono text-[#858D9B]">PROCUREMENT GMV</div>
-            <div className="font-mono text-2xl font-black text-[#F25C05]">
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-5 space-y-2 shadow-sm">
+            <div className="text-xs font-mono text-[#777970] uppercase">PROCUREMENT GMV</div>
+            <div className="font-mono text-2xl font-black text-[#53634A]">
               ₹{metrics ? (metrics.totalProcurementGmv / 100000).toFixed(1) + ' Lakh' : '₹3.9 Cr'}
             </div>
-            <div className="text-[11px] text-[#C5CAD3]">Awarded purchase orders</div>
+            <div className="text-[11px] text-[#777970]">Awarded purchase orders</div>
           </div>
 
-          <div className="bg-[#171C26] border border-[#252C38] p-5 rounded-xs space-y-2">
-            <div className="text-xs font-mono text-[#858D9B]">ACTIVE RFQS</div>
-            <div className="font-mono text-2xl font-black text-white">
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-5 space-y-2 shadow-sm">
+            <div className="text-xs font-mono text-[#777970] uppercase">ACTIVE RFQS</div>
+            <div className="font-mono text-2xl font-black text-[#171A17]">
               {metrics?.activeRfqs || rfqs.length}
             </div>
-            <div className="text-[11px] text-[#C5CAD3]">Bidding in progress</div>
+            <div className="text-[11px] text-[#777970]">Bidding in progress</div>
           </div>
 
-          <div className="bg-[#171C26] border border-[#252C38] p-5 rounded-xs space-y-2">
-            <div className="text-xs font-mono text-[#858D9B]">TOTAL QUOTATIONS</div>
-            <div className="font-mono text-2xl font-black text-white">
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-5 space-y-2 shadow-sm">
+            <div className="text-xs font-mono text-[#777970] uppercase">TOTAL QUOTATIONS</div>
+            <div className="font-mono text-2xl font-black text-[#171A17]">
               {metrics?.totalQuotations || 14}
             </div>
-            <div className="text-[11px] text-[#C5CAD3]">Submitted by stockists</div>
+            <div className="text-[11px] text-[#777970]">Submitted by stockists</div>
           </div>
 
-          <div className="bg-[#171C26] border border-[#252C38] p-5 rounded-xs space-y-2">
-            <div className="text-xs font-mono text-[#858D9B]">IN-TRANSIT SHIPMENTS</div>
-            <div className="font-mono text-2xl font-black text-white">
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-5 space-y-2 shadow-sm">
+            <div className="text-xs font-mono text-[#777970] uppercase">IN-TRANSIT SHIPMENTS</div>
+            <div className="font-mono text-2xl font-black text-[#171A17]">
               {metrics?.activeDeliveries || orders.length}
             </div>
-            <div className="text-[11px] text-[#C5CAD3]">GPS tracked vehicles</div>
+            <div className="text-[11px] text-[#777970]">Tracked vehicles</div>
           </div>
 
-          <div className="bg-[#171C26] border border-[#252C38] p-5 rounded-xs space-y-2">
-            <div className="text-xs font-mono text-[#858D9B]">VERIFIED SUPPLIERS</div>
-            <div className="font-mono text-2xl font-black text-emerald-400">
+          <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-5 space-y-2 shadow-sm">
+            <div className="text-xs font-mono text-[#777970] uppercase">VERIFIED SUPPLIERS</div>
+            <div className="font-mono text-2xl font-black text-[#496B4B]">
               {suppliers.length}
             </div>
-            <div className="text-[11px] text-[#C5CAD3]">100% GST Validated</div>
+            <div className="text-[11px] text-[#777970]">100% GST Validated</div>
           </div>
         </div>
 
         {/* Section: Verified Suppliers Directory & GST Status */}
-        <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-          <div className="flex items-center justify-between border-b border-[#252C38] pb-4">
+        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-5 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#D9D8CF] pb-4">
             <div>
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white">
+              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#171A17]">
                 Verified Material Dealers & Stockists ({suppliers.length})
               </h2>
-              <p className="text-xs text-[#858D9B]">
+              <p className="text-xs text-[#777970]">
                 Physical stockyards, verified GSTIN certificates, and primary categories in Gujarat.
               </p>
             </div>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs font-sans">
               <thead>
-                <tr className="border-b border-[#252C38] font-mono uppercase text-[#858D9B]">
+                <tr className="border-b border-[#D9D8CF] font-mono uppercase text-[#777970]">
                   <th className="py-3 pr-4">Supplier Firm</th>
                   <th className="py-3 px-4">GSTIN & Verification</th>
                   <th className="py-3 px-4">Stockyard Location</th>
@@ -146,31 +141,31 @@ export default function AdminProcurementControlPage() {
                   <th className="py-3 pl-4">Deliveries</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#252C38]">
+              <tbody className="divide-y divide-[#D9D8CF]">
                 {suppliers.map((s) => (
-                  <tr key={s.id} className="hover:bg-[#090B10]/40 transition-colors">
+                  <tr key={s.id} className="hover:bg-[#F2F0E9]/60 transition-colors">
                     <td className="py-3 pr-4">
-                      <div className="font-bold text-white text-sm">{s.businessName}</div>
-                      <div className="text-[11px] text-[#858D9B] font-mono">{s.contactPerson} • {s.phone}</div>
+                      <div className="font-bold text-[#171A17] text-sm">{s.businessName}</div>
+                      <div className="text-[11px] text-[#777970] font-mono">{s.contactPerson} • {s.phone}</div>
                     </td>
                     <td className="py-3 px-4 font-mono">
-                      <div className="text-white">{s.gstin}</div>
-                      <div className="text-emerald-400 text-[10px] flex items-center gap-1">
+                      <div className="text-[#171A17] font-bold">{s.gstin}</div>
+                      <div className="text-[#496B4B] text-[10px] flex items-center gap-1 font-bold">
                         <CheckCircle2 className="w-3 h-3" />
                         <span>{s.verificationBadge}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-[#C5CAD3]">
+                    <td className="py-3 px-4 text-[#171A17]">
                       <div>{s.address}</div>
-                      <div className="text-[#858D9B] font-mono text-[10px]">{s.city}, Gujarat</div>
+                      <div className="text-[#777970] font-mono text-[10px]">{s.city}, Gujarat</div>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="text-[#F25C05] font-mono uppercase">{s.primaryCategories.join(', ')}</div>
-                      <div className="text-[11px] text-[#858D9B]">{s.brandsOffered.slice(0, 3).join(', ')}</div>
+                      <div className="text-[#53634A] font-mono uppercase font-bold">{s.primaryCategories.join(', ')}</div>
+                      <div className="text-[11px] text-[#777970]">{s.brandsOffered.slice(0, 3).join(', ')}</div>
                     </td>
                     <td className="py-3 pl-4 font-mono text-right">
-                      <div className="font-bold text-white">{s.completedDeliveries}</div>
-                      <div className="text-amber-400 text-[11px]">★ {s.rating}</div>
+                      <div className="font-bold text-[#171A17]">{s.completedDeliveries}</div>
+                      <div className="text-[#B87948] text-[11px]">★ {s.rating}</div>
                     </td>
                   </tr>
                 ))}
@@ -180,14 +175,14 @@ export default function AdminProcurementControlPage() {
         </div>
 
         {/* Section: Live Order & Delivery Oversight */}
-        <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 space-y-5">
-          <div className="flex items-center justify-between border-b border-[#252C38] pb-4">
+        <div className="bg-[#FFFFFF] border border-[#D9D8CF] p-6 sm:p-8 space-y-5 shadow-sm">
+          <div className="flex items-center justify-between border-b border-[#D9D8CF] pb-4">
             <div>
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-white">
+              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#171A17]">
                 Purchase Order & Transit Control Center
               </h2>
-              <p className="text-xs text-[#858D9B]">
-                Real-time delivery progress across Ahmedabad construction projects.
+              <p className="text-xs text-[#777970]">
+                Real-time delivery progress across Gujarat construction projects.
               </p>
             </div>
           </div>
@@ -196,25 +191,25 @@ export default function AdminProcurementControlPage() {
             {orders.map((po) => (
               <div
                 key={po.id}
-                className="bg-[#090B10] border border-[#252C38] p-4 rounded-xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
+                className="bg-[#F2F0E9] border border-[#D9D8CF] p-4 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs"
               >
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-white px-2 py-0.5 bg-[#171C26] border border-[#252C38] rounded-xs">
+                    <span className="font-mono font-bold text-[#171A17] px-2 py-0.5 bg-[#FFFFFF] border border-[#D9D8CF]">
                       {po.referenceCode}
                     </span>
-                    <span className="font-mono text-[10px] uppercase font-bold px-2 py-0.5 bg-[#F25C05]/20 text-[#F25C05] border border-[#F25C05]/40 rounded-xs">
+                    <span className="font-mono text-[10px] uppercase font-bold px-2 py-0.5 bg-[#E7E5DC] text-[#53634A] border border-[#D9D8CF]">
                       {po.deliveryStatus.replace(/_/g, ' ')}
                     </span>
-                    <span className="text-[#858D9B]">Buyer: {po.buyerName}</span>
-                    <span className="text-[#858D9B]">•</span>
-                    <span className="text-white">Supplier: {po.supplierName}</span>
+                    <span className="text-[#777970]">Buyer: {po.buyerName}</span>
+                    <span className="text-[#D9D8CF]">•</span>
+                    <span className="text-[#171A17] font-semibold">Supplier: {po.supplierName}</span>
                   </div>
-                  <div className="font-mono text-sm font-bold text-[#F25C05]">
+                  <div className="font-mono text-sm font-bold text-[#53634A]">
                     ₹{po.grandTotal.toLocaleString('en-IN')} (incl. GST & Freight)
                   </div>
                   {po.dispatchDetails && (
-                    <div className="font-mono text-[#C5CAD3] text-[11px]">
+                    <div className="font-mono text-[#777970] text-[11px]">
                       Vehicle: {po.dispatchDetails.vehicleNumber} ({po.dispatchDetails.vehicleType}) • Driver: {po.dispatchDetails.driverName} ({po.dispatchDetails.driverPhone})
                     </div>
                   )}
@@ -223,7 +218,7 @@ export default function AdminProcurementControlPage() {
                 <div className="shrink-0">
                   <Link
                     href={`/buyer/orders/${po.id}`}
-                    className="px-4 py-2 bg-[#171C26] hover:bg-[#252C38] border border-[#252C38] text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[#FFFFFF] hover:bg-[#E7E5DC] border border-[#D9D8CF] text-[#171A17] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5"
                   >
                     <span>Inspect Transit & Receipt</span>
                     <ArrowRight className="w-3 h-3" />
