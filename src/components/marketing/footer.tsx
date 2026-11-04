@@ -1,35 +1,39 @@
 import Link from 'next/link';
-import { ShieldCheck, Lock } from 'lucide-react';
+import { ShieldCheck, Truck, Building2, CheckCircle2 } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/brand';
 
 const FOOTER_SECTIONS = [
   {
+    title: 'Categories',
+    links: [
+      { label: 'Building Materials (Cement & Steel)', href: '/categories#building-materials' },
+      { label: 'Electrical Supplies & Cables', href: '/categories#electrical' },
+      { label: 'Plumbing & Water Systems', href: '/categories#plumbing' },
+      { label: 'Tiles, Marble & Flooring', href: '/categories#tiles-flooring' },
+      { label: 'Finishing & Waterproofing', href: '/categories#finishing-materials' },
+      { label: 'Doors, Windows & Hardware', href: '/categories#doors-windows' },
+    ],
+  },
+  {
     title: 'Platform',
     links: [
-      { label: 'Capital Assets', href: '/assets' },
-      { label: 'Debt & Facilities', href: '/liabilities' },
-      { label: 'Encrypted Vault', href: '/vault' },
-      { label: 'Treasury & Cashflow', href: '/cashflow' },
-      { label: 'Financial Cockpit', href: '/dashboard' },
+      { label: 'Post Requirement (RFQ)', href: '/rfq/new' },
+      { label: 'How It Works (6-Step Engine)', href: '/how-it-works' },
+      { label: 'For Contractors & Builders', href: '/for-buyers' },
+      { label: 'For Material Suppliers', href: '/for-suppliers' },
+      { label: 'Quotation Comparison Tool', href: '/buyer/dashboard' },
+      { label: 'Delivery Tracking System', href: '/logistics/deliveries' },
     ],
   },
   {
-    title: 'Continuity',
+    title: 'Portals & Legal',
     links: [
-      { label: 'Intergenerational Directives', href: '/continuity' },
-      { label: 'Business Ownership Map', href: '/business-ownership' },
-      { label: 'Insurance & Protection', href: '/protection' },
-      { label: 'Scenario Simulations', href: '/goals' },
-      { label: 'Audited Statements', href: '/reports' },
-    ],
-  },
-  {
-    title: 'Membership',
-    links: [
-      { label: 'Pricing & Plans', href: '/pricing' },
-      { label: 'Member Sign In', href: '/sign-in' },
-      { label: 'Family Workspaces', href: '/family' },
-      { label: 'Settings & Security', href: '/settings' },
+      { label: 'Buyer Dashboard', href: '/buyer/dashboard' },
+      { label: 'Supplier Portal & Onboarding', href: '/supplier/register' },
+      { label: 'Logistics Partner Portal', href: '/logistics/deliveries' },
+      { label: 'Admin Procurement Desk', href: '/admin/procurement' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Privacy Policy', href: '/privacy' },
     ],
   },
 ];
@@ -42,7 +46,7 @@ export function MarketingFooter() {
           {/* Brand Column (2 cols) */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-[#2457FF] text-[#F4F6FA] flex items-center justify-center font-heading font-black text-base rounded-xs">
+              <div className="w-9 h-9 bg-[#F25C05] text-[#FFFFFF] flex items-center justify-center font-heading font-black text-base rounded-xs shadow-sm">
                 P
               </div>
               <span className="font-heading text-xl uppercase font-black text-[#F4F6FA] tracking-wider">
@@ -50,15 +54,19 @@ export function MarketingFooter() {
               </span>
             </div>
             <p className="text-sm text-[#C5CAD3] max-w-sm leading-relaxed">
-              Comprehensive Financial Intelligence Platform for individuals and families.
+              Digital construction procurement network connecting contractors, builders, and individual buyers with verified material suppliers through competitive quotations and coordinated site delivery.
             </p>
-            <div className="pt-2 flex items-center gap-4 text-xs font-mono text-[#858D9B]">
+            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-[#858D9B]">
               <span className="flex items-center gap-1.5 text-[#C5CAD3]">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#2457FF]" /> DPDP Act 2023
+                <ShieldCheck className="w-3.5 h-3.5 text-[#F25C05]" /> 100% GST Verified
               </span>
               <span>•</span>
               <span className="flex items-center gap-1.5 text-[#C5CAD3]">
-                <Lock className="w-3.5 h-3.5 text-[#2457FF]" /> AES-GCM-256
+                <Truck className="w-3.5 h-3.5 text-[#F25C05]" /> Tracked Site Delivery
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5 text-[#C5CAD3]">
+                <Building2 className="w-3.5 h-3.5 text-[#F25C05]" /> Ahmedabad & Gujarat
               </span>
             </div>
           </div>
@@ -74,7 +82,7 @@ export function MarketingFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-[#C5CAD3] hover:text-[#F4F6FA] transition-colors"
+                      className="text-[#C5CAD3] hover:text-[#F25C05] transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -88,10 +96,10 @@ export function MarketingFooter() {
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-[#252C38] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-[#858D9B]">
           <div>
-            © 2026 {BRAND_CONFIG.name}. All rights reserved. Mumbai, India.
+            © 2026 {BRAND_CONFIG.name} — Construction Procurement Platform. Ahmedabad, Gujarat, India.
           </div>
-          <div>
-            Zero Commissions • Integer Paise Arithmetic • 100% Fiduciary
+          <div className="flex items-center gap-2">
+            <span className="text-[#F25C05] font-semibold">Require. Compare. Select. Deliver.</span>
           </div>
         </div>
       </div>

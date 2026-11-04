@@ -3,14 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { ArrowRight, Menu, X } from 'lucide-react';
+import { ArrowRight, Menu, X, PlusCircle, ShieldCheck } from 'lucide-react';
 import { BRAND_CONFIG } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
-  { label: 'Platform', href: '/#platform' },
-  { label: 'For Families', href: '/#families' },
-  { label: 'Pricing', href: '/pricing' },
+  { label: 'Post Requirement', href: '/rfq/new' },
+  { label: 'Categories', href: '/categories' },
+  { label: 'How It Works', href: '/how-it-works' },
+  { label: 'For Buyers', href: '/for-buyers' },
+  { label: 'For Suppliers', href: '/for-suppliers' },
 ];
 
 export function MarketingNav() {
@@ -26,23 +28,23 @@ export function MarketingNav() {
             href="/"
             className="group flex items-center gap-3.5 focus:outline-none"
           >
-            <div className="w-10 h-10 bg-[#2457FF] text-[#F4F6FA] flex items-center justify-center font-heading font-black text-lg tracking-tight rounded-xs group-hover:bg-[#1D4ED8] transition-colors shadow-sm">
+            <div className="w-10 h-10 bg-[#F25C05] text-[#FFFFFF] flex items-center justify-center font-heading font-black text-lg tracking-tight rounded-xs group-hover:bg-[#D94E00] transition-colors shadow-sm">
               P
             </div>
             <div className="flex flex-col">
               <span className="font-heading text-xl tracking-[0.08em] uppercase font-black text-[#F4F6FA]">
                 {BRAND_CONFIG.name}
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#858D9B]">
-                Financial Intelligence
+              <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#F25C05] font-semibold">
+                Construction Procurement
               </span>
             </div>
           </Link>
 
-          {/* Simple Main Navigation */}
+          {/* Main Navigation */}
           <nav
             aria-label="Main Navigation"
-            className="hidden md:flex items-center gap-9"
+            className="hidden md:flex items-center gap-7"
           >
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href;
@@ -53,7 +55,7 @@ export function MarketingNav() {
                   className={cn(
                     'text-sm font-medium tracking-wide transition-colors py-1',
                     isActive
-                      ? 'text-[#2457FF] font-bold'
+                      ? 'text-[#F25C05] font-bold'
                       : 'text-[#C5CAD3] hover:text-[#F4F6FA]'
                   )}
                 >
@@ -63,19 +65,26 @@ export function MarketingNav() {
             })}
           </nav>
 
-          {/* Direct Authentication Actions */}
-          <div className="hidden sm:flex items-center gap-4">
+          {/* Action Portals */}
+          <div className="hidden sm:flex items-center gap-3.5">
             <Link
-              href="/sign-in"
-              className="text-sm font-medium text-[#C5CAD3] hover:text-[#F4F6FA] transition-colors px-2 py-1"
+              href="/supplier/dashboard"
+              className="text-xs font-semibold uppercase tracking-wider text-[#C5CAD3] hover:text-[#F4F6FA] border border-[#252C38] hover:border-[#858D9B] px-3.5 py-2 rounded-xs transition-colors"
             >
-              Sign In
+              Supplier Portal
             </Link>
             <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 bg-[#2457FF] text-white hover:bg-[#1D4ED8] font-bold text-xs tracking-wider uppercase rounded-xs transition-all shadow-sm group"
+              href="/buyer/dashboard"
+              className="text-xs font-semibold uppercase tracking-wider text-[#C5CAD3] hover:text-[#F4F6FA] px-2 py-2 transition-colors"
             >
-              <span>Create Account</span>
+              Buyer Portal
+            </Link>
+            <Link
+              href="/rfq/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#F25C05] text-white hover:bg-[#D94E00] font-bold text-xs tracking-wider uppercase rounded-xs transition-all shadow-md group"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Post RFQ</span>
             </Link>
           </div>
 
@@ -108,18 +117,26 @@ export function MarketingNav() {
           </nav>
           <div className="pt-4 border-t border-[#252C38] flex flex-col gap-3">
             <Link
-              href="/sign-in"
+              href="/supplier/dashboard"
+              onClick={() => setMobileOpen(false)}
+              className="w-full text-center py-2.5 text-sm text-[#C5CAD3] hover:text-[#F4F6FA] border border-[#252C38]"
+            >
+              Supplier Portal
+            </Link>
+            <Link
+              href="/buyer/dashboard"
               onClick={() => setMobileOpen(false)}
               className="w-full text-center py-2.5 text-sm text-[#C5CAD3] hover:text-[#F4F6FA]"
             >
-              Sign In
+              Buyer Portal
             </Link>
             <Link
-              href="/sign-up"
+              href="/rfq/new"
               onClick={() => setMobileOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-[#2457FF] text-white font-bold text-xs tracking-wider uppercase rounded-xs"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[#F25C05] text-white font-bold text-xs tracking-wider uppercase rounded-xs"
             >
-              <span>Create Account</span>
+              <PlusCircle className="w-4 h-4" />
+              <span>Post Requirement (RFQ)</span>
             </Link>
           </div>
         </div>

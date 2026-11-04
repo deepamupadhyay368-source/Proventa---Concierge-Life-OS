@@ -95,6 +95,23 @@ const config: Config = {
           'border-light': '#364052',
           'border-cobalt': '#2457FF',
         },
+        // PROVENTA Construction Procurement Design System Tokens
+        construct: {
+          black: '#090B10',
+          orange: '#F25C05',
+          'orange-hover': '#D94E00',
+          'orange-light': '#FF7A29',
+          'orange-glow': 'rgba(242, 92, 5, 0.25)',
+          'orange-subtle': '#FFF4ED',
+          slate: '#171C26',
+          surface: '#1C2230',
+          elevated: '#222A3A',
+          steel: '#252C38',
+          border: '#252C38',
+          muted: '#858D9B',
+          light: '#F4F6FA',
+          white: '#FFFFFF',
+        },
         // PROVENTA Neo-Institutional Brutalism Tokens
         inst: {
           obsidian: '#101010',
