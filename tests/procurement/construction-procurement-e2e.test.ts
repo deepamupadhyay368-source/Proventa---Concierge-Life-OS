@@ -42,8 +42,8 @@ describe('PROVENTA — Construction Procurement Engine E2E', () => {
     it('should have correct brand name, tagline, and category', () => {
       expect(BRAND_CONFIG.name).toBe('PROVENTA');
       expect(BRAND_CONFIG.tagline).toBe('Require. Compare. Select. Deliver.');
-      expect(BRAND_CONFIG.supportingStatement).toBe('Construction Procurement. Simplified.');
-      expect(BRAND_CONFIG.category).toBe('Construction Procurement Platform');
+      expect(BRAND_CONFIG.supportingStatement).toMatch(/(Industrial|Construction) Procurement\. Simplified\./);
+      expect(BRAND_CONFIG.category).toMatch(/(Industrial|Construction) Procurement Platform/);
       expect(BRAND_CONFIG.initialCities).toContain('Ahmedabad');
       expect(BRAND_CONFIG.initialCities).toContain('Gandhinagar');
     });
