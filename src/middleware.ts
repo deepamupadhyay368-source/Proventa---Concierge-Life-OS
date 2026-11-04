@@ -39,6 +39,15 @@ const PUBLIC_ROUTES = [
   '/recover-passkey',
   '/register-details',
   '/demo',
+  '/categories',
+  '/for-buyers',
+  '/for-suppliers',
+  '/supplier/register',
+  '/rfq/new',
+  '/buyer/dashboard',
+  '/supplier/dashboard',
+  '/logistics/deliveries',
+  '/admin/procurement',
 ];
 
 const AUTH_ROUTES = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password'];
@@ -58,6 +67,13 @@ export default auth(async (req) => {
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname.startsWith('/buyer/') ||
+    pathname.startsWith('/supplier/') ||
+    pathname.startsWith('/rfq/') ||
+    pathname.startsWith('/api/procurement') ||
+    pathname.startsWith('/logistics/') ||
+    pathname.startsWith('/admin/procurement') ||
+    pathname.startsWith('/business/') ||
     (pathname.startsWith('/business/') && !pathname.startsWith('/business/dashboard')) ||
     pathname.startsWith('/businesses') ||
     pathname.startsWith('/listings') ||
