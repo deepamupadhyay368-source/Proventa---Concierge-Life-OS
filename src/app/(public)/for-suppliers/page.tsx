@@ -1,151 +1,191 @@
+'use client';
+
 import Link from 'next/link';
+import Image from 'next/image';
 import {
-  Store,
-  CheckCircle2,
-  ArrowRight,
-  TrendingUp,
-  FileCheck2,
+  ArrowUpRight,
   ShieldCheck,
+  TrendingUp,
+  FileCheck,
   Truck,
-  Users,
+  Building,
+  Check,
 } from 'lucide-react';
 
 export default function ForSuppliersPage() {
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans selection:bg-[#F25C05] selection:text-white">
+    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans">
       {/* Hero */}
-      <section className="border-b border-[#252C38] bg-gradient-to-b from-[#171C26] to-[#090B10] py-16 lg:py-24">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#090B10] border border-[#252C38] rounded-full text-xs font-mono text-[#F25C05]">
-            <Store className="w-3.5 h-3.5" />
-            <span>FOR DISTRIBUTORS, STOCKISTS & MANUFACTURERS</span>
-          </div>
-          <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading leading-tight max-w-4xl">
-            Grow Your Wholesale Sourcing Volumes on <span className="text-[#F25C05]">PROVENTA</span>
-          </h1>
-          <p className="text-base sm:text-lg text-[#C5CAD3] max-w-3xl leading-relaxed">
-            Gain direct access to qualified, verified contractors, builders, and developers with active material requirements across Ahmedabad & Gujarat.
-          </p>
-          <div className="pt-4 flex flex-wrap gap-4">
-            <Link
-              href="/supplier/register"
-              className="px-7 py-3.5 bg-[#F25C05] hover:bg-[#D94E00] text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center gap-2 shadow-lg"
-            >
-              <span>Register as Verified Supplier</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/supplier/dashboard"
-              className="px-7 py-3.5 bg-[#171C26] hover:bg-[#1E2430] border border-[#252C38] text-[#F4F6FA] font-bold text-xs uppercase tracking-wider rounded-xs transition-colors"
-            >
-              <span>Supplier Dashboard</span>
-            </Link>
+      <section className="border-b border-[#252C38] bg-[#090B10] py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] text-[11px] font-mono text-[#F25C05] uppercase tracking-wider font-semibold">
+                <span>SUPPLIER & DISTRIBUTOR NETWORK · GUJARAT</span>
+              </div>
+              <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] leading-tight font-sans">
+                EXPAND YOUR WHOLESALE CONSTRUCTION SOURCING
+              </h1>
+              <p className="text-sm sm:text-base text-[#C5CAD3] max-w-xl leading-relaxed font-normal">
+                Direct access to active commercial builders, civil engineering contractors, and institutional developers with verified requirements across Ahmedabad, Gandhinagar, and Gujarat.
+              </p>
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 font-mono text-xs">
+                <Link
+                  href="/supplier/register"
+                  className="px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black uppercase tracking-widest text-center transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>REGISTER AS SUPPLIER</span>
+                  <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                </Link>
+                <Link
+                  href="/supplier/dashboard"
+                  className="px-6 py-4 bg-[#171C26] border border-[#252C38] hover:border-[#858D9B] text-[#F4F6FA] font-bold uppercase tracking-widest text-center transition-colors"
+                >
+                  <span>SUPPLIER PORTAL</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 relative">
+              <div className="relative w-full h-[340px] bg-[#171C26] border border-[#252C38] overflow-hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?q=80&w=800&auto=format&fit=crop"
+                  alt="Industrial warehouse with heavy building materials, structural timber and steel distribution staging"
+                  fill
+                  className="object-cover object-center filter grayscale contrast-125"
+                />
+                <div className="absolute bottom-0 inset-x-0 p-4 bg-[#090B10]/95 border-t border-[#252C38] font-mono text-xs">
+                  <div className="text-[10px] text-[#858D9B] uppercase">AUTHORIZED DISTRIBUTOR HUBS</div>
+                  <div className="text-xs text-[#F4F6FA] font-bold mt-0.5">Heavy material yards in Changodar, Odhav, Naroda, and Sanand.</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Supplier Value Props */}
-      <section className="py-20 border-b border-[#252C38]">
+      {/* Supplier Capabilities & Value */}
+      <section className="py-20 border-b border-[#252C38] bg-[#171C26]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
-          <div className="text-center max-w-3xl mx-auto space-y-3">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-              Business Expansion
+          <div className="pb-8 border-b border-[#252C38]">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-semibold">
+              COMMERCIAL ADVANTAGES
             </span>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-              Why Material Suppliers Partner with PROVENTA
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] mt-1 font-sans">
+              WHY DISTRIBUTORS OPERATE THROUGH PROVENTA
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#171C26] border border-[#252C38] p-8 rounded-xs space-y-4">
-              <div className="w-12 h-12 bg-[#090B10] border border-[#252C38] flex items-center justify-center text-[#F25C05]">
-                <TrendingUp className="w-6 h-6" />
-              </div>
-              <h3 className="font-heading font-black text-xl uppercase text-[#FFFFFF]">Qualified Inbound RFQs</h3>
-              <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                Zero cold-calling. Receive pre-screened material requirements with exact specifications, site addresses, and delivery dates from builders ready to buy.
+            <div className="bg-[#090B10] border border-[#252C38] p-8 space-y-4">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">01 · VERIFIED INBOUND DEMAND</div>
+              <h3 className="font-sans font-black text-lg uppercase text-[#FFFFFF]">Structured Commercial RFQs</h3>
+              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed">
+                Receive pre-qualified material schedules with explicit quantities, standard units, site addresses, and delivery dates from builders ready to issue purchase orders.
               </p>
             </div>
 
-            <div className="bg-[#171C26] border border-[#252C38] p-8 rounded-xs space-y-4">
-              <div className="w-12 h-12 bg-[#090B10] border border-[#252C38] flex items-center justify-center text-[#F25C05]">
-                <FileCheck2 className="w-6 h-6" />
-              </div>
-              <h3 className="font-heading font-black text-xl uppercase text-[#FFFFFF]">Instant Purchase Orders</h3>
-              <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                When a buyer selects your quotation, the platform automatically issues a formal, legally binding Purchase Order (PO-XXXXX) with locked commercial terms.
+            <div className="bg-[#090B10] border border-[#252C38] p-8 space-y-4">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">02 · ITEMISED QUOTATION PORTAL</div>
+              <h3 className="font-sans font-black text-lg uppercase text-[#FFFFFF]">Transparent Bid Submission</h3>
+              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed">
+                Input your item-level rates, applicable GST rates, freight transportation, and validity windows. Eliminate endless telephone negotiations.
               </p>
             </div>
 
-            <div className="bg-[#171C26] border border-[#252C38] p-8 rounded-xs space-y-4">
-              <div className="w-12 h-12 bg-[#090B10] border border-[#252C38] flex items-center justify-center text-[#F25C05]">
-                <ShieldCheck className="w-6 h-6" />
-              </div>
-              <h3 className="font-heading font-black text-xl uppercase text-[#FFFFFF]">Premium Verification Badge</h3>
-              <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                Build authority in Gujarat&apos;s construction market. Verified dealers earn badges, customer ratings, and top placement in quotation matrixes.
+            <div className="bg-[#090B10] border border-[#252C38] p-8 space-y-4">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">03 · SECURE PURCHASE ORDERS</div>
+              <h3 className="font-sans font-black text-lg uppercase text-[#FFFFFF]">Auditable Contracts</h3>
+              <p className="text-xs sm:text-sm text-[#C5CAD3] leading-relaxed">
+                Receive legally binding Purchase Orders (PO-XXXXX) with clear advance and delivery milestones before releasing trucks from your stockyard.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Supplier Onboarding Steps */}
-      <section className="py-20 bg-[#171C26] border-b border-[#252C38]">
+      {/* Supplier Vetting Standards */}
+      <section className="py-20 border-b border-[#252C38] bg-[#090B10]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-12">
-          <div className="max-w-3xl space-y-3">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-              Fast Onboarding
+          <div className="pb-8 border-b border-[#252C38]">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-semibold">
+              ONBOARDING CRITERIA
             </span>
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-              How to Become a Verified Supplier in 3 Steps
+            <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] mt-1 font-sans">
+              SUPPLIER ELIGIBILITY & VERIFICATION AUDIT
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-[#090B10] border border-[#252C38] p-6 rounded-xs space-y-3">
-              <span className="font-mono text-2xl font-black text-[#F25C05]">01</span>
-              <h3 className="font-heading font-bold text-lg text-white">Submit Business & GST Details</h3>
-              <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                Provide your trading name, registered 15-digit GSTIN, warehouse address, and primary product categories.
-              </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 font-mono text-xs">
+            <div className="bg-[#171C26] border border-[#252C38] p-8 space-y-4">
+              <div className="text-sm font-bold text-[#F4F6FA] uppercase border-b border-[#252C38] pb-3">
+                REQUIRED DOCUMENTATION
+              </div>
+              <ul className="space-y-3 text-[#C5CAD3]">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Active GSTIN registration certificate in Gujarat (State Code 24)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Physical stockyard / warehouse commercial address proof</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Authorised manufacturer distributorship / dealership documentation</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Current bank account verification (cancelled cheque)</span>
+                </li>
+              </ul>
             </div>
 
-            <div className="bg-[#090B10] border border-[#252C38] p-6 rounded-xs space-y-3">
-              <span className="font-mono text-2xl font-black text-[#F25C05]">02</span>
-              <h3 className="font-heading font-bold text-lg text-white">Define Operating Zones & Brands</h3>
-              <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                Select your delivery radius across Ahmedabad & Gujarat and list authorized brands you distribute (e.g. UltraTech, Tata Tiscon, Astral).
-              </p>
-            </div>
-
-            <div className="bg-[#090B10] border border-[#252C38] p-6 rounded-xs space-y-3">
-              <span className="font-mono text-2xl font-black text-[#F25C05]">03</span>
-              <h3 className="font-heading font-bold text-lg text-white">Receive Matching RFQs & Submit Quotes</h3>
-              <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                Get alerted the moment a contractor requests materials in your zones. Submit itemized unit quotes and close orders.
-              </p>
+            <div className="bg-[#171C26] border border-[#252C38] p-8 space-y-4">
+              <div className="text-sm font-bold text-[#F4F6FA] uppercase border-b border-[#252C38] pb-3">
+                LOGISTICS & QUALITY COMPLIANCE
+              </div>
+              <ul className="space-y-3 text-[#C5CAD3]">
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Capability to provide batch mill test certificates (MTC) on dispatch</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Commercial vehicle coordination (Tata Ace, 10-wheeler, multi-axle trailer)</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Government E-Way bill generation prior to truck departure</span>
+                </li>
+                <li className="flex items-start gap-2.5">
+                  <Check className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
+                  <span>Commitment to transparent shortage resolution upon site receipt</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Bottom CTA */}
-      <section className="py-20 text-center">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-6">
-          <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white font-heading">
-            Join Ahmedabad&apos;s Digital Procurement Network
-          </h2>
-          <p className="text-sm sm:text-base text-[#C5CAD3] max-w-xl mx-auto">
-            Free onboarding for qualified material dealers, stockists, and transport partners.
-          </p>
-          <div className="pt-4">
+      {/* Action Banner */}
+      <section className="py-16 bg-[#171C26]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="bg-[#090B10] border border-[#252C38] p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2 max-w-xl">
+              <h2 className="text-2xl sm:text-3xl font-black uppercase text-[#FFFFFF]">
+                BECOME AN AUTHORISED PROVENTA SUPPLIER
+              </h2>
+              <p className="text-xs sm:text-sm text-[#C5CAD3]">
+                Complete your business registration and receive notifications for active material tenders in your operating zone.
+              </p>
+            </div>
+
             <Link
               href="/supplier/register"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors shadow-lg"
+              className="px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black text-xs font-mono uppercase tracking-widest text-center transition-colors shrink-0"
             >
-              <span>Register Your Dealership Today</span>
-              <ArrowRight className="w-4 h-4" />
+              REGISTER YOUR BUSINESS
             </Link>
           </div>
         </div>

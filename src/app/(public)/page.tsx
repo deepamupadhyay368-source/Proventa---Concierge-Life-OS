@@ -1,162 +1,118 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  ArrowRight,
+  ArrowUpRight,
   ShieldCheck,
   Truck,
   Building2,
   CheckCircle2,
-  Layers,
-  FileSpreadsheet,
-  Clock,
-  Sparkles,
-  TrendingDown,
+  FileText,
   Scale,
   MapPin,
   ChevronRight,
-  Hammer,
-  Zap,
-  Droplets,
-  Grid,
-  Paintbrush,
-  DoorClosed,
-  PhoneCall,
-  Star,
-  Users,
+  Package,
+  Layers,
+  ArrowRight,
 } from 'lucide-react';
-import { BRAND_CONFIG, CONSTRUCTION_UNITS } from '@/lib/brand';
+import { BRAND_CONFIG } from '@/lib/brand';
 
 const CORE_CATEGORIES = [
   {
     id: 'building-materials',
     name: 'Building Materials',
-    icon: Hammer,
-    description: 'Cement, TMT Steel, Sand, Aggregates, Bricks, AAC Blocks & Ready-Mix Concrete',
-    units: ['Bags', 'Metric tonnes (MT)', 'Cu.ft', 'Cu.m', 'Pieces (Nos)'],
+    spec: 'IS 1786 Fe 550D Rebars, IS 269:2015 53/43 Grade OPC & PPC, River Sand & Aggregates',
+    unit: 'Metric Tonnes (MT) / Bags (50kg) / Cu.ft',
     brands: ['UltraTech', 'Ambuja', 'Tata Tiscon', 'Jindal Panther', 'Kamdhenu'],
-    badge: 'High Volume Demand',
+    image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186156f?q=80&w=800&auto=format&fit=crop',
+    alt: 'TMT steel reinforcement bars and structural concrete construction yard',
   },
   {
     id: 'electrical',
     name: 'Electrical Supplies',
-    icon: Zap,
-    description: 'FRLS Copper Wires, Industrial Cables, Modular Switches, DB Panels & Conduits',
-    units: ['Metres', 'Pieces (Nos)', 'Boxes'],
+    spec: 'FRLS-H Multi-Strand Copper Wires, Armoured HT/LT Power Cables, MCBs, Industrial DBs',
+    unit: 'Metres (m) / 100m Coils / Pieces',
     brands: ['Polycab', 'Havells', 'RR Kabel', 'Schneider Electric', 'Legrand'],
-    badge: 'IS Certified',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop',
+    alt: 'Heavy industrial power distribution cables and electrical switchgear assembly',
   },
   {
     id: 'plumbing',
     name: 'Plumbing & Water Systems',
-    icon: Droplets,
-    description: 'CPVC & UPVC Pipes, Pressure Fittings, Storage Tanks, Pumps & Sanitaryware',
-    units: ['Pieces (Nos)', 'Metres', 'Litres (L)'],
+    spec: 'CPVC Pro SDR 11 & Schedule 40/80 Pipes, Heavy Pressure Fittings, Overhead Storage Tanks',
+    unit: 'Pieces (3m/5m Lengths) / Capacity (Litres)',
     brands: ['Astral', 'Ashirvad', 'Supreme', 'Sintex', 'Jaquar'],
-    badge: 'Heavy Duty',
+    image: 'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?q=80&w=800&auto=format&fit=crop',
+    alt: 'Industrial plumbing valves, water supply lines and pressure pipe distribution',
   },
   {
     id: 'tiles-flooring',
     name: 'Tiles & Flooring',
-    icon: Grid,
-    description: 'Vitrified GVT/PGVT Tiles, Ceramic Walls, Natural Marble Slabs & Granite',
-    units: ['Square feet (Sq.ft)', 'Boxes', 'Pieces (Nos)'],
-    brands: ['Kajaria', 'Somany', 'Simpolo', 'Italian Marble', 'Black Granite'],
-    badge: 'Direct Sourcing',
+    spec: 'Double Charge & Glazed Vitrified Tiles (GVT/PGVT), Natural Italian Marble, Polished Granite',
+    unit: 'Square Feet (Sq.ft) / Boxes',
+    brands: ['Kajaria', 'Somany', 'Simpolo', 'Qutone', 'Morbi Natural Granite'],
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop',
+    alt: 'Polished architectural stone slabs and large-format vitrified porcelain tiles',
   },
   {
     id: 'finishing-materials',
-    name: 'Finishing & Waterproofing',
-    icon: Paintbrush,
-    description: 'Interior/Exterior Paint, Waterproofing Membranes, Tile Adhesives & Wall Putty',
-    units: ['Litres (L)', 'Bags', 'Kilograms (KG)'],
+    name: 'Finishing Materials',
+    spec: 'Exterior Weatherproof Emulsions, Polyurethane Waterproofing, Polymer Tile Adhesives',
+    unit: 'Litres (20L Buckets) / Bags (20kg/40kg)',
     brands: ['Asian Paints', 'Berger', 'Dr. Fixit', 'Pidilite Roff', 'Birla White'],
-    badge: 'Weather Proof',
+    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?q=80&w=800&auto=format&fit=crop',
+    alt: 'Commercial coating application and industrial surface waterproofing systems',
   },
   {
     id: 'doors-windows',
     name: 'Doors, Windows & Hardware',
-    icon: DoorClosed,
-    description: 'Aluminium Window Sections, UPVC Acoustic Frames, Flush Doors & Architectural Locks',
-    units: ['Pieces (Nos)', 'Square feet (Sq.ft)', 'Sets'],
-    brands: ['Jindal Aluminium', 'Domal Series', 'Century Plywood', 'Godrej', 'Dorset'],
-    badge: 'Precision Fit',
+    spec: 'Architectural Aluminium Sections, UPVC Acoustic Multi-Chamber Profiles, Mortise Locks',
+    unit: 'Square Feet (Sq.ft) / Sets / Pieces',
+    brands: ['Jindal Aluminium', 'Fenesta', 'Century Plywood', 'Godrej', 'Dorset'],
+    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?q=80&w=800&auto=format&fit=crop',
+    alt: 'Heavy duty aluminium architectural glazing frames and industrial hardware',
   },
 ];
 
 const PROCUREMENT_STEPS = [
   {
-    step: '01',
-    title: 'Create Requirement',
-    subtitle: 'Multi-Material RFQ',
-    description: 'Specify materials, quantities, standard units (MT, Bags, Cu.ft), site address, and upload BOQ documents.',
-    icon: FileSpreadsheet,
-    badge: 'RFQ-XXXXX',
+    num: '01',
+    title: 'CREATE REQUIREMENT',
+    subtitle: 'Define Materials & Site Schedule',
+    desc: 'Submit exact quantities, standard industrial units (MT, Bags, Cu.ft), delivery schedule, and optional BOQ documents for multi-item packages.',
   },
   {
-    step: '02',
-    title: 'Invite Suppliers',
-    subtitle: 'Verified Matching',
-    description: 'Platform automatically routes requirement to verified distributors and dealers in Ahmedabad & Gujarat.',
-    icon: Users,
-    badge: 'GST-Checked',
+    num: '02',
+    title: 'INVITE SUPPLIERS',
+    subtitle: 'Direct Routing to Verified Dealers',
+    desc: 'The requirement is routed directly to authorised stockists and manufacturers in the designated operating zone who carry verified inventory.',
   },
   {
-    step: '03',
-    title: 'Receive Quotations',
-    subtitle: 'Itemized Breakdown',
-    description: 'Suppliers provide transparent item unit rates, GST %, delivery freight, discounts, and promised lead times.',
-    icon: Scale,
-    badge: 'Itemized Quotes',
+    num: '03',
+    title: 'RECEIVE QUOTATIONS',
+    subtitle: 'Itemized Commercial Bids',
+    desc: 'Suppliers provide itemized unit rates, applicable GST rates, freight transportation charges, payment terms, and delivery timeframes.',
   },
   {
-    step: '04',
-    title: 'Compare & Select',
-    subtitle: 'Decision Matrix',
-    description: 'Review side-by-side matrix comparing price, speed, ratings, and warranty. Explicit buyer confirmation to select.',
-    icon: CheckCircle2,
-    badge: 'Buyer Confirms',
+    num: '04',
+    title: 'COMPARE & SELECT',
+    subtitle: 'Transparent Side-by-Side Matrix',
+    desc: 'Review quotations side-by-side on total landed cost. The buyer selects the preferred supplier with zero automatic commitment.',
   },
   {
-    step: '05',
-    title: 'Coordinate Delivery',
-    subtitle: '7-Stage Dispatch',
-    description: 'Instant PO generation (PO-XXXXX), vehicle number, driver contact, e-way bill, and real-time tracking notes.',
-    icon: Truck,
-    badge: 'Tracked Transit',
+    num: '05',
+    title: 'COORDINATE DELIVERY',
+    subtitle: 'Vehicle Dispatch & E-Way Bill',
+    desc: 'Purchase order is issued directly. Track loading, vehicle number, assigned driver, E-Way bill generation, and transit progress.',
   },
   {
-    step: '06',
-    title: 'Confirm & Complete',
-    subtitle: 'Site Sign-Off',
-    description: 'Site engineer verifies delivered quantity, logs any damage/shortage with photos, rates supplier, and completes order.',
-    icon: ShieldCheck,
-    badge: '100% Verified',
-  },
-];
-
-const FAQS = [
-  {
-    q: 'How does PROVENTA ensure competitive pricing on construction materials?',
-    a: 'When you submit an RFQ, verified manufacturers, distributors, and bulk stockists across Ahmedabad compete directly for your order. By receiving multiple transparent, itemized quotes with clear GST and freight breakdowns, you eliminate middleman markups and secure wholesale project pricing.',
-  },
-  {
-    q: 'Can I upload a complete Bill of Quantities (BOQ) or material schedule?',
-    a: 'Yes. You can upload PDF or Excel BOQ sheets when creating your requirement, or type in your raw material list. Our system automatically parses the specifications, quantities, and units into itemized procurement schedules.',
-  },
-  {
-    q: 'Does the buyer automatically get committed to a supplier?',
-    a: 'No. PROVENTA enforces explicit buyer confirmation. No supplier is selected automatically. You review all quotes side-by-side, inspect their verification level and rating, and click "Select Quotation" only when you are completely satisfied with the commercial terms.',
-  },
-  {
-    q: 'How does delivery tracking and physical site receipt work?',
-    a: 'Once a Purchase Order is issued, the supplier provides dispatch details including vehicle type (Tata Ace, 10-Wheeler, Transit Mixer), vehicle registration number, driver name, mobile number, and e-way bill. Delivery progresses through 7 transparent stages. Upon arrival, your site representative verifies quantities, logs any shortages, and confirms receipt.',
-  },
-  {
-    q: 'Which locations in Gujarat are currently covered?',
-    a: 'PROVENTA currently operates high-density verified supplier networks across Ahmedabad (SG Highway, Changodar, Odhav, Naroda, Sanand, Bopal, Gota, Science City), Gandhinagar, GIFT City, Vadodara, Surat, and Rajkot, with transit support across Gujarat.',
+    num: '06',
+    title: 'CONFIRM & COMPLETE',
+    subtitle: 'Site Inspection & Digital POD',
+    desc: 'Site supervisor inspects materials upon physical arrival, validates challan counts, records any discrepancies, and signs off delivery.',
   },
 ];
 
@@ -176,517 +132,459 @@ export default function ConstructionHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans selection:bg-[#F25C05] selection:text-white">
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-32 overflow-hidden border-b border-[#252C38]">
-        {/* Background Gradients */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b from-[#F25C05]/10 via-[#F25C05]/5 to-transparent blur-3xl pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Column: Headlines & Positioning */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#171C26] border border-[#252C38] text-xs font-mono text-[#F4F6FA]">
-                <span className="w-2 h-2 rounded-full bg-[#F25C05] animate-pulse" />
-                <span className="font-semibold text-[#F25C05] tracking-wide uppercase">
-                  Ahmedabad & Gujarat Network Active
-                </span>
-                <span className="text-[#858D9B]">•</span>
-                <span className="text-[#C5CAD3]">Verified Material Suppliers</span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight text-[#FFFFFF] leading-[1.08] font-heading">
-                Construction <br />
-                Procurement. <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F25C05] via-[#FF7A29] to-[#F25C05]">
-                  Simplified.
-                </span>
-              </h1>
-
-              <div className="flex items-center gap-3 font-mono text-sm uppercase tracking-widest text-[#F25C05] font-bold">
-                <span>Require</span>
-                <span className="text-[#858D9B]">•</span>
-                <span>Compare</span>
-                <span className="text-[#858D9B]">•</span>
-                <span>Select</span>
-                <span className="text-[#858D9B]">•</span>
-                <span>Deliver</span>
-              </div>
-
-              <p className="text-lg text-[#C5CAD3] max-w-2xl leading-relaxed">
-                Connect with verified construction material suppliers, compare competitive itemized quotations, and coordinate timely site delivery across Ahmedabad & Gujarat through one unified platform.
-              </p>
-
-              {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-                <Link
-                  href="/rfq/new"
-                  className="inline-flex items-center justify-center gap-3 px-7 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-white font-bold text-sm tracking-wider uppercase rounded-xs transition-all shadow-lg shadow-[#F25C05]/20 group"
-                >
-                  <span>Post Your Requirement</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  href="/supplier/register"
-                  className="inline-flex items-center justify-center gap-3 px-6 py-4 bg-[#171C26] hover:bg-[#1E2430] border border-[#252C38] hover:border-[#858D9B] text-[#F4F6FA] font-bold text-sm tracking-wider uppercase rounded-xs transition-colors"
-                >
-                  <span>Register as Supplier</span>
-                </Link>
-              </div>
-
-              {/* Trust Indicators */}
-              <div className="pt-6 grid grid-cols-2 sm:grid-cols-3 gap-4 border-t border-[#252C38] text-xs text-[#C5CAD3]">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#F25C05] shrink-0" />
-                  <span>100% GST-Verified Dealers</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0" />
-                  <span>No Auto-Selection Control</span>
-                </div>
-                <div className="flex items-center gap-2 col-span-2 sm:col-span-1">
-                  <Truck className="w-4 h-4 text-[#F25C05] shrink-0" />
-                  <span>GPS Tracked Site Transit</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Column: Interactive Quick RFQ Launcher Card */}
-            <div className="lg:col-span-5">
-              <div className="bg-[#171C26] border border-[#252C38] rounded-xs p-6 sm:p-8 shadow-2xl relative">
-                <div className="flex items-center justify-between pb-4 border-b border-[#252C38]">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-[#F25C05]" />
-                    <span className="font-heading font-bold text-sm uppercase tracking-wider text-[#FFFFFF]">
-                      Instant RFQ Launcher
-                    </span>
-                  </div>
-                  <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#252C38] text-[#C5CAD3] rounded-xs">
-                    Ahmedabad Live
-                  </span>
+    <div className="min-h-screen bg-[#090B10] text-[#F4F6FA] font-sans">
+      {/* 1. HERO SECTION — Powerful Corporate Editorial Layout */}
+      <section className="relative border-b border-[#252C38] bg-[#090B10]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16 lg:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-stretch">
+            {/* Left Column: Industrial Typography & Action */}
+            <div className="lg:col-span-7 flex flex-col justify-between space-y-8">
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#171C26] border border-[#252C38] text-[11px] font-mono tracking-wider uppercase text-[#C5CAD3]">
+                  <span className="w-2 h-2 bg-[#F25C05]" />
+                  <span>COMMERCIAL PROCUREMENT PLATFORM · INDIA</span>
                 </div>
 
-                <form onSubmit={handleQuickSubmit} className="mt-5 space-y-4">
-                  {/* Category Picker */}
-                  <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                      1. Select Material Category
-                    </label>
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs focus:outline-none focus:border-[#F25C05]"
-                    >
-                      {CORE_CATEGORIES.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-[#FFFFFF] leading-[1.05] font-sans">
+                  CONSTRUCTION PROCUREMENT. <br />
+                  <span className="text-[#F25C05]">MADE MORE EFFICIENT.</span>
+                </h1>
 
-                  {/* Freeform Prompt / Specs */}
-                  <div>
-                    <label className="block text-xs font-mono uppercase tracking-wider text-[#858D9B] mb-1.5">
-                      2. What Materials Do You Need?
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={quickInput}
-                      onChange={(e) => setQuickInput(e.target.value)}
-                      placeholder="e.g. 1,000 bags UltraTech 53 Grade Cement and 25 MT Tata Tiscon 16mm TMT Steel delivered to Sola, Ahmedabad"
-                      className="w-full bg-[#090B10] border border-[#252C38] text-[#F4F6FA] px-3.5 py-2.5 text-sm rounded-xs placeholder:text-[#858D9B]/50 focus:outline-none focus:border-[#F25C05]"
-                    />
-                  </div>
+                <p className="text-base sm:text-lg text-[#C5CAD3] max-w-xl leading-relaxed font-normal">
+                  Connect with verified construction material suppliers, compare competitive quotations and coordinate delivery directly to your project site.
+                </p>
 
-                  {/* Quick Preset Buttons */}
-                  <div className="space-y-1.5">
-                    <span className="text-[11px] font-mono text-[#858D9B]">Quick Templates:</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {[
-                        '50 MT Fe 550D TMT Steel',
-                        '1,200 Bags 53G Cement',
-                        'Astral CPVC SDR-11 Pipes',
-                        'Kajaria 600x1200 PGVT Tiles',
-                      ].map((preset) => (
-                        <button
-                          key={preset}
-                          type="button"
-                          onClick={() => setQuickInput(preset)}
-                          className="text-[11px] px-2 py-1 bg-[#090B10] hover:bg-[#252C38] border border-[#252C38] text-[#C5CAD3] rounded-xs transition-colors"
-                        >
-                          + {preset}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 bg-[#F25C05] hover:bg-[#D94E00] text-white font-bold text-xs uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-2 shadow-md"
-                  >
-                    <span>Get Competitive Quotations</span>
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </form>
-
-                <div className="mt-4 pt-4 border-t border-[#252C38] text-center">
+                {/* Primary & Secondary CTAs */}
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                   <Link
                     href="/rfq/new"
-                    className="text-xs text-[#858D9B] hover:text-[#F25C05] transition-colors"
+                    className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black text-xs uppercase tracking-widest transition-colors font-mono"
                   >
-                    Have a detailed BOQ or Excel schedule? <span className="underline">Use Full RFQ Builder →</span>
+                    <span>POST YOUR REQUIREMENT</span>
+                    <ArrowUpRight className="w-4 h-4 stroke-[2.5]" />
+                  </Link>
+                  <Link
+                    href="/supplier/register"
+                    className="inline-flex items-center justify-center gap-3 px-7 py-4 bg-[#171C26] hover:bg-[#202735] border border-[#252C38] text-[#F4F6FA] font-bold text-xs uppercase tracking-widest transition-colors font-mono"
+                  >
+                    <span>BECOME A SUPPLIER</span>
                   </Link>
                 </div>
               </div>
+
+              {/* Verified Operational Facts */}
+              <div className="pt-8 border-t border-[#252C38] grid grid-cols-3 gap-6 font-mono text-xs">
+                <div>
+                  <div className="text-[10px] text-[#858D9B] uppercase tracking-wider">SUPPLIER VERIFICATION</div>
+                  <div className="text-sm font-bold text-[#F4F6FA] mt-1">100% GST & Yard Verified</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-[#858D9B] uppercase tracking-wider">QUOTATION MODEL</div>
+                  <div className="text-sm font-bold text-[#F4F6FA] mt-1">Direct Wholesale Bids</div>
+                </div>
+                <div>
+                  <div className="text-[10px] text-[#858D9B] uppercase tracking-wider">DISPATCH DISCLOSURE</div>
+                  <div className="text-sm font-bold text-[#F4F6FA] mt-1">E-Way Bill & Driver Log</div>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* 2. THE 6-STEP PROCUREMENT ENGINE */}
-      <section className="py-20 bg-[#090B10] border-b border-[#252C38]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-              <span>Standardized Workflow</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-              The 6-Step Procurement Journey
-            </h2>
-            <p className="text-sm sm:text-base text-[#C5CAD3] leading-relaxed">
-              From site requirement to verified physical sign-off, PROVENTA eliminates opaque trading, delay risks, and billing discrepancies.
-            </p>
-          </div>
-
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PROCUREMENT_STEPS.map((s) => {
-              const Icon = s.icon;
-              return (
-                <div
-                  key={s.step}
-                  className="bg-[#171C26] border border-[#252C38] p-7 rounded-xs hover:border-[#F25C05]/60 transition-all group flex flex-col justify-between"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-2xl font-black text-[#F25C05]">
-                        {s.step}
-                      </span>
-                      <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#090B10] border border-[#252C38] text-[#858D9B] rounded-xs">
-                        {s.badge}
-                      </span>
-                    </div>
-
-                    <div className="w-10 h-10 bg-[#090B10] border border-[#252C38] flex items-center justify-center text-[#F25C05] group-hover:scale-105 transition-transform">
-                      <Icon className="w-5 h-5" />
-                    </div>
-
-                    <div>
-                      <h3 className="font-heading font-black text-lg uppercase tracking-tight text-[#FFFFFF]">
-                        {s.title}
-                      </h3>
-                      <p className="font-mono text-xs uppercase text-[#F25C05] font-medium mt-0.5">
-                        {s.subtitle}
-                      </p>
-                    </div>
-
-                    <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                      {s.description}
-                    </p>
+            {/* Right Column: High-Quality Realistic Industrial Photography */}
+            <div className="lg:col-span-5 relative flex flex-col">
+              <div className="relative w-full h-[360px] sm:h-[460px] lg:h-full min-h-[380px] bg-[#171C26] border border-[#252C38] overflow-hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=1200&auto=format&fit=crop"
+                  alt="Commercial reinforced concrete construction structure and heavy material staging"
+                  fill
+                  priority
+                  className="object-cover object-center filter grayscale contrast-125 hover:grayscale-0 transition-all duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#090B10] via-transparent to-transparent opacity-80" />
+                
+                {/* Real Operational Caption Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-[#252C38]/80 bg-[#090B10]/90 font-mono text-xs text-[#C5CAD3]">
+                  <div className="flex items-center justify-between text-[11px] text-[#858D9B] pb-1 border-b border-[#252C38] mb-2">
+                    <span>SECTOR INFRASTRUCTURE</span>
+                    <span className="text-[#F25C05]">GUJARAT NETWORK</span>
+                  </div>
+                  <div className="text-xs text-[#F4F6FA] font-semibold">
+                    Direct bulk delivery coordination for TMT steel, ready-mix concrete, cement, and MEP packages.
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-12 text-center">
-            <Link
-              href="/how-it-works"
-              className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#F25C05] hover:text-[#FF7A29] transition-colors"
-            >
-              <span>Explore Detailed Step-by-Step Architecture</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 3. CORE MATERIAL CATEGORIES */}
-      <section className="py-20 bg-[#171C26] border-b border-[#252C38]">
+      {/* 2. QUICK SPECIFICATION / REQUIREMENT BAR */}
+      <section className="bg-[#171C26] border-b border-[#252C38] py-6">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <form onSubmit={handleQuickSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <div className="md:col-span-3">
+              <label htmlFor="quick-category" className="sr-only">Material Category</label>
+              <select
+                id="quick-category"
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full h-12 bg-[#090B10] border border-[#252C38] px-3.5 text-xs font-mono uppercase tracking-wider text-[#F4F6FA] focus:border-[#F25C05] focus:outline-none"
+              >
+                <option value="building-materials">Building Materials (Steel, Cement, Sand)</option>
+                <option value="electrical">Electrical Supplies & Cables</option>
+                <option value="plumbing">Plumbing & Water Systems</option>
+                <option value="tiles-flooring">Tiles, Marble & Granite</option>
+                <option value="finishing-materials">Finishing & Waterproofing</option>
+                <option value="doors-windows">Doors, Windows & Hardware</option>
+              </select>
+            </div>
+            <div className="md:col-span-6">
+              <label htmlFor="quick-specs" className="sr-only">Material Requirement Specifications</label>
+              <input
+                id="quick-specs"
+                type="text"
+                placeholder="E.g. 50 MT Tata Tiscon Fe 550D TMT Rebars (16mm, 20mm, 25mm) to Changodar site..."
+                value={quickInput}
+                onChange={(e) => setQuickInput(e.target.value)}
+                className="w-full h-12 bg-[#090B10] border border-[#252C38] px-4 text-xs font-sans text-[#F4F6FA] placeholder-[#858D9B] focus:border-[#F25C05] focus:outline-none"
+              />
+            </div>
+            <div className="md:col-span-3">
+              <button
+                type="submit"
+                className="w-full h-12 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black text-xs font-mono uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+              >
+                <span>REQUEST QUOTATIONS</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      {/* 3. SIX-STEP PROCUREMENT PROCESS — Clean, Numbered Editorial Architecture */}
+      <section className="py-20 lg:py-28 border-b border-[#252C38] bg-[#090B10]">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-[#252C38]">
-            <div className="space-y-3">
-              <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-                Material Taxonomy
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-                6 Core Construction Categories
+            <div>
+              <div className="font-mono text-xs uppercase tracking-widest text-[#F25C05] mb-2 font-semibold">
+                OPERATIONAL ARCHITECTURE
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF]">
+                SIX-STEP PROCUREMENT PROCESS
               </h2>
-              <p className="text-sm text-[#C5CAD3] max-w-xl">
-                Standardized units of measurement, brand preferences, and direct stockist pricing across Gujarat.
-              </p>
             </div>
-            <Link
-              href="/categories"
-              className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#F4F6FA] hover:text-[#F25C05] border border-[#252C38] px-4 py-2.5 rounded-xs transition-colors self-start md:self-end"
-            >
-              <span>View Full Catalogue</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {CORE_CATEGORIES.map((cat) => {
-              const Icon = cat.icon;
-              return (
-                <div
-                  key={cat.id}
-                  className="bg-[#090B10] border border-[#252C38] p-6 rounded-xs hover:border-[#858D9B] transition-colors space-y-4 flex flex-col justify-between"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="w-10 h-10 bg-[#171C26] border border-[#252C38] flex items-center justify-center text-[#F25C05]">
-                        <Icon className="w-5 h-5" />
-                      </div>
-                      <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[#171C26] text-[#C5CAD3] rounded-xs border border-[#252C38]">
-                        {cat.badge}
-                      </span>
-                    </div>
-
-                    <h3 className="font-heading font-black text-lg uppercase tracking-tight text-[#FFFFFF]">
-                      {cat.name}
-                    </h3>
-
-                    <p className="text-xs text-[#C5CAD3] leading-relaxed">
-                      {cat.description}
-                    </p>
-
-                    <div className="space-y-1.5 pt-2 border-t border-[#252C38]">
-                      <div className="text-[11px] font-mono text-[#858D9B]">Standard Units:</div>
-                      <div className="flex flex-wrap gap-1 text-[11px] font-mono text-[#F4F6FA]">
-                        {cat.units.map((u) => (
-                          <span key={u} className="px-1.5 py-0.5 bg-[#171C26] border border-[#252C38] rounded-xs">
-                            {u}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5 pt-2">
-                      <div className="text-[11px] font-mono text-[#858D9B]">Leading Brands:</div>
-                      <div className="text-xs text-[#C5CAD3]">
-                        {cat.brands.join(', ')}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-[#252C38]">
-                    <Link
-                      href={`/rfq/new?category=${cat.id}`}
-                      className="w-full py-2 bg-[#171C26] hover:bg-[#F25C05] hover:text-white border border-[#252C38] text-xs font-bold uppercase tracking-wider rounded-xs transition-colors flex items-center justify-center gap-1.5 text-[#F4F6FA]"
-                    >
-                      <span>Quote {cat.name}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. DUAL VALUE PROPOSITIONS: FOR BUYERS & FOR SUPPLIERS */}
-      <section className="py-20 bg-[#090B10] border-b border-[#252C38]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* For Buyers */}
-            <div className="bg-[#171C26] border border-[#252C38] p-8 lg:p-10 rounded-xs space-y-6">
-              <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-                <span>Contractors • Builders • Home Owners</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-                For Procurement Teams & Builders
-              </h2>
-              <ul className="space-y-3.5 text-sm text-[#C5CAD3]">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                  <span><strong>Direct Supplier Sourcing:</strong> Bypass brokers and unverified intermediaries. Transact directly with verified stockists.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                  <span><strong>Side-by-Side Quotation Matrix:</strong> Compare line-item rates, GST components, freight fees, and lead times in one grid.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                  <span><strong>Strict Delivery Sign-Off:</strong> Release milestone payments only after physical site weight verification and damage sign-off.</span>
-                </li>
-              </ul>
-              <div className="pt-2">
-                <Link
-                  href="/for-buyers"
-                  className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#F25C05] hover:text-[#FF7A29]"
-                >
-                  <span>Learn More for Construction Buyers →</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* For Suppliers */}
-            <div className="bg-[#171C26] border border-[#252C38] p-8 lg:p-10 rounded-xs space-y-6">
-              <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-                <span>Distributors • Stockists • Manufacturers</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-                For Material Suppliers & Dealers
-              </h2>
-              <ul className="space-y-3.5 text-sm text-[#C5CAD3]">
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                  <span><strong>Qualified Commercial RFQs:</strong> Receive filtered requirements matching your inventory, warehouse zones, and delivery capacity.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                  <span><strong>Fast PO Generation:</strong> When a buyer accepts your quotation, an official Purchase Order (PO-XXXXX) is generated instantly.</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-[#F25C05] shrink-0 mt-0.5" />
-                  <span><strong>Fleet & Dispatch Integration:</strong> Log your vehicle numbers, assign drivers, and share automated tracking notes with site in-charges.</span>
-                </li>
-              </ul>
-              <div className="pt-2">
-                <Link
-                  href="/for-suppliers"
-                  className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#F25C05] hover:text-[#FF7A29]"
-                >
-                  <span>Learn More for Material Suppliers →</span>
-                </Link>
-              </div>
+            <div className="text-xs font-mono text-[#858D9B] max-w-md">
+              From specification drafting to verified on-site material inspection. Every step is transparent, tracked, and verifiable.
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* 5. AHMEDABAD & GUJARAT COVERAGE MAP */}
-      <section className="py-20 bg-[#171C26] border-b border-[#252C38]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="bg-[#090B10] border border-[#252C38] p-8 lg:p-12 rounded-xs">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-                  <MapPin className="w-4 h-4" />
-                  <span>High-Density Delivery Radius</span>
-                </div>
-                <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-                  Active Delivery Across Ahmedabad & Gujarat
-                </h2>
-                <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                  Our vetted supplier depots and transport partners cover primary industrial stockyards and high-growth construction belts with guaranteed delivery windows.
-                </p>
-                <div className="pt-2 flex flex-wrap gap-2 text-xs font-mono">
-                  {[
-                    'SG Highway Belt',
-                    'Sanand GIDC',
-                    'Changodar & Bavla',
-                    'Odhav & Naroda Industrial',
-                    'Science City & Sola',
-                    'South Bopal & Shela',
-                    'GIFT City & Gandhinagar',
-                    'Vatva & Narol',
-                    'Vadodara Highway',
-                  ].map((zone) => (
-                    <span
-                      key={zone}
-                      className="px-2.5 py-1 bg-[#171C26] border border-[#252C38] text-[#F4F6FA] rounded-xs"
-                    >
-                      ✓ {zone}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="lg:col-span-5 bg-[#171C26] border border-[#252C38] p-6 rounded-xs space-y-4">
-                <div className="text-xs font-mono uppercase tracking-wider text-[#858D9B]">
-                  Platform Procurement Volume
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-[#090B10] border border-[#252C38] rounded-xs">
-                    <div className="font-mono text-2xl font-black text-[#F25C05]">₹4.2 Cr+</div>
-                    <div className="text-[11px] text-[#858D9B]">Materials Quoted</div>
-                  </div>
-                  <div className="p-3 bg-[#090B10] border border-[#252C38] rounded-xs">
-                    <div className="font-mono text-2xl font-black text-[#FFFFFF]">1,850+</div>
-                    <div className="text-[11px] text-[#858D9B]">MT Steel & Cement</div>
-                  </div>
-                  <div className="p-3 bg-[#090B10] border border-[#252C38] rounded-xs">
-                    <div className="font-mono text-2xl font-black text-[#FFFFFF]">99.2%</div>
-                    <div className="text-[11px] text-[#858D9B]">On-Time Dispatch</div>
-                  </div>
-                  <div className="p-3 bg-[#090B10] border border-[#252C38] rounded-xs">
-                    <div className="font-mono text-2xl font-black text-[#F25C05]">4.9 / 5</div>
-                    <div className="text-[11px] text-[#858D9B]">Supplier Rating</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. FAQ SECTION */}
-      <section className="py-20 bg-[#090B10] border-b border-[#252C38]">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-8">
-          <div className="text-center space-y-3">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#F25C05] font-bold">
-              Frequently Asked Questions
-            </span>
-            <h2 className="text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-              Construction Procurement Clarity
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            {FAQS.map((faq, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-[#252C38] border border-[#252C38] mt-10">
+            {PROCUREMENT_STEPS.map((s) => (
               <div
-                key={idx}
-                className="bg-[#171C26] border border-[#252C38] p-6 rounded-xs space-y-2"
+                key={s.num}
+                className="bg-[#090B10] p-8 flex flex-col justify-between space-y-6 hover:bg-[#171C26] transition-colors"
               >
-                <h3 className="font-heading font-bold text-base text-[#FFFFFF]">
-                  {faq.q}
-                </h3>
-                <p className="text-sm text-[#C5CAD3] leading-relaxed">
-                  {faq.a}
-                </p>
+                <div className="space-y-4">
+                  <div className="font-mono text-3xl font-black text-[#F25C05] tracking-tighter">
+                    {s.num}
+                  </div>
+                  <h3 className="font-sans text-lg font-black uppercase tracking-wide text-[#FFFFFF]">
+                    {s.title}
+                  </h3>
+                  <div className="font-mono text-xs text-[#858D9B] uppercase tracking-wider">
+                    {s.subtitle}
+                  </div>
+                  <p className="text-xs text-[#C5CAD3] leading-relaxed font-normal pt-2">
+                    {s.desc}
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-[#252C38]/60 flex items-center justify-between text-[11px] font-mono text-[#858D9B]">
+                  <span>STAGE STATUS</span>
+                  <span className="text-[#F4F6FA] font-semibold">VERIFIED PROTOCOL</span>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 7. FINAL HIGH-IMPACT CTA */}
-      <section className="py-20 bg-gradient-to-b from-[#171C26] to-[#090B10]">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center space-y-6">
-          <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-            Require. Compare. Select. Deliver.
-          </h2>
-          <p className="text-base text-[#C5CAD3] max-w-2xl mx-auto leading-relaxed">
-            Stop losing days negotiating over phone calls. Post your construction requirement now and receive itemized competitive quotations from verified suppliers.
-          </p>
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+      {/* 4. MATERIAL CATEGORY CATALOGUE — Authentic Product Photography & Specifications */}
+      <section className="py-20 lg:py-28 border-b border-[#252C38] bg-[#171C26]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-[#252C38]">
+            <div>
+              <div className="font-mono text-xs uppercase tracking-widest text-[#F25C05] mb-2 font-semibold">
+                PRODUCT & MATERIAL CATALOGUE
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF]">
+                PRIMARY PROCUREMENT CATEGORIES
+              </h2>
+            </div>
             <Link
-              href="/rfq/new"
-              className="w-full sm:w-auto px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-white font-bold text-sm tracking-wider uppercase rounded-xs transition-all shadow-xl shadow-[#F25C05]/20 flex items-center justify-center gap-2"
+              href="/categories"
+              className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#F25C05] hover:text-[#FFFFFF] transition-colors"
             >
-              <span>Post Requirement (RFQ)</span>
+              <span>View Complete Material Directory</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+            {CORE_CATEGORIES.map((cat) => (
+              <div
+                key={cat.id}
+                className="bg-[#090B10] border border-[#252C38] flex flex-col justify-between overflow-hidden group hover:border-[#858D9B] transition-colors"
+              >
+                {/* Realistic Product Image */}
+                <div className="relative h-48 w-full bg-[#171C26] overflow-hidden border-b border-[#252C38]">
+                  <Image
+                    src={cat.image}
+                    alt={cat.alt}
+                    fill
+                    className="object-cover object-center filter grayscale group-hover:grayscale-0 contrast-110 transition-all duration-500"
+                  />
+                  <div className="absolute top-3 left-3 bg-[#090B10] border border-[#252C38] px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#F4F6FA]">
+                    {cat.name}
+                  </div>
+                </div>
+
+                {/* Details & Technical Specifications */}
+                <div className="p-6 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3">
+                    <h3 className="font-sans text-base font-black uppercase tracking-wide text-[#FFFFFF]">
+                      {cat.name}
+                    </h3>
+                    <div className="space-y-1.5 text-xs font-mono">
+                      <div className="text-[11px] text-[#858D9B] uppercase">SPECIFICATIONS:</div>
+                      <div className="text-xs text-[#C5CAD3] leading-relaxed font-sans">{cat.spec}</div>
+                    </div>
+                    <div className="space-y-1 text-xs font-mono">
+                      <div className="text-[11px] text-[#858D9B] uppercase">STANDARD UNITS:</div>
+                      <div className="text-xs text-[#F25C05] font-semibold">{cat.unit}</div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-[#252C38] space-y-3">
+                    <div className="text-[10px] font-mono uppercase tracking-wider text-[#858D9B]">
+                      AVAILABLE BRANDS:
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {cat.brands.map((b) => (
+                        <span
+                          key={b}
+                          className="px-2 py-0.5 bg-[#171C26] border border-[#252C38] text-[11px] font-mono text-[#C5CAD3]"
+                        >
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+
+                    <Link
+                      href={`/rfq/new?category=${cat.id}`}
+                      className="mt-3 w-full py-2.5 bg-[#171C26] hover:bg-[#F25C05] hover:text-[#090B10] text-[#F4F6FA] text-xs font-mono uppercase tracking-widest font-bold flex items-center justify-center gap-2 border border-[#252C38] transition-colors"
+                    >
+                      <span>REQUEST QUOTATION</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. QUOTATION COMPARISON SAMPLE — Real Procurement Tool Experience */}
+      <section className="py-20 lg:py-28 border-b border-[#252C38] bg-[#090B10]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-12 border-b border-[#252C38]">
+            <div>
+              <div className="font-mono text-xs uppercase tracking-widest text-[#F25C05] mb-2 font-semibold">
+                DECISION ARCHITECTURE
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF]">
+                TRANSPARENT QUOTATION COMPARISON
+              </h2>
+            </div>
+            <div className="text-xs font-mono text-[#858D9B] max-w-md">
+              Every quotation shows itemized unit rates, GST percentage, freight, and net landed cost. Zero hidden fees.
+            </div>
+          </div>
+
+          {/* Structured Procurement Comparison Table */}
+          <div className="mt-10 overflow-x-auto border border-[#252C38] bg-[#171C26]">
+            <table className="w-full text-left font-mono text-xs border-collapse">
+              <thead>
+                <tr className="bg-[#090B10] text-[#858D9B] border-b border-[#252C38] text-[11px] uppercase tracking-wider">
+                  <th className="p-4 border-r border-[#252C38]">SUPPLIER</th>
+                  <th className="p-4 border-r border-[#252C38]">SPECIFICATION / BRAND</th>
+                  <th className="p-4 border-r border-[#252C38] text-right">QUANTITY</th>
+                  <th className="p-4 border-r border-[#252C38] text-right">UNIT RATE</th>
+                  <th className="p-4 border-r border-[#252C38] text-right">GST %</th>
+                  <th className="p-4 border-r border-[#252C38] text-right">FREIGHT</th>
+                  <th className="p-4 border-r border-[#252C38] text-right text-[#FFFFFF]">LANDED COST</th>
+                  <th className="p-4 border-r border-[#252C38]">LEAD TIME</th>
+                  <th className="p-4 text-center">ACTION</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#252C38] text-[#C5CAD3]">
+                <tr className="hover:bg-[#090B10]/70 transition-colors">
+                  <td className="p-4 border-r border-[#252C38]">
+                    <div className="font-bold text-[#F4F6FA]">Gujarat Building Materials Syndicate</div>
+                    <div className="text-[10px] text-[#858D9B]">GSTIN: 24AAACG1928K1Z5 · Odhav Yard</div>
+                  </td>
+                  <td className="p-4 border-r border-[#252C38]">
+                    <div className="text-[#F4F6FA]">Tata Tiscon Fe 550D Rebars</div>
+                    <div className="text-[10px] text-[#858D9B]">IS 1786 primary mill certified</div>
+                  </td>
+                  <td className="p-4 border-r border-[#252C38] text-right font-bold text-[#F4F6FA]">50 MT</td>
+                  <td className="p-4 border-r border-[#252C38] text-right">₹54,200/MT</td>
+                  <td className="p-4 border-r border-[#252C38] text-right">18%</td>
+                  <td className="p-4 border-r border-[#252C38] text-right">₹18,000</td>
+                  <td className="p-4 border-r border-[#252C38] text-right font-bold text-[#F25C05] text-sm">
+                    ₹32,20,840
+                  </td>
+                  <td className="p-4 border-r border-[#252C38]">2 Days (Direct)</td>
+                  <td className="p-4 text-center">
+                    <span className="px-3 py-1 bg-[#F25C05] text-[#090B10] text-[10px] font-black uppercase tracking-wider">
+                      SELECTABLE
+                    </span>
+                  </td>
+                </tr>
+                <tr className="hover:bg-[#090B10]/70 transition-colors">
+                  <td className="p-4 border-r border-[#252C38]">
+                    <div className="font-bold text-[#F4F6FA]">Sabarmati Steel & Concrete Solutions</div>
+                    <div className="text-[10px] text-[#858D9B]">GSTIN: 24BBECS7712M1Z2 · Changodar</div>
+                  </td>
+                  <td className="p-4 border-r border-[#252C38]">
+                    <div className="text-[#F4F6FA]">Jindal Panther Fe 550D Rebars</div>
+                    <div className="text-[10px] text-[#858D9B]">Factory test certificate attached</div>
+                  </td>
+                  <td className="p-4 border-r border-[#252C38] text-right font-bold text-[#F4F6FA]">50 MT</td>
+                  <td className="p-4 border-r border-[#252C38] text-right">₹54,800/MT</td>
+                  <td className="p-4 border-r border-[#252C38] text-right">18%</td>
+                  <td className="p-4 border-r border-[#252C38] text-right">₹14,500</td>
+                  <td className="p-4 border-r border-[#252C38] text-right font-bold text-[#F25C05] text-sm">
+                    ₹32,47,700
+                  </td>
+                  <td className="p-4 border-r border-[#252C38]">3 Days</td>
+                  <td className="p-4 text-center">
+                    <span className="px-3 py-1 bg-[#171C26] border border-[#252C38] text-[#C5CAD3] text-[10px] uppercase tracking-wider">
+                      REVIEW
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#858D9B]">
+            <div>* Landed cost includes (Quantity × Unit Rate) + GST + Designated Site Freight.</div>
             <Link
-              href="/supplier/register"
-              className="w-full sm:w-auto px-8 py-4 bg-[#090B10] hover:bg-[#1E2430] border border-[#252C38] text-[#F4F6FA] font-bold text-sm tracking-wider uppercase rounded-xs transition-colors flex items-center justify-center"
+              href="/buyer/rfqs/rfq-demo-ahmedabad-001/compare"
+              className="text-[#F25C05] hover:underline flex items-center gap-1.5"
             >
-              <span>Register as Supplier</span>
+              <span>Explore live interactive quotation comparison interface</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. TRUST, CREDIBILITY & GOVERNANCE */}
+      <section className="py-20 lg:py-28 border-b border-[#252C38] bg-[#171C26]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="pb-12 border-b border-[#252C38]">
+            <div className="font-mono text-xs uppercase tracking-widest text-[#F25C05] mb-2 font-semibold">
+              TRUST & GOVERNANCE PROTOCOLS
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF]">
+              HOW PROVENTA OPERATES IN THE REAL INDUSTRY
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+            <div className="space-y-3 bg-[#090B10] p-6 border border-[#252C38]">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">01 · SUPPLIER VERIFICATION</div>
+              <h3 className="text-base font-bold text-[#FFFFFF]">Physical Yard & GST Checks</h3>
+              <p className="text-xs text-[#C5CAD3] leading-relaxed">
+                Suppliers undergo GSTIN active status check, verified trade references, physical stockyard address validation, and authorized manufacturer dealership certificates.
+              </p>
+            </div>
+
+            <div className="space-y-3 bg-[#090B10] p-6 border border-[#252C38]">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">02 · ITEMISED PRICING</div>
+              <h3 className="text-base font-bold text-[#FFFFFF]">Transparent Commercial Bids</h3>
+              <p className="text-xs text-[#C5CAD3] leading-relaxed">
+                Quotation structures require separate disclosures for basic material unit price, GST percentages, transport/unloading freight, and payment credit terms.
+              </p>
+            </div>
+
+            <div className="space-y-3 bg-[#090B10] p-6 border border-[#252C38]">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">03 · INDEPENDENT SELECTION</div>
+              <h3 className="text-base font-bold text-[#FFFFFF]">Zero Automated Lock-In</h3>
+              <p className="text-xs text-[#C5CAD3] leading-relaxed">
+                The platform never automatically locks buyers to a supplier. Contractors and builders retain full commercial discretion to accept or negotiate any offer.
+              </p>
+            </div>
+
+            <div className="space-y-3 bg-[#090B10] p-6 border border-[#252C38]">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">04 · DISPATCH GOVERNANCE</div>
+              <h3 className="text-base font-bold text-[#FFFFFF]">Transport & Driver Logs</h3>
+              <p className="text-xs text-[#C5CAD3] leading-relaxed">
+                Suppliers must declare the assigned commercial vehicle number (e.g. 10-Wheeler, Tata Ace), driver name, phone number, and mandatory E-Way bill prior to dispatch.
+              </p>
+            </div>
+
+            <div className="space-y-3 bg-[#090B10] p-6 border border-[#252C38]">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">05 · SHORTAGE & DAMAGE LOG</div>
+              <h3 className="text-base font-bold text-[#FFFFFF]">Site Receipt Verification</h3>
+              <p className="text-xs text-[#C5CAD3] leading-relaxed">
+                Site supervisors inspect incoming material bags, rebar bundles, or tiles. Damaged or short-delivered quantities are logged digitally with photo proofs before sign-off.
+              </p>
+            </div>
+
+            <div className="space-y-3 bg-[#090B10] p-6 border border-[#252C38]">
+              <div className="font-mono text-xs text-[#F25C05] font-bold">06 · CONTRACTOR DISCRETION</div>
+              <h3 className="text-base font-bold text-[#FFFFFF]">Auditable Purchase Orders</h3>
+              <p className="text-xs text-[#C5CAD3] leading-relaxed">
+                Every confirmed order generates an immutable, sequentially numbered Purchase Order (PO-XXXXX) archived permanently for company audits and tax filings.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. BOTTOM ACTION BANNER */}
+      <section className="py-16 bg-[#090B10] border-t border-[#252C38]">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="bg-[#171C26] border border-[#252C38] p-8 lg:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="space-y-2 max-w-2xl">
+              <div className="font-mono text-xs text-[#F25C05] font-bold uppercase tracking-wider">
+                GET STARTED ON YOUR NEXT PROJECT
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black uppercase text-[#FFFFFF]">
+                READY TO STREAMLINE YOUR CONSTRUCTION PROCUREMENT?
+              </h2>
+              <p className="text-xs sm:text-sm text-[#C5CAD3]">
+                Post your material requirement or Bill of Quantities today to receive itemized quotations from verified Gujarat distributors.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0 font-mono text-xs">
+              <Link
+                href="/rfq/new"
+                className="px-8 py-4 bg-[#F25C05] hover:bg-[#D94E00] text-[#090B10] font-black uppercase tracking-widest text-center transition-colors"
+              >
+                POST REQUIREMENT
+              </Link>
+              <Link
+                href="/for-buyers"
+                className="px-6 py-4 bg-[#090B10] border border-[#252C38] hover:border-[#858D9B] text-[#F4F6FA] font-bold uppercase tracking-widest text-center transition-colors"
+              >
+                BUYER INFORMATION
+              </Link>
+            </div>
           </div>
         </div>
       </section>
