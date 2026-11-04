@@ -12,11 +12,11 @@ const monoFont = { variable: '--font-mono' };
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — Construction Procurement Platform | Require. Compare. Select. Deliver.',
+    default: 'PROVENTA — Industrial Procurement Platform | Require. Compare. Select. Deliver.',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — Construction Procurement Platform. Require. Compare. Select. Deliver. Digital procurement network connecting construction buyers with verified suppliers across India.',
+    'PROVENTA — Industrial Procurement Platform. Require. Compare. Select. Deliver. Digital procurement network connecting industrial and construction buyers with verified suppliers across India.',
   keywords: [
     'PROVENTA',
     'construction procurement platform',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: 'https://proventa.in',
     siteName: 'PROVENTA',
-    title: 'PROVENTA — Construction Procurement Platform',
+    title: 'PROVENTA — Industrial Procurement Platform',
     description:
       'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
     images: [
@@ -43,13 +43,13 @@ export const metadata: Metadata = {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'PROVENTA — Construction Procurement Platform',
+        alt: 'PROVENTA — Industrial Procurement Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PROVENTA — Construction Procurement Platform',
+    title: 'PROVENTA — Industrial Procurement Platform',
     description:
       'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
     images: ['/og-image.jpg'],

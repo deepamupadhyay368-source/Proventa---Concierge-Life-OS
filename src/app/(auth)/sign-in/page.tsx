@@ -3,9 +3,9 @@ import { SignInForm } from '@/components/auth/sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA — Construction Procurement Platform',
+  title: 'Sign In | PROVENTA — Industrial Procurement Platform',
   description:
-    'Sign in to your PROVENTA Construction Procurement Platform command portal with your credentials.',
+    'Sign in to your PROVENTA Industrial Procurement Platform command portal with your credentials.',
 };
 
 function getAuthErrorMessage(errorCode?: string): string | null {
@@ -63,7 +63,7 @@ export default async function SignInPage({
             </span>
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A8ADB7] font-semibold">
-            Construction Procurement Platform
+            Industrial Procurement Platform
           </p>
         </div>
 

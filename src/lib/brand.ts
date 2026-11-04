@@ -1,6 +1,6 @@
 /**
  * PROVENTA — Single Source of Truth for Brand & Platform Configuration
- * Product Category: Construction Procurement Platform
+ * Product Category: Industrial Procurement Platform
  * Tagline: Require. Compare. Select. Deliver.
  */
 
@@ -26,14 +26,14 @@ export const BRAND_CONFIG = {
   name: 'PROVENTA',
   displayName: 'Proventa',
   tagline: 'Require. Compare. Select. Deliver.',
-  supportingStatement: 'Construction Procurement. Simplified.',
+  supportingStatement: 'Industrial Procurement. Simplified.',
   valueProposition: 'Connect with verified construction material suppliers, compare competitive quotations, and coordinate site delivery.',
   centralValueProposition: 'Source construction materials across Ahmedabad & Gujarat with transparent pricing, verified dealers, and tracked dispatch.',
   description:
     'PROVENTA is a digital construction procurement network connecting contractors, builders, developers, and individual buyers with verified material suppliers through competitive quotations and coordinated delivery.',
   shortDescription:
-    'Construction Procurement Platform. Require. Compare. Select. Deliver.',
-  category: 'Construction Procurement Platform',
+    'PROVENTA — Industrial Procurement Platform. Require. Compare. Select. Deliver.',
+  category: 'Industrial Procurement Platform',
   domain: process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in',
   supportEmail: process.env.SUPPORT_EMAIL || 'support@proventa.in',
   currency: 'INR',
@@ -92,7 +92,7 @@ export const BRAND_CONFIG = {
     privacyEmail: 'privacy@proventa.in',
   },
   seo: {
-    defaultTitle: 'PROVENTA — Construction Procurement Platform',
+    defaultTitle: 'PROVENTA — Industrial Procurement Platform',
     titleTemplate: '%s | PROVENTA',
     keywords: [
       'PROVENTA',

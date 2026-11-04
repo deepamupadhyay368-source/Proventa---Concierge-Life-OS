@@ -56,7 +56,7 @@ export default function BuyerDashboardPage() {
               <span>BUYER PROCUREMENT COMMAND DESK</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-              Construction Procurement Dashboard
+              Industrial Procurement Dashboard
             </h1>
             <p className="text-xs text-[#A8ADB7]">
               Manage project requirements, compare incoming quotations, and track active site deliveries in Gujarat.

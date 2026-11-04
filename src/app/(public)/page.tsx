@@ -185,17 +185,17 @@ export default function HomePage() {
             {/* Small active badge */}
             <div className="inline-flex items-center gap-2.5 px-3 py-1 bg-[#191B20]/90 border border-[#414957] text-xs font-mono font-medium text-[#F1F2F4] rounded-sm">
               <span className="w-2 h-2 bg-[#C66A42]" />
-              <span>INFRASTRUCTURE PROCUREMENT NETWORK</span>
+              <span>PROVENTA — INDUSTRIAL PROCUREMENT PLATFORM</span>
             </div>
 
             {/* Main Headline */}
             <div className="space-y-4">
               <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-[#FFFFFF] leading-[1.02]">
-                CONSTRUCTION PROCUREMENT.<br />
+                INDUSTRIAL PROCUREMENT.<br />
                 <span className="text-[#F1F2F4]">BUILT FOR SCALE.</span>
               </h1>
               <p className="text-base sm:text-lg text-[#A8ADB7] max-w-2xl leading-relaxed">
-                A smarter procurement network connecting construction buyers, material suppliers and logistics operations through structured sourcing and transparent quotations.
+                A smarter procurement network connecting construction buyers, infrastructure contractors, material suppliers and logistics operations through structured sourcing and transparent quotations.
               </p>
             </div>
 

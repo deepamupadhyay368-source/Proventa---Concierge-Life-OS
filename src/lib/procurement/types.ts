@@ -1,5 +1,5 @@
 /**
- * PROVENTA — Construction Procurement Platform
+ * PROVENTA — Industrial Procurement Platform
  * Core Domain Types & DTOs
  * Tagline: Require. Compare. Select. Deliver.
  */

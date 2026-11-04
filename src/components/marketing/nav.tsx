@@ -28,7 +28,7 @@ export function MarketingNav() {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2 text-[#F1F2F4] font-medium tracking-wide">
               <span className="w-1.5 h-1.5 bg-[#C66A42]" />
-              PROVENTA INFRASTRUCTURE & CONSTRUCTION PROCUREMENT
+              PROVENTA — INDUSTRIAL PROCUREMENT PLATFORM
             </span>
             <span className="text-[#414957]">|</span>
             <span className="text-[#A8ADB7]">AHMEDABAD & GUJARAT REGION</span>
@@ -66,7 +66,7 @@ export function MarketingNav() {
                 {BRAND_CONFIG.name}
               </span>
               <span className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[0.24em] text-[#A8ADB7] mt-1 font-semibold">
-                Construction Procurement
+                Industrial Procurement
               </span>
             </div>
           </Link>

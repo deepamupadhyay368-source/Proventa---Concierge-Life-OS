@@ -1,5 +1,5 @@
 /**
- * PROVENTA — Construction Procurement Platform
+ * PROVENTA — Industrial Procurement Platform
  * AI Requirement & BOQ Parser
  * Parses natural language requirements and BOQ text into structured procurement items
  */

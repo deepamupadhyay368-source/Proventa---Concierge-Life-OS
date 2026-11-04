@@ -111,7 +111,7 @@ export default function RecoverPassKeyPage() {
             </span>
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A8ADB7] font-semibold">
-            Construction Procurement Platform
+            Industrial Procurement Platform
           </p>
         </div>
 

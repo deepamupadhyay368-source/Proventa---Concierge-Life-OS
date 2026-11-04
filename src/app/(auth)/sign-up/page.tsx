@@ -3,9 +3,9 @@ import { SignUpForm } from '@/components/auth/sign-up-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Create Account | PROVENTA — Construction Procurement Platform',
+  title: 'Create Account | PROVENTA — Industrial Procurement Platform',
   description:
-    'Create your PROVENTA account on the Construction Procurement Platform for contractors, builders, and suppliers.',
+    'Create your PROVENTA account on the Industrial Procurement Platform for contractors, builders, enterprises, and suppliers.',
 };
 
 export default function SignUpPage() {
@@ -22,7 +22,7 @@ export default function SignUpPage() {
             </span>
           </Link>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A8ADB7] font-semibold">
-            Construction Procurement Platform
+            Industrial Procurement Platform
           </p>
         </div>
 

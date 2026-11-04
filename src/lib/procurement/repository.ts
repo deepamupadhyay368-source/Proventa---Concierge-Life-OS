@@ -1,5 +1,5 @@
 /**
- * PROVENTA — Construction Procurement Platform
+ * PROVENTA — Industrial Procurement Platform
  * Repository & Persistence Engine
  * Complete reactive and thread-safe data access for RFQs, Quotes, POs and Delivery Tracking
  */

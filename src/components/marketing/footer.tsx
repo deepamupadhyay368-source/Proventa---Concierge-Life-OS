@@ -54,7 +54,7 @@ export function MarketingFooter() {
               </span>
             </div>
             <p className="text-sm text-[#A8ADB7] max-w-sm leading-relaxed">
-              Construction Procurement Platform. A smarter way to source construction materials, compare supplier quotations and coordinate deliveries across India.
+              Industrial Procurement Platform. A smarter way to source construction and infrastructure materials, compare supplier quotations and coordinate deliveries across India.
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-[#A8ADB7]">
               <span className="flex items-center gap-1.5 text-[#F1F2F4]">
@@ -96,7 +96,7 @@ export function MarketingFooter() {
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-[#414957] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-[#A8ADB7]">
           <div>
-            © 2026 {BRAND_CONFIG.name} — Construction Procurement Platform. Ahmedabad, Gujarat, India.
+            © 2026 {BRAND_CONFIG.name} — Industrial Procurement Platform. Ahmedabad, Gujarat, India.
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[#C66A42] font-semibold">Require. Compare. Select. Deliver.</span>

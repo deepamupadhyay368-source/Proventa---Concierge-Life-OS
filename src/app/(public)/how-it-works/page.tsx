@@ -128,7 +128,7 @@ export default function HowItWorksPage() {
             <span>OPERATIONAL BLUEPRINT</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] max-w-4xl font-heading leading-tight">
-            HOW CONSTRUCTION PROCUREMENT WORKS ON PROVENTA
+            HOW INDUSTRIAL PROCUREMENT WORKS ON PROVENTA
           </h1>
           <p className="text-sm sm:text-base text-[#A8ADB7] max-w-3xl leading-relaxed">
             A structured six-step workflow engineered to eliminate broker markups, inaccurate material grades, and uncoordinated site deliveries across India&apos;s construction industry.
@@ -209,7 +209,7 @@ export default function HowItWorksPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-7 space-y-6 text-sm text-[#A8ADB7] leading-relaxed">
               <p>
-                PROVENTA is a dedicated construction procurement platform built to establish operational transparency, competitive bidding, and reliable site logistics for India&apos;s construction and infrastructure sector.
+                PROVENTA is an industrial procurement platform built to establish operational transparency, competitive bidding, and reliable site logistics for India&apos;s construction and infrastructure sector.
               </p>
               <p>
                 Founded to solve chronic issues in commercial procurement—speculative dealer markups, unverified product origins, uncoordinated site delivery, and opaque billing—PROVENTA provides builders, developers, contractors, and institutional buyers with a direct, digitized conduit to verified material distributors and manufacturers.
