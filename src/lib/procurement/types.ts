@@ -74,6 +74,7 @@ export interface ConstructionRfq {
   id: string;
   referenceCode: string; // e.g. RFQ-98214
   buyerId: string;
+  buyerBusinessId?: string;
   buyerName: string;
   buyerEmail: string;
   buyerPhone?: string;
@@ -119,6 +120,7 @@ export interface ConstructionQuotation {
   rfqId: string;
   rfqReferenceCode: string;
   supplierId: string;
+  supplierBusinessId?: string;
   supplierName: string;
   supplierGstin: string;
   supplierCity: string;
@@ -195,6 +197,8 @@ export interface PurchaseOrder {
   buyerId: string;
   buyerName: string;
   buyerPhone?: string;
+  buyerBusinessId?: string;
+  supplierBusinessId?: string;
   supplierId: string;
   supplierName: string;
   supplierGstin: string;

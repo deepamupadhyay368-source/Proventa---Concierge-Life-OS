@@ -2,16 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { getOrCreateUserBusiness, createBusinessAuditLog } from '@/lib/business/service';
+import { getUserAuthorizedBusinesses } from '@/lib/business/auth-context';
 
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth();
     const business = await getOrCreateUserBusiness(user.id);
+    const authorizedBusinesses = await getUserAuthorizedBusinesses(user.id);
 
     return NextResponse.json({
       success: true,
       data: {
         business,
+        authorizedBusinesses,
         user: {
           id: user.id,
           name: user.name,

@@ -5,12 +5,14 @@ import {
   listSupplierMatchingRfqs,
   getProcurementMetrics,
 } from '@/lib/procurement/repository';
+import { getSession } from '@/lib/auth/session';
+import { resolveSupplierContext, getUserAuthorizedBusinesses } from '@/lib/business/auth-context';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const buyerId = searchParams.get('buyerId');
-    const supplierId = searchParams.get('supplierId');
+    const requestedSupplierId = searchParams.get('supplierId');
     const metrics = searchParams.get('metrics');
 
     if (metrics === 'true') {
@@ -18,12 +20,37 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: true, data });
     }
 
-    if (supplierId) {
-      const rfqs = listSupplierMatchingRfqs(supplierId);
+    const session = await getSession();
+
+    if (requestedSupplierId) {
+      if (session?.user?.id) {
+        const supplierCtx = await resolveSupplierContext({
+          user: session.user,
+          requestedSupplierId,
+        });
+
+        if (!supplierCtx.isAuthorized) {
+          return NextResponse.json(
+            { success: false, error: 'Forbidden: You are not authorized to view RFQs for this supplier' },
+            { status: 403 }
+          );
+        }
+
+        const rfqs = listSupplierMatchingRfqs(supplierCtx.supplierId);
+        return NextResponse.json({ success: true, data: rfqs });
+      }
+
+      const rfqs = listSupplierMatchingRfqs(requestedSupplierId);
       return NextResponse.json({ success: true, data: rfqs });
     }
 
-    const rfqs = listBuyerRfqs(buyerId || 'all');
+    // Buyer view
+    let effectiveBuyerId = buyerId || 'all';
+    if (session?.user?.id && !session.user.roles?.some((r: string) => ['SUPER_ADMIN', 'ADMIN'].includes(r))) {
+      effectiveBuyerId = session.user.id;
+    }
+
+    const rfqs = listBuyerRfqs(effectiveBuyerId);
     return NextResponse.json({ success: true, data: rfqs });
   } catch (error) {
     console.error('Error fetching RFQs:', error);
@@ -52,10 +79,24 @@ export async function POST(request: Request) {
       );
     }
 
+    const session = await getSession();
+    const userId = session?.user?.id || body.buyerId || 'user-guest-buyer';
+    const userName = session?.user?.name || body.buyerName || 'Construction Buyer';
+    const userEmail = session?.user?.email || body.buyerEmail || 'buyer@proventa.in';
+
+    let buyerBusinessId = body.buyerBusinessId;
+    if (!buyerBusinessId && session?.user?.id) {
+      const businesses = await getUserAuthorizedBusinesses(session.user.id);
+      if (businesses.length > 0) {
+        buyerBusinessId = businesses[0].id;
+      }
+    }
+
     const rfq = createConstructionRfq({
-      buyerId: body.buyerId || 'user-guest-buyer',
-      buyerName: body.buyerName || 'Construction Buyer',
-      buyerEmail: body.buyerEmail || 'buyer@proventa.in',
+      buyerId: userId,
+      buyerBusinessId,
+      buyerName: userName,
+      buyerEmail: userEmail,
       buyerPhone: body.buyerPhone,
       buyerRole: body.buyerRole || 'CONTRACTOR',
       title: body.title,

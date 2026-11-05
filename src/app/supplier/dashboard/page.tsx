@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Clock,
   Layers,
+  ChevronDown,
 } from 'lucide-react';
 import type { ConstructionRfq, PurchaseOrder } from '@/lib/procurement/types';
 
@@ -24,35 +25,45 @@ export default function SupplierDashboardPage() {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [businessProfile, setBusinessProfile] = useState<any>(null);
+  const [authorizedBusinesses, setAuthorizedBusinesses] = useState<any[]>([]);
+  const [activeSupplierId, setActiveSupplierId] = useState<string>('');
 
   useEffect(() => {
     async function loadData() {
       try {
-        // 1. Fetch user business profile to determine active supplier context
+        setLoading(true);
+        // 1. Fetch user business profile to dynamically determine active supplier context
         const searchParams = new URLSearchParams(window.location.search);
         const querySupplierId = searchParams.get('supplierId');
 
-        let activeSupplierId = querySupplierId || 'supp-gujarat-steel-cement';
+        let resolvedId = querySupplierId || '';
 
         try {
           const profileRes = await fetch('/api/business/profile');
           if (profileRes.ok) {
             const profileJson = await profileRes.json();
-            if (profileJson.success && profileJson.data?.business) {
-              setBusinessProfile(profileJson.data.business);
-              if (!querySupplierId && profileJson.data.business.id) {
-                activeSupplierId = profileJson.data.business.id;
+            if (profileJson.success) {
+              const activeBiz = profileJson.data?.business;
+              const allBizs = profileJson.data?.authorizedBusinesses || [];
+              setBusinessProfile(activeBiz);
+              setAuthorizedBusinesses(allBizs);
+
+              if (!resolvedId && activeBiz?.id) {
+                resolvedId = activeBiz.id;
               }
             }
           }
         } catch (e) {
-          // Fallback to default
+          console.warn('Profile fetch notice:', e);
         }
 
-        // 2. Load matching RFQs and active orders
+        setActiveSupplierId(resolvedId);
+
+        // 2. Load matching RFQs and active orders for authenticated supplier
+        const queryStr = resolvedId ? `?supplierId=${encodeURIComponent(resolvedId)}` : '';
         const [resRfqs, resOrders] = await Promise.all([
-          fetch(`/api/procurement/rfqs?supplierId=${activeSupplierId}`),
-          fetch(`/api/procurement/orders?supplierId=${activeSupplierId}`),
+          fetch(`/api/procurement/rfqs${queryStr}`),
+          fetch(`/api/procurement/orders${queryStr}`),
         ]);
         const jsonRfqs = await resRfqs.json();
         const jsonOrders = await resOrders.json();
@@ -68,14 +79,20 @@ export default function SupplierDashboardPage() {
     loadData();
   }, []);
 
-  const businessName = businessProfile?.name || 'Gujarat Building Materials Syndicate';
+  const handleBusinessSwitch = (newBusinessId: string) => {
+    setActiveSupplierId(newBusinessId);
+    router.push(`/supplier/dashboard?supplierId=${encodeURIComponent(newBusinessId)}`);
+    window.location.href = `/supplier/dashboard?supplierId=${encodeURIComponent(newBusinessId)}`;
+  };
+
+  const businessName = businessProfile?.name || 'Registered Supplier Portal';
   const role = businessProfile?.platformRole || 'SUPPLIER';
-  const verificationStatus = businessProfile?.verificationStatus || 'VERIFIED';
+  const verificationStatus = businessProfile?.verificationStatus || 'DRAFT';
 
   return (
     <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
-        {/* Header */}
+        {/* Header with Multi-Business Switcher */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#414957] pb-6 bg-[#303746] p-6 sm:p-8 border shadow-sm rounded-sm">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 text-xs font-mono text-[#536B88] font-bold uppercase tracking-wider">
@@ -86,6 +103,7 @@ export default function SupplierDashboardPage() {
               <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
                 {businessName}
               </h1>
+
               {verificationStatus === 'VERIFIED' ? (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-950/80 border border-emerald-500/60 text-emerald-400 text-xs font-mono font-bold uppercase rounded-sm">
                   <CheckCircle2 className="w-3 h-3" />
@@ -99,6 +117,25 @@ export default function SupplierDashboardPage() {
                   <Clock className="w-3 h-3" />
                   <span>Verification: {verificationStatus}</span>
                 </Link>
+              )}
+
+              {/* Multi-Business Switcher */}
+              {authorizedBusinesses.length > 1 && (
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#191B20] border border-[#536B88] rounded-sm text-xs font-mono">
+                  <Building2 className="w-3 h-3 text-[#C66A42]" />
+                  <span className="text-[#A8ADB7] mr-1">Business:</span>
+                  <select
+                    value={activeSupplierId}
+                    onChange={(e) => handleBusinessSwitch(e.target.value)}
+                    className="bg-transparent text-[#FFFFFF] font-bold outline-none cursor-pointer"
+                  >
+                    {authorizedBusinesses.map((b) => (
+                      <option key={b.id} value={b.id} className="bg-[#191B20] text-[#FFFFFF]">
+                        {b.name} ({b.platformRole})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               )}
             </div>
             <p className="text-xs text-[#A8ADB7]">

@@ -20,6 +20,21 @@ import type {
   SiteDeliveryDetails,
 } from './types';
 import { DELIVERY_STAGES_SEQUENCE } from './types';
+import { procurementNotificationService } from '@/lib/business/notifications';
+
+
+export class AlreadyAwardedError extends Error {
+  public readonly code = 'ALREADY_AWARDED';
+  public readonly purchaseOrderId?: string;
+  public readonly quotationId?: string;
+
+  constructor(message: string, purchaseOrderId?: string, quotationId?: string) {
+    super(message);
+    this.name = 'AlreadyAwardedError';
+    this.purchaseOrderId = purchaseOrderId;
+    this.quotationId = quotationId;
+  }
+}
 
 // Asynchronous Prisma persistence helpers
 async function syncRfqToPrisma(rfq: ConstructionRfq) {
@@ -120,6 +135,87 @@ async function syncOrderToPrisma(po: PurchaseOrder) {
     });
   } catch (e) {
     // Non-blocking
+  }
+}
+
+
+export async function syncOrderAndAwardToPrisma(
+  rfq: ConstructionRfq,
+  quotation: ConstructionQuotation,
+  po: PurchaseOrder
+): Promise<void> {
+  try {
+    await db.$transaction(async (tx) => {
+      // 1. Accept winning quote
+      await tx.procurementQuotation.upsert({
+        where: { id: quotation.id },
+        update: { status: 'ACCEPTED' },
+        create: {
+          id: quotation.id,
+          rfqId: rfq.id,
+          supplierId: quotation.supplierId,
+          supplierName: quotation.supplierName,
+          status: 'ACCEPTED',
+          totalBasePrice: quotation.subtotal,
+          totalGst: quotation.totalGst,
+          freightCharge: quotation.deliveryCharges,
+          totalLandedCost: quotation.grandTotal,
+          leadTimeDays: quotation.validityDays || 3,
+          itemQuotes: { breakdown: quotation.items, fullQuotation: quotation } as any,
+          paymentTerms: quotation.paymentTerms,
+        },
+      });
+
+      // 2. Reject losing quotes
+      await tx.procurementQuotation.updateMany({
+        where: { rfqId: rfq.id, id: { not: quotation.id } },
+        data: { status: 'REJECTED' },
+      });
+
+      // 3. Create or update PurchaseOrder (Unique constraint on rfqId enforces 1 PO per RFQ at DB level)
+      await tx.procurementOrder.upsert({
+        where: { rfqId: rfq.id },
+        update: {
+          id: po.id,
+          status: po.deliveryStatus,
+          totalAmount: po.grandTotal,
+          trackingDetails: { fullOrder: po, timeline: po.timeline, delivery: po.delivery } as any,
+        },
+        create: {
+          id: po.id,
+          rfqId: rfq.id,
+          quotationId: quotation.id,
+          supplierId: quotation.supplierId,
+          supplierName: quotation.supplierName,
+          totalAmount: po.grandTotal,
+          status: po.deliveryStatus,
+          trackingDetails: { fullOrder: po, timeline: po.timeline, delivery: po.delivery } as any,
+        },
+      });
+
+      // 4. Update RFQ
+      await tx.procurementRfq.upsert({
+        where: { id: rfq.id },
+        update: {
+          status: 'PO_ISSUED',
+          purchaseOrderId: po.id,
+        },
+        create: {
+          id: rfq.id,
+          creatorUserId: rfq.buyerId,
+          title: rfq.title,
+          category: rfq.items[0]?.categorySlug || 'general',
+          deliveryDistrict: rfq.delivery.city || 'Ahmedabad',
+          deliveryState: rfq.delivery.state || 'Gujarat',
+          status: 'PO_ISSUED',
+          items: { boqItems: rfq.items, fullRfq: rfq } as any,
+          eligibleSupplierIds: rfq.invitedSupplierIds,
+          purchaseOrderId: po.id,
+        },
+      });
+    });
+  } catch (err) {
+    // Graceful recovery: non-blocking if offline/unreachable
   }
 }
 
@@ -660,13 +756,14 @@ function seedProcurementData(store: ProcurementDataStore): void {
 
 export function createConstructionRfq(params: {
   buyerId: string;
+  buyerBusinessId?: string;
   buyerName: string;
   buyerEmail: string;
   buyerPhone?: string;
   buyerRole?: 'CONTRACTOR' | 'BUILDER' | 'INDIVIDUAL_BUYER' | 'CONSTRUCTION_COMPANY';
   title: string;
   projectType: 'RESIDENTIAL' | 'COMMERCIAL' | 'INFRASTRUCTURE' | 'INDUSTRIAL' | 'RENOVATION';
-  items: Omit<ConstructionRfqItem, 'id'>[];
+  items: Array<Omit<ConstructionRfqItem, 'id' | 'categoryName'> & { categoryName?: string }>;
   delivery: SiteDeliveryDetails;
   requiredDeliveryDate: string;
   urgency?: 'STANDARD' | 'URGENT' | 'FLEXIBLE';
@@ -680,7 +777,8 @@ export function createConstructionRfq(params: {
 
   const preparedItems: ConstructionRfqItem[] = params.items.map((it, idx) => ({
     ...it,
-    id: `item_${id}_${idx + 1}`,
+    categoryName: (it as any).categoryName || 'Building Materials',
+    id: 'item_' + id + '_' + (idx + 1),
   }));
 
   // Auto-find matching suppliers based on category
@@ -693,6 +791,7 @@ export function createConstructionRfq(params: {
     id,
     referenceCode,
     buyerId: params.buyerId,
+    buyerBusinessId: params.buyerBusinessId,
     buyerName: params.buyerName,
     buyerEmail: params.buyerEmail,
     buyerPhone: params.buyerPhone,
@@ -1040,9 +1139,19 @@ export function selectQuotationAndCreatePo(params: {
   const rfq = store.rfqs.get(params.rfqId);
   if (!rfq) throw new Error(`RFQ not found with ID ${params.rfqId}`);
 
-  // Prevent duplicate PO creation
+  // Idempotency & Duplicate Award Prevention
   if (rfq.purchaseOrderId || rfq.status === 'PO_ISSUED' || rfq.status === 'FULFILLED') {
-    throw new Error(`A Purchase Order (${rfq.purchaseOrderId || 'active'}) has already been issued for this RFQ.`);
+    const existingPo = rfq.purchaseOrderId ? store.orders.get(rfq.purchaseOrderId) : null;
+    // Idempotency: If this exact quotation was already awarded, safely return the existing PO
+    if (existingPo && (existingPo.quotationId === params.quotationId || rfq.selectedQuotationId === params.quotationId)) {
+      return existingPo;
+    }
+    // Attempting to award a second quotation to an already awarded RFQ -> 409 error
+    throw new AlreadyAwardedError(
+      `RFQ has already been awarded. Active Purchase Order: ${rfq.purchaseOrderId || 'issued'}`,
+      rfq.purchaseOrderId,
+      rfq.selectedQuotationId
+    );
   }
 
   const quotation = store.quotations.get(params.quotationId);
@@ -1052,12 +1161,14 @@ export function selectQuotationAndCreatePo(params: {
   quotation.status = 'ACCEPTED';
   quotation.updatedAt = new Date().toISOString();
 
+  const rejectedQuotes: ConstructionQuotation[] = [];
   for (const otherId of rfq.quotationIds) {
     if (otherId !== quotation.id) {
       const other = store.quotations.get(otherId);
       if (other && other.status !== 'REJECTED') {
         other.status = 'REJECTED';
         other.updatedAt = new Date().toISOString();
+        rejectedQuotes.push(other);
       }
     }
   }
@@ -1085,9 +1196,11 @@ export function selectQuotationAndCreatePo(params: {
     quotationId: quotation.id,
     quotationReferenceCode: quotation.referenceCode,
     buyerId: rfq.buyerId,
+    buyerBusinessId: rfq.buyerBusinessId,
     buyerName: rfq.buyerName,
     buyerPhone: rfq.buyerPhone,
     supplierId: quotation.supplierId,
+    supplierBusinessId: quotation.supplierBusinessId,
     supplierName: quotation.supplierName,
     supplierGstin: quotation.supplierGstin,
     items: quotation.items,
@@ -1104,16 +1217,97 @@ export function selectQuotationAndCreatePo(params: {
   };
 
   store.orders.set(id, po);
-  void syncOrderToPrisma(po);
-  void syncQuotationToPrisma(quotation);
-  void syncRfqToPrisma(rfq);
 
   rfq.status = 'PO_ISSUED';
   rfq.selectedQuotationId = quotation.id;
   rfq.purchaseOrderId = po.id;
   rfq.updatedAt = new Date().toISOString();
 
+  // Async atomic database synchronization
+  void syncOrderAndAwardToPrisma(rfq, quotation, po);
+
+  // Dispatch asynchronous notifications
+  void (async () => {
+    try {
+      // 1. Winner supplier alert
+      await procurementNotificationService.notifySupplierQuotationAwarded(
+        quotation.supplierId,
+        po.referenceCode,
+        rfq.title,
+        po.id
+      );
+      // 2. Buyer alert
+      await procurementNotificationService.notifyBuyerPoGenerated(
+        rfq.buyerId,
+        po.referenceCode,
+        quotation.supplierName,
+        po.id
+      );
+      // 3. Losing suppliers alerts (Strict confidentiality - ZERO competitor rates leaked)
+      for (const rej of rejectedQuotes) {
+        await procurementNotificationService.notifySupplierQuotationRejected(
+          rej.supplierId,
+          rej.referenceCode,
+          rfq.title
+        );
+      }
+    } catch (e) {
+      // Non-blocking
+    }
+  })();
+
   return po;
+}
+
+export async function selectQuotationAndCreatePoAtomic(params: {
+  rfqId: string;
+  quotationId: string;
+  buyerConfirmed: boolean;
+}): Promise<{ order: PurchaseOrder; isIdempotent: boolean }> {
+  if (!params.buyerConfirmed) {
+    throw new Error('Explicit buyer confirmation is mandatory to create a Purchase Order.');
+  }
+
+  const store = getStore();
+  const rfq = store.rfqs.get(params.rfqId);
+  if (!rfq) throw new Error(`RFQ not found with ID ${params.rfqId}`);
+
+  // In-memory check
+  if (rfq.purchaseOrderId || rfq.status === 'PO_ISSUED' || rfq.status === 'FULFILLED') {
+    const existingPo = rfq.purchaseOrderId ? store.orders.get(rfq.purchaseOrderId) : null;
+    if (existingPo && (existingPo.quotationId === params.quotationId || rfq.selectedQuotationId === params.quotationId)) {
+      return { order: existingPo, isIdempotent: true };
+    }
+    throw new AlreadyAwardedError(
+      `RFQ has already been awarded. Purchase Order: ${rfq.purchaseOrderId || 'active'}`,
+      rfq.purchaseOrderId,
+      rfq.selectedQuotationId
+    );
+  }
+
+  // Database-level check
+  try {
+    const dbOrder = await db.procurementOrder.findUnique({
+      where: { rfqId: params.rfqId },
+    });
+
+    if (dbOrder) {
+      const fullOrder = (dbOrder.trackingDetails as any)?.fullOrder || store.orders.get(dbOrder.id);
+      if (dbOrder.quotationId === params.quotationId) {
+        return { order: fullOrder || (dbOrder as any), isIdempotent: true };
+      }
+      throw new AlreadyAwardedError(
+        `RFQ has already been awarded at the database level`,
+        dbOrder.id,
+        dbOrder.quotationId
+      );
+    }
+  } catch (err) {
+    if (err instanceof AlreadyAwardedError) throw err;
+  }
+
+  const po = selectQuotationAndCreatePo(params);
+  return { order: po, isIdempotent: false };
 }
 
 export function getPurchaseOrderById(idOrRef: string): PurchaseOrder | null {

@@ -122,14 +122,38 @@ describe('PROVENTA — Procurement Persistence & Anti-Defect Integrity', () => {
     expect(po1.id).toBeDefined();
     expect(po1.deliveryStatus).toBe('ORDER_CONFIRMED');
 
-    // 4. Second Award Attempt: Must be strictly REJECTED (Defect 1 prevention)
+    // Submit second quotation from competitor supplier
+    const testQuo2 = submitConstructionQuotation({
+      rfqId: testRfq.id,
+      supplierId: 'supp-sabarmati-tmt-rmc',
+      items: [
+        {
+          itemId: testRfq.items[0].id,
+          unitPrice: 53500,
+          gstRatePercent: 18,
+          brandSupplied: 'Kamdhenu Fe 550D',
+        },
+      ],
+      promisedDeliveryDate: '2026-11-22',
+      paymentTerms: 'RTGS',
+    });
+
+    // 4. Second Award Attempt: Must be strictly REJECTED with 409 / AlreadyAwardedError (Defect 1 prevention)
     expect(() => {
       selectQuotationAndCreatePo({
         rfqId: testRfq.id,
-        quotationId: testQuo.id,
+        quotationId: testQuo2.id,
         buyerConfirmed: true,
       });
-    }).toThrow(/already been issued/i);
+    }).toThrow(/already/i);
+
+    // 5. Repeat First Award Request: Must be idempotent (returns existing PO)
+    const repeatedPo = selectQuotationAndCreatePo({
+      rfqId: testRfq.id,
+      quotationId: testQuo.id,
+      buyerConfirmed: true,
+    });
+    expect(repeatedPo.id).toBe(po1.id);
   });
 
   it('Defect 1 Guard: Rejects award without explicit buyer confirmation', () => {
@@ -143,6 +167,7 @@ describe('PROVENTA — Procurement Persistence & Anti-Defect Integrity', () => {
         {
           materialName: 'OPC 53 Grade Cement',
           categorySlug: 'building-materials',
+          categoryName: 'Building Materials',
           quantity: 500,
           unit: 'Bags',
         },
