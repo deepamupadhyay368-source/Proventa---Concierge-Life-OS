@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import {
   getConstructionRfqById,
   compareQuotationsForRfq,
+  getQuotationsForRfq,
 } from '@/lib/procurement/repository';
 
 export async function GET(
@@ -10,6 +11,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const supplierId = searchParams.get('supplierId');
+
     const rfq = getConstructionRfqById(id);
 
     if (!rfq) {
@@ -19,13 +23,29 @@ export async function GET(
       );
     }
 
-    const comparison = compareQuotationsForRfq(rfq.id);
+    // Security & Confidentiality: If requested from a supplier perspective,
+    // redact competitor prices and line-item details.
+    let comparison: any = null;
+    let supplierQuotations = undefined;
+
+    if (supplierId) {
+      const allQuotes = getQuotationsForRfq(rfq.id);
+      supplierQuotations = allQuotes.filter((q) => q.supplierId === supplierId);
+      comparison = {
+        rfq,
+        quotationsCount: allQuotes.length,
+        status: rfq.status,
+      };
+    } else {
+      comparison = compareQuotationsForRfq(rfq.id);
+    }
 
     return NextResponse.json({
       success: true,
       data: {
         rfq,
         comparison,
+        supplierQuotations,
       },
     });
   } catch (error) {

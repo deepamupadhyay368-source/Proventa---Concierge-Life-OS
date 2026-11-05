@@ -5,6 +5,7 @@
  */
 
 import { generateId } from '@/lib/utils';
+import { db } from '@/lib/db';
 import type {
   ConstructionRfq,
   ConstructionRfqItem,
@@ -19,6 +20,108 @@ import type {
   SiteDeliveryDetails,
 } from './types';
 import { DELIVERY_STAGES_SEQUENCE } from './types';
+
+// Asynchronous Prisma persistence helpers
+async function syncRfqToPrisma(rfq: ConstructionRfq) {
+  try {
+    await db.procurementRfq.upsert({
+      where: { id: rfq.id },
+      update: {
+        title: rfq.title,
+        category: rfq.items[0]?.categorySlug || 'general',
+        deliveryDistrict: rfq.delivery.city || 'Ahmedabad',
+        deliveryState: rfq.delivery.state || 'Gujarat',
+        deliveryPincode: rfq.delivery.pincode,
+        deliveryAddress: rfq.delivery.addressLine,
+        targetDate: rfq.requiredDeliveryDate ? new Date(rfq.requiredDeliveryDate) : null,
+        status: rfq.status,
+        items: rfq.items as any,
+        eligibleSupplierIds: rfq.invitedSupplierIds,
+        purchaseOrderId: rfq.purchaseOrderId || null,
+      },
+      create: {
+        id: rfq.id,
+        creatorUserId: rfq.buyerId,
+        title: rfq.title,
+        category: rfq.items[0]?.categorySlug || 'general',
+        deliveryDistrict: rfq.delivery.city || 'Ahmedabad',
+        deliveryState: rfq.delivery.state || 'Gujarat',
+        deliveryPincode: rfq.delivery.pincode,
+        deliveryAddress: rfq.delivery.addressLine,
+        targetDate: rfq.requiredDeliveryDate ? new Date(rfq.requiredDeliveryDate) : null,
+        status: rfq.status,
+        items: rfq.items as any,
+        eligibleSupplierIds: rfq.invitedSupplierIds,
+        purchaseOrderId: rfq.purchaseOrderId || null,
+      },
+    });
+  } catch (e) {
+    // Non-blocking
+  }
+}
+
+async function syncQuotationToPrisma(q: ConstructionQuotation) {
+  try {
+    await db.procurementQuotation.upsert({
+      where: { id: q.id },
+      update: {
+        status: q.status,
+        totalBasePrice: q.subtotal,
+        totalGst: q.totalGst,
+        freightCharge: q.deliveryCharges,
+        totalLandedCost: q.grandTotal,
+        leadTimeDays: q.validityDays || 3,
+        validUntil: q.validUntil ? new Date(q.validUntil) : null,
+        paymentTerms: q.paymentTerms,
+        itemQuotes: q.items as any,
+        revisionNumber: q.revisionNumber,
+      },
+      create: {
+        id: q.id,
+        rfqId: q.rfqId,
+        supplierId: q.supplierId,
+        supplierName: q.supplierName,
+        status: q.status,
+        totalBasePrice: q.subtotal,
+        totalGst: q.totalGst,
+        freightCharge: q.deliveryCharges,
+        totalLandedCost: q.grandTotal,
+        leadTimeDays: q.validityDays || 3,
+        validUntil: q.validUntil ? new Date(q.validUntil) : null,
+        paymentTerms: q.paymentTerms,
+        itemQuotes: q.items as any,
+        revisionNumber: q.revisionNumber,
+      },
+    });
+  } catch (e) {
+    // Non-blocking
+  }
+}
+
+async function syncOrderToPrisma(po: PurchaseOrder) {
+  try {
+    await db.procurementOrder.upsert({
+      where: { id: po.id },
+      update: {
+        status: po.deliveryStatus,
+        totalAmount: po.grandTotal,
+        trackingDetails: { timeline: po.timeline, delivery: po.delivery } as any,
+      },
+      create: {
+        id: po.id,
+        rfqId: po.rfqId,
+        quotationId: po.quotationId,
+        supplierId: po.supplierId,
+        supplierName: po.supplierName,
+        totalAmount: po.grandTotal,
+        status: po.deliveryStatus,
+        trackingDetails: { timeline: po.timeline, delivery: po.delivery } as any,
+      },
+    });
+  } catch (e) {
+    // Non-blocking
+  }
+}
 
 interface ProcurementDataStore {
   rfqs: Map<string, ConstructionRfq>;
@@ -610,6 +713,7 @@ export function createConstructionRfq(params: {
   };
 
   store.rfqs.set(id, rfq);
+  void syncRfqToPrisma(rfq);
   return rfq;
 }
 
@@ -755,6 +859,8 @@ export function submitConstructionQuotation(params: {
   };
 
   store.quotations.set(id, quotation);
+  void syncQuotationToPrisma(quotation);
+  void syncRfqToPrisma(rfq);
 
   // Link quotation to RFQ
   if (!rfq.quotationIds.includes(id)) {
@@ -841,6 +947,7 @@ export function reviseConstructionQuotation(params: {
   if (params.paymentTerms) existing.paymentTerms = params.paymentTerms;
   if (params.supplierNotes) existing.supplierNotes = params.supplierNotes;
   existing.updatedAt = new Date().toISOString();
+  void syncQuotationToPrisma(existing);
 
   return existing;
 }
@@ -933,6 +1040,11 @@ export function selectQuotationAndCreatePo(params: {
   const rfq = store.rfqs.get(params.rfqId);
   if (!rfq) throw new Error(`RFQ not found with ID ${params.rfqId}`);
 
+  // Prevent duplicate PO creation
+  if (rfq.purchaseOrderId || rfq.status === 'PO_ISSUED' || rfq.status === 'FULFILLED') {
+    throw new Error(`A Purchase Order (${rfq.purchaseOrderId || 'active'}) has already been issued for this RFQ.`);
+  }
+
   const quotation = store.quotations.get(params.quotationId);
   if (!quotation) throw new Error(`Quotation not found with ID ${params.quotationId}`);
 
@@ -992,6 +1104,9 @@ export function selectQuotationAndCreatePo(params: {
   };
 
   store.orders.set(id, po);
+  void syncOrderToPrisma(po);
+  void syncQuotationToPrisma(quotation);
+  void syncRfqToPrisma(rfq);
 
   rfq.status = 'PO_ISSUED';
   rfq.selectedQuotationId = quotation.id;

@@ -36,6 +36,45 @@ enum UserRole {
   BUSINESS_OWNER
   BUSINESS_MEMBER
   CUSTOMER
+  BUYER
+  SUPPLIER
+}
+
+enum PlatformRole {
+  BUYER
+  SUPPLIER
+  BOTH
+}
+
+enum BusinessEntityType {
+  SOLE_PROPRIETORSHIP
+  PARTNERSHIP
+  LIMITED_LIABILITY_PARTNERSHIP
+  PRIVATE_LIMITED
+  PUBLIC_LIMITED
+  INDIVIDUAL
+  OTHER
+}
+
+enum BusinessVerificationStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  VERIFIED
+  REJECTED
+  ADDITIONAL_INFO_REQUIRED
+}
+
+enum BusinessDocumentType {
+  GST_CERTIFICATE
+  PAN_DOCUMENT
+  CERTIFICATE_OF_INCORPORATION
+  PARTNERSHIP_DEED
+  LLP_CERTIFICATE
+  UDYAM_CERTIFICATE
+  ADDRESS_PROOF
+  AUTHORIZATION_LETTER
+  OTHER
 }
 
 enum EarlyAccessStatus {
@@ -1932,7 +1971,7 @@ model Business {
   status                  BusinessStatus          @default(DRAFT)
   operatingStatus         BusinessOperatingStatus @default(ACCEPTING_ENQUIRIES)
   verificationLevel       VerificationLevel       @default(SELF_REPORTED)
-  primaryCategoryId       String
+  primaryCategoryId       String?
   logoUrl                 String?
   coverImageUrl           String?
   yearEstablished         Int?
@@ -1968,8 +2007,23 @@ model Business {
   createdAt               DateTime                @default(now())
   updatedAt               DateTime                @updatedAt
 
+  // Enhanced Business Registration & Industrial Procurement Fields
+  platformRole            PlatformRole?           @default(BUYER)
+  entityType              BusinessEntityType?
+  cin                     String?
+  llpin                   String?
+  pan                     String?
+  udyamNumber             String?
+  onboardingStep          Int?                    @default(1)
+  onboardingComplete      Boolean                 @default(false)
+  verificationStatus      BusinessVerificationStatus @default(DRAFT)
+  verificationSubmittedAt DateTime?
+  verificationReviewedAt  DateTime?
+  verificationNotes       String?
+  authorizedContacts      Json?                   // Array of authorized contacts: { name, designation, email, phone, isPrimary, authorizedSignatory }
+
   owner                   User                         @relation("BusinessOwner", fields: [ownerId], references: [id])
-  primaryCategory         MarketplaceCategory          @relation("PrimaryBusinessCategory", fields: [primaryCategoryId], references: [id])
+  primaryCategory         MarketplaceCategory?         @relation("PrimaryBusinessCategory", fields: [primaryCategoryId], references: [id])
   secondaryCategories     BusinessCategoryAssignment[]
   memberships             BusinessMembership[]
   listings                BusinessListing[]
@@ -1982,6 +2036,16 @@ model Business {
   subscription            BusinessSubscription?
   directEnquiries         CustomerEnquiry[]            @relation("DirectTargetBusiness")
 
+  // Industrial Procurement Relations
+  buyerProfile            BuyerProfile?
+  supplierProfile         SupplierProfile?
+  documents               BusinessDocument[]
+  businessAuditLogs       BusinessAuditLog[]
+  procurementRfqs         ProcurementRfq[]             @relation("BuyerBusinessRfqs")
+  procurementQuotations   ProcurementQuotation[]       @relation("SupplierBusinessQuotations")
+  buyerProcurementOrders  ProcurementOrder[]           @relation("BuyerBusinessOrders")
+  supplierProcurementOrders ProcurementOrder[]         @relation("SupplierBusinessOrders")
+
   @@index([slug])
   @@index([ownerId])
   @@index([status, verificationLevel])
@@ -1989,6 +2053,7 @@ model Business {
   @@index([city, state, status])
   @@index([businessType, status])
   @@index([featured, status])
+  @@index([platformRole, verificationStatus])
   @@map("businesses")
 }
 
@@ -2342,5 +2407,191 @@ model ModerationReport {
   @@index([status, createdAt])
   @@map("moderation_reports")
 }
+
+// ============================================================
+// PROVENTA INDUSTRIAL PROCUREMENT & BUSINESS REGISTRATION MODELS
+// ============================================================
+
+model BuyerProfile {
+  id                    String   @id @default(cuid())
+  businessId            String   @unique
+  business              Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  industrySegment       String?  // Commercial, Residential, Infrastructure, Industrial, Hospitality
+  procurementCategories String[] // e.g., ["Structural Steel", "Cement", "Aggregates", "Electrical"]
+  materialsOfInterest   String[] // specific materials
+  annualBudget          String?  // Indicative range
+  purchaseFrequency     String?  // e.g., Weekly, Monthly, Project-based, Quarterly
+  projectLocations      Json?    // Array of project locations: { name, address, district, state, pincode, active }
+  shippingAddresses     Json?    // Array of shipping addresses
+  billingAddresses      Json?    // Array of billing addresses
+  approvalContacts      Json?    // Array of approval personnel
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("buyer_profiles")
+}
+
+model SupplierProfile {
+  id                      String            @id @default(cuid())
+  businessId              String            @unique
+  business                Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplierType            String            // Manufacturer, Distributor, Dealer, Wholesaler, Trader, Importer
+  operatingCategories     String[]          // e.g., ["Steel", "Cement", "Pipes", "Electrical"]
+  subcategories           String[]
+  brandsOffered           String[]
+  manufacturingCapacity   String?           // e.g., "50,000 MT/month"
+  monthlySupplyCapacity   String?           // e.g., "10,000 MT"
+  minimumOrderValue       Int?              // in INR
+  warehouseLocations      Json?             // Array of warehouses: { name, address, district, state, pincode, capacitySqFt }
+  serviceableDistricts    String[]
+  serviceableStates       String[]
+  panIndiaDelivery        Boolean           @default(false)
+  standardLeadTimeDays    Int?              @default(3)
+  fleetDetails            String?           // logistics / fleet information
+  products                SupplierProduct[]
+  createdAt               DateTime          @default(now())
+  updatedAt               DateTime          @updatedAt
+
+  @@map("supplier_profiles")
+}
+
+model SupplierProduct {
+  id                String          @id @default(cuid())
+  supplierProfileId String
+  supplierProfile   SupplierProfile @relation(fields: [supplierProfileId], references: [id], onDelete: Cascade)
+  name              String
+  category          String
+  brand             String?
+  specifications    Json?
+  unit              String          // MT, Bags, Sq.Ft, Pieces, Rmt, Litres, etc.
+  indicativePrice   Float?          // in INR
+  moq               Int?            // Minimum Order Quantity
+  availableQuantity Float?
+  hsnCode           String?
+  gstRate           Float?          // e.g., 18.0
+  isActive          Boolean         @default(true)
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([supplierProfileId])
+  @@index([category])
+  @@map("supplier_products")
+}
+
+model BusinessDocument {
+  id              String                     @id @default(cuid())
+  businessId      String
+  business        Business                   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  documentType    BusinessDocumentType
+  documentNumber  String?                    // e.g. GSTIN, PAN or Certificate number
+  fileName        String
+  fileUrl         String
+  fileSizeBytes   Int?
+  mimeType        String?
+  status          BusinessVerificationStatus @default(SUBMITTED)
+  rejectionReason String?
+  reviewedById    String?
+  reviewedAt      DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  @@index([businessId])
+  @@index([documentType, status])
+  @@map("business_documents")
+}
+
+model BusinessAuditLog {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  userId      String?
+  action      String   // e.g., BUSINESS_REGISTERED, STEP_SAVED, DOCUMENT_UPLOADED, STATUS_CHANGED, VERIFIED, REJECTED
+  details     String?  // Human readable summary
+  metadata    Json?    // Detailed diff or snapshot
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([businessId, createdAt])
+  @@map("business_audit_logs")
+}
+
+model ProcurementRfq {
+  id                   String                 @id // e.g. RFQ-XXXXX
+  buyerBusinessId      String?
+  buyerBusiness        Business?              @relation("BuyerBusinessRfqs", fields: [buyerBusinessId], references: [id], onDelete: SetNull)
+  creatorUserId        String
+  title                String
+  category             String
+  deliveryDistrict     String
+  deliveryState        String
+  deliveryPincode      String?
+  deliveryAddress      String?
+  targetDate           DateTime?
+  status               String                 // OPEN, QUOTED, PO_ISSUED, DELIVERED, CANCELLED
+  items                Json                   // Multi-item BOQ array
+  eligibleSupplierIds  String[]
+  purchaseOrderId      String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  quotations           ProcurementQuotation[]
+  purchaseOrder        ProcurementOrder?
+
+  @@index([buyerBusinessId])
+  @@index([status])
+  @@index([category])
+  @@map("procurement_rfqs")
+}
+
+model ProcurementQuotation {
+  id                   String          @id // e.g. QUOTE-XXXXX
+  rfqId                String
+  rfq                  ProcurementRfq  @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  supplierBusinessId   String?
+  supplierBusiness     Business?       @relation("SupplierBusinessQuotations", fields: [supplierBusinessId], references: [id], onDelete: SetNull)
+  supplierId           String
+  supplierName         String
+  status               String          // SUBMITTED, REVISED, ACCEPTED, REJECTED
+  totalBasePrice       Float
+  totalGst             Float
+  freightCharge        Float
+  totalLandedCost      Float
+  leadTimeDays         Int
+  validUntil           DateTime?
+  paymentTerms         String?
+  itemQuotes           Json
+  revisionNumber       Int             @default(1)
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@index([rfqId])
+  @@index([supplierId])
+  @@index([supplierBusinessId])
+  @@map("procurement_quotations")
+}
+
+model ProcurementOrder {
+  id                   String          @id // e.g. PO-XXXXX
+  rfqId                String          @unique
+  rfq                  ProcurementRfq  @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  quotationId          String
+  buyerBusinessId      String?
+  buyerBusiness        Business?       @relation("BuyerBusinessOrders", fields: [buyerBusinessId], references: [id], onDelete: SetNull)
+  supplierBusinessId   String?
+  supplierBusiness     Business?       @relation("SupplierBusinessOrders", fields: [supplierBusinessId], references: [id], onDelete: SetNull)
+  supplierId           String
+  supplierName         String
+  totalAmount          Float
+  status               String          // PO_CONFIRMED, IN_TRANSIT, DELIVERED
+  trackingDetails      Json?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@index([rfqId])
+  @@index([buyerBusinessId])
+  @@index([supplierBusinessId])
+  @@map("procurement_orders")
+}
+
 
 

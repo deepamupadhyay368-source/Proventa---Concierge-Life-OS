@@ -46,6 +46,10 @@ export function MarketingNav() {
               Fleet Tracking
             </Link>
             <span className="text-[#414957]">|</span>
+            <Link href="/admin/verification" className="hover:text-[#F1F2F4] transition-colors">
+              Compliance Desk
+            </Link>
+            <span className="text-[#414957]">|</span>
             <Link href="/admin/procurement" className="hover:text-[#F1F2F4] transition-colors">
               Procurement Desk
             </Link>
@@ -97,6 +101,15 @@ export function MarketingNav() {
 
           {/* Right Action CTAs: Sign In + POST A REQUIREMENT */}
           <div className="hidden sm:flex items-center gap-5">
+            <Link
+              href="/onboarding/business"
+              className={cn(
+                'relative text-xs uppercase tracking-wider font-semibold transition-colors py-2 font-mono text-[12px]',
+                pathname === '/onboarding/business' ? 'text-[#FFFFFF]' : 'text-[#C66A42] hover:text-[#FFFFFF]'
+              )}
+            >
+              Register Business
+            </Link>
             <Link
               href="/sign-in"
               className={cn(

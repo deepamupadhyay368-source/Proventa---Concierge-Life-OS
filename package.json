@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run tests/procurement/ tests/security/mandatory-passkey-auth.test.ts tests/security/p0-security-remediation.test.ts",
+    "test": "vitest run tests/procurement/ tests/security/mandatory-passkey-auth.test.ts tests/security/p0-security-remediation.test.ts tests/business/",
     "test:all": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

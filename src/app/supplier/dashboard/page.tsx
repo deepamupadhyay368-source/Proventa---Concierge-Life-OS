@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Store,
   FileSpreadsheet,
@@ -9,23 +10,49 @@ import {
   CheckCircle2,
   ArrowRight,
   Building2,
+  ShoppingCart,
+  ShieldCheck,
+  AlertCircle,
+  Clock,
+  Layers,
 } from 'lucide-react';
 import type { ConstructionRfq, PurchaseOrder } from '@/lib/procurement/types';
 
 export default function SupplierDashboardPage() {
+  const router = useRouter();
   const [rfqs, setRfqs] = useState<ConstructionRfq[]>([]);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Active supplier context (using first seeded Ahmedabad supplier)
-  const supplierId = 'supp-gujarat-steel-cement';
+  const [businessProfile, setBusinessProfile] = useState<any>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
+        // 1. Fetch user business profile to determine active supplier context
+        const searchParams = new URLSearchParams(window.location.search);
+        const querySupplierId = searchParams.get('supplierId');
+
+        let activeSupplierId = querySupplierId || 'supp-gujarat-steel-cement';
+
+        try {
+          const profileRes = await fetch('/api/business/profile');
+          if (profileRes.ok) {
+            const profileJson = await profileRes.json();
+            if (profileJson.success && profileJson.data?.business) {
+              setBusinessProfile(profileJson.data.business);
+              if (!querySupplierId && profileJson.data.business.id) {
+                activeSupplierId = profileJson.data.business.id;
+              }
+            }
+          }
+        } catch (e) {
+          // Fallback to default
+        }
+
+        // 2. Load matching RFQs and active orders
         const [resRfqs, resOrders] = await Promise.all([
-          fetch(`/api/procurement/rfqs?supplierId=${supplierId}`),
-          fetch(`/api/procurement/orders?supplierId=${supplierId}`),
+          fetch(`/api/procurement/rfqs?supplierId=${activeSupplierId}`),
+          fetch(`/api/procurement/orders?supplierId=${activeSupplierId}`),
         ]);
         const jsonRfqs = await resRfqs.json();
         const jsonOrders = await resOrders.json();
@@ -41,30 +68,59 @@ export default function SupplierDashboardPage() {
     loadData();
   }, []);
 
+  const businessName = businessProfile?.name || 'Gujarat Building Materials Syndicate';
+  const role = businessProfile?.platformRole || 'SUPPLIER';
+  const verificationStatus = businessProfile?.verificationStatus || 'VERIFIED';
+
   return (
     <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#414957] pb-6 bg-[#303746] p-6 sm:p-8 border shadow-sm rounded-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#414957] pb-6 bg-[#303746] p-6 sm:p-8 border shadow-sm rounded-sm">
           <div className="space-y-1">
             <div className="inline-flex items-center gap-2 text-xs font-mono text-[#536B88] font-bold uppercase tracking-wider">
               <Store className="w-3.5 h-3.5" />
               <span>SUPPLIER & DISTRIBUTOR PORTAL</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
-              Supplier Command Dashboard
-            </h1>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
+                {businessName}
+              </h1>
+              {verificationStatus === 'VERIFIED' ? (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-950/80 border border-emerald-500/60 text-emerald-400 text-xs font-mono font-bold uppercase rounded-sm">
+                  <CheckCircle2 className="w-3 h-3" />
+                  <span>Verified Supplier</span>
+                </span>
+              ) : (
+                <Link
+                  href="/settings/business-profile"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-950/80 border border-amber-500/60 text-amber-400 text-xs font-mono font-bold uppercase rounded-sm hover:underline"
+                >
+                  <Clock className="w-3 h-3" />
+                  <span>Verification: {verificationStatus}</span>
+                </Link>
+              )}
+            </div>
             <p className="text-xs text-[#A8ADB7]">
-              Logged in as: <strong className="text-[#FFFFFF]">Gujarat Building Materials Syndicate</strong> • Ahmedabad Depot
+              Certified Material Stockist & Logistics Desk &bull; Ahmedabad, Gujarat Region
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {role === 'BOTH' && (
+              <Link
+                href="/buyer/dashboard"
+                className="px-3.5 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#C66A42] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-sm transition-colors flex items-center gap-1.5 shadow-sm"
+              >
+                <ShoppingCart className="w-3.5 h-3.5 text-[#C66A42]" />
+                <span>Switch to Buyer Desk</span>
+              </Link>
+            )}
             <Link
-              href="/supplier/register"
+              href="/settings/business-profile"
               className="px-4 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] text-xs font-mono uppercase tracking-wider text-[#F1F2F4] font-bold rounded-sm transition-colors"
             >
-              Update Dealership Profile
+              Business Settings
             </Link>
           </div>
         </div>
