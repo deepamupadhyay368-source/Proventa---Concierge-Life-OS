@@ -144,6 +144,20 @@ export default function SupplierDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/supplier/catalogue"
+              className="px-3.5 py-2 bg-[#536B88] hover:bg-[#637d9e] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-sm transition-colors flex items-center gap-1.5 shadow-sm"
+            >
+              <Store className="w-3.5 h-3.5" />
+              <span>Product Catalogue</span>
+            </Link>
+            <Link
+              href="/supplier/performance"
+              className="px-3.5 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#536B88] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-sm transition-colors flex items-center gap-1.5 shadow-sm"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#536B88]" />
+              <span>Performance</span>
+            </Link>
             {role === 'BOTH' && (
               <Link
                 href="/buyer/dashboard"
@@ -157,7 +171,7 @@ export default function SupplierDashboardPage() {
               href="/settings/business-profile"
               className="px-4 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] text-xs font-mono uppercase tracking-wider text-[#F1F2F4] font-bold rounded-sm transition-colors"
             >
-              Business Settings
+              Settings
             </Link>
           </div>
         </div>

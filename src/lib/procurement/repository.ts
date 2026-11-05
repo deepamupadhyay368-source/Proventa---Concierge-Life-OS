@@ -813,6 +813,17 @@ export function createConstructionRfq(params: {
 
   store.rfqs.set(id, rfq);
   void syncRfqToPrisma(rfq);
+
+  // Supplier Intelligence: Auto-match eligible suppliers in background
+  void (async () => {
+    try {
+      const { matchSuppliersForRfq } = await import('@/lib/supplier-intelligence/service');
+      await matchSuppliersForRfq(id);
+    } catch {
+      // Non-blocking background matching
+    }
+  })();
+
   return rfq;
 }
 

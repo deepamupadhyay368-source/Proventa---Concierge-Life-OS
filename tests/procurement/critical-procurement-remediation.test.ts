@@ -91,7 +91,7 @@ describe('PROVENTA — Critical Procurement Remediation & Security Hardening', (
           categorySlug: 'building-materials',
           categoryName: 'Building Materials',
           quantity: 450,
-          unit: 'Cubic metres (cum)',
+          unit: 'Cubic metres (Cu.m)',
           gradeOrSpec: 'IS 456 / IS 4926 with 28-day cube strength tests',
         },
       ],

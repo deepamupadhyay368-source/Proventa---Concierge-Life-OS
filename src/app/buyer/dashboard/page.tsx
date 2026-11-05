@@ -13,6 +13,7 @@ import {
   Clock,
   Layers,
   Store,
+  Search,
 } from 'lucide-react';
 import type { ConstructionRfq, PurchaseOrder } from '@/lib/procurement/types';
 
@@ -79,6 +80,13 @@ export default function BuyerDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/buyer/discovery"
+              className="px-4 py-2.5 bg-[#536B88] hover:bg-[#637d9e] text-[#FFFFFF] font-bold text-xs font-mono uppercase tracking-wider transition-colors flex items-center gap-2 shadow-sm rounded-sm"
+            >
+              <Search className="w-4 h-4" />
+              <span>Discover Suppliers</span>
+            </Link>
             {role === 'BOTH' && (
               <Link
                 href="/supplier/dashboard"

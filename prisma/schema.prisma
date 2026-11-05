@@ -2045,6 +2045,9 @@ model Business {
   procurementQuotations   ProcurementQuotation[]       @relation("SupplierBusinessQuotations")
   buyerProcurementOrders  ProcurementOrder[]           @relation("BuyerBusinessOrders")
   supplierProcurementOrders ProcurementOrder[]         @relation("SupplierBusinessOrders")
+  savedSuppliers          SavedSupplier[]              @relation("BuyerSavedSuppliers")
+  savedByBuyers           SavedSupplier[]              @relation("SupplierSavedByBuyers")
+  rfqMatches              SupplierRFQMatch[]
 
   @@index([slug])
   @@index([ownerId])
@@ -2449,6 +2452,9 @@ model SupplierProfile {
   standardLeadTimeDays    Int?              @default(3)
   fleetDetails            String?           // logistics / fleet information
   products                SupplierProduct[]
+  warehouses              SupplierWarehouse[]
+  serviceAreas            SupplierServiceArea[]
+  performance             SupplierPerformance?
   createdAt               DateTime          @default(now())
   updatedAt               DateTime          @updatedAt
 
@@ -2461,20 +2467,29 @@ model SupplierProduct {
   supplierProfile   SupplierProfile @relation(fields: [supplierProfileId], references: [id], onDelete: Cascade)
   name              String
   category          String
+  subcategory       String?
+  description       String?         @db.Text
   brand             String?
-  specifications    Json?
+  grade             String?
+  standards         String?         // Applicable IS / BIS standards
+  specifications    Json?           // Technical specifications
   unit              String          // MT, Bags, Sq.Ft, Pieces, Rmt, Litres, etc.
-  indicativePrice   Float?          // in INR
+  indicativePrice   Float?          // in INR (optional)
   moq               Int?            // Minimum Order Quantity
-  availableQuantity Float?
+  availableQuantity Float?          // Available supply capacity
   hsnCode           String?
   gstRate           Float?          // e.g., 18.0
+  images            String[]        // Product image URLs
+  warehouses        Json?           // Warehouse availability breakdown
+  deliveryLocations Json?           // Direct delivery locations
+  metadata          Json?           // Extra product parameters
   isActive          Boolean         @default(true)
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
   @@index([supplierProfileId])
   @@index([category])
+  @@index([brand])
   @@map("supplier_products")
 }
 
@@ -2536,6 +2551,7 @@ model ProcurementRfq {
 
   quotations           ProcurementQuotation[]
   purchaseOrder        ProcurementOrder?
+  matches              SupplierRFQMatch[]
 
   @@index([buyerBusinessId])
   @@index([status])
@@ -2595,3 +2611,105 @@ model ProcurementOrder {
 
 
 
+
+
+// ============================================================
+// SUPPLIER INTELLIGENCE & DISCOVERY ENGINE MODELS
+// ============================================================
+
+model SupplierWarehouse {
+  id                      String          @id @default(cuid())
+  supplierProfileId       String
+  supplierProfile         SupplierProfile @relation(fields: [supplierProfileId], references: [id], onDelete: Cascade)
+  name                    String          // e.g. "Changodar Central Stockyard"
+  address                 String
+  district                String
+  state                   String
+  pincode                 String
+  capacitySqFt            Int?
+  operatingZones          String[]        // Local zones served directly
+  railSidingAccess        Boolean         @default(false)
+  weighbridgeAvailable    Boolean         @default(true)
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  @@index([supplierProfileId])
+  @@index([district, state])
+  @@map("supplier_warehouses")
+}
+
+model SupplierServiceArea {
+  id                      String          @id @default(cuid())
+  supplierProfileId       String
+  supplierProfile         SupplierProfile @relation(fields: [supplierProfileId], references: [id], onDelete: Cascade)
+  state                   String
+  districts               String[]
+  pincodes                String[]
+  standardLeadTimeDays    Int             @default(3)
+  minimumOrderValue       Int?
+  panIndiaDelivery        Boolean         @default(false)
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  @@index([supplierProfileId])
+  @@index([state])
+  @@map("supplier_service_areas")
+}
+
+model SupplierPerformance {
+  id                      String          @id @default(cuid())
+  supplierProfileId       String          @unique
+  supplierProfile         SupplierProfile @relation(fields: [supplierProfileId], references: [id], onDelete: Cascade)
+  rfqsReceived            Int             @default(0)
+  rfqsResponded           Int             @default(0)
+  responseRatePercent     Float           @default(0)
+  avgResponseTimeHours    Float           @default(0)
+  quotationsAwarded       Int             @default(0)
+  ordersCompleted         Int             @default(0)
+  onTimeDeliveryRate      Float           @default(0)
+  cancellationRate        Float           @default(0)
+  rating                  Float           @default(0)
+  reviewCount             Int             @default(0)
+  totalDeliveredTonnage   Float           @default(0)
+  sampleThresholdMet      Boolean         @default(false) // e.g. ordersCompleted >= 3
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+
+  @@map("supplier_performances")
+}
+
+model SavedSupplier {
+  id                      String          @id @default(cuid())
+  buyerBusinessId         String
+  buyerBusiness           Business        @relation("BuyerSavedSuppliers", fields: [buyerBusinessId], references: [id], onDelete: Cascade)
+  supplierBusinessId      String
+  supplierBusiness        Business        @relation("SupplierSavedByBuyers", fields: [supplierBusinessId], references: [id], onDelete: Cascade)
+  notes                   String?
+  tags                    String[]
+  createdAt               DateTime        @default(now())
+
+  @@unique([buyerBusinessId, supplierBusinessId])
+  @@index([buyerBusinessId])
+  @@map("saved_suppliers")
+}
+
+model SupplierRFQMatch {
+  id                      String          @id @default(cuid())
+  rfqId                   String
+  rfq                     ProcurementRfq  @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  supplierBusinessId      String
+  supplierBusiness        Business        @relation(fields: [supplierBusinessId], references: [id], onDelete: Cascade)
+  matchScore              Float           @default(0) // 0 to 100
+  matchingReasons         Json            // Array of matching criteria
+  matchedProductIds       String[]
+  matchType               String          @default("AUTOMATIC") // AUTOMATIC, MANUAL_INVITATION
+  invitedAt               DateTime        @default(now())
+  viewedAt                DateTime?
+  respondedAt             DateTime?
+  createdAt               DateTime        @default(now())
+
+  @@unique([rfqId, supplierBusinessId])
+  @@index([rfqId])
+  @@index([supplierBusinessId])
+  @@map("supplier_rfq_matches")
+}

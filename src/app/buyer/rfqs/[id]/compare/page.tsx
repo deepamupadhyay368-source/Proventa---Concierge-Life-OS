@@ -13,6 +13,11 @@ import {
   Building2,
   Star,
   ChevronLeft,
+  MapPin,
+  Sparkles,
+  Package,
+  ExternalLink,
+  Send,
 } from 'lucide-react';
 import type { ConstructionRfq, ConstructionQuotation, QuotationComparisonMatrix, ItemizedQuotationBreakdown } from '@/lib/procurement/types';
 
@@ -23,8 +28,11 @@ export default function QuotationComparisonPage() {
 
   const [rfq, setRfq] = useState<ConstructionRfq | null>(null);
   const [comparison, setComparison] = useState<QuotationComparisonMatrix | null>(null);
+  const [matchedSuppliers, setMatchedSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [invitingSupplierId, setInvitingSupplierId] = useState<string | null>(null);
+  const [invitedSuccess, setInvitedSuccess] = useState<string | null>(null);
 
   // Selection Modal State
   const [selectedQuote, setSelectedQuote] = useState<ConstructionQuotation | null>(null);
@@ -34,13 +42,22 @@ export default function QuotationComparisonPage() {
   useEffect(() => {
     async function fetchRfqDetails() {
       try {
-        const res = await fetch(`/api/procurement/rfqs/${rfqId}`);
-        const json = await res.json();
+        const [resRfq, resMatches] = await Promise.all([
+          fetch(`/api/procurement/rfqs/${rfqId}`),
+          fetch(`/api/supplier/matching?rfqId=${rfqId}`),
+        ]);
+
+        const json = await resRfq.json();
         if (json.success && json.data) {
           setRfq(json.data.rfq);
           setComparison(json.data.comparison);
         } else {
           setError(json.error || 'Failed to load requirement details');
+        }
+
+        const jsonMatches = await resMatches.json();
+        if (jsonMatches.success && jsonMatches.data?.matches) {
+          setMatchedSuppliers(jsonMatches.data.matches);
         }
       } catch (err: any) {
         setError(err.message || 'Error loading comparison matrix');
@@ -50,6 +67,27 @@ export default function QuotationComparisonPage() {
     }
     if (rfqId) fetchRfqDetails();
   }, [rfqId]);
+
+  const handleInviteSupplier = async (supplierId: string) => {
+    if (!rfq) return;
+    setInvitingSupplierId(supplierId);
+    try {
+      const res = await fetch('/api/supplier/invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rfqId: rfq.id, supplierId }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to send invitation');
+      }
+      setInvitedSuccess(supplierId);
+    } catch (e: any) {
+      alert(e.message || 'Failed to invite supplier');
+    } finally {
+      setInvitingSupplierId(null);
+    }
+  };
 
   const handleOpenSelectModal = (quote: ConstructionQuotation) => {
     setSelectedQuote(quote);
@@ -322,6 +360,120 @@ export default function QuotationComparisonPage() {
             </div>
           )}
         </div>
+
+        {/* Supplier Intelligence: Ranked Matching Suppliers Section */}
+        {matchedSuppliers && matchedSuppliers.length > 0 && (
+          <div className="bg-[#303746] border border-[#414957] p-6 sm:p-8 space-y-6 shadow-sm rounded-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#414957] pb-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-xs font-mono text-[#536B88] font-bold uppercase tracking-wider mb-1">
+                  <Sparkles className="w-3.5 h-3.5 text-[#C66A42]" />
+                  <span>SUPPLIER INTELLIGENCE & LOCATION MATCHING</span>
+                </div>
+                <h3 className="font-heading font-black text-lg uppercase tracking-tight text-[#FFFFFF]">
+                  Eligible & Verified Matching Suppliers ({matchedSuppliers.length})
+                </h3>
+                <p className="text-xs text-[#A8ADB7]">
+                  Suppliers automatically ranked by material catalogue alignment, physical warehouse proximity, and verified fulfillment credentials.
+                </p>
+              </div>
+
+              <Link
+                href="/buyer/discovery"
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#536B88] text-xs font-mono uppercase text-[#FFFFFF] font-bold rounded-sm transition-colors"
+              >
+                <span>Browse All Suppliers &rarr;</span>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {matchedSuppliers.map((m: any) => {
+                const supp = m.supplier;
+                const isInvited = rfq?.invitedSupplierIds?.includes(supp.id) || invitedSuccess === supp.id;
+
+                return (
+                  <div
+                    key={supp.id}
+                    className="bg-[#252B38] border border-[#414957] hover:border-[#536B88] p-5 rounded-sm flex flex-col justify-between space-y-4 transition-colors"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-xs font-bold text-[#536B88] px-2 py-0.5 bg-[#191B20] border border-[#414957] rounded-sm">
+                          Match Score: {m.matchScore} / 100
+                        </span>
+                        {supp.verificationStatus === 'VERIFIED' && (
+                          <span className="font-mono text-[10px] uppercase font-bold px-2 py-0.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/60 rounded-sm flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Verified</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <div>
+                        <h4 className="font-bold text-sm text-[#FFFFFF]">{supp.name}</h4>
+                        <div className="flex items-center gap-2 text-[11px] text-[#A8ADB7] font-mono mt-0.5">
+                          <MapPin className="w-3 h-3 text-[#C66A42] shrink-0" />
+                          <span>{supp.city}, {supp.state}</span>
+                          <span>&bull;</span>
+                          <span>{supp.classification || 'Distributor'}</span>
+                        </div>
+                      </div>
+
+                      {/* Matching Reasons */}
+                      <div className="space-y-1.5 bg-[#191B20] p-3 rounded-sm border border-[#414957]/60">
+                        <div className="text-[10px] font-mono text-[#A8ADB7] uppercase font-bold">
+                          Matching Criteria:
+                        </div>
+                        {m.matchingReasons && m.matchingReasons.map((reason: string, rIdx: number) => (
+                          <div key={rIdx} className="text-[11px] text-[#F1F2F4] flex items-start gap-1.5">
+                            <span className="text-[#4A7C59] mt-0.5">&bull;</span>
+                            <span>{reason}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Matched Products */}
+                      {m.matchedProducts && m.matchedProducts.length > 0 && (
+                        <div className="text-[11px] text-[#A8ADB7]">
+                          <span className="font-mono text-[#536B88] font-semibold">Matched SKU: </span>
+                          <span className="text-[#FFFFFF]">{m.matchedProducts[0].name}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-3 border-t border-[#414957]">
+                      <Link
+                        href={`/suppliers/${supp.slug || supp.id}`}
+                        target="_blank"
+                        className="flex-1 py-2 px-3 bg-[#191B20] hover:bg-[#303746] text-[#FFFFFF] text-xs font-mono uppercase text-center rounded-sm transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <span>Storefront</span>
+                        <ExternalLink className="w-3 h-3 text-[#A8ADB7]" />
+                      </Link>
+
+                      {isInvited ? (
+                        <div className="py-2 px-3 bg-[#191B20] border border-[#4A7C59]/40 text-[#4A7C59] text-xs font-mono uppercase text-center rounded-sm flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Invited</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={invitingSupplierId === supp.id}
+                          onClick={() => handleInviteSupplier(supp.id)}
+                          className="py-2 px-3 bg-[#536B88] hover:bg-[#637d9e] text-[#FFFFFF] text-xs font-mono uppercase font-bold rounded-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          <Send className="w-3 h-3" />
+                          <span>{invitingSupplierId === supp.id ? 'Sending...' : 'Invite'}</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Confirmation Modal (Explicit Buyer Confirmation) */}
         {modalOpen && selectedQuote && (
