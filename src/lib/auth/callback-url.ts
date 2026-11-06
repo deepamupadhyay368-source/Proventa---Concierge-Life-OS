@@ -3,7 +3,7 @@ export function sanitizeCallbackPath(
   baseUrl?: string,
 ): string {
   if (!rawUrl || typeof rawUrl !== 'string') {
-    return '/dashboard';
+    return '/buyer/dashboard';
   }
   const trimmed = rawUrl.trim();
   if (
@@ -18,11 +18,11 @@ export function sanitizeCallbackPath(
       const target = new URL(trimmed);
       const base = new URL(baseUrl);
       if (target.origin === base.origin) {
-        return `${target.pathname}${target.search}${target.hash}` || '/dashboard';
+        return `${target.pathname}${target.search}${target.hash}` || '/buyer/dashboard';
       }
     } catch {
-      return '/dashboard';
+      return '/buyer/dashboard';
     }
   }
-  return '/dashboard';
+  return '/buyer/dashboard';
 }

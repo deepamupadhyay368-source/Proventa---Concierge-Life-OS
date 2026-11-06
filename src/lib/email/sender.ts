@@ -193,9 +193,9 @@ h2 { font-size: 22px; font-weight: 600; margin: 0 0 20px; letter-spacing: -0.5px
 </head>
 <body>
 <div class="wrapper">
-<div class="header"><div class="logo">PROVENTA<span>Financial Intelligence</span></div></div>
+<div class="header"><div class="logo">PROVENTA<span>Industrial Procurement Platform</span></div></div>
 ${content}
-<div class="footer"><p>PROVENTA — Financial Intelligence Platform<br>If you did not request this, you can ignore this email safely.</p></div>
+<div class="footer"><p>PROVENTA — Industrial Procurement Platform<br>If you did not request this, you can ignore this email safely.</p></div>
 </div>
 </body>
 </html>`;

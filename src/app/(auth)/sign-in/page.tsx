@@ -113,7 +113,11 @@ export default async function SignInPage({
           <div className="flex items-center justify-between">
             <span className="text-[#A8ADB7]">NEW TO PROVENTA?</span>
             <Link
-              href="/sign-up"
+              href={
+                params.callbackUrl
+                  ? `/sign-up?callbackUrl=${encodeURIComponent(params.callbackUrl)}`
+                  : '/sign-up'
+              }
               className="text-[#C66A42] hover:underline font-bold"
             >
               CREATE ACCOUNT →

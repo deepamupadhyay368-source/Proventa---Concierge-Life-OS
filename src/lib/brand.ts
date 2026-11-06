@@ -76,7 +76,7 @@ export const BRAND_CONFIG = {
     intelligence: '/intelligence',
     reports: '/reports',
     settings: '/settings',
-    onboarding: '/onboarding',
+    onboarding: '/onboarding/business',
     pricing: '/pricing',
     adminPortal: '/admin',
     exploreBusinesses: '/businesses',

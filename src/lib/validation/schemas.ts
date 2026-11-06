@@ -94,6 +94,7 @@ export const registerSchema = z
     preferredComm: z.enum(['IN_APP', 'EMAIL', 'WHATSAPP', 'SMS']).optional(),
     dob: z.string().optional(),
     address: z.string().optional(),
+    accountType: z.enum(['BUYER', 'SUPPLIER', 'BOTH']).optional(),
     termsConsent: z.boolean().optional(),
   })
   .refine((data) => !data.confirmPassword || data.password === data.confirmPassword, {

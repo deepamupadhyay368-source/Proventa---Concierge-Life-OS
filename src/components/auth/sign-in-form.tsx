@@ -258,7 +258,14 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
       <div className="pt-2 border-t border-[#414957] flex flex-col gap-2.5 text-center text-xs font-mono">
         <div className="flex items-center justify-between text-[#A8ADB7]">
           <span>Need a new account?</span>
-          <Link href="/sign-up" className="text-[#C66A42] hover:underline font-bold">
+          <Link
+            href={
+              callbackUrl
+                ? `/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}`
+                : '/sign-up'
+            }
+            className="text-[#C66A42] hover:underline font-bold"
+          >
             Create Account →
           </Link>
         </div>

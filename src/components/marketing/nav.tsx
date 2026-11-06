@@ -94,16 +94,16 @@ export function MarketingNav() {
             })}
           </nav>
 
-          {/* Right Action CTAs: Sign In + POST A REQUIREMENT */}
+          {/* Right Action CTAs: Create Account + Sign In + POST A REQUIREMENT */}
           <div className="hidden sm:flex items-center gap-5">
             <Link
-              href="/onboarding/business"
+              href="/sign-up"
               className={cn(
                 'relative text-xs uppercase tracking-wider font-semibold transition-colors py-2 font-mono text-[12px]',
-                pathname === '/onboarding/business' ? 'text-[#FFFFFF]' : 'text-[#C66A42] hover:text-[#FFFFFF]'
+                pathname === '/sign-up' ? 'text-[#FFFFFF]' : 'text-[#C66A42] hover:text-[#FFFFFF]'
               )}
             >
-              Register Business
+              Create Account
             </Link>
             <Link
               href="/sign-in"
@@ -163,6 +163,13 @@ export function MarketingNav() {
 
           <div className="pt-4 border-t border-[#414957] flex flex-col gap-3 font-mono">
             <Link
+              href="/sign-up"
+              onClick={() => setMobileOpen(false)}
+              className="text-center py-2.5 text-xs uppercase tracking-wider font-bold text-[#FFFFFF] border border-[#C66A42] bg-[#C66A42] hover:bg-[#B35A33] rounded-sm transition-colors"
+            >
+              Create Account
+            </Link>
+            <Link
               href="/sign-in"
               onClick={() => setMobileOpen(false)}
               className="text-center py-2.5 text-xs uppercase tracking-wider font-bold text-[#F1F2F4] border border-[#414957] bg-[#252B38] rounded-sm hover:bg-[#303746]"
@@ -172,7 +179,7 @@ export function MarketingNav() {
             <Link
               href="/rfq/new"
               onClick={() => setMobileOpen(false)}
-              className="text-center py-2.5 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] text-xs uppercase tracking-wider font-bold rounded-sm"
+              className="text-center py-2.5 bg-[#536B88] hover:bg-[#435770] text-[#FFFFFF] text-xs uppercase tracking-wider font-bold rounded-sm"
             >
               POST A REQUIREMENT
             </Link>

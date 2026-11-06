@@ -9,6 +9,7 @@ import { createAuditLog, createSecurityEvent } from '@/lib/audit';
 import { ConflictError, ValidationError } from '@/lib/errors';
 import { sendVerificationEmail } from '@/lib/email/sender';
 import { recordPolicyAcceptances } from '@/lib/legal/consent';
+import { getOrCreateUserBusiness } from '@/lib/business/service';
 
 export async function POST(req: NextRequest) {
   const rl = rateLimitMiddleware(req, { max: 5, windowMs: 60_000, keyPrefix: 'auth-register' });
@@ -24,7 +25,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, authenticationKey, securityKey, phone, city, preferredComm, dob, address } = parsed.data;
+    const { name, email, password, authenticationKey, securityKey, phone, city, preferredComm, dob, address, accountType } = parsed.data;
     const rawAuthKey = authenticationKey || securityKey;
     const effectiveAuthKey = rawAuthKey || generateProventaAuthKey();
 
@@ -98,6 +99,16 @@ export async function POST(req: NextRequest) {
     }
 
     // Completely new registration: Create active account with credentials
+    // Assign specific platform roles based on selected account type
+    const initialRoles: Array<{ role: 'CUSTOMER' | 'BUYER' | 'SUPPLIER' | 'BUSINESS_OWNER' }> = [{ role: 'CUSTOMER' }];
+    if (accountType === 'SUPPLIER') {
+      initialRoles.push({ role: 'SUPPLIER' }, { role: 'BUSINESS_OWNER' });
+    } else if (accountType === 'BOTH') {
+      initialRoles.push({ role: 'BUYER' }, { role: 'SUPPLIER' }, { role: 'BUSINESS_OWNER' });
+    } else {
+      initialRoles.push({ role: 'BUYER' }, { role: 'BUSINESS_OWNER' });
+    }
+
     const user = await db.user.create({
       data: {
         email: normalizedEmail,
@@ -108,13 +119,28 @@ export async function POST(req: NextRequest) {
         authKeyUpdatedAt,
         status: 'ACTIVE',
         emailVerified: new Date(),
-        userRoles: { create: [{ role: 'CUSTOMER' }] },
+        userRoles: { create: initialRoles },
       },
       include: { userRoles: true },
     });
 
     if (securityKeyHash) {
       void createSecurityEvent('AUTH_KEY_CREATED', { userId: user.id });
+    }
+
+    // Initialize business draft with selected platform role
+    try {
+      const business = await getOrCreateUserBusiness(user.id);
+      if (business && accountType) {
+        await db.business.update({
+          where: { id: business.id },
+          data: {
+            platformRole: accountType as any,
+          },
+        });
+      }
+    } catch (bizErr) {
+      console.warn('[register] Failed to initialize business profile:', bizErr);
     }
 
     // Create customer profile

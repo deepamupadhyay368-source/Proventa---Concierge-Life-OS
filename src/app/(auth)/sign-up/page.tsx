@@ -8,7 +8,16 @@ export const metadata: Metadata = {
     'Create your PROVENTA account on the Industrial Procurement Platform for contractors, builders, enterprises, and suppliers.',
 };
 
-export default function SignUpPage() {
+export default async function SignUpPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    callbackUrl?: string;
+    role?: string;
+  }>;
+}) {
+  const params = await searchParams;
+
   return (
     <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#536B88] selection:text-white">
       <div className="w-full max-w-md space-y-8">
@@ -32,16 +41,20 @@ export default function SignUpPage() {
               Create Account
             </h1>
             <p className="text-xs text-[#A8ADB7] mt-1">
-              Set up your procurement workspace to post requirements or submit quotations.
+              Select your role and initialize your verified business procurement workspace.
             </p>
           </div>
-          <SignUpForm />
+          <SignUpForm callbackUrl={params.callbackUrl} initialRole={params.role} />
         </div>
 
         <div className="border border-[#414957] bg-[#303746] p-4 font-mono text-xs text-[#F1F2F4] flex items-center justify-between shadow-sm rounded-sm">
           <span className="text-[#A8ADB7]">ALREADY REGISTERED?</span>
           <Link
-            href="/sign-in"
+            href={
+              params.callbackUrl
+                ? `/sign-in?callbackUrl=${encodeURIComponent(params.callbackUrl)}`
+                : '/sign-in'
+            }
             className="text-[#C66A42] hover:underline font-bold"
           >
             SIGN IN →

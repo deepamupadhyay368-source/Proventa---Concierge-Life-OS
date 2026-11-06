@@ -1,18 +1,48 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { registerSchema } from '@/lib/validation/schemas';
-import { Loader2, KeyRound, Copy, Check, ArrowRight } from 'lucide-react';
+import {
+  Loader2,
+  KeyRound,
+  Copy,
+  Check,
+  ArrowRight,
+  ShoppingCart,
+  Truck,
+  Layers,
+  Building2,
+  ShieldCheck,
+} from 'lucide-react';
 import type { z } from 'zod';
 
 type FormData = z.infer<typeof registerSchema>;
 
-export function SignUpForm() {
+interface SignUpFormProps {
+  callbackUrl?: string;
+  initialRole?: string;
+}
+
+export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+
+  // Role selection: BUYER, SUPPLIER, or BOTH
+  const normalizedInitialRole: 'BUYER' | 'SUPPLIER' | 'BOTH' =
+    initialRole?.toUpperCase() === 'SUPPLIER'
+      ? 'SUPPLIER'
+      : initialRole?.toUpperCase() === 'BOTH'
+      ? 'BOTH'
+      : 'BUYER';
+
+  const [accountType, setAccountType] = useState<'BUYER' | 'SUPPLIER' | 'BOTH'>(
+    normalizedInitialRole,
+  );
+
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
@@ -27,12 +57,23 @@ export function SignUpForm() {
   const [keyConfirmed, setKeyConfirmed] = useState(false);
   const [entering, setEntering] = useState(false);
 
+  // If already logged in, redirect to destination
+  useEffect(() => {
+    if (sessionStatus === 'authenticated' && session?.user?.id && !generatedAuthKey) {
+      const destination = callbackUrl || '/onboarding/business';
+      router.replace(destination);
+    }
+  }, [sessionStatus, session, callbackUrl, router, generatedAuthKey]);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      accountType: normalizedInitialRole,
+    },
   });
 
   const onSubmit = async (data: FormData) => {
@@ -45,8 +86,10 @@ export function SignUpForm() {
         body: JSON.stringify({
           name: data.name,
           email: data.email,
+          phone: data.phone,
           password: data.password,
           confirmPassword: data.confirmPassword,
+          accountType,
         }),
       });
       const json = await res.json();
@@ -58,7 +101,8 @@ export function SignUpForm() {
             password: data.password,
           });
         } else {
-          router.push('/sign-in?registered=true');
+          const dest = callbackUrl || `/onboarding/business?role=${accountType}`;
+          router.push(dest);
         }
       } else {
         setError(json.error || 'Failed to create account.');
@@ -86,14 +130,24 @@ export function SignUpForm() {
         password: credentials.password,
         redirect: false,
       });
+
+      const destination =
+        callbackUrl || `/onboarding/business?role=${accountType}`;
+
       if (res?.ok) {
-        router.push('/buyer/dashboard');
+        router.push(destination);
         router.refresh();
       } else {
-        router.push('/sign-in?registered=true');
+        router.push(
+          `/sign-in?registered=true&callbackUrl=${encodeURIComponent(destination)}`,
+        );
       }
     } catch {
-      router.push('/sign-in?registered=true');
+      const destination =
+        callbackUrl || `/onboarding/business?role=${accountType}`;
+      router.push(
+        `/sign-in?registered=true&callbackUrl=${encodeURIComponent(destination)}`,
+      );
     } finally {
       setEntering(false);
     }
@@ -103,18 +157,29 @@ export function SignUpForm() {
     setOauthLoading('google');
     setError(null);
     try {
+      const destination =
+        callbackUrl || `/onboarding/business?role=${accountType}`;
       await signIn('google', {
-        callbackUrl: '/buyer/dashboard',
+        callbackUrl: destination,
       });
     } catch (err: unknown) {
       setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to continue with Google.',
+        err instanceof Error ? err.message : 'Failed to continue with Google.',
       );
       setOauthLoading(null);
     }
   };
+
+  if (sessionStatus === 'authenticated' && session?.user?.id && !generatedAuthKey) {
+    return (
+      <div className="p-6 bg-[#252B38] border border-[#414957] text-center space-y-4 rounded-sm">
+        <div className="w-8 h-8 border-2 border-[#C66A42] border-t-transparent animate-spin rounded-full mx-auto" />
+        <p className="text-xs font-mono text-[#A8ADB7] uppercase tracking-wider">
+          Already signed in as {session.user.email}. Navigating to business onboarding...
+        </p>
+      </div>
+    );
+  }
 
   if (generatedAuthKey) {
     return (
@@ -129,7 +194,7 @@ export function SignUpForm() {
               YOUR PROVENTA AUTHENTICATION KEY
             </h2>
             <p className="text-xs text-[#A8ADB7]">
-              Your unique account key for emergency verification.
+              Your encrypted sovereign key for secure account authentication and verification.
             </p>
           </div>
 
@@ -165,7 +230,7 @@ export function SignUpForm() {
               className="mt-1 h-4 w-4 accent-[#C66A42]"
             />
             <span className="text-xs text-[#A8ADB7]">
-              I have safely copied and stored my Authentication Key in my records.
+              I have recorded my 12-digit PROVENTA Authentication Key safely.
             </span>
           </label>
 
@@ -173,13 +238,13 @@ export function SignUpForm() {
             type="button"
             onClick={handleProceedToProventa}
             disabled={!keyConfirmed || entering}
-            className="w-full py-3.5 bg-[#C66A42] text-white hover:bg-[#B35A33] font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50 rounded-sm"
+            className="w-full py-3.5 bg-[#C66A42] text-white hover:bg-[#B35A33] font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50 rounded-sm shadow-sm"
           >
             {entering ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <span>Enter Procurement Portal</span>
+                <span>PROCEED TO BUSINESS ONBOARDING</span>
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -199,6 +264,88 @@ export function SignUpForm() {
           {error}
         </div>
       )}
+
+      {/* Account Type Selection */}
+      <div className="space-y-2">
+        <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
+          Select Your Account Type
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => setAccountType('BUYER')}
+            className={`p-3 text-left border rounded-sm transition-all ${
+              accountType === 'BUYER'
+                ? 'border-[#C66A42] bg-[#252B38] text-[#FFFFFF]'
+                : 'border-[#414957] bg-[#191B20] text-[#A8ADB7] hover:border-[#536B88]'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <ShoppingCart
+                className={`w-4 h-4 ${
+                  accountType === 'BUYER' ? 'text-[#C66A42]' : 'text-[#A8ADB7]'
+                }`}
+              />
+              <span className="font-heading text-xs uppercase font-bold text-[#FFFFFF]">
+                Buyer
+              </span>
+            </div>
+            <p className="text-[10px] text-[#A8ADB7] mt-1 line-clamp-2">
+              Contractor, builder, or enterprise buyer
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAccountType('SUPPLIER')}
+            className={`p-3 text-left border rounded-sm transition-all ${
+              accountType === 'SUPPLIER'
+                ? 'border-[#C66A42] bg-[#252B38] text-[#FFFFFF]'
+                : 'border-[#414957] bg-[#191B20] text-[#A8ADB7] hover:border-[#536B88]'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Truck
+                className={`w-4 h-4 ${
+                  accountType === 'SUPPLIER'
+                    ? 'text-[#C66A42]'
+                    : 'text-[#A8ADB7]'
+                }`}
+              />
+              <span className="font-heading text-xs uppercase font-bold text-[#FFFFFF]">
+                Supplier
+              </span>
+            </div>
+            <p className="text-[10px] text-[#A8ADB7] mt-1 line-clamp-2">
+              Stockist, distributor, or manufacturer
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAccountType('BOTH')}
+            className={`p-3 text-left border rounded-sm transition-all ${
+              accountType === 'BOTH'
+                ? 'border-[#C66A42] bg-[#252B38] text-[#FFFFFF]'
+                : 'border-[#414957] bg-[#191B20] text-[#A8ADB7] hover:border-[#536B88]'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <Layers
+                className={`w-4 h-4 ${
+                  accountType === 'BOTH' ? 'text-[#C66A42]' : 'text-[#A8ADB7]'
+                }`}
+              />
+              <span className="font-heading text-xs uppercase font-bold text-[#FFFFFF]">
+                Both
+              </span>
+            </div>
+            <p className="text-[10px] text-[#A8ADB7] mt-1 line-clamp-2">
+              Both procure and supply materials
+            </p>
+          </button>
+        </div>
+      </div>
 
       {/* Primary Action: Continue with Google */}
       <div>
@@ -259,7 +406,7 @@ export function SignUpForm() {
 
         <div className="space-y-1">
           <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
-            Email Address
+            Work Email Address
           </label>
           <input
             {...register('email')}
@@ -269,6 +416,21 @@ export function SignUpForm() {
           />
           {errors.email && (
             <p className="text-xs text-[#D9534F]">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
+            Mobile Number (Optional)
+          </label>
+          <input
+            {...register('phone')}
+            type="tel"
+            placeholder="+91 98765 43210"
+            className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm font-mono"
+          />
+          {errors.phone && (
+            <p className="text-xs text-[#D9534F]">{errors.phone.message}</p>
           )}
         </div>
 
@@ -310,7 +472,7 @@ export function SignUpForm() {
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <span>Create Procurement Account</span>
+            <span>CREATE {accountType} ACCOUNT</span>
           )}
         </button>
       </form>

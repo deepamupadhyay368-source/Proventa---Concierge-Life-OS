@@ -165,11 +165,29 @@ export default function BusinessOnboardingWizardPage() {
   // Load existing draft if available
   useEffect(() => {
     async function loadDraft() {
+      // Check query parameter for initial role
+      if (typeof window !== 'undefined') {
+        const sp = new URLSearchParams(window.location.search);
+        const roleP = sp.get('role');
+        if (roleP) {
+          const u = roleP.toUpperCase();
+          if (u === 'SUPPLIER' || u === 'BOTH' || u === 'BUYER') {
+            setPlatformRole(u as 'BUYER' | 'SUPPLIER' | 'BOTH');
+          }
+        }
+      }
+
       try {
         const res = await fetch('/api/business/register-wizard');
         if (res.status === 401) {
-          // If not logged in, redirect to sign-in with callback
-          router.push('/sign-in?callbackUrl=/onboarding/business');
+          // If not logged in, redirect to sign-up with preserved callback
+          const redirectDest =
+            typeof window !== 'undefined'
+              ? `/sign-up?callbackUrl=${encodeURIComponent(
+                  window.location.pathname + window.location.search,
+                )}`
+              : '/sign-up?callbackUrl=/onboarding/business';
+          router.push(redirectDest);
           return;
         }
         const json = await res.json();

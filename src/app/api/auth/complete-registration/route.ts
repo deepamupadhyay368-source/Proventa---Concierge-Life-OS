@@ -144,7 +144,7 @@ export async function POST(req: NextRequest) {
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #090B10; color: #F4F6FA; padding: 36px 24px; border-radius: 4px; max-width: 580px; margin: 0 auto;">
             <div style="border-bottom: 1px solid #252C38; padding-bottom: 20px; margin-bottom: 24px;">
               <span style="font-size: 18px; font-weight: 900; letter-spacing: 0.1em; color: #2457FF; text-transform: uppercase;">PROVENTA</span>
-              <p style="font-size: 11px; color: #858D9B; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 0.15em;">Financial Intelligence Platform</p>
+              <p style="font-size: 11px; color: #858D9B; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 0.15em;">Industrial Procurement Platform</p>
             </div>
             <p style="font-size: 14px; line-height: 1.6; color: #F4F6FA;">Hello ${cleanName},</p>
             <p style="font-size: 14px; line-height: 1.6; color: #C5CAD3;">
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
               In accordance with our institutional zero-knowledge posture and DPDP statutory standards, your 12-digit Pass Key is protected by salted one-way hashing and is <strong>never transmitted over email or accessible to PROVENTA staff</strong>.
             </div>
             <p style="font-size: 13px; color: #C5CAD3; line-height: 1.6;">
-              To access your wealth command cockpits, sign in using your registered email and your chosen 12-digit Pass Key.
+              To access your procurement portal, sign in using your registered email and your chosen 12-digit Pass Key.
             </p>
             <div style="margin-top: 28px; text-align: center;">
               <a href="https://proventa.in/sign-in" style="display: inline-block; background: #2457FF; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; padding: 14px 28px; border-radius: 2px;">

@@ -43,6 +43,7 @@ const PUBLIC_ROUTES = [
   '/for-buyers',
   '/for-suppliers',
   '/supplier/register',
+  '/onboarding/business',
   '/rfq/new',
   '/buyer/dashboard',
   '/supplier/dashboard',
@@ -57,6 +58,17 @@ export default auth(async (req) => {
     auth: { user?: { id?: string; roles?: string[] } } | null;
   };
   const pathname = nextUrl.pathname;
+
+  // Direct route aliases & redirects
+  if (pathname === '/onboarding') {
+    const search = nextUrl.search;
+    return NextResponse.redirect(new URL(`/onboarding/business${search}`, nextUrl));
+  }
+
+  if (pathname === '/register') {
+    const search = nextUrl.search;
+    return NextResponse.redirect(new URL(`/sign-up${search}`, nextUrl));
+  }
 
   const isPublicGetApi =
     req.method === 'GET' &&
@@ -110,7 +122,8 @@ export default auth(async (req) => {
     if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
       return NextResponse.redirect(new URL(callbackUrl, nextUrl));
     }
-    return NextResponse.redirect(new URL('/dashboard', nextUrl));
+    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : '/buyer/dashboard';
+    return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 
   // Concierge employee sign-in page handling
