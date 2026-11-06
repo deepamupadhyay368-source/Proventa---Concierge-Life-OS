@@ -191,28 +191,27 @@ export default function HomePage() {
             {/* Main Headline */}
             <div className="space-y-4">
               <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-[#FFFFFF] leading-[1.02]">
-                INDUSTRIAL PROCUREMENT.<br />
-                <span className="text-[#F1F2F4]">BUILT FOR SCALE.</span>
+                Where Industry Meets Opportunity.
               </h1>
               <p className="text-base sm:text-lg text-[#A8ADB7] max-w-2xl leading-relaxed">
-                A smarter procurement network connecting construction buyers, infrastructure contractors, material suppliers and logistics operations through structured sourcing and transparent quotations.
+                Discover verified businesses, source materials, compare competitive quotations and manage purchasing through one connected platform.
               </p>
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
               <Link
-                href="/rfq/new"
+                href="/buyer/discovery"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors rounded-sm shadow-sm"
               >
-                <span>POST A REQUIREMENT</span>
+                <span>Explore Suppliers</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
-                href="/how-it-works"
+                href="/rfq/new"
                 className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#303746] hover:bg-[#252B38] border border-[#414957] text-[#F1F2F4] font-bold text-xs uppercase tracking-wider transition-colors rounded-sm"
               >
-                <span>EXPLORE OUR PLATFORM</span>
+                <span>Submit Your Requirement</span>
               </Link>
             </div>
 
@@ -268,7 +267,7 @@ export default function HomePage() {
               <span>Section 01 · Infrastructure Operations</span>
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl font-black uppercase tracking-tight text-[#FFFFFF]">
-              Our procurement capabilities
+              A Smarter Way to Source
             </h2>
             <p className="text-sm text-[#A8ADB7] leading-relaxed">
               Engineered end-to-end procurement processes built specifically for the rigor, volume, and specifications of industrial construction.
@@ -529,8 +528,8 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-8">
           <div className="space-y-4">
             <h2 className="font-heading text-4xl sm:text-6xl font-black uppercase tracking-tight text-[#FFFFFF] leading-tight">
-              SOURCE BETTER.<br />
-              <span className="text-[#C66A42]">BUILD BETTER.</span>
+              Your Business. Your Network.<br />
+              <span className="text-[#C66A42]">One Platform.</span>
             </h2>
             <p className="text-sm sm:text-base text-[#A8ADB7] max-w-xl mx-auto leading-relaxed">
               Join leading construction firms, civil contractors, and verified material stockists sourcing on PROVENTA.
@@ -539,17 +538,17 @@ export default function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
-              href="/rfq/new"
+              href="/buyer/discovery"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors rounded-sm shadow-sm"
             >
-              <span>Post a Requirement</span>
+              <span>Explore Suppliers</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
-              href="/supplier/register"
+              href="/rfq/new"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#303746] hover:bg-[#252B38] border border-[#414957] text-[#F1F2F4] font-bold text-xs uppercase tracking-wider transition-colors rounded-sm"
             >
-              <span>Become a Supplier</span>
+              <span>Submit Your Requirement</span>
             </Link>
           </div>
         </div>
