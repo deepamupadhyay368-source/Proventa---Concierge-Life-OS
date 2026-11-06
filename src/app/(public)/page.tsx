@@ -182,12 +182,6 @@ export default function HomePage() {
         {/* Hero Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-28 w-full">
           <div className="max-w-3xl space-y-8">
-            {/* Small active badge */}
-            <div className="inline-flex items-center gap-2.5 px-3 py-1 bg-[#191B20]/90 border border-[#414957] text-xs font-mono font-medium text-[#F1F2F4] rounded-sm">
-              <span className="w-2 h-2 bg-[#C66A42]" />
-              <span>PROVENTA — INDUSTRIAL PROCUREMENT PLATFORM</span>
-            </div>
-
             {/* Main Headline */}
             <div className="space-y-4">
               <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-[#FFFFFF] leading-[1.02]">

@@ -65,14 +65,9 @@ export function MarketingNav() {
             <div className="w-7 h-7 bg-[#536B88] text-[#FFFFFF] flex items-center justify-center font-mono font-bold text-xs tracking-tight rounded-sm">
               P
             </div>
-            <div className="flex flex-col">
-              <span className="font-heading text-lg sm:text-xl tracking-[0.16em] uppercase font-black text-[#F1F2F4] leading-none">
-                {BRAND_CONFIG.name}
-              </span>
-              <span className="font-mono text-[8px] sm:text-[9px] uppercase tracking-[0.24em] text-[#A8ADB7] mt-1 font-semibold">
-                Industrial Procurement
-              </span>
-            </div>
+            <span className="font-heading text-lg sm:text-xl tracking-[0.16em] uppercase font-black text-[#F1F2F4] leading-none">
+              {BRAND_CONFIG.name}
+            </span>
           </Link>
 
           {/* Main Navigation Links */}
