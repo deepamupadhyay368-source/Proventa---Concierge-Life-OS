@@ -2589,7 +2589,7 @@ model ProcurementQuotation {
 model ProcurementOrder {
   id                   String          @id // e.g. PO-XXXXX
   rfqId                String          @unique
-  rfq                  ProcurementRfq  @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  rfq                  ProcurementRfq  @relation(fields: [rfqId], references: [id], onDelete: Restrict)
   quotationId          String
   buyerBusinessId      String?
   buyerBusiness        Business?       @relation("BuyerBusinessOrders", fields: [buyerBusinessId], references: [id], onDelete: SetNull)
