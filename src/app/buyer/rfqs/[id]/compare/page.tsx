@@ -18,6 +18,7 @@ import {
   Package,
   ExternalLink,
   Send,
+  Ban,
 } from 'lucide-react';
 import type { ConstructionRfq, ConstructionQuotation, QuotationComparisonMatrix, ItemizedQuotationBreakdown } from '@/lib/procurement/types';
 
@@ -38,6 +39,11 @@ export default function QuotationComparisonPage() {
   const [selectedQuote, setSelectedQuote] = useState<ConstructionQuotation | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [awarding, setAwarding] = useState(false);
+
+  // Cancellation State
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('Project specifications revised');
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     async function fetchRfqDetails() {
@@ -92,6 +98,28 @@ export default function QuotationComparisonPage() {
   const handleOpenSelectModal = (quote: ConstructionQuotation) => {
     setSelectedQuote(quote);
     setModalOpen(true);
+  };
+
+  const handleCancelRfq = async () => {
+    if (!rfq) return;
+    setCancelling(true);
+    try {
+      const res = await fetch(`/api/procurement/rfqs/${rfq.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cancel', reason: cancelReason }),
+      });
+      const json = await res.json();
+      if (!json.success) {
+        throw new Error(json.error || 'Failed to cancel RFQ');
+      }
+      setRfq(json.data);
+      setCancelModalOpen(false);
+    } catch (err: any) {
+      alert(err.message || 'Error cancelling requirement');
+    } finally {
+      setCancelling(false);
+    }
   };
 
   const handleConfirmAward = async () => {
@@ -178,10 +206,23 @@ export default function QuotationComparisonPage() {
               </h1>
             </div>
 
-            <div className="text-right">
-              <div className="text-xs font-mono text-[#A8ADB7]">Required Delivery</div>
-              <div className="text-sm font-bold text-[#FFFFFF]">{rfq.requiredDeliveryDate}</div>
-              <div className="text-xs text-[#536B88] font-semibold">{rfq.delivery?.city}, Gujarat</div>
+            <div className="text-right space-y-2">
+              <div>
+                <div className="text-xs font-mono text-[#A8ADB7]">Required Delivery</div>
+                <div className="text-sm font-bold text-[#FFFFFF]">{rfq.requiredDeliveryDate}</div>
+                <div className="text-xs text-[#536B88] font-semibold">{rfq.delivery?.city}, Gujarat</div>
+              </div>
+              {rfq.status !== 'PO_ISSUED' && rfq.status !== 'FULFILLED' && rfq.status !== 'CANCELLED' && (
+                <button
+                  type="button"
+                  onClick={() => setCancelModalOpen(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#252B38] hover:bg-[#D9534F]/20 border border-[#D9534F]/50 text-[11px] font-mono font-bold text-[#D9534F] rounded-sm transition-colors cursor-pointer"
+                  title="Withdraw or cancel this RFQ"
+                >
+                  <Ban className="w-3 h-3" />
+                  <span>Withdraw RFQ</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -201,6 +242,16 @@ export default function QuotationComparisonPage() {
             </div>
           </div>
         </div>
+
+        {rfq.status === 'CANCELLED' && (
+          <div className="p-4 bg-[#2D2224] border border-[#D9534F] text-[#F1F2F4] text-xs font-mono flex items-center justify-between rounded-sm">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#D9534F]" />
+              <span><strong>REQUIREMENT WITHDRAWN:</strong> This RFQ was cancelled by the buyer and is closed for quotation acceptance.</span>
+            </div>
+            <span className="font-bold text-[#D9534F] uppercase">Status: CANCELLED</span>
+          </div>
+        )}
 
         {/* Comparison Matrix */}
         <div className="space-y-4">
@@ -471,6 +522,62 @@ export default function QuotationComparisonPage() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        )}
+
+
+        {/* RFQ Withdrawal / Cancellation Modal */}
+        {cancelModalOpen && (
+          <div className="fixed inset-0 z-50 bg-[#191B20]/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#303746] border border-[#414957] max-w-md w-full p-6 space-y-5 shadow-xl rounded-sm">
+              <div className="space-y-1 border-b border-[#414957] pb-3">
+                <div className="inline-flex items-center gap-1.5 text-xs font-mono text-[#D9534F] font-bold">
+                  <Ban className="w-4 h-4" />
+                  <span>WITHDRAW REQUIREMENT</span>
+                </div>
+                <h3 className="text-lg font-black uppercase text-[#FFFFFF] font-heading">
+                  Cancel RFQ {rfq.referenceCode}?
+                </h3>
+              </div>
+
+              <div className="space-y-3 text-xs text-[#F1F2F4]">
+                <p className="text-[#A8ADB7]">
+                  Cancelling this requirement will notify participating suppliers that this RFQ has been withdrawn and will disable quotation awarding.
+                </p>
+
+                <div className="space-y-1">
+                  <label className="block text-[11px] font-mono uppercase text-[#A8ADB7] font-bold">
+                    Reason for Withdrawal:
+                  </label>
+                  <input
+                    type="text"
+                    value={cancelReason}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                    className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-3 py-2 text-xs focus:outline-none focus:border-[#536B88] rounded-sm"
+                    placeholder="e.g. Schedule postponed / Alternate supply"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#414957]">
+                <button
+                  type="button"
+                  disabled={cancelling}
+                  onClick={() => setCancelModalOpen(false)}
+                  className="px-4 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] text-xs font-bold uppercase text-[#F1F2F4] rounded-sm"
+                >
+                  Keep Open
+                </button>
+                <button
+                  type="button"
+                  disabled={cancelling}
+                  onClick={handleCancelRfq}
+                  className="px-5 py-2 bg-[#D9534F] hover:bg-[#C9302C] disabled:opacity-50 text-[#FFFFFF] font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 rounded-sm"
+                >
+                  <span>{cancelling ? 'Cancelling...' : 'Confirm Withdrawal'}</span>
+                </button>
+              </div>
             </div>
           </div>
         )}

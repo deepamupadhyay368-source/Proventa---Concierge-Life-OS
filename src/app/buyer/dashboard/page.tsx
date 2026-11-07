@@ -213,7 +213,11 @@ export default function BuyerDashboardPage() {
                         </div>
                       </div>
 
-                      {quoteCount > 0 ? (
+                      {rfq.status === 'CANCELLED' ? (
+                        <span className="px-3 py-1.5 bg-[#191B20] border border-[#D9534F]/40 text-[#D9534F] text-xs font-mono uppercase rounded-sm font-bold">
+                          Withdrawn
+                        </span>
+                      ) : quoteCount > 0 ? (
                         <Link
                           href={`/buyer/rfqs/${rfq.id}/compare`}
                           className="px-4 py-2 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5 shadow-sm rounded-sm"
@@ -222,12 +226,13 @@ export default function BuyerDashboardPage() {
                           <ArrowRight className="w-3.5 h-3.5" />
                         </Link>
                       ) : (
-                        <button
-                          disabled
-                          className="px-4 py-2 bg-[#252B38] border border-[#414957] text-[#6B7280] text-xs font-mono uppercase rounded-sm cursor-not-allowed"
+                        <Link
+                          href={`/buyer/rfqs/${rfq.id}/compare`}
+                          className="px-3.5 py-1.5 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] text-[#A8ADB7] hover:text-[#FFFFFF] text-xs font-mono uppercase rounded-sm transition-colors flex items-center gap-1.5"
                         >
-                          Awaiting Quotes
-                        </button>
+                          <span>View RFQ</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
                       )}
                     </div>
                   </div>

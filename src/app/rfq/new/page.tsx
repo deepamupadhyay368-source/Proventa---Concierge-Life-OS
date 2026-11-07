@@ -53,6 +53,7 @@ function RfqCreateForm() {
   const [pincode, setPincode] = useState('380060');
   const [siteContactPerson, setSiteContactPerson] = useState('');
   const [siteContactPhone, setSiteContactPhone] = useState('');
+  const [buyerBusinessId, setBuyerBusinessId] = useState<string>('');
   const [vehicleAccessibility, setVehicleAccessibility] = useState<'10-Wheeler Truck' | 'Tata Ace / Small Truck' | 'Transit Mixer (RMC)' | 'Trailer Accessible' | 'Standard Access'>('10-Wheeler Truck');
   const [siteAccessNotes, setSiteAccessNotes] = useState('');
 
@@ -107,6 +108,33 @@ function RfqCreateForm() {
       setAiPrompt(decodeURIComponent(prompt));
       handleAiParse(decodeURIComponent(prompt));
     }
+
+    // Dynamic buyer business profile hydration
+    fetch('/api/business/profile')
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data) {
+          if (json.data.business?.id) {
+            setBuyerBusinessId(json.data.business.id);
+          }
+          if (json.data.business?.city) {
+            setCity((prev) => prev || json.data.business.city);
+          }
+          if (json.data.business?.addressLine1) {
+            setAddressLine((prev) => prev || json.data.business.addressLine1);
+          }
+          if (json.data.business?.pincode) {
+            setPincode((prev) => prev || json.data.business.pincode);
+          }
+          if (json.data.business?.contactPhone) {
+            setSiteContactPhone((prev) => prev || json.data.business.contactPhone);
+          }
+          if (json.data.user?.name) {
+            setSiteContactPerson((prev) => prev || json.data.user.name);
+          }
+        }
+      })
+      .catch(() => {});
   }, [searchParams]);
 
   const handleAiParse = async (customPrompt?: string) => {
@@ -185,7 +213,7 @@ function RfqCreateForm() {
 
     try {
       const payload = {
-        buyerId: 'buyer-demo-ahmedabad',
+        buyerBusinessId: buyerBusinessId || undefined,
         buyerRole,
         title,
         projectType,

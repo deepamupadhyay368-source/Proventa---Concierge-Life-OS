@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Scale,
@@ -24,8 +24,15 @@ interface ItemQuoteInput {
   technicalNotes: string;
 }
 
+interface SupplierBusinessOption {
+  id: string;
+  name: string;
+  platformRole: string;
+}
+
 export default function SupplierSubmitQuotePage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const rfqId = params.id as string;
 
@@ -33,8 +40,10 @@ export default function SupplierSubmitQuotePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Active supplier
-  const supplierId = 'supp-gujarat-steel-cement';
+  // Dynamic active supplier state
+  const [supplierId, setSupplierId] = useState<string>('supp-gujarat-steel-cement');
+  const [supplierName, setSupplierName] = useState<string>('Gujarat Building Materials Syndicate');
+  const [availableBusinesses, setAvailableBusinesses] = useState<SupplierBusinessOption[]>([]);
 
   // Quotation inputs
   const [itemQuotes, setItemQuotes] = useState<ItemQuoteInput[]>([]);
@@ -48,54 +57,120 @@ export default function SupplierSubmitQuotePage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    async function fetchRfq() {
+    let isMounted = true;
+
+    async function initializeSupplierAndRfq() {
       try {
-        const res = await fetch(`/api/procurement/rfqs/${rfqId}`);
+        let activeId = searchParams.get('supplierId') || '';
+        let activeName = '';
+
+        // 1. Resolve user's active business profile
+        try {
+          const profileRes = await fetch('/api/business/profile');
+          if (profileRes.ok) {
+            const profileJson = await profileRes.json();
+            if (profileJson.success && profileJson.data) {
+              const allBiz: SupplierBusinessOption[] = (profileJson.data.authorizedBusinesses || [])
+                .filter((b: any) => b.platformRole === 'SUPPLIER' || b.platformRole === 'BOTH');
+              
+              if (isMounted) {
+                setAvailableBusinesses(allBiz);
+              }
+
+              if (!activeId) {
+                if (allBiz.length > 0) {
+                  activeId = allBiz[0].id;
+                  activeName = allBiz[0].name;
+                } else if (profileJson.data.business?.id) {
+                  activeId = profileJson.data.business.id;
+                  activeName = profileJson.data.business.name;
+                } else if (profileJson.data.user?.id) {
+                  activeId = profileJson.data.user.id;
+                  activeName = profileJson.data.user.name || 'Registered Supplier';
+                }
+              } else {
+                const match = allBiz.find((b) => b.id === activeId);
+                if (match) activeName = match.name;
+              }
+            }
+          }
+        } catch {
+          // Fallback if profile not available
+        }
+
+        // Final fallback for seed demo suppliers
+        if (!activeId) {
+          activeId = 'supp-gujarat-steel-cement';
+          activeName = 'Gujarat Building Materials Syndicate';
+        }
+
+        if (isMounted) {
+          setSupplierId(activeId);
+          if (activeName) setSupplierName(activeName);
+        }
+
+        // 2. Fetch RFQ with supplier context to avoid 403 authorization rejection
+        const rfqUrl = activeId
+          ? `/api/procurement/rfqs/${rfqId}?supplierId=${encodeURIComponent(activeId)}`
+          : `/api/procurement/rfqs/${rfqId}`;
+
+        const res = await fetch(rfqUrl);
         const json = await res.json();
         if (json.success && json.data) {
           const r = json.data.rfq as ConstructionRfq;
-          setRfq(r);
-          // Set initial item quote rows
-          setItemQuotes(
-            r.items.map((it) => ({
-              itemId: it.id,
-              unitPrice: it.categorySlug === 'building-materials' && it.unit === 'Metric tonnes (MT)' ? 53000 : 340,
-              gstRatePercent: it.categorySlug === 'building-materials' && it.unit === 'Bags' ? 28 : 18,
-              brandSupplied: it.brandPreference || 'UltraTech / Tata Tiscon',
-              technicalNotes: 'Direct stockyard supply with factory test certs',
-            }))
-          );
-          setPromisedDate(r.requiredDeliveryDate || new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().split('T')[0]);
+          if (isMounted) {
+            setRfq(r);
+            // Set initial item quote rows
+            setItemQuotes(
+              r.items.map((it) => ({
+                itemId: it.id,
+                unitPrice: it.categorySlug === 'building-materials' && it.unit === 'Metric tonnes (MT)' ? 53000 : 340,
+                gstRatePercent: it.categorySlug === 'building-materials' && it.unit === 'Bags' ? 28 : 18,
+                brandSupplied: it.brandPreference || 'UltraTech / Tata Tiscon',
+                technicalNotes: 'Direct stockyard supply with factory test certs',
+              }))
+            );
+            setPromisedDate(r.requiredDeliveryDate || new Date(Date.now() + 3 * 24 * 3600 * 1000).toISOString().split('T')[0]);
+          }
         } else {
-          setError(json.error || 'Failed to load RFQ');
+          if (isMounted) setError(json.error || 'Failed to load RFQ specifications');
         }
       } catch (err: any) {
-        setError(err.message || 'Error fetching requirement');
+        if (isMounted) setError(err.message || 'Error fetching requirement');
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     }
-    if (rfqId) fetchRfq();
-  }, [rfqId]);
 
-  const updateItemQuote = (idx: number, field: keyof ItemQuoteInput, val: any) => {
+    initializeSupplierAndRfq();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [rfqId, searchParams]);
+
+  const updateItemQuote = (idx: number, field: keyof ItemQuoteInput, value: any) => {
     setItemQuotes((prev) => {
       const copy = [...prev];
-      copy[idx] = { ...copy[idx], [field]: val };
+      copy[idx] = { ...copy[idx], [field]: value };
       return copy;
     });
   };
 
   const calculateTotals = () => {
+    if (!rfq) return { subtotal: 0, totalGst: 0, grandTotal: 0 };
+
     let subtotal = 0;
     let totalGst = 0;
 
-    itemQuotes.forEach((iq, idx) => {
-      const qty = rfq?.items[idx]?.quantity || 1;
-      const lineSubtotal = qty * (iq.unitPrice || 0);
-      const lineGst = Math.round((lineSubtotal * (iq.gstRatePercent || 0)) / 100);
-      subtotal += lineSubtotal;
-      totalGst += lineGst;
+    rfq.items.forEach((it, idx) => {
+      const quote = itemQuotes[idx];
+      if (quote) {
+        const lineBase = (it.quantity || 1) * (quote.unitPrice || 0);
+        const lineGst = (lineBase * (quote.gstRatePercent || 0)) / 100;
+        subtotal += lineBase;
+        totalGst += lineGst;
+      }
     });
 
     const grandTotal = subtotal + totalGst + (Number(deliveryCharges) || 0) - (Number(discountAmount) || 0);
@@ -113,6 +188,7 @@ export default function SupplierSubmitQuotePage() {
       const payload = {
         rfqId: rfq.id,
         supplierId,
+        supplierName,
         items: itemQuotes,
         deliveryCharges: Number(deliveryCharges) || 0,
         discountAmount: Number(discountAmount) || 0,
@@ -198,6 +274,37 @@ export default function SupplierSubmitQuotePage() {
               <div className="font-bold text-sm text-[#FFFFFF]">{rfq.requiredDeliveryDate}</div>
               <div className="text-xs text-[#536B88] font-semibold">{rfq.urgency} Urgency</div>
             </div>
+          </div>
+
+          {/* Supplier Identity Context Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 text-xs">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[#C66A42]" />
+              <span className="font-mono uppercase text-[#A8ADB7]">Quoting As:</span>
+              <span className="font-bold text-[#FFFFFF]">{supplierName}</span>
+            </div>
+
+            {availableBusinesses.length > 1 && (
+              <div className="flex items-center gap-2">
+                <label className="font-mono text-[11px] text-[#A8ADB7]">Switch Entity:</label>
+                <select
+                  value={supplierId}
+                  onChange={(e) => {
+                    const nextId = e.target.value;
+                    setSupplierId(nextId);
+                    const opt = availableBusinesses.find((b) => b.id === nextId);
+                    if (opt) setSupplierName(opt.name);
+                  }}
+                  className="bg-[#191B20] border border-[#414957] text-[#FFFFFF] px-2.5 py-1 text-xs rounded-sm focus:outline-none focus:border-[#536B88]"
+                >
+                  {availableBusinesses.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
         </div>
 

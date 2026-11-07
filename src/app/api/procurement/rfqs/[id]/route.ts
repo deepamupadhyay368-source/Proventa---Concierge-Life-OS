@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import {
   getConstructionRfqById,
+  getConstructionRfqByIdAsync,
   compareQuotationsForRfq,
   getQuotationsForRfq,
+  cancelConstructionRfq,
 } from '@/lib/procurement/repository';
 import { getSession } from '@/lib/auth/session';
 import { getUserAuthorizedBusinesses, resolveSupplierContext } from '@/lib/business/auth-context';
@@ -17,7 +19,10 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const requestedSupplierId = searchParams.get('supplierId');
 
-    const rfq = getConstructionRfqById(id);
+    let rfq = getConstructionRfqById(id);
+    if (!rfq) {
+      rfq = await getConstructionRfqByIdAsync(id);
+    }
 
     if (!rfq) {
       return NextResponse.json(
@@ -36,7 +41,7 @@ export async function GET(
     }
 
     const user = session.user;
-    const userRoles = user.roles || [];
+    const userRoles = (user.roles as string[]) || [];
     const isAdmin = userRoles.some((r: string) => ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE'].includes(r));
 
     // 2. Administrator Access with Mandatory Audit Logging
@@ -134,7 +139,7 @@ export async function GET(
       return NextResponse.json(
         {
           success: false,
-          error: 'Forbidden: You do not have permission to view another buyer\'s RFQ',
+          error: "Forbidden: You do not have permission to view another buyer's RFQ",
           code: 'FORBIDDEN_IDOR',
         },
         { status: 403 }
@@ -155,6 +160,89 @@ export async function GET(
     console.error('Error fetching RFQ detail:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch RFQ details' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    let rfq = getConstructionRfqById(id);
+    if (!rfq) {
+      rfq = await getConstructionRfqByIdAsync(id);
+    }
+
+    if (!rfq) {
+      return NextResponse.json(
+        { success: false, error: 'RFQ not found' },
+        { status: 404 }
+      );
+    }
+
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required to modify RFQ', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
+    }
+
+    const user = session.user;
+    const userRoles = (user.roles as string[]) || [];
+    const isAdmin = userRoles.some((r: string) => ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE'].includes(r));
+
+    const authorizedBusinesses = await getUserAuthorizedBusinesses(user.id);
+    const isOwnBuyer =
+      rfq.buyerId === user.id ||
+      (rfq.buyerBusinessId && authorizedBusinesses.some((b) => b.id === rfq.buyerBusinessId));
+
+    if (!isOwnBuyer && !isAdmin) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Forbidden: You do not have permission to modify this RFQ',
+          code: 'FORBIDDEN_IDOR',
+        },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+
+    if (body.action === 'cancel' || body.status === 'CANCELLED') {
+      const updated = cancelConstructionRfq({
+        rfqId: rfq.id,
+        reason: body.reason,
+        cancelledBy: user.email || user.name || user.id,
+      });
+
+      void createBusinessAuditLog({
+        businessId: rfq.buyerBusinessId || 'platform',
+        userId: user.id,
+        action: 'RFQ_CANCELLED',
+        details: `RFQ ${rfq.referenceCode} was cancelled by ${user.email}. Reason: ${body.reason || 'Buyer withdrawal'}`,
+        metadata: { rfqId: rfq.id, reason: body.reason },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'RFQ successfully cancelled',
+        data: updated,
+      });
+    }
+
+    return NextResponse.json(
+      { success: false, error: 'Invalid or unsupported RFQ action' },
+      { status: 400 }
+    );
+  } catch (error: any) {
+    console.error('Error modifying RFQ:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to update RFQ' },
       { status: 500 }
     );
   }

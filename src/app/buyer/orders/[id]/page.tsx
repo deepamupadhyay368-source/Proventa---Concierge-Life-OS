@@ -12,6 +12,7 @@ import {
   Star,
   ChevronLeft,
   AlertTriangle,
+  Printer,
 } from 'lucide-react';
 import type { PurchaseOrder } from '@/lib/procurement/types';
 import { DELIVERY_STAGES_SEQUENCE } from '@/lib/procurement/types';
@@ -157,12 +158,23 @@ export default function PurchaseOrderDetailPage() {
               </div>
             </div>
 
-            <div className="text-right">
-              <div className="text-xs font-mono text-[#A8ADB7]">Grand Total Landed Cost</div>
-              <div className="font-mono text-2xl font-black text-[#C66A42]">
-                ₹{order.grandTotal.toLocaleString('en-IN')}
+            <div className="text-right space-y-2">
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="no-print inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] text-xs font-mono font-bold text-[#F1F2F4] rounded-sm transition-colors cursor-pointer"
+                title="Print official Purchase Order Voucher"
+              >
+                <Printer className="w-3.5 h-3.5 text-[#536B88]" />
+                <span>Print PO Voucher</span>
+              </button>
+              <div>
+                <div className="text-xs font-mono text-[#A8ADB7]">Grand Total Landed Cost</div>
+                <div className="font-mono text-2xl font-black text-[#C66A42]">
+                  ₹{order.grandTotal.toLocaleString('en-IN')}
+                </div>
+                <div className="text-[11px] text-[#A8ADB7]">Inclusive of all GST & Freight</div>
               </div>
-              <div className="text-[11px] text-[#A8ADB7]">Inclusive of all GST & Freight</div>
             </div>
           </div>
 
@@ -416,6 +428,22 @@ export default function PurchaseOrderDetailPage() {
           )}
         </div>
       </div>
+
+      {/* Print-specific stylesheet */}
+      <style jsx global>{`
+        @media print {
+          body {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+          }
+          .no-print {
+            display: none !important;
+          }
+          header, nav, footer {
+            display: none !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

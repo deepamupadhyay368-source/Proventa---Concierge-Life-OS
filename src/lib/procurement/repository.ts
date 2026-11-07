@@ -843,8 +843,96 @@ export function getConstructionRfqById(idOrRef: string): ConstructionRfq | null 
 export function listBuyerRfqs(buyerId: string): ConstructionRfq[] {
   const store = getStore();
   return Array.from(store.rfqs.values())
-    .filter((r) => r.buyerId === buyerId || buyerId === 'all')
+    .filter((r) => r.buyerId === buyerId || r.buyerBusinessId === buyerId || buyerId === 'all')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function cancelConstructionRfq(params: {
+  rfqId: string;
+  reason?: string;
+  cancelledBy?: string;
+}): ConstructionRfq {
+  const store = getStore();
+  const rfq = getConstructionRfqById(params.rfqId);
+  if (!rfq) {
+    throw new Error('RFQ not found');
+  }
+
+  if (rfq.status === 'PO_ISSUED' || rfq.status === 'FULFILLED') {
+    throw new Error('Cannot cancel an RFQ that already has an issued Purchase Order or has been fulfilled');
+  }
+
+  if (rfq.status === 'CANCELLED') {
+    return rfq;
+  }
+
+  rfq.status = 'CANCELLED';
+  rfq.updatedAt = new Date().toISOString();
+  if (params.reason) {
+    rfq.specialInstructions = rfq.specialInstructions
+      ? `${rfq.specialInstructions}\n[Cancellation Reason]: ${params.reason}`
+      : `[Cancellation Reason]: ${params.reason}`;
+  }
+
+  store.rfqs.set(rfq.id, rfq);
+  void syncRfqToPrisma(rfq);
+
+  return rfq;
+}
+
+export async function getConstructionRfqByIdAsync(idOrRef: string): Promise<ConstructionRfq | null> {
+  const cached = getConstructionRfqById(idOrRef);
+  if (cached) return cached;
+
+  try {
+    const dbRfq = await db.procurementRfq.findFirst({
+      where: {
+        OR: [
+          { id: idOrRef },
+          { id: { endsWith: idOrRef } },
+        ],
+      },
+    });
+
+    if (!dbRfq) return null;
+
+    const store = getStore();
+    const reconstructed: ConstructionRfq = {
+      id: dbRfq.id,
+      referenceCode: `RFQ-${dbRfq.id.slice(-5).toUpperCase()}`,
+      buyerId: dbRfq.creatorUserId,
+      buyerName: 'Procurement Buyer',
+      buyerEmail: 'buyer@proventa.in',
+      buyerRole: 'CONTRACTOR',
+      title: dbRfq.title,
+      projectType: 'COMMERCIAL',
+      items: Array.isArray(dbRfq.items) ? (dbRfq.items as any) : [],
+      delivery: {
+        siteName: 'Project Site',
+        addressLine: dbRfq.deliveryAddress || 'Address on File',
+        city: dbRfq.deliveryDistrict || 'Ahmedabad',
+        state: dbRfq.deliveryState || 'Gujarat',
+        pincode: dbRfq.deliveryPincode || '380001',
+        siteContactPerson: 'Site In-Charge',
+        siteContactPhone: '+91 98000 00000',
+        vehicleAccessibility: '10-Wheeler Truck',
+      },
+      requiredDeliveryDate: dbRfq.targetDate ? dbRfq.targetDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      urgency: 'STANDARD',
+      status: (dbRfq.status as any) || 'OPEN',
+      invitedSupplierIds: dbRfq.eligibleSupplierIds || [],
+      quotationIds: [],
+      purchaseOrderId: dbRfq.purchaseOrderId || undefined,
+      boqAttachments: [],
+      createdAt: dbRfq.createdAt.toISOString(),
+      updatedAt: dbRfq.updatedAt.toISOString(),
+    };
+
+    store.rfqs.set(reconstructed.id, reconstructed);
+    return reconstructed;
+  } catch {
+    return null;
+  }
 }
 
 export function listSupplierMatchingRfqs(supplierId: string): ConstructionRfq[] {
@@ -1337,15 +1425,74 @@ export function getPurchaseOrderById(idOrRef: string): PurchaseOrder | null {
 export function listBuyerOrders(buyerId: string): PurchaseOrder[] {
   const store = getStore();
   return Array.from(store.orders.values())
-    .filter((o) => o.buyerId === buyerId || buyerId === 'all')
+    .filter((o) => o.buyerId === buyerId || o.buyerBusinessId === buyerId || buyerId === 'all')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
 export function listSupplierOrders(supplierId: string): PurchaseOrder[] {
   const store = getStore();
   return Array.from(store.orders.values())
-    .filter((o) => o.supplierId === supplierId || supplierId === 'all')
+    .filter((o) => o.supplierId === supplierId || o.supplierBusinessId === supplierId || supplierId === 'all')
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function getPurchaseOrderByIdAsync(idOrRef: string): Promise<PurchaseOrder | null> {
+  const cached = getPurchaseOrderById(idOrRef);
+  if (cached) return cached;
+
+  try {
+    const dbOrder = await db.procurementOrder.findFirst({
+      where: {
+        OR: [
+          { id: idOrRef },
+          { id: { endsWith: idOrRef } },
+        ],
+      },
+    });
+
+    if (!dbOrder) return null;
+
+    const store = getStore();
+    const tracking = (dbOrder.trackingDetails as any) || {};
+    const reconstructed: PurchaseOrder = {
+      id: dbOrder.id,
+      referenceCode: `PO-${dbOrder.id.slice(-5).toUpperCase()}`,
+      rfqId: dbOrder.rfqId,
+      rfqReferenceCode: `RFQ-${dbOrder.rfqId.slice(-5).toUpperCase()}`,
+      quotationId: dbOrder.quotationId,
+      quotationReferenceCode: `QUO-${dbOrder.quotationId.slice(-5).toUpperCase()}`,
+      buyerId: 'procurement-buyer',
+      buyerName: 'Procurement Buyer',
+      supplierId: dbOrder.supplierId,
+      supplierName: dbOrder.supplierName,
+      supplierGstin: '24AAACG1928K1Z5',
+      items: [],
+      subtotal: Number(dbOrder.totalAmount) * 0.82,
+      totalGst: Number(dbOrder.totalAmount) * 0.18,
+      deliveryCharges: 0,
+      discountAmount: 0,
+      grandTotal: Number(dbOrder.totalAmount),
+      delivery: tracking.delivery || {
+        siteName: 'Project Site',
+        addressLine: 'Delivery Address on File',
+        city: 'Ahmedabad',
+        state: 'Gujarat',
+        pincode: '380001',
+        siteContactPerson: 'Site In-Charge',
+        siteContactPhone: '+91 98000 00000',
+        vehicleAccessibility: '10-Wheeler Truck',
+      },
+      deliveryStatus: (dbOrder.status as any) || 'PO_CREATED',
+      timeline: tracking.timeline || [],
+      createdAt: dbOrder.createdAt.toISOString(),
+      updatedAt: dbOrder.updatedAt.toISOString(),
+    };
+
+    store.orders.set(reconstructed.id, reconstructed);
+    return reconstructed;
+  } catch {
+    return null;
+  }
 }
 
 export function updateOrderDispatchDetails(params: {
