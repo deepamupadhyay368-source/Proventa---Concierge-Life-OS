@@ -96,10 +96,10 @@ export function MarketingFooter() {
         {/* Bottom Bar */}
         <div className="mt-16 pt-8 border-t border-[#414957] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs text-[#A8ADB7]">
           <div>
-            © 2026 {BRAND_CONFIG.name} — Industrial Procurement Platform. Ahmedabad, Gujarat, India.
+            © 2026 {BRAND_CONFIG.name} — {BRAND_CONFIG.category}. Ahmedabad, Gujarat, India.
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[#C66A42] font-semibold">Require. Compare. Select. Deliver.</span>
+            <span className="text-[#C66A42] font-semibold">{BRAND_CONFIG.tagline}</span>
           </div>
         </div>
       </div>

@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PROVENTA — Industrial Procurement Platform',
+    title: 'PROVENTA — Construction & Infrastructure Procurement Platform',
     description:
       'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
     images: ['/og-image.jpg'],
