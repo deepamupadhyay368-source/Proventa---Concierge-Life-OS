@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { createSecurityEvent } from '@/lib/audit';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
 import { sendEmail } from '@/lib/email/sender';
+import { resetPassKeyRateLimit } from '@/lib/auth/access-key';
 
 export async function POST(req: NextRequest) {
   const rl = rateLimitMiddleware(req, { max: 10, windowMs: 60_000, keyPrefix: 'auth-complete-reg' });
@@ -130,6 +131,9 @@ export async function POST(req: NextRequest) {
       // Non-fatal if audit table differs in migration
     }
 
+    if (updatedUser.email) {
+      resetPassKeyRateLimit(`passkey:${updatedUser.email.toLowerCase().trim()}`);
+    }
     void createSecurityEvent('AUTH_KEY_CREATED', {
       userId,
       data: { source: 'customer_created_registration' },

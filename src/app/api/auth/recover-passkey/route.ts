@@ -4,13 +4,14 @@ import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { createSecurityEvent } from '@/lib/audit';
 import { checkRateLimitAsync, getRateLimitKey } from '@/lib/security/rate-limit';
+import { resetPassKeyRateLimit, format12DigitPassKey } from '@/lib/auth/access-key';
 
-export async function POST(req: NextRequest) {
+export async function handlePassKeyRecovery(req: NextRequest) {
   try {
     const rateLimitKey = getRateLimitKey(req, 'passkey-recovery');
     const rateLimit = await checkRateLimitAsync(rateLimitKey, {
-      max: 5,
-      windowMs: 15 * 60 * 1000, // 5 requests per 15 minutes
+      max: 10,
+      windowMs: 15 * 60 * 1000, // 10 requests per 15 minutes
     });
 
     if (!rateLimit.allowed) {
@@ -23,13 +24,14 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json(
-        { success: false, error: 'Google identity verification required to recover pass key' },
+        { success: false, error: 'Identity verification required to recover pass key' },
         { status: 401 },
       );
     }
 
     const body = await req.json();
-    const { newPassKey, confirmPassKey } = body;
+    const newPassKey = body.newPassKey || body.passKey || body.key;
+    const confirmPassKey = body.confirmPassKey || body.confirmNewPassKey;
 
     const cleanNew = typeof newPassKey === 'string' ? newPassKey.replace(/[^0-9]/g, '') : '';
     const cleanConfirm = typeof confirmPassKey === 'string' ? confirmPassKey.replace(/[^0-9]/g, '') : '';
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (cleanNew !== cleanConfirm) {
+    if (cleanConfirm && cleanNew !== cleanConfirm) {
       return NextResponse.json(
         { success: false, error: 'Pass Key confirmation does not match.' },
         { status: 400 },
@@ -53,14 +55,24 @@ export async function POST(req: NextRequest) {
     // Hash the customer's chosen 12-digit pass key using salted bcrypt (cost factor 12)
     const passKeyHash = await bcrypt.hash(cleanNew, 12);
 
-    // Rotate the user's security key hash
-    await db.user.update({
+    // Rotate the user's security key hash and ensure status is ACTIVE
+    const updated = await db.user.update({
       where: { id: userId },
       data: {
         securityKeyHash: passKeyHash,
         authKeyUpdatedAt: new Date(),
+        status: 'ACTIVE',
+      },
+      select: {
+        id: true,
+        email: true,
       },
     });
+
+    // Reset rate limiter for user's email so they can immediately log in
+    if (updated.email) {
+      resetPassKeyRateLimit(`passkey:${updated.email.toLowerCase().trim()}`);
+    }
 
     void createSecurityEvent('AUTH_KEY_ROTATED', {
       userId,
@@ -71,6 +83,7 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'PROVENTA Pass Key updated successfully. Please sign in with your new key.',
       userId,
+      formattedKey: format12DigitPassKey(cleanNew),
     });
   } catch (error) {
     console.error('[API /api/auth/recover-passkey] Error:', error);
@@ -79,4 +92,8 @@ export async function POST(req: NextRequest) {
       { status: 500 },
     );
   }
+}
+
+export async function POST(req: NextRequest) {
+  return handlePassKeyRecovery(req);
 }

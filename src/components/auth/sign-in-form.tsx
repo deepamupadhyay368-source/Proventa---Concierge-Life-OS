@@ -78,7 +78,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
       if (res?.error) {
         if (res.error === 'CredentialsSignin') {
-          setError('Invalid email or 12-digit Pass Key. Please verify your credentials.');
+          setError('Invalid email or 12-digit Pass Key. Please verify your credentials, or click "Recover Pass Key" below.');
         } else if (res.error === 'TooManyAttempts') {
           setError('Too many failed attempts. Please try again after 15 minutes.');
         } else {

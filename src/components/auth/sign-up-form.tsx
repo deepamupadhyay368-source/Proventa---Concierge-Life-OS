@@ -191,10 +191,10 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
 
           <div className="space-y-1">
             <h2 className="font-heading font-bold text-sm tracking-widest uppercase text-[#FFFFFF]">
-              YOUR PROVENTA AUTHENTICATION KEY
+              YOUR 12-DIGIT PROVENTA PASS KEY
             </h2>
             <p className="text-xs text-[#A8ADB7]">
-              Your encrypted sovereign key for secure account authentication and verification.
+              Your private 12-digit numeric Pass Key. You will enter this key alongside your email whenever you sign in.
             </p>
           </div>
 
@@ -230,7 +230,7 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
               className="mt-1 h-4 w-4 accent-[#C66A42]"
             />
             <span className="text-xs text-[#A8ADB7]">
-              I have recorded my 12-digit PROVENTA Authentication Key safely.
+              I have recorded my 12-digit PROVENTA Pass Key safely.
             </span>
           </label>
 

@@ -166,7 +166,7 @@ describe('PROVENTA — Construction & Infrastructure Procurement Platform Positi
         buyerId: 'buyer-builder-01',
         buyerName: 'Gujarat Infrastructure Corp',
         buyerEmail: 'procure@gujinfra.com',
-        buyerRole: 'INFRASTRUCTURE_CONTRACTOR',
+        buyerRole: 'INFRASTRUCTURE_CONTRACTOR' as any,
         title: 'Ring Road Overbridge Reinforcement & Drainage Materials',
         projectType: 'INFRASTRUCTURE',
         items: [
@@ -228,7 +228,7 @@ describe('PROVENTA — Construction & Infrastructure Procurement Platform Positi
         buyerId: 'buyer-contractor-02',
         buyerName: 'Apex Civil Builders',
         buyerEmail: 'info@apexcivil.in',
-        buyerRole: 'CIVIL_CONTRACTOR',
+        buyerRole: 'CIVIL_CONTRACTOR' as any,
         title: 'Sanand Industrial Factory Precast & Foundation Rebars',
         projectType: 'INDUSTRIAL',
         items: [

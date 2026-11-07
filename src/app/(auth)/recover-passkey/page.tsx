@@ -75,17 +75,18 @@ export default function RecoverPassKeyPage() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/passkey/reset', {
+      const res = await fetch('/api/auth/recover-passkey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           newPassKey: cleanPassKey,
+          confirmPassKey: cleanConfirm,
         }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
+      if (!res.ok || !data.success) {
         setError(data.error || 'Failed to update Pass Key. Please try again.');
       } else {
         setIsSuccess(true);

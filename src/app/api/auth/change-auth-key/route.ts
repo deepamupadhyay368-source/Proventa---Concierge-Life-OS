@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { requireAuth } from '@/lib/auth/session';
 import { verifyAuthKey, hashAuthKey } from '@/lib/auth/password';
+import { verifyAccessKey, normalizePassKey, resetPassKeyRateLimit } from '@/lib/auth/access-key';
+import bcrypt from 'bcryptjs';
 import { changeAuthenticationKeySchema } from '@/lib/validation/schemas';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
 import { createSecurityEvent, createAuditLog } from '@/lib/audit';
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     // If user already has an Authentication Key, verify current key
     if (user.securityKeyHash) {
-      const isCurrentValid = await verifyAuthKey(currentAuthenticationKey, user.securityKeyHash);
+      const isCurrentValid = (await verifyAccessKey(currentAuthenticationKey, user.securityKeyHash)) || (await verifyAuthKey(currentAuthenticationKey, user.securityKeyHash));
       if (!isCurrentValid) {
         void createSecurityEvent('AUTH_KEY_FAILED', {
           userId: user.id,
@@ -49,7 +51,8 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const newKeyHash = await hashAuthKey(newAuthenticationKey);
+    const cleanNewKey = normalizePassKey(newAuthenticationKey);
+    const newKeyHash = cleanNewKey.length === 12 ? await bcrypt.hash(cleanNewKey, 12) : await hashAuthKey(newAuthenticationKey);
 
     await db.$transaction([
       db.user.update({
@@ -69,6 +72,9 @@ export async function POST(req: NextRequest) {
     const ipAddress = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || undefined;
     const userAgent = req.headers.get('user-agent') || undefined;
 
+    if (user.email) {
+      resetPassKeyRateLimit(`passkey:${user.email.toLowerCase().trim()}`);
+    }
     void createSecurityEvent('AUTH_KEY_CHANGED', {
       userId: user.id,
       ipAddress,

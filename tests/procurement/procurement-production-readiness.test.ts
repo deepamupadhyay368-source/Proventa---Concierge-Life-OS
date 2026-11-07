@@ -111,7 +111,7 @@ describe('PROVENTA — Production Readiness & Operational Reliability', () => {
       promisedDeliveryDate: '2026-12-10',
       validityDays: 14,
       paymentTerms: '20% advance, 80% on site weighbridge delivery',
-    });
+    } as any);
 
     // Explicit buyer award with mandatory confirmation flag
     const result = await selectQuotationAndCreatePoAtomic({
@@ -121,7 +121,7 @@ describe('PROVENTA — Production Readiness & Operational Reliability', () => {
       buyerName: buyerUser.name,
       buyerEmail: buyerUser.email,
       buyerConfirmed: true,
-    });
+    } as any);
     po = result.order;
   });
 

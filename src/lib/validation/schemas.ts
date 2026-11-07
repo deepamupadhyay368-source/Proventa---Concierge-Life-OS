@@ -85,6 +85,8 @@ export const registerSchema = z
     email: emailSchema,
     password: passwordSchema,
     confirmPassword: z.string().optional(),
+    passKey: z.string().optional(),
+    confirmPassKey: z.string().optional(),
     authenticationKey: authenticationKeySchema.optional(),
     confirmAuthenticationKey: z.string().optional(),
     securityKey: z.string().optional(),
@@ -103,9 +105,16 @@ export const registerSchema = z
   })
   .refine(
     (data) => {
-      const key = data.authenticationKey || data.securityKey;
-      const confirm = data.confirmAuthenticationKey || data.confirmSecurityKey;
+      const key = (data as any).passKey || data.authenticationKey || data.securityKey;
+      const confirm = (data as any).confirmPassKey || data.confirmAuthenticationKey || data.confirmSecurityKey;
       if (!key && !confirm) return true;
+      if (key && confirm) {
+        const numKey = key.replace(/[^0-9]/g, '');
+        const numConfirm = confirm.replace(/[^0-9]/g, '');
+        if (numKey.length === 12 && numConfirm.length === 12) {
+          return numKey === numConfirm;
+        }
+      }
       return key === confirm;
     },
     {

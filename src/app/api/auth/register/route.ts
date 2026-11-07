@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { hashPassword } from '@/lib/auth/password';
-import { generateVerificationToken, hashToken, generateProventaAuthKey } from '@/lib/auth/tokens';
+import { generateVerificationToken, hashToken } from '@/lib/auth/tokens';
+import {
+  generateProventaAccessKey,
+  normalizePassKey,
+  format12DigitPassKey,
+  resetPassKeyRateLimit,
+} from '@/lib/auth/access-key';
+import bcrypt from 'bcryptjs';
 import { registerSchema } from '@/lib/validation/schemas';
 import { rateLimitMiddleware } from '@/lib/security/rate-limit';
 import { trackEvent } from '@/lib/analytics';
 import { createAuditLog, createSecurityEvent } from '@/lib/audit';
-import { ConflictError, ValidationError } from '@/lib/errors';
-import { sendVerificationEmail } from '@/lib/email/sender';
 import { recordPolicyAcceptances } from '@/lib/legal/consent';
 import { getOrCreateUserBusiness } from '@/lib/business/service';
 
@@ -25,14 +30,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, email, password, authenticationKey, securityKey, phone, city, preferredComm, dob, address, accountType } = parsed.data;
-    const rawAuthKey = authenticationKey || securityKey;
-    const effectiveAuthKey = rawAuthKey || generateProventaAuthKey();
+    const {
+      name,
+      email,
+      password,
+      passKey,
+      authenticationKey,
+      securityKey,
+      phone,
+      city,
+      preferredComm,
+      dob,
+      address,
+      accountType,
+    } = parsed.data;
+
+    const rawAuthKey = passKey || authenticationKey || securityKey;
+
+    let effectiveAuthKey: string;
+    let formattedAuthKey: string;
+    let securityKeyHash: string;
+
+    if (rawAuthKey && rawAuthKey.trim()) {
+      const normalized = normalizePassKey(rawAuthKey);
+      effectiveAuthKey = normalized;
+      formattedAuthKey = normalized.length === 12 ? format12DigitPassKey(normalized) : rawAuthKey.trim();
+      securityKeyHash = await bcrypt.hash(normalized, 12);
+    } else {
+      const generated = await generateProventaAccessKey();
+      effectiveAuthKey = generated.plaintextKey;
+      formattedAuthKey = generated.formattedKey;
+      securityKeyHash = generated.hash;
+    }
 
     const normalizedEmail = email.trim().toLowerCase();
     const cleanPhone = phone ? phone.trim() : null;
     const passwordHash = await hashPassword(password);
-    const securityKeyHash = await hashPassword(effectiveAuthKey);
     const authKeyUpdatedAt = new Date();
 
     // Check for existing user
@@ -51,13 +84,21 @@ export async function POST(req: NextRequest) {
       }
 
       // Existing user without a password (e.g. founder, early access, or OAuth user)
-      // Attach the new password credentials and activate immediately
+      // Attach the new password credentials and preserve existing 12-digit pass key unless explicitly replaced
+      const shouldUpdateKey = Boolean(rawAuthKey);
+      const targetSecurityKeyHash = shouldUpdateKey
+        ? securityKeyHash
+        : (existing.securityKeyHash || securityKeyHash);
+      const targetAuthKeyUpdatedAt = (shouldUpdateKey || !existing.securityKeyHash)
+        ? new Date()
+        : (existing.authKeyUpdatedAt || new Date());
+
       const updatedUser = await db.user.update({
         where: { id: existing.id },
         data: {
           passwordHash,
-          securityKeyHash: securityKeyHash || existing.securityKeyHash,
-          authKeyUpdatedAt: securityKeyHash ? new Date() : existing.authKeyUpdatedAt,
+          securityKeyHash: targetSecurityKeyHash,
+          authKeyUpdatedAt: targetAuthKeyUpdatedAt,
           name: existing.name || name,
           phone: cleanPhone || existing.phone,
           status: 'ACTIVE',
@@ -66,7 +107,7 @@ export async function POST(req: NextRequest) {
         include: { userRoles: true },
       });
 
-      if (securityKeyHash) {
+      if (shouldUpdateKey || !existing.securityKeyHash) {
         void createSecurityEvent('AUTH_KEY_CREATED', { userId: existing.id });
       }
 
@@ -90,10 +131,14 @@ export async function POST(req: NextRequest) {
       const roles = updatedUser.userRoles.map((r) => r.role);
       const isAdmin = roles.some((r) => ['SUPER_ADMIN', 'ADMIN', 'SUPPORT'].includes(r));
 
+      resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
+
       return NextResponse.json({
         message: 'Credentials configured successfully. Your account is active.',
         email: updatedUser.email,
         name: updatedUser.name,
+        authenticationKey: formattedAuthKey,
+        passKey: formattedAuthKey,
         isAdmin,
       });
     }
@@ -192,6 +237,8 @@ export async function POST(req: NextRequest) {
     void trackEvent({ event: 'account_created', userId: user.id });
     void createAuditLog({ actorId: user.id, action: 'CREATE', resourceType: 'User', resourceId: user.id, ipAddress, userAgent });
 
+    resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
+
     return NextResponse.json(
       {
         message: 'Account created and activated successfully.',
@@ -201,7 +248,8 @@ export async function POST(req: NextRequest) {
           name: user.name,
           phone: user.phone,
         },
-        authenticationKey: effectiveAuthKey,
+        authenticationKey: formattedAuthKey,
+        passKey: formattedAuthKey,
         isAdmin: false,
       },
       { status: 201 },

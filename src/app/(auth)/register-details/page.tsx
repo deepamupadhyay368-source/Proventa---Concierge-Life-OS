@@ -28,17 +28,13 @@ export default function RegisterDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
     if (session?.user) {
       if (session.user.name && !name) {
         setName(session.user.name);
       }
-      const needsReg = (session.user as unknown as { needsRegistration?: boolean }).needsRegistration;
-      if (needsReg === false && !isSuccess) {
-        router.replace('/sign-in');
-      }
     }
-  }, [session, router, name, isSuccess]);
+  }, [session, name]);
 
   if (status === 'loading') {
     return (

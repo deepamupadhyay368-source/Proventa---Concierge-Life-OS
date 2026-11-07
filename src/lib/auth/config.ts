@@ -12,6 +12,7 @@ import { logger } from '@/lib/logger';
 import { createSecurityEvent } from '@/lib/audit';
 import {
   verifyAccessKey,
+  normalizePassKey,
   generateProventaAccessKey,
   stageOneTimeAccessKey,
   checkPassKeyRateLimit,
@@ -45,7 +46,7 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
         });
 
         // 1. DIRECT PROVENTA ACCESS KEY AUTHENTICATION (Method B)
-        if (!password && authKey) {
+        if (authKey) {
           // Enforce strict rate limiting on 12-digit numeric pass key attempts (max 5 per 15 mins)
           const rl = checkPassKeyRateLimit(`passkey:${normalizedEmail}`);
           if (!rl.allowed) {
@@ -180,7 +181,7 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
         } else if (authKey) {
           const newKeyHash = (await verifyPassword(authKey, '$2b$12$dummy'))
             ? null
-            : await bcrypt.hash(authKey, 12);
+            : await bcrypt.hash(normalizePassKey(authKey) || authKey, 12);
           if (newKeyHash) {
             await db.user.update({
               where: { id: user.id },
