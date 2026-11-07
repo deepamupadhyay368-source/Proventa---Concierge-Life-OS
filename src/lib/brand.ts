@@ -241,7 +241,7 @@ export const FAMILY_WEALTH_SUBSCRIPTION_PLANS: Record<WealthPlanTier, FamilyWeal
   FAMILY_PLUS: {
     tier: 'FAMILY_PLUS',
     name: 'Family Plus',
-    tagline: 'Complete financial intelligence for extended families.',
+    tagline: 'Complete procurement intelligence for expanding operations.',
     description: 'Advanced document intelligence, scenario planning, and expanded storage for growing families.',
     priceInrAnnual: 4999,
     pricePaiseAnnual: 499900,

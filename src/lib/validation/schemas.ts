@@ -118,12 +118,13 @@ export const loginSchema = z
   .object({
     email: emailSchema,
     password: z.string().optional(),
+    passKey: z.string().optional(),
     accessKey: z.string().optional(),
     authenticationKey: z.string().optional(),
     securityKey: z.string().optional(),
   })
   .refine(
-    (data) => Boolean(data.password || data.accessKey || data.authenticationKey || data.securityKey),
+    (data) => Boolean(data.password || data.passKey || data.accessKey || data.authenticationKey || data.securityKey),
     {
       message: 'Password or PROVENTA Access Key is required',
       path: ['password'],

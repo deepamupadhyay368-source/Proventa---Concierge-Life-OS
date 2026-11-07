@@ -4,7 +4,7 @@ import { logger } from '@/lib/logger';
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const FROM = process.env.EMAIL_FROM ?? 'Proventa <hello@proventa.in>';
-const REPLY_TO = process.env.EMAIL_REPLY_TO ?? 'concierge@proventa.in';
+const REPLY_TO = process.env.EMAIL_REPLY_TO ?? 'support@proventa.in';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? 'https://proventa.in';
 
 // Centralized email dispatcher prioritizing native Gmail SMTP (proventa.in@gmail.com)

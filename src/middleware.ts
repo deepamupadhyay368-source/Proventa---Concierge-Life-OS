@@ -58,6 +58,8 @@ export default auth(async (req) => {
     auth: { user?: { id?: string; roles?: string[] } } | null;
   };
   const pathname = nextUrl.pathname;
+  const isLoggedIn = !!session?.user?.id;
+  const userRoles: string[] = (session?.user as { roles?: string[] } | undefined)?.roles ?? [];
 
   // Direct route aliases & redirects
   if (pathname === '/onboarding') {
@@ -68,6 +70,11 @@ export default auth(async (req) => {
   if (pathname === '/register') {
     const search = nextUrl.search;
     return NextResponse.redirect(new URL(`/sign-up${search}`, nextUrl));
+  }
+
+  if (pathname === '/dashboard') {
+    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : '/buyer/dashboard';
+    return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 
   const isPublicGetApi =
@@ -111,8 +118,6 @@ export default auth(async (req) => {
     pathname.startsWith('/site.webmanifest');
 
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
-  const isLoggedIn = !!session?.user?.id;
-  const userRoles: string[] = (session?.user as { roles?: string[] } | undefined)?.roles ?? [];
   const conciergeToken = req.cookies.get('proventa_concierge_session')?.value;
 
   // Customer auth pages: Never redirect away from /sign-in directly to dashboard.

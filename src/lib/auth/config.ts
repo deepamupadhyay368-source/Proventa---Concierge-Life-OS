@@ -28,33 +28,13 @@ const googleClientSecret =
 
 const PRIVILEGED_ROLES = new Set(['SUPER_ADMIN', 'FOUNDER', 'ADMIN']);
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  pages: {
-    signIn: '/sign-in',
-    error: '/sign-in',
-  },
-  providers: [
-    // Standard Email, Password & Proventa Authentication Key
-    Credentials({
-      id: 'credentials',
-      name: 'Credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-        accessKey: { label: 'PROVENTA Access Key', type: 'password' },
-        authenticationKey: { label: 'Authentication Key', type: 'password' },
-        securityKey: { label: 'Security Key', type: 'password' },
-      },
-      async authorize(credentials) {
+async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown> | undefined) {
         const parsed = loginSchema.safeParse(credentials);
         if (!parsed.success) return null;
         const { email, password } = parsed.data;
         const normalizedEmail = email.trim().toLowerCase();
         const authKey =
+          parsed.data.passKey ||
           parsed.data.accessKey ||
           parsed.data.authenticationKey ||
           parsed.data.securityKey;
@@ -227,17 +207,55 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           'User logged in with Authentication Key',
         );
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-          roles: user.userRoles.map((r) => r.role),
-          emailVerified: user.emailVerified,
-          passKeyVerified: true,
-          needsRegistration: false,
-        };
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    image: user.image,
+    roles: user.userRoles.map((r) => r.role),
+    emailVerified: user.emailVerified,
+    passKeyVerified: true,
+    needsRegistration: false,
+  };
+}
+
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  session: {
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  pages: {
+    signIn: '/sign-in',
+    error: '/sign-in',
+  },
+  providers: [
+    // Standard Email, Password & Proventa Pass/Access Key Provider
+    Credentials({
+      id: 'credentials',
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+        passKey: { label: 'PROVENTA Pass Key', type: 'password' },
+        accessKey: { label: 'PROVENTA Access Key', type: 'password' },
+        authenticationKey: { label: 'Authentication Key', type: 'password' },
+        securityKey: { label: 'Security Key', type: 'password' },
       },
+      authorize: authorizeCredentialsOrPasskey,
+    }),
+
+    // Dedicated Pass Key Provider to handle signIn('passkey', ...) callers
+    Credentials({
+      id: 'passkey',
+      name: 'Passkey',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        passKey: { label: 'PROVENTA Pass Key', type: 'password' },
+        accessKey: { label: 'PROVENTA Access Key', type: 'password' },
+        authenticationKey: { label: 'Authentication Key', type: 'password' },
+        securityKey: { label: 'Security Key', type: 'password' },
+      },
+      authorize: authorizeCredentialsOrPasskey,
     }),
 
     // Phone OTP Credentials Provider

@@ -66,16 +66,21 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     setError(null);
 
     try {
+      const cleanKey = passKey.trim();
       const res = await signIn('passkey', {
         email: email.trim().toLowerCase(),
-        passKey: passKey.trim(),
+        passKey: cleanKey,
+        accessKey: cleanKey,
+        securityKey: cleanKey,
         redirect: false,
         callbackUrl: safeCallback,
       });
 
       if (res?.error) {
         if (res.error === 'CredentialsSignin') {
-          setError('Invalid email or Pass Key. Please verify your credentials.');
+          setError('Invalid email or 12-digit Pass Key. Please verify your credentials.');
+        } else if (res.error === 'TooManyAttempts') {
+          setError('Too many failed attempts. Please try again after 15 minutes.');
         } else {
           setError(res.error);
         }

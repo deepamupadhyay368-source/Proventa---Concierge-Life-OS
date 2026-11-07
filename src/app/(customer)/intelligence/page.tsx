@@ -133,10 +133,10 @@ export default function IntelligencePage() {
             <span>SYSTEM 03 // INTELLIGENCE CONSOLE</span>
           </div>
           <h1 className="font-display font-bold text-3xl sm:text-4xl text-[#0F172A] tracking-tight mt-1">
-            Financial Research Workspace
+            Procurement Research Workspace
           </h1>
           <p className="font-sans text-xs text-[#475569] mt-2 max-w-xl">
-            Analytical workspace powered by 6 specialized financial intelligence agents with permission-scoped retrieval, formula citations, and strict zero-hallucination controls.
+            Analytical workspace powered by 6 specialized procurement intelligence agents with permission-scoped retrieval, formula citations, and strict zero-hallucination controls.
           </p>
         </div>
 

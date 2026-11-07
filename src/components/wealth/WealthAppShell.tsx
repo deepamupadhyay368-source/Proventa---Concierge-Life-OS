@@ -74,7 +74,7 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
   const [aiChat, setAiChat] = useState<Array<{ role: 'user' | 'assistant'; text: string; time: string; agent?: string }>>([
     {
       role: 'assistant',
-      text: 'PROVENTA FINANCIAL INTELLIGENCE // MULTI-DESK REASONING ACTIVE\n\nYour institutional desks are synchronized: Treasury, Vault Forensics, Cap-Table, Continuity, Protection, and Macro Allocation.\nSpecify your inquiry below to inspect portfolio records.',
+      text: 'PROVENTA INDUSTRIAL PROCUREMENT // MULTI-DESK REASONING ACTIVE\n\nYour institutional desks are synchronized: Treasury, Vault Forensics, Cap-Table, Continuity, Protection, and Macro Allocation.\nSpecify your inquiry below to inspect portfolio records.',
       time: '09:00 IST',
       agent: 'ORCHESTRATOR',
     },
@@ -177,7 +177,7 @@ export function WealthAppShell({ children }: { children: React.ReactNode }) {
                 {BRAND_CONFIG.name}
               </span>
               <span className="font-mono text-[9px] uppercase tracking-widest text-[#858D9B]">
-                Financial Intelligence
+                Industrial Procurement
               </span>
             </div>
           </Link>

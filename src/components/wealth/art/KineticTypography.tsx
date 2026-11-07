@@ -12,8 +12,8 @@ interface KineticHeroTitleProps {
 }
 
 export function KineticHeroTitle({
-  title = 'FINANCIAL INTELLIGENCE',
-  subtitle = 'Comprehensive financial intelligence platform for individuals and families.',
+  title = 'INDUSTRIAL PROCUREMENT',
+  subtitle = 'Comprehensive procurement intelligence platform for enterprise and industrial operations.',
   badge = 'SYS.VER // 2.4.0 — EXPERIMENTAL DIGITAL ART',
   className = '',
 }: KineticHeroTitleProps) {

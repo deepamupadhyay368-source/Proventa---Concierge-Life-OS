@@ -82,7 +82,7 @@ export default function ReportsPage() {
             <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.25em] text-[#7595FF] font-semibold print:text-neutral-600">
               <span>PROVENTA</span>
               <span>//</span>
-              <span>FINANCIAL INTELLIGENCE PLATFORM</span>
+              <span>INDUSTRIAL PROCUREMENT PLATFORM</span>
               <span>//</span>
               <span>FORM 10-A</span>
             </div>

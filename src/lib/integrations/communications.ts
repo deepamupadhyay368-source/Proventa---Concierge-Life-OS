@@ -32,11 +32,11 @@ export class DirectCommunicationsDispatcher {
           subject: subject || 'Proventa Concierge Update',
           html: `
             <div style="font-family: Georgia, serif; color: #141312; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e8e2d8; border-radius: 12px;">
-              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #8a7053; margin-bottom: 12px;">Proventa Concierge Life OS</div>
+              <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: #8a7053; margin-bottom: 12px;">PROVENTA Industrial Procurement Platform</div>
               <h2 style="font-weight: normal; margin-bottom: 16px;">${subject || 'Concierge Notice'}</h2>
               <div style="font-family: sans-serif; font-size: 14px; line-height: 1.6; color: #3a3835; white-space: pre-line;">${content}</div>
               <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #f0ede8; font-size: 11px; color: #8a7053; font-family: sans-serif;">
-                Ahmedabad Cohort 1 · Discrete Concierge Execution
+                PROVENTA — Industrial Procurement Platform
               </div>
             </div>
           `,
