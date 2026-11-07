@@ -1,7 +1,7 @@
 /**
  * PROVENTA — Single Source of Truth for Brand & Platform Configuration
- * Product Category: Industrial Procurement Platform
- * Tagline: Require. Compare. Select. Deliver.
+ * Product Category: Construction & Infrastructure Procurement Platform
+ * Tagline: ONE PLATFORM TO SOURCE, COMPARE & PROCURE.
  */
 
 
@@ -25,15 +25,15 @@ export const BRAND_COLORS = {
 export const BRAND_CONFIG = {
   name: 'PROVENTA',
   displayName: 'Proventa',
-  tagline: 'Require. Compare. Select. Deliver.',
-  supportingStatement: 'Industrial Procurement. Simplified.',
+  tagline: 'ONE PLATFORM TO SOURCE, COMPARE & PROCURE.',
+  supportingStatement: 'Connecting builders, contractors, developers, infrastructure companies and construction material suppliers through a connected digital procurement platform.',
   valueProposition: 'Connect with verified construction material suppliers, compare competitive quotations, and coordinate site delivery.',
   centralValueProposition: 'Source construction materials across Ahmedabad & Gujarat with transparent pricing, verified dealers, and tracked dispatch.',
   description:
     'PROVENTA is a digital construction procurement network connecting contractors, builders, developers, and individual buyers with verified material suppliers through competitive quotations and coordinated delivery.',
   shortDescription:
-    'PROVENTA — Industrial Procurement Platform. Require. Compare. Select. Deliver.',
-  category: 'Industrial Procurement Platform',
+    'PROVENTA — Construction & Infrastructure Procurement Platform. One Platform to Source, Compare & Procure.',
+  category: 'Construction & Infrastructure Procurement Platform',
   domain: process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in',
   supportEmail: process.env.SUPPORT_EMAIL || 'support@proventa.in',
   currency: 'INR',
@@ -92,7 +92,7 @@ export const BRAND_CONFIG = {
     privacyEmail: 'privacy@proventa.in',
   },
   seo: {
-    defaultTitle: 'PROVENTA — Industrial Procurement Platform',
+    defaultTitle: 'PROVENTA — Construction & Infrastructure Procurement Platform',
     titleTemplate: '%s | PROVENTA',
     keywords: [
       'PROVENTA',
@@ -116,6 +116,8 @@ export const CONSTRUCTION_UNITS = [
   'Cubic feet (Cu.ft)',
   'Cubic metres (Cu.m)',
   'Square feet (Sq.ft)',
+  'Running metres (R.m)',
+  'Running metres',
   'Pieces (Nos)',
   'Boxes',
   'Litres (L)',

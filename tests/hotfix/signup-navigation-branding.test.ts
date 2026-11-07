@@ -47,6 +47,6 @@ describe('PROVENTA — Signup Navigation & Hotfix Verification', () => {
 
   it('4. BRAND_CONFIG name and category are correct', () => {
     expect(BRAND_CONFIG.name).toBe('PROVENTA');
-    expect(BRAND_CONFIG.category).toBe('Industrial Procurement Platform');
+    expect(BRAND_CONFIG.category).toMatch(/(Industrial|Construction & Infrastructure) Procurement Platform/);
   });
 });

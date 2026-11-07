@@ -54,7 +54,7 @@ export function MarketingFooter() {
               </span>
             </div>
             <p className="text-sm text-[#A8ADB7] max-w-sm leading-relaxed">
-              Industrial Procurement Platform. A smarter way to source construction and infrastructure materials, compare supplier quotations and coordinate deliveries across India.
+              Construction & Infrastructure Procurement Platform. Connecting builders, contractors, developers, infrastructure companies and construction material suppliers through a connected digital procurement platform.
             </p>
             <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-mono text-[#A8ADB7]">
               <span className="flex items-center gap-1.5 text-[#F1F2F4]">

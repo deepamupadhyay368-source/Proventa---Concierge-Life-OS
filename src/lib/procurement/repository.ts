@@ -1,3 +1,4 @@
+import { evaluateUnitCompatibility } from '@/lib/procurement/unit-normalizer';
 /**
  * PROVENTA — Industrial Procurement Platform
  * Repository & Persistence Engine
@@ -1196,6 +1197,30 @@ export function compareQuotationsForRfq(rfqId: string): QuotationComparisonMatri
       fastestDeliveryDate: '',
       highestRatedSupplierId: '',
     };
+  }
+
+  // Enrich itemized quotations with spec & unit compatibility evaluation
+  for (const q of quotations) {
+    for (let i = 0; i < q.items.length; i++) {
+      const qItem = q.items[i];
+      const rfqItem = rfq.items[i] || rfq.items.find(ri => ri.id === qItem.itemId || ri.materialName.toLowerCase() === qItem.materialName.toLowerCase());
+      if (rfqItem) {
+        const comp = evaluateUnitCompatibility(rfqItem.unit, qItem.unit);
+        if (comp.isCompatible) {
+          if (comp.requiresConversion) {
+            qItem.specCompatibilityStatus = 'COMPATIBLE_CONVERTED';
+            qItem.normalizedUnitPrice = Math.round(qItem.unitPrice * comp.conversionFactor);
+            qItem.compatibilityNotes = comp.notes;
+          } else {
+            qItem.specCompatibilityStatus = 'COMPATIBLE_EXACT';
+            qItem.normalizedUnitPrice = qItem.unitPrice;
+          }
+        } else {
+          qItem.specCompatibilityStatus = 'INCOMPATIBLE';
+          qItem.compatibilityNotes = comp.notes;
+        }
+      }
+    }
   }
 
   let lowestPrice = quotations[0].grandTotal;

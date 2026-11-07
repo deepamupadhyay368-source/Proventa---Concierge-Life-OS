@@ -1,3 +1,4 @@
+import { normalizeCategorySlug } from '@/lib/procurement/categories';
 /**
  * PROVENTA — Industrial Procurement Platform
  * Supplier Intelligence & Discovery Engine Service Layer

@@ -52,6 +52,10 @@ export interface ConstructionRfqItem {
   subcategoryName?: string;
   materialName: string;
   gradeOrSpec?: string;
+  dimensions?: string;
+  thickness?: string;
+  technicalSpecifications?: string;
+  qualityStandards?: string;
   brandPreference?: string;
   quantity: number;
   unit: ConstructionUnit;
@@ -68,6 +72,8 @@ export interface SiteDeliveryDetails {
   siteContactPhone: string;
   siteAccessNotes?: string;
   vehicleAccessibility: '10-Wheeler Truck' | 'Tata Ace / Small Truck' | 'Transit Mixer (RMC)' | 'Trailer Accessible' | 'Standard Access';
+  deliverySchedule?: string;
+  unloadingRequirements?: string;
 }
 
 export interface ConstructionRfq {
@@ -78,7 +84,7 @@ export interface ConstructionRfq {
   buyerName: string;
   buyerEmail: string;
   buyerPhone?: string;
-  buyerRole: 'CONTRACTOR' | 'BUILDER' | 'INDIVIDUAL_BUYER' | 'CONSTRUCTION_COMPANY';
+  buyerRole: 'CONTRACTOR' | 'BUILDER' | 'INDIVIDUAL_BUYER' | 'CONSTRUCTION_COMPANY' | 'REAL_ESTATE_DEVELOPER' | 'CIVIL_CONTRACTOR' | 'INFRASTRUCTURE_CONTRACTOR' | 'INDUSTRIAL_PROJECT_COMPANY';
   title: string;
   projectType: 'RESIDENTIAL' | 'COMMERCIAL' | 'INFRASTRUCTURE' | 'INDUSTRIAL' | 'RENOVATION';
   items: ConstructionRfqItem[];
@@ -112,6 +118,9 @@ export interface ItemizedQuotationBreakdown {
   lineTotal: number; // itemSubtotal + gstAmount
   brandSupplied: string;
   technicalNotes?: string;
+  specCompatibilityStatus?: 'COMPATIBLE_EXACT' | 'COMPATIBLE_CONVERTED' | 'INCOMPATIBLE';
+  normalizedUnitPrice?: number;
+  compatibilityNotes?: string;
 }
 
 export interface ConstructionQuotation {

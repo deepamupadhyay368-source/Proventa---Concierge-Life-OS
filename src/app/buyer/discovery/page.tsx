@@ -253,13 +253,17 @@ export default function BuyerSupplierDiscoveryPage() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] text-xs p-2 rounded-sm outline-none focus:border-[#C66A42]"
               >
-                <option value="">All Categories</option>
-                <option value="building-materials">Building Materials & Steel</option>
-                <option value="structural-steel">Structural Steel & Sections</option>
-                <option value="cement">Cement & Aggregates</option>
-                <option value="concrete-rmc">Ready-Mix Concrete (RMC)</option>
-                <option value="electrical">Electrical & High-Tension Cables</option>
-                <option value="plumbing">Plumbing & Industrial Pipes</option>
+                <option value="">All Categories (10 Divisions)</option>
+                <option value="steel-metals">Steel & Metals</option>
+                <option value="cement-concrete">Cement & Concrete</option>
+                <option value="building-materials">Building Materials</option>
+                <option value="pipes-plumbing">Pipes & Plumbing</option>
+                <option value="electrical-materials">Electrical Materials</option>
+                <option value="finishing-materials">Finishing Materials</option>
+                <option value="sanitary-bathroom">Sanitary & Bathroom</option>
+                <option value="construction-chemicals">Construction Chemicals</option>
+                <option value="equipment-formwork">Construction Equipment & Formwork</option>
+                <option value="infrastructure-materials">Infrastructure Materials</option>
               </select>
             </div>
 
@@ -273,14 +277,25 @@ export default function BuyerSupplierDiscoveryPage() {
                 onChange={(e) => setSelectedDistrict(e.target.value)}
                 className="w-full bg-[#191B20] border border-[#414957] text-[#FFFFFF] text-xs p-2 rounded-sm outline-none focus:border-[#C66A42]"
               >
-                <option value="">All Districts</option>
-                <option value="Ahmedabad">Ahmedabad Hub & GIDC</option>
-                <option value="Gandhinagar">Gandhinagar Metro Corridor</option>
-                <option value="Sanand">Sanand Industrial Belt</option>
-                <option value="Changodar">Changodar Logistics Zone</option>
-                <option value="Odhav">GIDC Odhav Central</option>
-                <option value="Kheda">Kheda & Central Gujarat</option>
-                <option value="Dholera">Dholera SIR Special Zone</option>
+                <option value="">All Hubs & Districts</option>
+                <optgroup label="Priority Regional Hubs">
+                  <option value="Ahmedabad">Ahmedabad Hub</option>
+                  <option value="Naroda">Naroda GIDC Zone</option>
+                  <option value="Vatva">Vatva Industrial Zone</option>
+                  <option value="Changodar">Changodar Logistics Corridor</option>
+                  <option value="Sanand">Sanand Industrial Belt</option>
+                </optgroup>
+                <optgroup label="Gujarat Expansion">
+                  <option value="Gandhinagar">Gandhinagar</option>
+                  <option value="Surat">Surat</option>
+                  <option value="Vadodara">Vadodara</option>
+                  <option value="Rajkot">Rajkot</option>
+                  <option value="Bhavnagar">Bhavnagar</option>
+                  <option value="Jamnagar">Jamnagar</option>
+                  <option value="Bharuch">Bharuch / Dahej</option>
+                  <option value="PAN-Gujarat">PAN-Gujarat Serviceable</option>
+                  <option value="PAN-India">PAN-India Delivery</option>
+                </optgroup>
               </select>
             </div>
 
@@ -296,9 +311,11 @@ export default function BuyerSupplierDiscoveryPage() {
               >
                 <option value="">All Classifications</option>
                 <option value="Manufacturer">Manufacturer</option>
-                <option value="Distributor">Primary Distributor</option>
-                <option value="Dealer">Authorized Dealer</option>
-                <option value="Wholesaler">Stockist & Wholesaler</option>
+                <option value="Distributor">Distributor</option>
+                <option value="Wholesaler">Wholesaler</option>
+                <option value="Dealer">Dealer</option>
+                <option value="Fabricator">Fabricator</option>
+                <option value="Specialized supplier">Specialized supplier</option>
               </select>
             </div>
           </div>

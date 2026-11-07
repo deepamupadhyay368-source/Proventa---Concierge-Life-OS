@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { CONSTRUCTION_UNITS, type ConstructionUnit } from '@/lib/brand';
+import { CATEGORY_SELECT_OPTIONS } from '@/lib/procurement/categories';
 
 interface MaterialItemInput {
   categorySlug: string;
@@ -40,7 +41,7 @@ function RfqCreateForm() {
   const searchParams = useSearchParams();
 
   const [title, setTitle] = useState('');
-  const [buyerRole, setBuyerRole] = useState<'CONTRACTOR' | 'BUILDER' | 'INDIVIDUAL_BUYER' | 'CONSTRUCTION_COMPANY'>('CONTRACTOR');
+  const [buyerRole, setBuyerRole] = useState<'CONTRACTOR' | 'BUILDER' | 'INDIVIDUAL_BUYER' | 'CONSTRUCTION_COMPANY' | 'REAL_ESTATE_DEVELOPER' | 'CIVIL_CONTRACTOR' | 'INFRASTRUCTURE_CONTRACTOR' | 'INDUSTRIAL_PROJECT_COMPANY'>('CONTRACTOR');
   const [projectType, setProjectType] = useState<'RESIDENTIAL' | 'COMMERCIAL' | 'INFRASTRUCTURE' | 'INDUSTRIAL' | 'RENOVATION'>('RESIDENTIAL');
   const [urgency, setUrgency] = useState<'STANDARD' | 'URGENT' | 'FLEXIBLE'>('STANDARD');
   const [requiredDate, setRequiredDate] = useState('');

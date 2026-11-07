@@ -57,7 +57,7 @@ describe('PROVENTA — Production Readiness & Operational Reliability', () => {
 
   let testRfq: ReturnType<typeof createConstructionRfq>;
   let winningQuote: ReturnType<typeof submitConstructionQuotation>;
-  let po: ReturnType<typeof selectQuotationAndCreatePoAtomic> extends Promise<infer U> ? U['order'] : any;
+  let po: any;
 
   beforeEach(async () => {
     // Create baseline RFQ
@@ -292,7 +292,7 @@ describe('PROVENTA — Production Readiness & Operational Reliability', () => {
           pincode: '380058',
           siteContactPerson: 'Sanjay Varma',
           siteContactPhone: '+91 98250 11999',
-          vehicleAccessibility: 'Transit Mixer',
+          vehicleAccessibility: 'Transit Mixer (RMC)',
         },
         requiredDeliveryDate: '2026-12-20',
       });

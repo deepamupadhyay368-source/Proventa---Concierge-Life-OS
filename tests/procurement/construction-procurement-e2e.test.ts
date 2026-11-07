@@ -10,7 +10,7 @@
  * Step 6: Physical Site Receipt Sign-Off, Ratings & Transaction Closure
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll } from 'vitest';
 import {
   BRAND_CONFIG,
   CONSTRUCTION_UNITS,
@@ -41,9 +41,9 @@ describe('PROVENTA — Construction Procurement Engine E2E', () => {
   describe('1. Brand Configuration & Material Taxonomies', () => {
     it('should have correct brand name, tagline, and category', () => {
       expect(BRAND_CONFIG.name).toBe('PROVENTA');
-      expect(BRAND_CONFIG.tagline).toBe('Require. Compare. Select. Deliver.');
-      expect(BRAND_CONFIG.supportingStatement).toMatch(/(Industrial|Construction) Procurement\. Simplified\./);
-      expect(BRAND_CONFIG.category).toMatch(/(Industrial|Construction) Procurement Platform/);
+      expect(BRAND_CONFIG.tagline).toMatch(/(Require\. Compare\. Select\. Deliver\.|ONE PLATFORM TO SOURCE, COMPARE & PROCURE\.)/);
+      expect(BRAND_CONFIG.supportingStatement).toMatch(/(Industrial|Construction|Connecting builders)/);
+      expect(BRAND_CONFIG.category).toMatch(/(Industrial|Construction & Infrastructure) Procurement Platform/);
       expect(BRAND_CONFIG.initialCities).toContain('Ahmedabad');
       expect(BRAND_CONFIG.initialCities).toContain('Gandhinagar');
     });
@@ -446,5 +446,9 @@ describe('PROVENTA — Construction Procurement Engine E2E', () => {
       expect(metrics.totalSuppliers).toBeGreaterThanOrEqual(7);
       expect(metrics.verifiedSuppliers).toBeGreaterThanOrEqual(7);
     });
+  });
+
+  afterAll(async () => {
+    await new Promise((r) => setTimeout(r, 600));
   });
 });

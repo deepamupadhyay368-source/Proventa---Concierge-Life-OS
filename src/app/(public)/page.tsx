@@ -63,58 +63,94 @@ const CAPABILITIES = [
 
 const CATEGORIES = [
   {
-    slug: 'building-materials',
-    name: 'Building materials',
-    subtitle: 'Cement, TMT Steel, Sand, Aggregates & AAC Blocks',
+    slug: 'steel-metals',
+    name: 'Steel & Metals',
+    subtitle: 'Primary Fe 500D / 550D TMT Rebars, Structural Beams & Plates',
+    image: 'https://images.unsplash.com/photo-1535813547-99c456a41d4a?auto=format&fit=crop&w=1200&q=80',
+    description: 'Bulk mill dispatch of primary TMT steel bars, structural sections, MS plates, and binding wire.',
+    standards: 'IS 1786:2008 · IS 2062:2011 · IS 280:2006',
+    unit: 'Metric tonnes (MT)',
+  },
+  {
+    slug: 'cement-concrete',
+    name: 'Cement & Concrete',
+    subtitle: 'OPC 43/53, PPC Cement, Bulk Bulkers & Transit RMC',
     image: 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?auto=format&fit=crop&w=1200&q=80',
-    description: 'Bulk supply of OPC/PPC cement and Fe 550D primary steel rebars with mill test certificates.',
-    standards: 'IS 1786:2008 · IS 269:2015 · IS 383:2016',
-    unit: 'Metric tonnes (MT) / Bags',
+    description: 'Fresh factory direct 50kg bags, bulk tankers, and computerized transit-mixer ready-mix concrete.',
+    standards: 'IS 269:2015 · IS 1489:2015 · IS 4926:2003',
+    unit: 'Bags / Metric tonnes (MT)',
   },
   {
-    slug: 'electrical',
-    name: 'Electrical',
-    subtitle: 'Industrial Cables, Switchgear, Conduit & Panels',
-    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
-    description: 'FR-LSH copper wires, armoured power cables, distribution boards, and modular accessories.',
-    standards: 'IS 694:2010 · IS 1554:1988 · IEC 60947',
-    unit: 'Metres / Units',
+    slug: 'building-materials',
+    name: 'Building Materials',
+    subtitle: 'AAC Lightweight Blocks, Bricks, Sand & Basalt Aggregates',
+    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=1200&q=80',
+    description: 'Precision AAC masonry blocks, fly-ash bricks, washed river sand, and crushed blue metal aggregates.',
+    standards: 'IS 2185 Part 3 · IS 1077 · IS 383:2016',
+    unit: 'Cubic metres (Cu.m) / MT',
   },
   {
-    slug: 'plumbing',
-    name: 'Plumbing',
-    subtitle: 'CPVC, UPVC, SWR Pipes, Fittings & Commercial Pumps',
+    slug: 'pipes-plumbing',
+    name: 'Pipes & Plumbing',
+    subtitle: 'CPVC, UPVC, HDPE, SWR & Heavy MS Piping Systems',
     image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
-    description: 'Pressure-rated piping networks, commercial booster pumps, overhead storage, and drainage fittings.',
-    standards: 'IS 15778:2007 · IS 4985:2000 · ASTM D2846',
-    unit: 'Running Metres / Pieces',
+    description: 'Pressure-rated piping networks, commercial valves, drainage systems, and water storage solutions.',
+    standards: 'IS 15778 · IS 4984 · IS 4985 · ASTM D2846',
+    unit: 'Running metres / Pieces',
   },
   {
-    slug: 'tiles-flooring',
-    name: 'Tiles and flooring',
-    subtitle: 'Full-Body Vitrified, Granite Slabs & Kota Stone',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
-    description: 'Double-charge vitrified floor tiles, commercial wall claddings, polished granite, and tactile pavers.',
-    standards: 'IS 15622:2017 · ISO 13006 Group BIa',
-    unit: 'Square feet / Boxes',
+    slug: 'electrical-materials',
+    name: 'Electrical Materials',
+    subtitle: 'FRLSH Copper Wires, LT/HT Armoured Cables & Switchgear',
+    image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80',
+    description: 'Commercial wiring, underground armoured cables, distribution boards, and modular accessories.',
+    standards: 'IS 694:2010 · IS 7098 · IEC 60947 · IS 3854',
+    unit: 'Running metres / Units',
   },
   {
     slug: 'finishing-materials',
-    name: 'Finishing and chemicals',
-    subtitle: 'Commercial Waterproofing, Putty & Industrial Epoxy',
-    image: 'https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=1200&q=80',
-    description: 'Elastomeric membranes, crystalline water repellents, wall putty, and high-traffic floor coatings.',
-    standards: 'ASTM C836 · IS 2645:2003 · Green Pro',
-    unit: 'Litres / 40kg Bags',
+    name: 'Finishing Materials',
+    subtitle: 'Vitrified Tiles, Natural Marble, Granite & Weathercoat Paint',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+    description: 'Double-charge floor tiles, Italian marble, polished granite countertops, and architectural paint.',
+    standards: 'IS 15622:2017 · ISO 13006 · IS 15489',
+    unit: 'Square feet / Boxes',
   },
   {
-    slug: 'doors-windows',
-    name: 'Doors, windows and hardware',
-    subtitle: 'UPVC Profiles, Aluminium Systems & Grade 304 Locks',
-    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
-    description: 'Double-glazed architectural aluminium windows, fire-rated flush doors, and architectural ironmongery.',
-    standards: 'IS 1948:1961 · BS 476 Part 22 · EN 12209',
-    unit: 'Square Metres / Sets',
+    slug: 'sanitary-bathroom',
+    name: 'Sanitary & Bathroom',
+    subtitle: 'Vitreous China Sanitaryware, Brass Faucets & CP Fittings',
+    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80',
+    description: 'Commercial wall-hung closets, basin mixers, showers, sensor taps, and plumbing brassware.',
+    standards: 'IS 2556 · IS 8931 · EN 997',
+    unit: 'Pieces (Nos) / Sets',
+  },
+  {
+    slug: 'construction-chemicals',
+    name: 'Construction Chemicals',
+    subtitle: 'Polymer Waterproofing, Tile Adhesives & Joint Sealants',
+    image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80',
+    description: 'Elastomeric waterproofing membranes, polymer tile adhesives, admixtures, and structural sealants.',
+    standards: 'ASTM C836 · IS 2645 · IS 15477 · ASTM C920',
+    unit: 'Litres (L) / Bags',
+  },
+  {
+    slug: 'equipment-formwork',
+    name: 'Equipment & Formwork',
+    subtitle: 'Modular Cuplock Scaffolding, Steel Props & Shuttering Ply',
+    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
+    description: 'Tubular scaffolding, telescopic props, film-faced shuttering plywood, and formwork accessories.',
+    standards: 'IS 2750 · IS 4990:2011 · EN 12810',
+    unit: 'Pieces (Nos) / Sq.ft',
+  },
+  {
+    slug: 'infrastructure-materials',
+    name: 'Infrastructure Materials',
+    subtitle: 'Paving Bitumen, Precast Concrete Drains & DI Pipes',
+    image: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1200&q=80',
+    description: 'VG-30/VG-40 road bitumen, precast stormwater drain channels, DI K9 pipes, and crash barriers.',
+    standards: 'IRC:SP:84 · IS 73:2013 · IS 8329 · IS 458',
+    unit: 'Metric tonnes (MT) / Rm',
   },
 ];
 
@@ -185,10 +221,10 @@ export default function HomePage() {
             {/* Main Headline */}
             <div className="space-y-4">
               <h1 className="font-heading text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-[#FFFFFF] leading-[1.02]">
-                Where Industry Meets Opportunity.
+                Where Construction Meets Procurement.
               </h1>
               <p className="text-base sm:text-lg text-[#A8ADB7] max-w-2xl leading-relaxed">
-                Discover verified businesses, source materials, compare competitive quotations and manage purchasing through one connected platform.
+                Source construction materials, discover relevant suppliers, compare competitive quotations and manage procurement through one connected platform.
               </p>
             </div>
 
@@ -241,14 +277,14 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-6 lg:px-8 space-y-6">
           <div className="inline-flex items-center gap-2 text-xs font-mono font-medium text-[#C66A42] uppercase tracking-wider">
             <span className="w-1.5 h-1.5 bg-[#C66A42]" />
-            <span>CORPORATE CAPABILITY</span>
+            <span>CONSTRUCTION & INFRASTRUCTURE PROCUREMENT</span>
           </div>
           <h2 className="font-heading text-3xl sm:text-5xl font-black uppercase tracking-tight text-[#FFFFFF] leading-tight">
-            ENGINEERING BETTER PROCUREMENT.
+            ONE PLATFORM TO SOURCE, COMPARE & PROCURE.
           </h2>
           <div className="w-16 h-0.5 bg-[#414957] mx-auto" />
           <p className="text-base sm:text-lg text-[#A8ADB7] max-w-2xl mx-auto leading-relaxed">
-            PROVENTA connects construction requirements with material suppliers through structured sourcing, transparent quotations and coordinated deliveries.
+            Connecting builders, contractors, developers, infrastructure companies and construction material suppliers through a connected digital procurement platform.
           </p>
         </div>
       </section>

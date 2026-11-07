@@ -133,7 +133,7 @@ export default function BusinessOnboardingWizardPage() {
 
   // Step 5: Role-Specific Onboarding
   // Buyer specifics
-  const [industrySegment, setIndustrySegment] = useState('Commercial & Infrastructure');
+  const [industrySegment, setIndustrySegment] = useState('Civil contractor');
   const [selectedBuyerCategories, setSelectedBuyerCategories] = useState<string[]>([
     'Structural Steel & TMT Rebars',
     'Cement & Ready Mix Concrete (RMC)',
