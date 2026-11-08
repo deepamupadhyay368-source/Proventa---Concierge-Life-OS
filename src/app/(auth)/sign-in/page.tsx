@@ -12,7 +12,7 @@ function getAuthErrorMessage(errorCode?: string): string | null {
   if (!errorCode) return null;
   switch (errorCode) {
     case 'PassKeyRequired':
-      return 'Existing PROVENTA account detected. For your security, please sign in with your registered email and 12-digit Pass Key.';
+      return 'Please enter your registered email and 12-digit passkey to sign in.';
     case 'SessionExpired':
       return 'Your session has expired. Please authenticate with your 12-digit Pass Key.';
     case 'AccessDenied':

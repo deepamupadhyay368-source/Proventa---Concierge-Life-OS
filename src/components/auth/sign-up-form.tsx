@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
+import { signIn, useSession, signOut } from 'next-auth/react';
+import Link from 'next/link';
 import { registerSchema } from '@/lib/validation/schemas';
 import {
   Loader2,
@@ -17,6 +18,7 @@ import {
   Layers,
   Building2,
   ShieldCheck,
+  LogOut,
 } from 'lucide-react';
 import type { z } from 'zod';
 
@@ -47,23 +49,24 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
 
+  // Custom vs auto-generated passkey
+  const [useCustomKey, setUseCustomKey] = useState(false);
+  const [customKey, setCustomKey] = useState('');
+  const [confirmKey, setConfirmKey] = useState('');
+
   // Key display success state
   const [generatedAuthKey, setGeneratedAuthKey] = useState<string | null>(null);
   const [credentials, setCredentials] = useState<{
     email: string;
     password: string;
+    passKey?: string;
   } | null>(null);
   const [copied, setCopied] = useState(false);
   const [keyConfirmed, setKeyConfirmed] = useState(false);
   const [entering, setEntering] = useState(false);
 
-  // If already logged in, redirect to destination
-  useEffect(() => {
-    if (sessionStatus === 'authenticated' && session?.user?.id && !generatedAuthKey) {
-      const destination = callbackUrl || '/onboarding/business';
-      router.replace(destination);
-    }
-  }, [sessionStatus, session, callbackUrl, router, generatedAuthKey]);
+  // Terms acceptance
+  const [termsAccepted, setTermsAccepted] = useState(true);
 
   const {
     register,
@@ -73,10 +76,51 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
     resolver: zodResolver(registerSchema),
     defaultValues: {
       accountType: normalizedInitialRole,
+      termsConsent: true,
     },
   });
 
+  const handleCustomKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 12);
+    let formatted = digits;
+    if (digits.length > 8) {
+      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+    } else if (digits.length > 4) {
+      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}`;
+    }
+    setCustomKey(formatted);
+  };
+
+  const handleConfirmKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/[^0-9]/g, '').slice(0, 12);
+    let formatted = digits;
+    if (digits.length > 8) {
+      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 12)}`;
+    } else if (digits.length > 4) {
+      formatted = `${digits.slice(0, 4)}-${digits.slice(4, 8)}`;
+    }
+    setConfirmKey(formatted);
+  };
+
   const onSubmit = async (data: FormData) => {
+    if (!termsAccepted) {
+      setError('Please accept the PROVENTA Terms of Service and Privacy Policy to proceed.');
+      return;
+    }
+
+    if (useCustomKey) {
+      const cleanCustom = customKey.replace(/[^0-9]/g, '');
+      const cleanConfirm = confirmKey.replace(/[^0-9]/g, '');
+      if (cleanCustom.length !== 12) {
+        setError('Your custom passkey must be exactly 12 numeric digits.');
+        return;
+      }
+      if (cleanCustom !== cleanConfirm) {
+        setError('12-digit passkeys do not match. Please verify both entries.');
+        return;
+      }
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -85,20 +129,26 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: data.name,
+          businessName: data.businessName,
           email: data.email,
           phone: data.phone,
           password: data.password,
           confirmPassword: data.confirmPassword,
+          passKey: useCustomKey ? customKey : undefined,
+          confirmPassKey: useCustomKey ? confirmKey : undefined,
           accountType,
+          termsConsent: true,
         }),
       });
       const json = await res.json();
       if (res.ok) {
-        if (json.authenticationKey) {
-          setGeneratedAuthKey(json.authenticationKey);
+        const returnedKey = json.authenticationKey || json.passKey;
+        if (returnedKey) {
+          setGeneratedAuthKey(returnedKey);
           setCredentials({
             email: data.email.trim().toLowerCase(),
             password: data.password,
+            passKey: returnedKey,
           });
         } else {
           const dest = callbackUrl || `/onboarding/business?role=${accountType}`;
@@ -125,9 +175,10 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
     if (!credentials || !keyConfirmed) return;
     setEntering(true);
     try {
-      const res = await signIn('credentials', {
+      const res = await signIn('passkey', {
         email: credentials.email,
-        password: credentials.password,
+        passKey: credentials.passKey || '',
+        passkey: credentials.passKey || '',
         redirect: false,
       });
 
@@ -138,9 +189,20 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
         router.push(destination);
         router.refresh();
       } else {
-        router.push(
-          `/sign-in?registered=true&callbackUrl=${encodeURIComponent(destination)}`,
-        );
+        // Fallback with credentials provider
+        const credRes = await signIn('credentials', {
+          email: credentials.email,
+          password: credentials.password,
+          redirect: false,
+        });
+        if (credRes?.ok) {
+          router.push(destination);
+          router.refresh();
+        } else {
+          router.push(
+            `/sign-in?registered=true&callbackUrl=${encodeURIComponent(destination)}`,
+          );
+        }
       }
     } catch {
       const destination =
@@ -170,17 +232,6 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
     }
   };
 
-  if (sessionStatus === 'authenticated' && session?.user?.id && !generatedAuthKey) {
-    return (
-      <div className="p-6 bg-[#252B38] border border-[#414957] text-center space-y-4 rounded-sm">
-        <div className="w-8 h-8 border-2 border-[#C66A42] border-t-transparent animate-spin rounded-full mx-auto" />
-        <p className="text-xs font-mono text-[#A8ADB7] uppercase tracking-wider">
-          Already signed in as {session.user.email}. Navigating to business onboarding...
-        </p>
-      </div>
-    );
-  }
-
   if (generatedAuthKey) {
     return (
       <div className="space-y-6">
@@ -194,11 +245,11 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
               YOUR 12-DIGIT PROVENTA PASS KEY
             </h2>
             <p className="text-xs text-[#A8ADB7]">
-              Your private 12-digit numeric Pass Key. You will enter this key alongside your email whenever you sign in.
+              Your permanent 12-digit numeric Pass Key. You will enter this key alongside your registered email whenever you sign in.
             </p>
           </div>
 
-          <div className="p-3 bg-[#191B20] border border-[#414957] font-mono text-sm tracking-wider break-all text-[#C66A42] select-all font-bold rounded-sm">
+          <div className="p-3 bg-[#191B20] border border-[#414957] font-mono text-base tracking-widest break-all text-[#C66A42] select-all font-bold rounded-sm">
             {generatedAuthKey}
           </div>
 
@@ -256,6 +307,36 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* Existing session notification with choice to continue or register new business */}
+      {sessionStatus === 'authenticated' && session?.user?.email && (
+        <div className="p-3.5 bg-[#252B38] border border-[#536B88] rounded-sm flex items-center justify-between gap-3 text-xs">
+          <div className="space-y-0.5">
+            <span className="font-mono text-[#A8ADB7] text-[10px] uppercase tracking-wider block">
+              Active Session Detected
+            </span>
+            <span className="text-[#FFFFFF] font-semibold">
+              Signed in as {session.user.email}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href={callbackUrl || `/onboarding/business?role=${accountType}`}
+              className="px-2.5 py-1.5 bg-[#536B88] text-white hover:bg-[#435770] font-mono text-[10px] uppercase font-bold rounded-sm transition-colors"
+            >
+              Resume Onboarding
+            </Link>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: '/sign-up' })}
+              className="px-2.5 py-1.5 bg-[#191B20] text-[#A8ADB7] hover:text-white border border-[#414957] font-mono text-[10px] uppercase rounded-sm transition-colors flex items-center gap-1"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div
           role="alert"
@@ -268,7 +349,7 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
       {/* Account Type Selection */}
       <div className="space-y-2">
         <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
-          Select Your Account Type
+          1. Select Your Platform Role
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <button
@@ -353,7 +434,7 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
           type="button"
           onClick={handleGoogleSignUp}
           disabled={!!oauthLoading}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 border border-[#414957] bg-[#252B38] hover:bg-[#191B20] text-xs font-heading font-bold uppercase tracking-wider text-[#FFFFFF] transition-all shadow-sm disabled:opacity-50 rounded-sm"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-[#414957] bg-[#252B38] hover:bg-[#191B20] text-xs font-heading font-bold uppercase tracking-wider text-[#FFFFFF] transition-all shadow-sm disabled:opacity-50 rounded-sm"
         >
           {oauthLoading === 'google' ? (
             <Loader2 className="h-4 w-4 animate-spin text-[#FFFFFF]" />
@@ -384,17 +465,19 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
       <div className="relative flex items-center justify-center">
         <div className="border-t border-[#414957] w-full" />
         <span className="bg-[#303746] px-3 font-mono text-[10px] uppercase tracking-widest text-[#A8ADB7] absolute">
-          Or create account with email
+          Or Register with Business Details
         </span>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Full Name */}
         <div className="space-y-1">
           <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
-            Full Name
+            Full Name <span className="text-[#C66A42]">*</span>
           </label>
           <input
             {...register('name')}
+            name="name"
             type="text"
             placeholder="Pravin Patel"
             className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
@@ -404,12 +487,31 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
           )}
         </div>
 
+        {/* Business Name */}
         <div className="space-y-1">
           <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
-            Work Email Address
+            Business / Enterprise Name
+          </label>
+          <input
+            {...register('businessName')}
+            name="businessName"
+            type="text"
+            placeholder="Patel Infrastructure & Civil Projects Ltd"
+            className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
+          />
+          {errors.businessName && (
+            <p className="text-xs text-[#D9534F]">{errors.businessName.message}</p>
+          )}
+        </div>
+
+        {/* Business Email */}
+        <div className="space-y-1">
+          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
+            Business Email Address <span className="text-[#C66A42]">*</span>
           </label>
           <input
             {...register('email')}
+            name="email"
             type="email"
             placeholder="pravin@patelinfra.in"
             className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
@@ -419,12 +521,14 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
           )}
         </div>
 
+        {/* Mobile Number */}
         <div className="space-y-1">
           <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
             Mobile Number (Optional)
           </label>
           <input
             {...register('phone')}
+            name="phone"
             type="tel"
             placeholder="+91 98765 43210"
             className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm font-mono"
@@ -434,40 +538,115 @@ export function SignUpForm({ callbackUrl, initialRole }: SignUpFormProps) {
           )}
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
-            Password
-          </label>
-          <input
-            {...register('password')}
-            type="password"
-            placeholder="••••••••••••"
-            className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
-          />
-          {errors.password && (
-            <p className="text-xs text-[#D9534F]">{errors.password.message}</p>
+        {/* Authentication Credential Mode */}
+        <div className="space-y-3 pt-2 border-t border-[#414957]/60">
+          <div className="flex items-center justify-between">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
+              12-Digit Pass Key Credential
+            </label>
+            <button
+              type="button"
+              onClick={() => setUseCustomKey(!useCustomKey)}
+              className="text-[10px] font-mono uppercase text-[#C66A42] hover:underline font-bold"
+            >
+              {useCustomKey ? 'Auto-Generate Key' : 'Enter Custom Key'}
+            </button>
+          </div>
+
+          {!useCustomKey ? (
+            <div className="p-3 bg-[#191B20] border border-[#414957] rounded-sm text-xs text-[#A8ADB7] flex items-center gap-2.5">
+              <KeyRound className="w-4 h-4 text-[#536B88] shrink-0" />
+              <span>A secure 12-digit numeric Pass Key will be automatically created and presented upon registration.</span>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={customKey}
+                  onChange={handleCustomKeyChange}
+                  placeholder="1234-5678-9012"
+                  maxLength={14}
+                  className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm font-mono tracking-widest text-[#FFFFFF] placeholder-[#A8ADB7] rounded-sm"
+                />
+              </div>
+              <div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={confirmKey}
+                  onChange={handleConfirmKeyChange}
+                  placeholder="Confirm 12-Digit Key"
+                  maxLength={14}
+                  className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm font-mono tracking-widest text-[#FFFFFF] placeholder-[#A8ADB7] rounded-sm"
+                />
+              </div>
+            </div>
           )}
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
-            Confirm Password
+        {/* Account Password */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="space-y-1">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
+              Password <span className="text-[#C66A42]">*</span>
+            </label>
+            <input
+              {...register('password')}
+              name="password"
+              type="password"
+              placeholder="••••••••••••"
+              className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
+            />
+            {errors.password && (
+              <p className="text-xs text-[#D9534F]">{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-1">
+            <label className="block text-[11px] font-mono uppercase tracking-wider text-[#FFFFFF] font-bold">
+              Confirm Password <span className="text-[#C66A42]">*</span>
+            </label>
+            <input
+              {...register('confirmPassword')}
+              name="confirmPassword"
+              type="password"
+              placeholder="••••••••••••"
+              className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
+            />
+            {errors.confirmPassword && (
+              <p className="text-xs text-[#D9534F]">{errors.confirmPassword.message}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Terms of Service & Privacy Policy Acceptance */}
+        <div className="pt-2">
+          <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#A8ADB7]">
+            <input
+              type="checkbox"
+              checked={termsAccepted}
+              onChange={(e) => setTermsAccepted(e.target.checked)}
+              className="mt-0.5 h-4 w-4 accent-[#C66A42]"
+            />
+            <span>
+              I accept the PROVENTA{' '}
+              <Link href="/terms" target="_blank" className="text-[#C66A42] hover:underline font-semibold">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link href="/privacy" target="_blank" className="text-[#C66A42] hover:underline font-semibold">
+                Privacy Policy
+              </Link>.
+            </span>
           </label>
-          <input
-            {...register('confirmPassword')}
-            type="password"
-            placeholder="••••••••••••"
-            className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
-          />
-          {errors.confirmPassword && (
-            <p className="text-xs text-[#D9534F]">{errors.confirmPassword.message}</p>
-          )}
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-[#C66A42] text-white hover:bg-[#B35A33] font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50 rounded-sm shadow-sm"
+          className="w-full py-3.5 bg-[#C66A42] text-white hover:bg-[#B35A33] font-heading font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 disabled:opacity-50 rounded-sm shadow-sm"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />

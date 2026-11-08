@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
 
     const {
       name,
+      businessName,
       email,
       password,
       passKey,
@@ -173,14 +174,15 @@ export async function POST(req: NextRequest) {
       void createSecurityEvent('AUTH_KEY_CREATED', { userId: user.id });
     }
 
-    // Initialize business draft with selected platform role
+    // Initialize business draft with selected platform role and business name
     try {
       const business = await getOrCreateUserBusiness(user.id);
-      if (business && accountType) {
+      if (business) {
         await db.business.update({
           where: { id: business.id },
           data: {
-            platformRole: accountType as any,
+            ...(businessName ? { name: businessName.trim(), legalName: businessName.trim() } : {}),
+            ...(accountType ? { platformRole: accountType as any } : {}),
           },
         });
       }

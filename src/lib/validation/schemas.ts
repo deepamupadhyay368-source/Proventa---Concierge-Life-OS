@@ -24,10 +24,13 @@ export const passwordSchema = z
 
 export const phoneSchema = z
   .string()
-  .regex(
-    /^(\+91)?[6-9]\d{9}$/,
-    'Please enter a valid Indian mobile number',
-  )
+  .refine((val) => {
+    if (!val || val === '') return true;
+    const clean = val.replace(/[\s-]/g, '');
+    return /^(\+91)?[6-9]\d{9}$/.test(clean);
+  }, {
+    message: 'Please enter a valid Indian mobile number',
+  })
   .optional()
   .or(z.literal(''));
 
@@ -96,6 +99,7 @@ export const registerSchema = z
     preferredComm: z.enum(['IN_APP', 'EMAIL', 'WHATSAPP', 'SMS']).optional(),
     dob: z.string().optional(),
     address: z.string().optional(),
+    businessName: z.string().max(200).optional(),
     accountType: z.enum(['BUYER', 'SUPPLIER', 'BOTH']).optional(),
     termsConsent: z.boolean().optional(),
   })
@@ -128,14 +132,35 @@ export const loginSchema = z
     email: emailSchema,
     password: z.string().optional(),
     passKey: z.string().optional(),
+    passkey: z.string().optional(),
+    pass_key: z.string().optional(),
     accessKey: z.string().optional(),
     authenticationKey: z.string().optional(),
     securityKey: z.string().optional(),
+    security_key: z.string().optional(),
+    authKey: z.string().optional(),
+    credential: z.string().optional(),
+    pin: z.string().optional(),
+    code: z.string().optional(),
   })
   .refine(
-    (data) => Boolean(data.password || data.passKey || data.accessKey || data.authenticationKey || data.securityKey),
+    (data) =>
+      Boolean(
+        data.password ||
+          data.passKey ||
+          (data as any).passkey ||
+          (data as any).pass_key ||
+          data.accessKey ||
+          data.authenticationKey ||
+          data.securityKey ||
+          (data as any).security_key ||
+          (data as any).authKey ||
+          (data as any).credential ||
+          (data as any).pin ||
+          (data as any).code,
+      ),
     {
-      message: 'Password or PROVENTA Access Key is required',
+      message: 'Password or PROVENTA Pass Key is required',
       path: ['password'],
     },
   );

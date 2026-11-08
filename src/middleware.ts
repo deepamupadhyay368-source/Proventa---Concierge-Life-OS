@@ -122,7 +122,9 @@ export default auth(async (req) => {
 
   // Customer auth pages: Never redirect away from /sign-in directly to dashboard.
   // When a visitor clicks Sign In, the dedicated login form must always be presented.
-  if (isAuthRoute && pathname !== '/sign-in' && isLoggedIn) {
+  // Customer auth pages: Never redirect away from /sign-in or /sign-up directly to dashboard.
+  // Visitors clicking Sign In or Create Account must always see their dedicated pages.
+  if (isAuthRoute && pathname !== '/sign-in' && pathname !== '/sign-up' && isLoggedIn) {
     const callbackUrl = nextUrl.searchParams.get('callbackUrl');
     if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
       return NextResponse.redirect(new URL(callbackUrl, nextUrl));

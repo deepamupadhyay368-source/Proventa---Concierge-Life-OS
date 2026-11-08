@@ -46,6 +46,9 @@ export async function PATCH(req: NextRequest) {
 
     const allowedFields = [
       'name',
+      'legalName',
+      'entityType',
+      'district',
       'tagline',
       'shortDescription',
       'description',

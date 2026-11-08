@@ -36,9 +36,20 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
         const normalizedEmail = email.trim().toLowerCase();
         const authKey =
           parsed.data.passKey ||
+          parsed.data.passkey ||
+          parsed.data.pass_key ||
           parsed.data.accessKey ||
           parsed.data.authenticationKey ||
-          parsed.data.securityKey;
+          parsed.data.securityKey ||
+          parsed.data.security_key ||
+          parsed.data.authKey ||
+          parsed.data.credential ||
+          parsed.data.pin ||
+          parsed.data.code ||
+          (typeof credentials?.passKey === 'string' ? (credentials.passKey as string) : undefined) ||
+          (typeof credentials?.passkey === 'string' ? (credentials.passkey as string) : undefined) ||
+          (typeof credentials?.securityKey === 'string' ? (credentials.securityKey as string) : undefined) ||
+          (typeof credentials?.accessKey === 'string' ? (credentials.accessKey as string) : undefined);
 
         const user = await db.user.findUnique({
           where: { email: normalizedEmail, deletedAt: null },
@@ -238,9 +249,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
         passKey: { label: 'PROVENTA Pass Key', type: 'password' },
+        passkey: { label: 'PROVENTA Pass Key', type: 'password' },
+        pass_key: { label: 'PROVENTA Pass Key', type: 'password' },
         accessKey: { label: 'PROVENTA Access Key', type: 'password' },
         authenticationKey: { label: 'Authentication Key', type: 'password' },
         securityKey: { label: 'Security Key', type: 'password' },
+        security_key: { label: 'Security Key', type: 'password' },
+        authKey: { label: 'Auth Key', type: 'password' },
+        credential: { label: 'Credential', type: 'password' },
       },
       authorize: authorizeCredentialsOrPasskey,
     }),
@@ -251,10 +267,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: 'Passkey',
       credentials: {
         email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
         passKey: { label: 'PROVENTA Pass Key', type: 'password' },
+        passkey: { label: 'PROVENTA Pass Key', type: 'password' },
+        pass_key: { label: 'PROVENTA Pass Key', type: 'password' },
         accessKey: { label: 'PROVENTA Access Key', type: 'password' },
         authenticationKey: { label: 'Authentication Key', type: 'password' },
         securityKey: { label: 'Security Key', type: 'password' },
+        security_key: { label: 'Security Key', type: 'password' },
+        authKey: { label: 'Auth Key', type: 'password' },
+        credential: { label: 'Credential', type: 'password' },
       },
       authorize: authorizeCredentialsOrPasskey,
     }),

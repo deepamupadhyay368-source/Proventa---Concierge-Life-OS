@@ -203,6 +203,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="buyer@construction.in"
               required
+              name="email"
               autoComplete="email"
               className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none text-sm text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
             />
@@ -232,6 +233,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
               placeholder="1234-5678-9012"
               maxLength={14}
               required
+              name="passKey"
               autoComplete="one-time-code"
               className="w-full px-3.5 py-2.5 bg-[#191B20] border border-[#414957] focus:border-[#536B88] focus:outline-none font-mono font-bold text-sm tracking-widest text-[#FFFFFF] placeholder-[#A8ADB7] transition-colors rounded-sm"
             />
