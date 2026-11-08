@@ -30,94 +30,150 @@ const googleClientSecret =
 const PRIVILEGED_ROLES = new Set(['SUPER_ADMIN', 'FOUNDER', 'ADMIN']);
 
 async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown> | undefined) {
-        const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) return null;
-        const { email, password } = parsed.data;
-        const normalizedEmail = email.trim().toLowerCase();
-        const authKey =
-          parsed.data.passKey ||
-          parsed.data.passkey ||
-          parsed.data.pass_key ||
-          parsed.data.accessKey ||
-          parsed.data.authenticationKey ||
-          parsed.data.securityKey ||
-          parsed.data.security_key ||
-          parsed.data.authKey ||
-          parsed.data.credential ||
-          parsed.data.pin ||
-          parsed.data.code ||
-          (typeof credentials?.passKey === 'string' ? (credentials.passKey as string) : undefined) ||
-          (typeof credentials?.passkey === 'string' ? (credentials.passkey as string) : undefined) ||
-          (typeof credentials?.securityKey === 'string' ? (credentials.securityKey as string) : undefined) ||
-          (typeof credentials?.accessKey === 'string' ? (credentials.accessKey as string) : undefined);
+  // [AUTH_DIAGNOSTIC] PROVIDER_INVOKED & CREDENTIAL_RECEIVED
+  console.log('[AUTH_DIAGNOSTIC] PROVIDER_INVOKED', {
+    hasCredentials: Boolean(credentials),
+  });
 
-        const user = await db.user.findUnique({
-          where: { email: normalizedEmail, deletedAt: null },
-          include: { userRoles: true },
-        });
+  const rawPassKey =
+    (typeof credentials?.passKey === 'string' && credentials.passKey) ||
+    (typeof credentials?.passkey === 'string' && credentials.passkey) ||
+    (typeof credentials?.accessKey === 'string' && credentials.accessKey) ||
+    (typeof credentials?.securityKey === 'string' && credentials.securityKey) ||
+    (typeof credentials?.authKey === 'string' && credentials.authKey) ||
+    undefined;
 
-        // 1. DIRECT PROVENTA ACCESS KEY AUTHENTICATION (Method B)
-        if (authKey) {
-          // Enforce strict rate limiting on 12-digit numeric pass key attempts (max 5 per 15 mins)
-          const rl = checkPassKeyRateLimit(`passkey:${normalizedEmail}`);
-          if (!rl.allowed) {
-            void createSecurityEvent('LOGIN_BLOCKED', {
-              data: { email: normalizedEmail, reason: 'passkey_rate_limit_exceeded' },
-            });
-            throw new Error('TooManyAttempts');
-          }
+  console.log('[AUTH_DIAGNOSTIC] CREDENTIAL_RECEIVED', {
+    hasEmail: Boolean(credentials?.email),
+    hasPassKey: Boolean(rawPassKey),
+    hasPassword: Boolean(credentials?.password),
+    canonicalFieldPresent: Boolean(credentials?.passKey),
+  });
 
-          if (!user || !user.securityKeyHash) {
-            await verifyPassword(
-              'dummy',
-              '$2b$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
-            );
-            void createSecurityEvent('LOGIN_FAILED', {
-              data: { email: normalizedEmail, reason: 'user_or_key_not_found' },
-            });
-            return null;
-          }
+  const parsed = loginSchema.safeParse(credentials);
+  if (!parsed.success) {
+    console.log('[AUTH_DIAGNOSTIC] VALIDATION_FAILED', {
+      reason: 'schema_validation_error',
+      issues: parsed.error.issues.map((i) => i.path.join('.')),
+    });
+    return null;
+  }
 
-          if (user.status === 'SUSPENDED') {
-            void createSecurityEvent('LOGIN_BLOCKED', {
-              userId: user.id,
-              data: { reason: 'suspended' },
-            });
-            return null;
-          }
+  console.log('[AUTH_DIAGNOSTIC] VALIDATION_PASSED', {
+    hasPassKey: Boolean(parsed.data.passKey),
+    hasPassword: Boolean(parsed.data.password),
+    canonicalField: parsed.data.passKey ? 'passKey' : parsed.data.password ? 'password' : 'none',
+  });
 
-          const isValidKey = await verifyAccessKey(authKey, user.securityKeyHash);
-          if (!isValidKey) {
-            void createSecurityEvent('AUTH_KEY_FAILED', {
-              userId: user.id,
-              data: { reason: 'invalid_access_key' },
-            });
-            void createSecurityEvent('LOGIN_FAILED', {
-              userId: user.id,
-              data: { reason: 'invalid_access_key' },
-            });
-            return null;
-          }
+  const { email, password, passKey } = parsed.data;
+  const normalizedEmail = email.trim().toLowerCase();
+  const authKey = passKey ? passKey.trim() : rawPassKey ? rawPassKey.trim() : undefined;
 
-          resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
-          void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
-          void createSecurityEvent('LOGIN_COMPLETED', { userId: user.id });
-          void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
-          logger.info({ userId: user.id }, 'User logged in with PROVENTA Access Key');
+  let user = null;
+  try {
+    user = await db.user.findUnique({
+      where: { email: normalizedEmail, deletedAt: null },
+      include: { userRoles: true },
+    });
+  } catch (dbErr) {
+    console.log('[AUTH_DIAGNOSTIC] DB_ERROR', { reason: 'database_lookup_exception' });
+  }
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            roles: user.userRoles.map((r) => r.role),
-            emailVerified: user.emailVerified,
-            passKeyVerified: true,
-            needsRegistration: false,
-          };
-        }
+  if (!user) {
+    console.log('[AUTH_DIAGNOSTIC] USER_NOT_FOUND', { reason: 'user_not_found' });
+    if (authKey) {
+      await verifyPassword(
+        'dummy',
+        '$2b$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      );
+    }
+    return null;
+  }
 
-        // 2. STANDARD EMAIL + PASSWORD (+ OPTIONAL KEY) AUTHENTICATION
+  console.log('[AUTH_DIAGNOSTIC] USER_FOUND', { userId: user.id });
+
+  // 1. DIRECT PROVENTA ACCESS KEY AUTHENTICATION (Method B)
+  if (authKey) {
+    // Enforce strict rate limiting on 12-digit numeric pass key attempts (max 5 per 15 mins)
+    const rl = checkPassKeyRateLimit(`passkey:${normalizedEmail}`);
+    if (!rl.allowed) {
+      console.log('[AUTH_DIAGNOSTIC] RATE_LIMIT_EXCEEDED', { userId: user.id });
+      void createSecurityEvent('LOGIN_BLOCKED', {
+        data: { email: normalizedEmail, reason: 'passkey_rate_limit_exceeded' },
+      });
+      throw new Error('TooManyAttempts');
+    }
+
+    if (!user.securityKeyHash) {
+      console.log('[AUTH_DIAGNOSTIC] HASH_MISSING', {
+        userId: user.id,
+        reason: 'missing_security_key_hash',
+      });
+      await verifyPassword(
+        'dummy',
+        '$2b$12$aaaaaaaaaaaaaaaaaaaaaa.AAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+      );
+      void createSecurityEvent('LOGIN_FAILED', {
+        data: { email: normalizedEmail, reason: 'user_or_key_not_found' },
+      });
+      return null;
+    }
+
+    const isBcrypt =
+      user.securityKeyHash.startsWith('$2a$') ||
+      user.securityKeyHash.startsWith('$2b$') ||
+      user.securityKeyHash.startsWith('$2y$');
+    console.log('[AUTH_DIAGNOSTIC] HASH_FOUND', {
+      userId: user.id,
+      isBcryptCompatible: isBcrypt,
+    });
+
+    if (user.status === 'SUSPENDED') {
+      console.log('[AUTH_DIAGNOSTIC] ACCOUNT_SUSPENDED', { userId: user.id });
+      void createSecurityEvent('LOGIN_BLOCKED', {
+        userId: user.id,
+        data: { reason: 'suspended' },
+      });
+      return null;
+    }
+
+    const isValidKey = await verifyAccessKey(authKey, user.securityKeyHash);
+    if (!isValidKey) {
+      console.log('[AUTH_DIAGNOSTIC] BCRYPT_VERIFICATION_FAILED', {
+        userId: user.id,
+        reason: 'invalid_passkey',
+      });
+      void createSecurityEvent('AUTH_KEY_FAILED', {
+        userId: user.id,
+        data: { reason: 'invalid_access_key' },
+      });
+      void createSecurityEvent('LOGIN_FAILED', {
+        userId: user.id,
+        data: { reason: 'invalid_access_key' },
+      });
+      return null;
+    }
+
+    console.log('[AUTH_DIAGNOSTIC] BCRYPT_VERIFICATION_PASSED', { userId: user.id });
+    resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
+    void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
+    void createSecurityEvent('LOGIN_COMPLETED', { userId: user.id });
+    void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
+    logger.info({ userId: user.id }, 'User logged in with PROVENTA Access Key');
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      image: user.image,
+      roles: user.userRoles.map((r) => r.role),
+      emailVerified: user.emailVerified,
+      passKeyVerified: true,
+      needsRegistration: false,
+    };
+  }
+
+  // 2. STANDARD EMAIL + PASSWORD (+ OPTIONAL KEY) AUTHENTICATION
         if (!user || !user.passwordHash) {
           await verifyPassword(
             'dummy',
@@ -432,11 +488,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      if (
-        account?.provider &&
-        account.provider !== 'credentials' &&
-        account.provider !== 'phone-otp'
-      ) {
+      console.log('[AUTH_DIAGNOSTIC] CALLBACK_SIGNIN_INVOKED', {
+        provider: account?.provider,
+        type: account?.type,
+        userId: user?.id,
+      });
+
+      // Distinguish credentials/passkey authentication from external OAuth identity providers.
+      // Credentials providers (including 'credentials', 'passkey', 'phone-otp') have already been verified in authorize().
+      const isCredentialsProvider =
+        account?.type === 'credentials' ||
+        account?.provider === 'credentials' ||
+        account?.provider === 'passkey' ||
+        account?.provider === 'phone-otp';
+
+      if (isCredentialsProvider) {
+        console.log('[AUTH_DIAGNOSTIC] LOGIN_SUCCESS', {
+          userId: user?.id,
+          provider: account?.provider,
+        });
+        return true;
+      }
+
+      if (account?.provider) {
         const rawEmail = user.email || (profile as { email?: string })?.email;
         if (!rawEmail) {
           return '/sign-in?error=OAuthEmailMissing';

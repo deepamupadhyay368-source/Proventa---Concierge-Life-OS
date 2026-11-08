@@ -143,25 +143,30 @@ export const loginSchema = z
     pin: z.string().optional(),
     code: z.string().optional(),
   })
+  .transform((data) => {
+    const canonicalPassKey =
+      data.passKey ||
+      data.passkey ||
+      data.pass_key ||
+      data.accessKey ||
+      data.authenticationKey ||
+      data.securityKey ||
+      data.security_key ||
+      data.authKey ||
+      data.credential ||
+      data.pin ||
+      data.code;
+    return {
+      email: data.email,
+      password: data.password,
+      passKey: canonicalPassKey,
+    };
+  })
   .refine(
-    (data) =>
-      Boolean(
-        data.password ||
-          data.passKey ||
-          (data as any).passkey ||
-          (data as any).pass_key ||
-          data.accessKey ||
-          data.authenticationKey ||
-          data.securityKey ||
-          (data as any).security_key ||
-          (data as any).authKey ||
-          (data as any).credential ||
-          (data as any).pin ||
-          (data as any).code,
-      ),
+    (data) => Boolean(data.password || data.passKey),
     {
       message: 'Password or PROVENTA Pass Key is required',
-      path: ['password'],
+      path: ['passKey'],
     },
   );
 

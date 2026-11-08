@@ -65,13 +65,18 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
     setLoading(true);
     setError(null);
 
+    console.log('[AUTH_DIAGNOSTIC] FORM_SUBMITTED', {
+      emailDomain: email.includes('@') ? email.split('@')[1] : 'invalid',
+      hasPassKey: Boolean(passKey.trim()),
+      canonicalField: 'passKey',
+    });
+
     try {
       const cleanKey = passKey.trim();
-      const res = await signIn('passkey', {
+      // Submit canonical passKey directly to credentials provider
+      const res = await signIn('credentials', {
         email: email.trim().toLowerCase(),
         passKey: cleanKey,
-        accessKey: cleanKey,
-        securityKey: cleanKey,
         redirect: false,
         callbackUrl: safeCallback,
       });
@@ -85,6 +90,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
           setError(res.error);
         }
       } else if (res?.ok) {
+        console.log('[AUTH_DIAGNOSTIC] LOGIN_SUCCESS', { ok: true, callback: safeCallback });
         router.push(safeCallback);
         router.refresh();
       }
