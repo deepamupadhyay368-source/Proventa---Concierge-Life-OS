@@ -18,8 +18,6 @@ import {
   X,
   Check,
 } from 'lucide-react';
-import { PublicNav } from '@/components/marketing/nav';
-import { MarketingFooter } from '@/components/marketing/footer';
 
 export default function AdminVerificationDeskPage() {
   const router = useRouter();
@@ -89,8 +87,6 @@ export default function AdminVerificationDeskPage() {
 
   return (
     <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans flex flex-col">
-      <PublicNav />
-
       {/* Header Bar */}
       <div className="border-b border-[#414957] bg-[#191B20] py-6 sm:py-8 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -389,8 +385,6 @@ export default function AdminVerificationDeskPage() {
           </div>
         )}
       </main>
-
-      <MarketingFooter />
     </div>
   );
 }

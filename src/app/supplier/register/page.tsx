@@ -1,5 +1,5 @@
-import BusinessOnboardingWizardPage from '@/app/onboarding/business/page';
+import { redirect } from 'next/navigation';
 
 export default function SupplierRegisterRedirect() {
-  return <BusinessOnboardingWizardPage />;
+  redirect('/onboarding/business?role=SUPPLIER');
 }

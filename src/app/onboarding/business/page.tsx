@@ -23,8 +23,6 @@ import {
   FileCheck2,
   ChevronRight,
 } from 'lucide-react';
-import { PublicNav } from '@/components/marketing/nav';
-import { MarketingFooter } from '@/components/marketing/footer';
 import { validateGstin, validatePan } from '@/lib/business/validators';
 
 interface AuthorizedContact {
@@ -90,6 +88,7 @@ export default function BusinessOnboardingWizardPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [businessId, setBusinessId] = useState<string | null>(null);
   const [loadingInitial, setLoadingInitial] = useState(true);
+  const [isMultiRoleOnboarding, setIsMultiRoleOnboarding] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -166,9 +165,10 @@ export default function BusinessOnboardingWizardPage() {
   useEffect(() => {
     async function loadDraft() {
       // Check query parameter for initial role
+      let roleP: string | null = null;
       if (typeof window !== 'undefined') {
         const sp = new URLSearchParams(window.location.search);
-        const roleP = sp.get('role');
+        roleP = sp.get('role');
         if (roleP) {
           const u = roleP.toUpperCase();
           if (u === 'SUPPLIER' || u === 'BOTH' || u === 'BUYER') {
@@ -178,7 +178,8 @@ export default function BusinessOnboardingWizardPage() {
       }
 
       try {
-        const res = await fetch('/api/business/register-wizard');
+        const roleQuery = roleP ? `?role=${encodeURIComponent(roleP)}` : '';
+        const res = await fetch(`/api/business/register-wizard${roleQuery}`);
         if (res.status === 401) {
           // If not logged in, redirect to sign-up with preserved callback
           const redirectDest =
@@ -191,33 +192,42 @@ export default function BusinessOnboardingWizardPage() {
           return;
         }
         const json = await res.json();
-        if (json.success && json.data?.business) {
-          const b = json.data.business;
-          setBusinessId(b.id);
-          if (b.name) setName(b.name);
-          if (b.legalName) setLegalName(b.legalName);
-          if (b.entityType) setEntityType(b.entityType);
-          if (b.yearEstablished) setYearEstablished(b.yearEstablished);
-          if (b.shortDescription) setShortDescription(b.shortDescription);
-          if (b.website) setWebsite(b.website);
-          if (b.addressLine1) setAddressLine1(b.addressLine1);
-          if (b.city) setCity(b.city);
-          if (b.state) setStateName(b.state);
-          if (b.postalCode) setPostalCode(b.postalCode);
-          if (b.gstNumber) setGstNumber(b.gstNumber);
-          if (b.pan) setPan(b.pan);
-          if (b.cin) setCin(b.cin);
-          if (b.llpin) setLlpin(b.llpin);
-          if (b.udyamNumber) setUdyamNumber(b.udyamNumber);
-          if (b.platformRole) setPlatformRole(b.platformRole);
-          if (b.authorizedContacts && Array.isArray(b.authorizedContacts) && b.authorizedContacts.length > 0) {
-            setContacts(b.authorizedContacts);
+        if (json.success && json.data) {
+          if (json.data.isMultiRoleOnboarding) {
+            setIsMultiRoleOnboarding(true);
           }
-          if (b.documents && Array.isArray(b.documents)) {
-            setDocuments(b.documents);
-          }
-          if (b.onboardingStep && b.onboardingStep > 1 && b.onboardingStep <= 6) {
-            setCurrentStep(b.onboardingStep);
+          if (json.data.business) {
+            const b = json.data.business;
+            setBusinessId(b.id);
+            if (b.name) setName(b.name);
+            if (b.legalName) setLegalName(b.legalName);
+            if (b.entityType) setEntityType(b.entityType);
+            if (b.yearEstablished) setYearEstablished(b.yearEstablished);
+            if (b.shortDescription) setShortDescription(b.shortDescription);
+            if (b.website) setWebsite(b.website);
+            if (b.addressLine1) setAddressLine1(b.addressLine1);
+            if (b.city) setCity(b.city);
+            if (b.state) setStateName(b.state);
+            if (b.postalCode) setPostalCode(b.postalCode);
+            if (b.gstNumber) setGstNumber(b.gstNumber);
+            if (b.pan) setPan(b.pan);
+            if (b.cin) setCin(b.cin);
+            if (b.llpin) setLlpin(b.llpin);
+            if (b.udyamNumber) setUdyamNumber(b.udyamNumber);
+            if (roleP && (roleP.toUpperCase() === 'SUPPLIER' || roleP.toUpperCase() === 'BOTH')) {
+              setPlatformRole(roleP.toUpperCase() as any);
+            } else if (b.platformRole) {
+              setPlatformRole(b.platformRole);
+            }
+            if (b.authorizedContacts && Array.isArray(b.authorizedContacts) && b.authorizedContacts.length > 0) {
+              setContacts(b.authorizedContacts);
+            }
+            if (b.documents && Array.isArray(b.documents)) {
+              setDocuments(b.documents);
+            }
+            if (b.onboardingStep && b.onboardingStep > 1 && b.onboardingStep <= 6) {
+              setCurrentStep(b.onboardingStep);
+            }
           }
         }
       } catch (err) {
@@ -553,8 +563,18 @@ export default function BusinessOnboardingWizardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans flex flex-col">
-      <PublicNav />
+    <div className="flex-1 flex flex-col">
+      {/* Multi-role Notice Banner */}
+      {isMultiRoleOnboarding && (
+        <div className="bg-emerald-950/80 border-b border-emerald-500/60 px-6 py-3">
+          <div className="max-w-6xl mx-auto flex items-center gap-3 text-xs text-emerald-300 font-mono">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span>
+              <strong>Active Buyer Account Preserved:</strong> You are registering an official Supplier &amp; Distributor profile. Your existing Buyer projects, RFQs, and account details remain safe and separate.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Header Banner */}
       <div className="border-b border-[#414957] bg-[#191B20] py-6 sm:py-8 px-6 lg:px-8">
@@ -1579,8 +1599,6 @@ export default function BusinessOnboardingWizardPage() {
           </div>
         )}
       </main>
-
-      <MarketingFooter />
     </div>
   );
 }

@@ -42,9 +42,14 @@ export function MarketingNav() {
 
   const isLoggedIn = status === 'authenticated' && !!session?.user?.id;
   const userRoles: string[] = (session?.user as { roles?: string[] })?.roles || [];
-  const isSupplier = userRoles.includes('SUPPLIER');
-  const isBuyer = userRoles.includes('BUYER') || !isSupplier;
-  const dashboardHref = isSupplier ? '/supplier/dashboard' : '/buyer/dashboard';
+  const hasSupplierRole = userRoles.includes('SUPPLIER');
+  const hasBuyerRole = userRoles.includes('BUYER');
+  const isDualRole = hasSupplierRole && hasBuyerRole;
+  const isSupplier = hasSupplierRole && !hasBuyerRole ? true : (pathname.startsWith('/supplier') ? true : false);
+  const isBuyer = hasBuyerRole && !hasSupplierRole ? true : (!pathname.startsWith('/supplier') ? true : false);
+  const dashboardHref = pathname.startsWith('/supplier')
+    ? '/supplier/dashboard'
+    : (hasBuyerRole ? '/buyer/dashboard' : (hasSupplierRole ? '/supplier/dashboard' : '/buyer/dashboard'));
   const displayName = session?.user?.name || session?.user?.email?.split('@')[0] || 'My Account';
   const userEmail = session?.user?.email || '';
 

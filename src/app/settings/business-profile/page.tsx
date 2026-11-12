@@ -25,8 +25,6 @@ import {
   Mail,
   RefreshCw,
 } from 'lucide-react';
-import { PublicNav } from '@/components/marketing/nav';
-import { MarketingFooter } from '@/components/marketing/footer';
 
 export default function BusinessProfileSettingsPage() {
   const router = useRouter();
@@ -133,25 +131,21 @@ export default function BusinessProfileSettingsPage() {
 
   if (!business) {
     return (
-      <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans flex flex-col">
-        <PublicNav />
-        <div className="flex-1 flex items-center justify-center p-6">
-          <div className="bg-[#303746] border border-[#414957] p-8 max-w-md w-full text-center space-y-4 rounded-sm">
-            <Building2 className="w-12 h-12 text-[#C66A42] mx-auto" />
-            <h2 className="text-lg font-bold uppercase tracking-wider text-[#FFFFFF]">No Business Entity Found</h2>
-            <p className="text-xs text-[#A8ADB7]">
-              You have not registered a certified business profile on PROVENTA yet.
-            </p>
-            <Link
-              href="/onboarding/business"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider rounded-sm transition-colors shadow-sm"
-            >
-              <span>Start Business Onboarding</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+      <div className="flex-1 flex items-center justify-center p-6">
+        <div className="bg-[#303746] border border-[#414957] p-8 max-w-md w-full text-center space-y-4 rounded-sm">
+          <Building2 className="w-12 h-12 text-[#C66A42] mx-auto" />
+          <h2 className="text-lg font-bold uppercase tracking-wider text-[#FFFFFF]">No Business Entity Found</h2>
+          <p className="text-xs text-[#A8ADB7]">
+            You have not registered a certified business profile on PROVENTA yet.
+          </p>
+          <Link
+            href="/onboarding/business"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider rounded-sm transition-colors shadow-sm"
+          >
+            <span>Start Business Onboarding</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
-        <MarketingFooter />
       </div>
     );
   }
@@ -160,9 +154,7 @@ export default function BusinessProfileSettingsPage() {
   const role = business.platformRole || 'BUYER';
 
   return (
-    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans flex flex-col">
-      <PublicNav />
-
+    <div className="flex-1 flex flex-col">
       {/* Enterprise Header Bar */}
       <div className="border-b border-[#414957] bg-[#191B20] py-6 sm:py-8 px-6 lg:px-8">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -588,8 +580,6 @@ export default function BusinessProfileSettingsPage() {
           </div>
         )}
       </main>
-
-      <MarketingFooter />
     </div>
   );
 }

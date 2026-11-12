@@ -82,12 +82,15 @@ export default auth(async (req) => {
     (pathname.startsWith('/api/categories') ||
       (pathname.startsWith('/api/businesses') && nextUrl.searchParams.get('mine') !== 'true') ||
       pathname.startsWith('/api/listings') ||
+      pathname.startsWith('/api/supplier/storefront') ||
+      pathname.startsWith('/api/supplier/discovery') ||
       pathname === '/api/business/subscription');
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
     pathname.startsWith('/buyer/') ||
     pathname.startsWith('/supplier/') ||
+    pathname.startsWith('/suppliers/') ||
     pathname.startsWith('/rfq/') ||
     pathname.startsWith('/api/procurement') ||
     pathname.startsWith('/logistics/') ||
@@ -227,7 +230,9 @@ export default auth(async (req) => {
     needsRegistration &&
     !pathname.startsWith('/register-details') &&
     !pathname.startsWith('/api/') &&
-    !pathname.startsWith('/sign-in')
+    !pathname.startsWith('/sign-in') &&
+    !pathname.startsWith('/suppliers/') &&
+    !pathname.startsWith('/supplier/storefront/')
   ) {
     return NextResponse.redirect(new URL('/register-details', nextUrl));
   }

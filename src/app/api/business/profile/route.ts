@@ -7,7 +7,11 @@ import { getUserAuthorizedBusinesses } from '@/lib/business/auth-context';
 export async function GET(req: NextRequest) {
   try {
     const user = await requireAuth();
-    const business = await getOrCreateUserBusiness(user.id);
+    const { searchParams } = new URL(req.url);
+    const requestedRole = searchParams.get('role')?.toUpperCase() as 'BUYER' | 'SUPPLIER' | 'BOTH' | undefined;
+    const businessId = searchParams.get('businessId') || undefined;
+
+    const business = await getOrCreateUserBusiness(user.id, requestedRole, businessId);
     const authorizedBusinesses = await getUserAuthorizedBusinesses(user.id);
 
     return NextResponse.json({
@@ -36,9 +40,13 @@ export async function PATCH(req: NextRequest) {
     const user = await requireAuth();
     const body = await req.json();
 
-    const business = await db.business.findFirst({
-      where: { ownerId: user.id },
-    });
+    const business = body.businessId
+      ? await db.business.findFirst({
+          where: { id: body.businessId, ownerId: user.id },
+        })
+      : await db.business.findFirst({
+          where: { ownerId: user.id },
+        });
 
     if (!business) {
       return NextResponse.json({ success: false, error: 'Business not found' }, { status: 404 });

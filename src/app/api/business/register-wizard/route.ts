@@ -26,7 +26,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const business = await getOrCreateUserBusiness(session.user.id);
+    const { searchParams } = new URL(req.url);
+    const requestedRole = searchParams.get('role')?.toUpperCase() as 'BUYER' | 'SUPPLIER' | 'BOTH' | undefined;
+    const businessId = searchParams.get('businessId') || undefined;
+
+    const business = await getOrCreateUserBusiness(session.user.id, requestedRole, businessId);
+
+    const userRoles = (session.user as { roles?: string[] })?.roles || [];
+    const hasExistingBuyerAccount = userRoles.includes('BUYER');
+    const hasExistingSupplierAccount = userRoles.includes('SUPPLIER');
 
     return NextResponse.json({
       success: true,
@@ -35,6 +43,9 @@ export async function GET(req: NextRequest) {
         onboardingStep: business.onboardingStep || 1,
         onboardingComplete: business.onboardingComplete,
         verificationStatus: business.verificationStatus,
+        hasExistingBuyerAccount,
+        hasExistingSupplierAccount,
+        isMultiRoleOnboarding: hasExistingBuyerAccount && requestedRole === 'SUPPLIER',
       },
     });
   } catch (error: any) {
@@ -73,6 +84,7 @@ export async function POST(req: NextRequest) {
         const updated = await saveStep1Identity({
           userId,
           businessId,
+          role: body.role,
           data: parsed.data,
           ipAddress,
         });

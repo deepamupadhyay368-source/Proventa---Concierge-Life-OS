@@ -2,6 +2,8 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import {
   Building2,
   ShieldCheck,
@@ -30,6 +32,8 @@ export default function SupplierStorefrontPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const router = useRouter();
+  const { data: session, status } = useSession();
   const [supplier, setSupplier] = useState<PublicSupplierStorefront | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'catalogue' | 'warehouses' | 'coverage' | 'performance'>('catalogue');
@@ -62,6 +66,10 @@ export default function SupplierStorefrontPage({
 
   const handleToggleSave = async () => {
     if (!supplier) return;
+    if (status !== 'authenticated') {
+      router.push(`/sign-in?callbackUrl=${encodeURIComponent(`/suppliers/${slug}`)}`);
+      return;
+    }
     try {
       setSavingBookmark(true);
       const res = await fetch('/api/supplier/saved', {
@@ -81,6 +89,10 @@ export default function SupplierStorefrontPage({
   };
 
   const handleOpenInviteModal = async () => {
+    if (status !== 'authenticated') {
+      router.push(`/sign-in?callbackUrl=${encodeURIComponent(`/suppliers/${slug}`)}`);
+      return;
+    }
     setInviteModalOpen(true);
     setInviteSuccess(false);
     try {
