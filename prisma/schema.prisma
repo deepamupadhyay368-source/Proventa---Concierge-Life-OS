@@ -391,6 +391,7 @@ model User {
   savedListings          SavedListing[]
   businessReviews        BusinessReview[]
   moderationReports      ModerationReport[]    @relation("ModerationReporter")
+  invoicesIssued         CommercialInvoice[]   @relation("InvoicesIssued")
 
   @@index([email])
   @@index([status])
@@ -2049,6 +2050,14 @@ model Business {
   savedByBuyers           SavedSupplier[]              @relation("SupplierSavedByBuyers")
   rfqMatches              SupplierRFQMatch[]
 
+  // Payment Intelligence Relations
+  buyerInvoices           CommercialInvoice[]          @relation("BuyerCommercialInvoices")
+  supplierInvoices        CommercialInvoice[]          @relation("SupplierCommercialInvoices")
+  paymentScore            PaymentScore?
+  paymentConsent          PaymentConsent?
+  paymentDisputesInitiated PaymentDispute[]            @relation("DisputesInitiated")
+  paymentDisputesReceived  PaymentDispute[]            @relation("DisputesReceived")
+
   @@index([slug])
   @@index([ownerId])
   @@index([status, verificationLevel])
@@ -2603,6 +2612,8 @@ model ProcurementOrder {
   createdAt            DateTime        @default(now())
   updatedAt            DateTime        @updatedAt
 
+  invoices             CommercialInvoice[]
+
   @@index([rfqId])
   @@index([buyerBusinessId])
   @@index([supplierBusinessId])
@@ -2712,4 +2723,275 @@ model SupplierRFQMatch {
   @@index([rfqId])
   @@index([supplierBusinessId])
   @@map("supplier_rfq_matches")
+}
+
+// ============================================================
+// PROVENTA PAYMENT INTELLIGENCE
+// ============================================================
+
+model CommercialInvoice {
+  id                    String                       @id @default(cuid())
+  invoiceNumber         String
+  purchaseOrderId       String?
+  purchaseOrder         ProcurementOrder?            @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
+  rfqId                 String?
+  buyerBusinessId       String
+  buyerBusiness         Business                     @relation("BuyerCommercialInvoices", fields: [buyerBusinessId], references: [id], onDelete: Cascade)
+  supplierBusinessId    String
+  supplierBusiness      Business                     @relation("SupplierCommercialInvoices", fields: [supplierBusinessId], references: [id], onDelete: Cascade)
+  issuerUserId          String
+  issuerUser            User                         @relation("InvoicesIssued", fields: [issuerUserId], references: [id])
+  recipientUserId       String?
+  invoiceDate           DateTime
+  contractualDueDate    DateTime
+  revisedDueDate        DateTime?
+  dueRevisionReason     String?
+  paymentTerms          String                       @default("NET_30")
+  paymentTermsDays      Int                          @default(30)
+  currency              String                       @default("INR")
+  subtotal              Decimal                      @db.Decimal(14, 2)
+  taxAmount             Decimal                      @db.Decimal(14, 2)
+  totalAmount           Decimal                      @db.Decimal(14, 2)
+  paidAmount            Decimal                      @default(0) @db.Decimal(14, 2)
+  outstandingAmount     Decimal                      @db.Decimal(14, 2)
+  status                String                       @default("SUBMITTED")
+  verificationStatus    String                       @default("UNVERIFIED")
+  items                 Json
+  documentUrl           String?
+  documentFileName      String?
+  notes                 String?
+  isDisputed            Boolean                      @default(false)
+  disputeId             String?
+  paidAt                DateTime?
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  ledgerEntries         PaymentLedgerEntry[]
+  instalmentSchedules   PaymentScheduleInstalment[]
+  verificationRecords   PaymentVerificationRecord[]
+  disputes              PaymentDispute[]
+  auditLogs             PaymentAuditLog[]
+  reminders             PaymentReminder[]
+
+  @@index([buyerBusinessId])
+  @@index([supplierBusinessId])
+  @@index([purchaseOrderId])
+  @@index([status])
+  @@index([contractualDueDate])
+  @@index([invoiceNumber])
+  @@map("commercial_invoices")
+}
+
+model PaymentLedgerEntry {
+  id                    String                       @id @default(cuid())
+  invoiceId             String
+  invoice               CommercialInvoice            @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  payerBusinessId       String
+  payeeBusinessId       String
+  recordedByUserId      String
+  amount                Decimal                      @db.Decimal(14, 2)
+  currency              String                       @default("INR")
+  paymentDate           DateTime
+  paymentMethod         String
+  utrNumber             String?
+  bankReference         String?
+  receiptUrl            String?
+  receiptFileName       String?
+  status                String                       @default("RECORDED")
+  verificationStatus    String                       @default("UNVERIFIED")
+  verifiedAt            DateTime?
+  verifiedByUserId      String?
+  notes                 String?
+  isReversal            Boolean                      @default(false)
+  reversedEntryId       String?
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  verificationRecords   PaymentVerificationRecord[]
+  auditLogs             PaymentAuditLog[]
+
+  @@index([invoiceId])
+  @@index([payerBusinessId])
+  @@index([payeeBusinessId])
+  @@index([status])
+  @@index([utrNumber])
+  @@map("payment_ledger_entries")
+}
+
+model PaymentScheduleInstalment {
+  id                    String                       @id @default(cuid())
+  invoiceId             String
+  invoice               CommercialInvoice            @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  instalmentNumber      Int
+  description           String
+  percentage            Decimal?                     @db.Decimal(5, 2)
+  dueDate               DateTime
+  revisedDueDate        DateTime?
+  expectedAmount        Decimal                      @db.Decimal(14, 2)
+  paidAmount            Decimal                      @default(0) @db.Decimal(14, 2)
+  status                String                       @default("PENDING")
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  @@index([invoiceId])
+  @@index([dueDate])
+  @@index([status])
+  @@map("payment_schedule_instalments")
+}
+
+model PaymentVerificationRecord {
+  id                    String                       @id @default(cuid())
+  invoiceId             String?
+  invoice               CommercialInvoice?           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentEntryId        String?
+  paymentEntry          PaymentLedgerEntry?          @relation(fields: [paymentEntryId], references: [id], onDelete: Cascade)
+  verifiedByUserId      String
+  verificationType      String
+  status                String                       @default("VERIFIED")
+  evidenceUrl           String?
+  evidenceType          String?
+  notes                 String?
+  verifiedAt            DateTime                     @default(now())
+
+  @@index([invoiceId])
+  @@index([paymentEntryId])
+  @@map("payment_verification_records")
+}
+
+model PaymentDispute {
+  id                    String                       @id @default(cuid())
+  invoiceId             String
+  invoice               CommercialInvoice            @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  disputedByBusinessId  String
+  disputedByBusiness    Business                     @relation("DisputesInitiated", fields: [disputedByBusinessId], references: [id], onDelete: Cascade)
+  disputedByUserId      String
+  counterpartyBusinessId String
+  counterpartyBusiness  Business                     @relation("DisputesReceived", fields: [counterpartyBusinessId], references: [id], onDelete: Cascade)
+  disputeType           String
+  status                String                       @default("OPEN")
+  disputedAmount        Decimal?                     @db.Decimal(14, 2)
+  reason                String                       @db.Text
+  evidenceUrls          String[]
+  counterpartyResponse  String?                      @db.Text
+  counterpartyRespondedAt DateTime?
+  resolutionNotes       String?                      @db.Text
+  resolvedByUserId      String?
+  resolvedAt            DateTime?
+  adjustmentAmount      Decimal?                     @db.Decimal(14, 2)
+  createdAt             DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  @@index([invoiceId])
+  @@index([disputedByBusinessId])
+  @@index([counterpartyBusinessId])
+  @@index([status])
+  @@map("payment_disputes")
+}
+
+model PaymentScore {
+  id                    String                       @id @default(cuid())
+  businessId            String                       @unique
+  business              Business                     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  scoreType             String                       @default("DUAL")
+  buyerScore            Int?
+  supplierScore         Int?
+  buyerClassification   String?
+  supplierClassification String?
+  buyerConfidence       String                       @default("LOW")
+  supplierConfidence    String                       @default("LOW")
+  onTimePaymentRate     Decimal                      @default(0) @db.Decimal(5, 2)
+  averageDelayDays      Decimal                      @default(0) @db.Decimal(6, 2)
+  overdueFrequencyRate  Decimal                      @default(0) @db.Decimal(5, 2)
+  outstandingRatio      Decimal                      @default(0) @db.Decimal(5, 2)
+  verifiedInvoiceCount  Int                          @default(0)
+  verifiedTransactionCount Int                       @default(0)
+  verifiedTransactionValue Decimal                   @default(0) @db.Decimal(14, 2)
+  observationPeriodDays Int                          @default(0)
+  positiveFactors       String[]
+  negativeFactors       String[]
+  isPubliclyVisible     Boolean                      @default(true)
+  consentGranted        Boolean                      @default(true)
+  lastCalculatedAt      DateTime                     @default(now())
+  updatedAt             DateTime                     @updatedAt
+
+  snapshots             PaymentScoreSnapshot[]
+
+  @@index([buyerScore])
+  @@index([supplierScore])
+  @@index([buyerClassification])
+  @@map("payment_scores")
+}
+
+model PaymentScoreSnapshot {
+  id                    String                       @id @default(cuid())
+  scoreId               String
+  score                 PaymentScore                 @relation(fields: [scoreId], references: [id], onDelete: Cascade)
+  businessId            String
+  scoreType             String
+  scoreValue            Int
+  classification        String
+  triggerReason         String
+  factorBreakdown       Json
+  snapshotDate          DateTime                     @default(now())
+
+  @@index([scoreId])
+  @@index([businessId])
+  @@index([snapshotDate])
+  @@map("payment_score_snapshots")
+}
+
+model PaymentAuditLog {
+  id                    String                       @id @default(cuid())
+  invoiceId             String?
+  invoice               CommercialInvoice?           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  paymentId             String?
+  payment               PaymentLedgerEntry?          @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  disputeId             String?
+  businessId            String?
+  actorUserId           String
+  actorRole             String
+  action                String
+  details               String                       @db.Text
+  previousValues        Json?
+  newValues             Json?
+  reason                String?
+  ipAddress             String?
+  createdAt             DateTime                     @default(now())
+
+  @@index([invoiceId])
+  @@index([businessId])
+  @@index([actorUserId])
+  @@index([action])
+  @@map("payment_audit_logs")
+}
+
+model PaymentReminder {
+  id                    String                       @id @default(cuid())
+  invoiceId             String
+  invoice               CommercialInvoice            @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  recipientUserId       String
+  reminderType          String
+  scheduledFor          DateTime
+  sentAt                DateTime?
+  status                String                       @default("SCHEDULED")
+  createdAt             DateTime                     @default(now())
+
+  @@index([invoiceId])
+  @@index([recipientUserId])
+  @@index([status, scheduledFor])
+  @@map("payment_reminders")
+}
+
+model PaymentConsent {
+  id                           String                @id @default(cuid())
+  businessId                   String                @unique
+  business                     Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  scoreSharingAllowed          Boolean               @default(true)
+  rfqCounterpartyVisibility    Boolean               @default(true)
+  profilePublicScoreVisibility Boolean               @default(true)
+  anonymizeConfidentialDetails Boolean               @default(true)
+  updatedByUserId              String
+  updatedAt                    DateTime              @updatedAt
+
+  @@map("payment_consents")
 }

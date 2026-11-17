@@ -61,29 +61,64 @@ export async function createBusinessAuditLog(params: {
 /**
  * Get or initialize the active business profile for the given user
  */
-export async function getOrCreateUserBusiness(userId: string) {
-  // Check if user already owns a business
-  let business = await db.business.findFirst({
-    where: { ownerId: userId },
-    include: {
-      buyerProfile: true,
-      supplierProfile: {
-        include: { products: true },
-      },
-      documents: {
-        orderBy: { createdAt: 'desc' },
-      },
-      businessAuditLogs: {
-        orderBy: { createdAt: 'desc' },
-        take: 10,
-      },
+export async function getOrCreateUserBusiness(
+  userId: string,
+  requestedRole?: 'BUYER' | 'SUPPLIER' | 'BOTH',
+  specificBusinessId?: string
+) {
+  const includeConfig = {
+    buyerProfile: true,
+    supplierProfile: {
+      include: { products: true },
     },
-  });
+    documents: {
+      orderBy: { createdAt: 'desc' as const },
+    },
+    businessAuditLogs: {
+      orderBy: { createdAt: 'desc' as const },
+      take: 10,
+    },
+  };
 
-  if (!business) {
+  // 1. If a specific business ID is requested, load that exact business
+  if (specificBusinessId) {
+    const specific = await db.business.findFirst({
+      where: { id: specificBusinessId, ownerId: userId },
+      include: includeConfig,
+    });
+    if (specific) return specific;
+  }
+
+  // 2. If a specific role is requested:
+  // e.g. requestedRole === 'SUPPLIER', search for a business owned by userId where platformRole in ['SUPPLIER', 'BOTH']
+  let business = null;
+  if (requestedRole) {
+    business = await db.business.findFirst({
+      where: {
+        ownerId: userId,
+        platformRole: { in: [requestedRole, 'BOTH'] },
+      },
+      include: includeConfig,
+    });
+  }
+
+  // 3. Fallback to any business owned by user if no specific role requested
+  if (!business && !requestedRole) {
+    business = await db.business.findFirst({
+      where: { ownerId: userId },
+      include: includeConfig,
+    });
+  }
+
+  // 4. If no business found, OR if the user is a BUYER who is explicitly requesting a SUPPLIER profile,
+  // create a dedicated separate business profile so buyer data is safely preserved without overwriting.
+  if (!business || (requestedRole === 'SUPPLIER' && business.platformRole === 'BUYER')) {
     // Generate unique slug
     const user = await db.user.findUnique({ where: { id: userId } });
-    const baseSlug = slugify(user?.name || 'industrial-enterprise');
+    const defaultRole = requestedRole || 'BUYER';
+    const isSupp = defaultRole === 'SUPPLIER';
+    const roleSuffix = isSupp ? 'supplies' : 'enterprise';
+    const baseSlug = slugify(user?.name ? `${user.name}-${roleSuffix}` : `industrial-${roleSuffix}`);
     let slug = baseSlug;
     let counter = 1;
     while (await db.business.findUnique({ where: { slug } })) {
@@ -94,30 +129,23 @@ export async function getOrCreateUserBusiness(userId: string) {
     business = await db.business.create({
       data: {
         ownerId: userId,
-        name: user?.name ? `${user.name} Enterprise` : 'New Industrial Enterprise',
+        name: user?.name ? `${user.name} ${isSupp ? 'Suppliers' : 'Enterprise'}` : `New Industrial ${isSupp ? 'Supplier' : 'Enterprise'}`,
         slug,
         city: 'Ahmedabad',
         state: 'Gujarat',
-        platformRole: 'BUYER',
+        platformRole: defaultRole,
         verificationStatus: 'DRAFT',
         onboardingStep: 1,
         onboardingComplete: false,
       },
-      include: {
-        buyerProfile: true,
-        supplierProfile: {
-          include: { products: true },
-        },
-        documents: true,
-        businessAuditLogs: true,
-      },
+      include: includeConfig,
     });
 
     await createBusinessAuditLog({
       businessId: business.id,
       userId,
       action: 'BUSINESS_DRAFT_CREATED',
-      details: 'Initial onboarding draft started.',
+      details: `Initial ${defaultRole} onboarding draft started.`,
     });
   }
 
@@ -130,12 +158,13 @@ export async function getOrCreateUserBusiness(userId: string) {
 export async function saveStep1Identity(params: {
   userId: string;
   businessId?: string;
+  role?: 'BUYER' | 'SUPPLIER' | 'BOTH';
   data: Step1IdentityInput;
   ipAddress?: string;
 }) {
   const business = params.businessId
     ? await db.business.findUnique({ where: { id: params.businessId } })
-    : await getOrCreateUserBusiness(params.userId);
+    : await getOrCreateUserBusiness(params.userId, params.role);
 
   if (!business || business.ownerId !== params.userId) {
     throw new Error('Unauthorized or business not found.');

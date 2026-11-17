@@ -12,21 +12,26 @@ const monoFont = { variable: '--font-mono' };
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
   title: {
-    default: 'PROVENTA — Construction & Infrastructure Procurement Platform | One Platform to Source, Compare & Procure.',
+    default: 'PROVENTA — Construction & Infrastructure Procurement Platform | SOURCE. PROCURE. DELIVER. SETTLE.',
     template: '%s | PROVENTA',
   },
   description:
-    'PROVENTA — Construction & Infrastructure Procurement Platform. One Platform to Source, Compare & Procure. Connecting builders, contractors, developers, infrastructure companies and construction material suppliers through a connected digital procurement platform.',
+    'PROVENTA — Construction & Infrastructure Procurement Platform. SOURCE. PROCURE. DELIVER. SETTLE. A connected procurement platform enabling builders, developers, contractors and infrastructure companies to manage sourcing, supplier discovery, RFQs, quotation comparison, purchase orders, delivery coordination and transaction records.',
   keywords: [
     'PROVENTA',
     'construction procurement platform',
-    'building materials Gujarat',
+    'infrastructure procurement platform India',
+    'building materials procurement',
     'TMT steel wholesale',
     'cement procurement',
     'supplier quotation comparison',
     'contractor purchasing network',
-    'Ahmedabad construction supplies',
+    'commercial purchase orders',
+    'payment intelligence',
   ],
+  alternates: {
+    canonical: 'https://proventa.in',
+  },
   authors: [{ name: 'PROVENTA' }],
   creator: 'PROVENTA',
   publisher: 'PROVENTA',
@@ -37,7 +42,7 @@ export const metadata: Metadata = {
     siteName: 'PROVENTA',
     title: 'PROVENTA — Construction & Infrastructure Procurement Platform',
     description:
-      'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
+      'SOURCE. PROCURE. DELIVER. SETTLE. A connected procurement platform enabling builders, developers, contractors and infrastructure companies to manage sourcing, supplier discovery, RFQs, quotation comparison, purchase orders, delivery coordination and transaction records.',
     images: [
       {
         url: '/og-image.jpg',
@@ -51,7 +56,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'PROVENTA — Construction & Infrastructure Procurement Platform',
     description:
-      'A smarter way to source construction materials, compare supplier quotations and coordinate deliveries.',
+      'SOURCE. PROCURE. DELIVER. SETTLE. Connected construction material sourcing, quotation comparison and order coordination.',
     images: ['/og-image.jpg'],
   },
   robots: {

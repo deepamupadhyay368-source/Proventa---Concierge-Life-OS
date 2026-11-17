@@ -13,6 +13,7 @@ import {
   LogOut,
   Building2,
   FileSpreadsheet,
+  FileText,
   Settings,
   Layers,
   Store,
@@ -27,10 +28,10 @@ import { cn } from '@/lib/utils';
 const NAV_ITEMS = [
   { label: 'Home', href: '/' },
   { label: 'How It Works', href: '/how-it-works' },
-  { label: 'Materials', href: '/categories' },
   { label: 'For Buyers', href: '/for-buyers' },
   { label: 'For Suppliers', href: '/for-suppliers' },
-  { label: 'About', href: '/how-it-works#about' },
+  { label: 'Materials', href: '/categories' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 export function MarketingNav() {
@@ -72,10 +73,10 @@ export function MarketingNav() {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-2 text-[#F1F2F4] font-medium tracking-wide">
               <span className="w-1.5 h-1.5 bg-[#C66A42]" />
-              PROVENTA — CONSTRUCTION & INFRASTRUCTURE PROCUREMENT PLATFORM
+              PROVENTA – CONSTRUCTION &amp; INFRASTRUCTURE PROCUREMENT PLATFORM
             </span>
             <span className="text-[#414957]">|</span>
-            <span className="text-[#A8ADB7]">AHMEDABAD & GUJARAT REGION</span>
+            <span className="text-[#A8ADB7]">PAN INDIA PROCUREMENT PLATFORM</span>
           </div>
           <div className="flex items-center gap-5 text-[#A8ADB7]">
             <Link href="/buyer/dashboard" className="hover:text-[#F1F2F4] transition-colors">
@@ -86,16 +87,12 @@ export function MarketingNav() {
               Supplier Portal
             </Link>
             <span className="text-[#414957]">|</span>
-            <Link href="/logistics/deliveries" className="hover:text-[#F1F2F4] transition-colors">
-              Fleet Tracking
-            </Link>
-            <span className="text-[#414957]">|</span>
             <Link href="/admin/verification" className="hover:text-[#F1F2F4] transition-colors">
               Compliance Desk
             </Link>
             <span className="text-[#414957]">|</span>
             <Link href="/admin/procurement" className="hover:text-[#F1F2F4] transition-colors">
-              Procurement Desk
+              Admin Desk
             </Link>
           </div>
         </div>
@@ -225,7 +222,7 @@ export function MarketingNav() {
                               <span>My Business</span>
                             </Link>
                             <Link
-                              href="/buyer/dashboard"
+                              href="/buyer/rfqs"
                               onClick={() => setAccountMenuOpen(false)}
                               className="flex items-center gap-2.5 px-4 py-2 text-[#F1F2F4] hover:bg-[#252B38] hover:text-[#FFFFFF]"
                             >
@@ -233,12 +230,20 @@ export function MarketingNav() {
                               <span>My RFQs</span>
                             </Link>
                             <Link
-                              href="/buyer/dashboard"
+                              href="/buyer/orders"
                               onClick={() => setAccountMenuOpen(false)}
                               className="flex items-center gap-2.5 px-4 py-2 text-[#F1F2F4] hover:bg-[#252B38] hover:text-[#FFFFFF]"
                             >
-                              <Layers className="w-3.5 h-3.5 text-[#536B88]" />
-                              <span>My Quotations</span>
+                              <Package className="w-3.5 h-3.5 text-[#536B88]" />
+                              <span>Purchase Orders</span>
+                            </Link>
+                            <Link
+                              href="/buyer/payments"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2 text-[#F1F2F4] hover:bg-[#252B38] hover:text-[#FFFFFF]"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-[#536B88]" />
+                              <span>Payment Intelligence</span>
                             </Link>
                             <Link
                               href="/settings/business-profile"
@@ -284,7 +289,7 @@ export function MarketingNav() {
                               <span>Verification Status</span>
                             </Link>
                             <Link
-                              href="/supplier/dashboard"
+                              href="/supplier/rfqs"
                               onClick={() => setAccountMenuOpen(false)}
                               className="flex items-center gap-2.5 px-4 py-2 text-[#F1F2F4] hover:bg-[#252B38] hover:text-[#FFFFFF]"
                             >
@@ -292,12 +297,20 @@ export function MarketingNav() {
                               <span>Received RFQs</span>
                             </Link>
                             <Link
-                              href="/supplier/dashboard"
+                              href="/supplier/rfqs"
                               onClick={() => setAccountMenuOpen(false)}
                               className="flex items-center gap-2.5 px-4 py-2 text-[#F1F2F4] hover:bg-[#252B38] hover:text-[#FFFFFF]"
                             >
                               <Layers className="w-3.5 h-3.5 text-[#536B88]" />
                               <span>Submitted Quotations</span>
+                            </Link>
+                            <Link
+                              href="/supplier/payments"
+                              onClick={() => setAccountMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-4 py-2 text-[#F1F2F4] hover:bg-[#252B38] hover:text-[#FFFFFF]"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-[#536B88]" />
+                              <span>Payment Intelligence</span>
                             </Link>
                             <Link
                               href="/settings/business-profile"
@@ -420,7 +433,7 @@ export function MarketingNav() {
                       <span>My Business</span>
                     </Link>
                     <Link
-                      href="/buyer/dashboard"
+                      href="/buyer/rfqs"
                       onClick={() => setMobileOpen(false)}
                       className="py-2 px-3 text-xs uppercase tracking-wider font-semibold text-[#F1F2F4] hover:text-white flex items-center gap-2 border-b border-[#414957]/40"
                     >
@@ -428,12 +441,20 @@ export function MarketingNav() {
                       <span>My RFQs</span>
                     </Link>
                     <Link
-                      href="/buyer/dashboard"
+                      href="/buyer/orders"
                       onClick={() => setMobileOpen(false)}
                       className="py-2 px-3 text-xs uppercase tracking-wider font-semibold text-[#F1F2F4] hover:text-white flex items-center gap-2 border-b border-[#414957]/40"
                     >
-                      <Layers className="w-3.5 h-3.5 text-[#536B88]" />
-                      <span>My Quotations</span>
+                      <Package className="w-3.5 h-3.5 text-[#536B88]" />
+                      <span>Purchase Orders</span>
+                    </Link>
+                    <Link
+                      href="/buyer/payments"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-2 px-3 text-xs uppercase tracking-wider font-semibold text-[#F1F2F4] hover:text-white flex items-center gap-2 border-b border-[#414957]/40"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#536B88]" />
+                      <span>Payment Intelligence</span>
                     </Link>
                     <Link
                       href="/settings/business-profile"
@@ -479,7 +500,7 @@ export function MarketingNav() {
                       <span>Verification Status</span>
                     </Link>
                     <Link
-                      href="/supplier/dashboard"
+                      href="/supplier/rfqs"
                       onClick={() => setMobileOpen(false)}
                       className="py-2 px-3 text-xs uppercase tracking-wider font-semibold text-[#F1F2F4] hover:text-white flex items-center gap-2 border-b border-[#414957]/40"
                     >
@@ -487,12 +508,20 @@ export function MarketingNav() {
                       <span>Received RFQs</span>
                     </Link>
                     <Link
-                      href="/supplier/dashboard"
+                      href="/supplier/rfqs"
                       onClick={() => setMobileOpen(false)}
                       className="py-2 px-3 text-xs uppercase tracking-wider font-semibold text-[#F1F2F4] hover:text-white flex items-center gap-2 border-b border-[#414957]/40"
                     >
                       <Layers className="w-3.5 h-3.5 text-[#536B88]" />
                       <span>Submitted Quotations</span>
+                    </Link>
+                    <Link
+                      href="/supplier/payments"
+                      onClick={() => setMobileOpen(false)}
+                      className="py-2 px-3 text-xs uppercase tracking-wider font-semibold text-[#F1F2F4] hover:text-white flex items-center gap-2 border-b border-[#414957]/40"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-[#536B88]" />
+                      <span>Payment Intelligence</span>
                     </Link>
                     <Link
                       href="/settings/business-profile"

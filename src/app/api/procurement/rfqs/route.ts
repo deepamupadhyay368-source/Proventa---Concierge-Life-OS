@@ -63,13 +63,58 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required. Please sign in to create a requirement.' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
-    if (!body.title || !body.items || body.items.length === 0) {
+    if (!body.title || typeof body.title !== 'string' || !body.title.trim()) {
       return NextResponse.json(
-        { success: false, error: 'Title and at least one material line item are required' },
+        { success: false, error: 'Requirement title is required' },
         { status: 400 }
       );
+    }
+
+    if (body.title.trim().length > 200) {
+      return NextResponse.json(
+        { success: false, error: 'Title cannot exceed 200 characters' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
+      return NextResponse.json(
+        { success: false, error: 'At least one material line item is required' },
+        { status: 400 }
+      );
+    }
+
+    if (body.items.length > 20) {
+      return NextResponse.json(
+        { success: false, error: 'Maximum 20 line items allowed per RFQ' },
+        { status: 400 }
+      );
+    }
+
+    for (const item of body.items) {
+      if (!item.materialName || !item.materialName.trim()) {
+        return NextResponse.json(
+          { success: false, error: 'Each line item must have a valid material name' },
+          { status: 400 }
+        );
+      }
+      const qty = Number(item.quantity);
+      if (isNaN(qty) || qty <= 0) {
+        return NextResponse.json(
+          { success: false, error: `Invalid quantity for ${item.materialName}. Quantity must be a positive number.` },
+          { status: 400 }
+        );
+      }
     }
 
     if (!body.delivery?.addressLine || !body.delivery?.siteContactPhone) {
@@ -79,10 +124,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const session = await getSession();
-    const userId = session?.user?.id || body.buyerId || 'user-guest-buyer';
-    const userName = session?.user?.name || body.buyerName || 'Construction Buyer';
-    const userEmail = session?.user?.email || body.buyerEmail || 'buyer@proventa.in';
+    const userId = session.user.id;
+    const userName = session.user.name || body.buyerName || 'Construction Buyer';
+    const userEmail = session.user.email || body.buyerEmail || 'buyer@proventa.in';
 
     let buyerBusinessId = body.buyerBusinessId;
     if (!buyerBusinessId && session?.user?.id) {

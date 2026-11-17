@@ -14,12 +14,16 @@ import {
   Layers,
   Store,
   Search,
+  CreditCard,
+  Package,
 } from 'lucide-react';
 import type { ConstructionRfq, PurchaseOrder } from '@/lib/procurement/types';
+import type { LedgerFinancialSummary } from '@/lib/payment-intelligence/types';
 
 export default function BuyerDashboardPage() {
   const [rfqs, setRfqs] = useState<ConstructionRfq[]>([]);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
+  const [financialSummary, setFinancialSummary] = useState<LedgerFinancialSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [businessProfile, setBusinessProfile] = useState<any>(null);
 
@@ -40,7 +44,15 @@ export default function BuyerDashboardPage() {
         if (resProfile && resProfile.ok) {
           const jsonProf = await resProfile.json();
           if (jsonProf.success && jsonProf.data?.business) {
-            setBusinessProfile(jsonProf.data.business);
+            const biz = jsonProf.data.business;
+            setBusinessProfile(biz);
+            if (biz.id) {
+              const resSum = await fetch(`/api/payment-intelligence/summary?buyerBusinessId=${encodeURIComponent(biz.id)}`).catch(() => null);
+              if (resSum && resSum.ok) {
+                const jsonSum = await resSum.json();
+                if (jsonSum.success) setFinancialSummary(jsonSum.data);
+              }
+            }
           }
         }
       } catch (err) {
@@ -75,7 +87,7 @@ export default function BuyerDashboardPage() {
               {businessName}
             </h1>
             <p className="text-xs text-[#A8ADB7]">
-              Manage project requirements, compare incoming quotations, and track active site deliveries in Gujarat.
+              Manage project requirements, compare incoming quotations, and track active site deliveries in Gujarat and PAN India.
             </p>
           </div>
 
@@ -138,7 +150,7 @@ export default function BuyerDashboardPage() {
               <Truck className="w-4 h-4 text-[#C66A42]" />
             </div>
             <div className="font-mono text-3xl font-black text-[#FFFFFF]">{activeOrdersCount}</div>
-            <div className="text-[11px] text-[#A8ADB7]">Real-time GPS tracked shipments</div>
+            <div className="text-[11px] text-[#A8ADB7]">Active shipments in transit</div>
           </div>
 
           <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
@@ -147,8 +159,55 @@ export default function BuyerDashboardPage() {
               <CheckCircle2 className="w-4 h-4 text-[#4A7C59]" />
             </div>
             <div className="font-mono text-3xl font-black text-[#FFFFFF]">{completedOrdersCount}</div>
-            <div className="text-[11px] text-[#A8ADB7]">Verified site deliveries</div>
+            <div className="text-[11px] text-[#A8ADB7]">Weighbridge verified site deliveries</div>
           </div>
+        </div>
+
+        {/* Quick Portal Shortcuts */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Link
+            href="/buyer/rfqs"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Schedule</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">All Requirements</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
+
+          <Link
+            href="/buyer/orders"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Orders</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Purchase Orders</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
+
+          <Link
+            href="/buyer/discovery"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Vendors</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Supplier Network</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
+
+          <Link
+            href="/buyer/payments"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#C66A42] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#C66A42]">Ledger</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Payment Intelligence</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#C66A42] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
         </div>
 
         {/* Section 1: Active Material Requirements (RFQs) */}
@@ -159,9 +218,16 @@ export default function BuyerDashboardPage() {
                 Active Material Requirements (RFQs)
               </h2>
               <p className="text-xs text-[#A8ADB7]">
-                Live procurement requests sent to verified Ahmedabad building material suppliers.
+                Live procurement requests sent to verified building material suppliers.
               </p>
             </div>
+            <Link
+              href="/buyer/rfqs"
+              className="text-xs font-mono font-bold text-[#536B88] hover:text-[#FFFFFF] uppercase tracking-wider flex items-center gap-1 transition-colors"
+            >
+              <span>View All ({rfqs.length})</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
           {loading ? (
@@ -170,7 +236,7 @@ export default function BuyerDashboardPage() {
             <div className="py-8 text-center text-xs font-mono text-[#A8ADB7]">No active RFQs created yet.</div>
           ) : (
             <div className="space-y-4">
-              {rfqs.map((rfq) => {
+              {rfqs.slice(0, 5).map((rfq) => {
                 const quoteCount = rfq.quotationIds?.length || 0;
                 return (
                   <div
@@ -247,17 +313,17 @@ export default function BuyerDashboardPage() {
           <div className="flex items-center justify-between border-b border-[#414957] pb-4">
             <div>
               <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#FFFFFF]">
-                Active Purchase Orders & Site Logistics
+                Active Purchase Orders &amp; Site Logistics
               </h2>
               <p className="text-xs text-[#A8ADB7]">
-                Track dispatches, transit GPS, and confirm delivery weighbridge receipts.
+                Track dispatches, verify driver details, and confirm delivery weighbridge receipts.
               </p>
             </div>
             <Link
-              href="/logistics/deliveries"
+              href="/buyer/orders"
               className="text-xs font-mono font-bold text-[#536B88] hover:text-[#FFFFFF] uppercase tracking-wider flex items-center gap-1 transition-colors"
             >
-              <span>Full Fleet View</span>
+              <span>View All Orders ({orders.length})</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -268,7 +334,7 @@ export default function BuyerDashboardPage() {
             <div className="py-8 text-center text-xs font-mono text-[#A8ADB7]">No purchase orders issued yet.</div>
           ) : (
             <div className="space-y-4">
-              {orders.map((po) => (
+              {orders.slice(0, 5).map((po) => (
                 <div
                   key={po.id}
                   className="bg-[#252B38] border border-[#414957] p-5 hover:border-[#536B88] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-sm"

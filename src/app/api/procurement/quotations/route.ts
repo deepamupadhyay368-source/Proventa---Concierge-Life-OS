@@ -3,9 +3,10 @@ import {
   submitConstructionQuotation,
   reviseConstructionQuotation,
   getQuotationById,
+  getConstructionRfqById,
 } from '@/lib/procurement/repository';
 import { getSession } from '@/lib/auth/session';
-import { resolveSupplierContext } from '@/lib/business/auth-context';
+import { resolveSupplierContext, getUserAuthorizedBusinesses } from '@/lib/business/auth-context';
 
 export async function GET(request: Request) {
   try {
@@ -25,6 +26,44 @@ export async function GET(request: Request) {
         { success: false, error: 'Quotation not found' },
         { status: 404 }
       );
+    }
+
+    // Confidentiality Check: Ensure requester is either RFQ owner (Buyer) or Quotation submitter (Supplier)
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required to view quotation details' },
+        { status: 401 }
+      );
+    }
+
+    const user = session.user;
+    const isAdmin = user.roles?.some((r: string) => ['SUPER_ADMIN', 'ADMIN'].includes(r));
+
+    if (!isAdmin) {
+      const authorizedBusinesses = await getUserAuthorizedBusinesses(user.id);
+      const authorizedBizIds = new Set(authorizedBusinesses.map((b) => b.id));
+
+      const isQuotingSupplier =
+        quotation.supplierId === user.id ||
+        (quotation.supplierBusinessId && authorizedBizIds.has(quotation.supplierBusinessId)) ||
+        authorizedBizIds.has(quotation.supplierId);
+
+      const rfq = getConstructionRfqById(quotation.rfqId);
+      const isRfqBuyer =
+        rfq &&
+        (rfq.buyerId === user.id ||
+          (rfq.buyerBusinessId && authorizedBizIds.has(rfq.buyerBusinessId)));
+
+      if (!isQuotingSupplier && !isRfqBuyer) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Forbidden: Competitor quotations are strictly confidential and cannot be viewed by other suppliers.',
+          },
+          { status: 403 }
+        );
+      }
     }
 
     return NextResponse.json({ success: true, data: quotation });

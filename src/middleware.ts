@@ -93,6 +93,7 @@ export default auth(async (req) => {
     pathname.startsWith('/suppliers/') ||
     pathname.startsWith('/rfq/') ||
     pathname.startsWith('/api/procurement') ||
+    pathname.startsWith('/api/payment-intelligence') ||
     pathname.startsWith('/logistics/') ||
     pathname.startsWith('/admin/procurement') ||
     pathname.startsWith('/business/') ||

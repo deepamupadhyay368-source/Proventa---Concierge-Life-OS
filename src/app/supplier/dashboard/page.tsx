@@ -198,21 +198,72 @@ export default function SupplierDashboardPage() {
 
           <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
             <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7] uppercase">
-              <span>DELIVERY RATING</span>
+              <span>FULFILLED DELIVERIES</span>
               <CheckCircle2 className="w-4 h-4 text-[#4A7C59]" />
             </div>
-            <div className="font-mono text-3xl font-black text-[#FFFFFF]">4.9 / 5.0</div>
-            <div className="text-[11px] text-[#4A7C59] font-mono font-bold">Verified Dealer Status</div>
+            <div className="font-mono text-3xl font-black text-[#FFFFFF]">
+              {orders.filter((o) => ['DELIVERED', 'COMPLETED'].includes(o.deliveryStatus)).length}
+            </div>
+            <div className="text-[11px] text-[#A8ADB7]">Site weighbridge confirmed</div>
           </div>
 
           <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
             <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7] uppercase">
-              <span>DELIVERED TONNAGE</span>
+              <span>PAYMENT INTEGRITY</span>
               <Building2 className="w-4 h-4 text-[#536B88]" />
             </div>
-            <div className="font-mono text-3xl font-black text-[#FFFFFF]">520+ MT</div>
-            <div className="text-[11px] text-[#A8ADB7]">Verified Site Deliveries</div>
+            <div className="font-mono text-3xl font-black text-[#536B88]">
+              {orders.length > 0 ? `${orders.length} Orders` : '—'}
+            </div>
+            <div className="text-[11px] text-[#A8ADB7]">Commercial transaction depth</div>
           </div>
+        </div>
+
+        {/* Quick Portal Shortcuts */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <Link
+            href="/supplier/rfqs"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Bidding</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Open RFQs</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
+
+          <Link
+            href="/supplier/catalogue"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Inventory</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Product Catalogue</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
+
+          <Link
+            href="/supplier/performance"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Reputation</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Performance Desk</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
+
+          <Link
+            href="/supplier/payments"
+            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#C66A42] rounded-sm transition-colors flex items-center justify-between group"
+          >
+            <div className="space-y-0.5">
+              <div className="text-[10px] font-mono uppercase text-[#C66A42]">Invoices</div>
+              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Payment Intelligence</div>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#C66A42] group-hover:text-[#FFFFFF] transition-colors" />
+          </Link>
         </div>
 
         {/* Section: Incoming Matching RFQs to Quote On */}

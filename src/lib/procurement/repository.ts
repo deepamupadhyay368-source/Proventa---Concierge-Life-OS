@@ -247,8 +247,98 @@ function getStore(): ProcurementDataStore {
   if (!store.initialized) {
     seedProcurementData(store);
     store.initialized = true;
+    // Asynchronously hydrate store from persistent PostgreSQL database
+    hydrateStoreFromPrisma(store).catch(() => {});
   }
   return store;
+}
+
+async function hydrateStoreFromPrisma(store: ProcurementDataStore): Promise<void> {
+  try {
+    const [dbRfqs, dbQuotes] = await Promise.all([
+      db.procurementRfq.findMany().catch(() => []),
+      db.procurementQuotation.findMany().catch(() => []),
+    ]);
+
+    for (const r of dbRfqs) {
+      if (!store.rfqs.has(r.id)) {
+        store.rfqs.set(r.id, {
+          id: r.id,
+          referenceCode: r.id,
+          buyerId: r.creatorUserId,
+          buyerBusinessId: r.creatorUserId,
+          buyerName: 'Construction Buyer',
+          buyerEmail: 'buyer@proventa.in',
+          buyerRole: 'CONTRACTOR',
+          title: r.title,
+          projectType: 'RESIDENTIAL',
+          status: r.status as any,
+          items: (r.items as any) || [],
+          delivery: {
+            siteName: 'Project Site',
+            addressLine: r.deliveryAddress || 'Site Address',
+            city: r.deliveryDistrict || 'Ahmedabad',
+            state: r.deliveryState || 'Gujarat',
+            pincode: r.deliveryPincode || '380060',
+            siteContactPerson: 'Site Manager',
+            siteContactPhone: '+91 98000 00000',
+            vehicleAccessibility: '10-Wheeler Truck',
+          },
+          urgency: 'STANDARD',
+          requiredDeliveryDate: r.targetDate ? r.targetDate.toISOString() : new Date().toISOString(),
+          invitedSupplierIds: r.eligibleSupplierIds || [],
+          quotationIds: [],
+          boqAttachments: [],
+          purchaseOrderId: r.purchaseOrderId || undefined,
+          createdAt: r.createdAt.toISOString(),
+          updatedAt: r.updatedAt.toISOString(),
+        });
+      }
+    }
+
+    for (const q of dbQuotes) {
+      if (!store.quotations.has(q.id)) {
+        store.quotations.set(q.id, {
+          id: q.id,
+          referenceCode: q.id,
+          rfqId: q.rfqId,
+          rfqReferenceCode: q.rfqId,
+          supplierId: q.supplierId,
+          supplierBusinessId: q.supplierId,
+          supplierName: q.supplierName,
+          supplierGstin: '24AAACG1928K1Z5',
+          supplierCity: 'Ahmedabad',
+          supplierVerificationBadge: 'PREMIUM_VERIFIED',
+          supplierRating: 4.9,
+          totalCompletedDeliveries: 10,
+          status: q.status as any,
+          revisionNumber: q.revisionNumber || 1,
+          items: (q.itemQuotes as any) || [],
+          subtotal: Number(q.totalBasePrice) || 0,
+          totalGst: Number(q.totalGst) || 0,
+          deliveryCharges: Number(q.freightCharge) || 0,
+          discountAmount: 0,
+          grandTotal: Number(q.totalLandedCost) || 0,
+          promisedDeliveryDate: q.validUntil ? q.validUntil.toISOString() : new Date().toISOString(),
+          validUntil: q.validUntil ? q.validUntil.toISOString() : new Date().toISOString(),
+          validityDays: q.leadTimeDays || 3,
+          paymentTerms: q.paymentTerms || 'NET_30',
+          createdAt: q.createdAt.toISOString(),
+          updatedAt: q.updatedAt.toISOString(),
+        });
+
+        const parentRfq = store.rfqs.get(q.rfqId);
+        if (parentRfq) {
+          if (!parentRfq.quotationIds) parentRfq.quotationIds = [];
+          if (!parentRfq.quotationIds.includes(q.id)) {
+            parentRfq.quotationIds.push(q.id);
+          }
+        }
+      }
+    }
+  } catch {
+    // Non-blocking
+  }
 }
 
 // ============================================================
