@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -8,13 +8,10 @@ import {
   Trash2,
   FileSpreadsheet,
   ArrowRight,
-  ShieldCheck,
-  Building2,
   AlertCircle,
   Sparkles,
 } from 'lucide-react';
 import { CONSTRUCTION_UNITS, type ConstructionUnit } from '@/lib/brand';
-import { CATEGORY_SELECT_OPTIONS } from '@/lib/procurement/categories';
 
 interface MaterialItemInput {
   categorySlug: string;
@@ -90,6 +87,37 @@ function RfqCreateForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleAiParse = useCallback(async (customPrompt?: string) => {
+    const textToParse = customPrompt || aiPrompt;
+    if (!textToParse.trim()) return;
+
+    setAiParsing(true);
+    setAiMessage('');
+    try {
+      const res = await fetch('/api/procurement/ai-parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: textToParse }),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        const parsed = json.data;
+        if (parsed.items && parsed.items.length > 0) {
+          setItems(parsed.items);
+        }
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.location?.city) setCity(parsed.location.city);
+        if (parsed.location?.siteName) setSiteName(parsed.location.siteName);
+        if (parsed.location?.addressLine) setAddressLine(parsed.location.addressLine);
+        setAiMessage(`✓ Parsed ${parsed.items?.length || 0} items successfully.`);
+      }
+    } catch {
+      setAiMessage('Could not auto-parse note. Please enter manually.');
+    } finally {
+      setAiParsing(false);
+    }
+  }, [aiPrompt]);
+
   useEffect(() => {
     const prompt = searchParams.get('prompt');
     const cat = searchParams.get('category');
@@ -136,38 +164,7 @@ function RfqCreateForm() {
         }
       })
       .catch(() => {});
-  }, [searchParams]);
-
-  const handleAiParse = async (customPrompt?: string) => {
-    const textToParse = customPrompt || aiPrompt;
-    if (!textToParse.trim()) return;
-
-    setAiParsing(true);
-    setAiMessage('');
-    try {
-      const res = await fetch('/api/procurement/ai-parse', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: textToParse }),
-      });
-      const json = await res.json();
-      if (json.success && json.data) {
-        const parsed = json.data;
-        if (parsed.items && parsed.items.length > 0) {
-          setItems(parsed.items);
-        }
-        if (parsed.title) setTitle(parsed.title);
-        if (parsed.location?.city) setCity(parsed.location.city);
-        if (parsed.location?.siteName) setSiteName(parsed.location.siteName);
-        if (parsed.location?.addressLine) setAddressLine(parsed.location.addressLine);
-        setAiMessage(`✓ Parsed ${parsed.items?.length || 0} items successfully.`);
-      }
-    } catch (err: any) {
-      setAiMessage('Could not auto-parse note. Please enter manually.');
-    } finally {
-      setAiParsing(false);
-    }
-  };
+  }, [searchParams, handleAiParse]);
 
   const addItem = () => {
     setItems((prev) => [
