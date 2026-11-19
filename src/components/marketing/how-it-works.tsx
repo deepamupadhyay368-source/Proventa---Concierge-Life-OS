@@ -1,78 +1,81 @@
-import { MessageSquare, Search, CheckSquare, ArrowRight } from 'lucide-react';
+import { ClipboardList, Search, GitCompare, Truck, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const STEPS = [
   {
     step: '01',
-    title: 'State Your Request',
-    description: 'Articulate what you need in natural language. Dining, executive flights, boutique stays, cultural passes, gifting, or lifestyle coordination.',
-    icon: MessageSquare,
+    title: 'Submit Requirement',
+    description: 'Create multi-item RFQs with technical BIS specifications, required delivery schedules, site access parameters, and attached BOQ documents.',
+    icon: ClipboardList,
   },
   {
     step: '02',
-    title: 'AI Discovers Genuine Options',
-    description: 'AI evaluates requirements, checks legitimate sources, and curates up to 25 genuine options with transparent pricing. You review and select your preferred option.',
+    title: 'Match Suppliers',
+    description: 'Broadcast specifications directly to verified regional stockists, primary rolling mills, and authorized distributors with matching inventory.',
     icon: Search,
   },
   {
     step: '03',
-    title: 'Approval & Execution',
-    description: 'Once you approve, Proventa executes the request autonomously where a verified interface exists, or through your dedicated Concierge Desk with real provider confirmation.',
-    icon: CheckSquare,
+    title: 'Compare Quotations',
+    description: 'Evaluate side-by-side landed cost matrices comparing ex-factory rates, applicable GST, freight logistics, and commercial payment terms.',
+    icon: GitCompare,
+  },
+  {
+    step: '04',
+    title: 'Award Purchase Order',
+    description: 'Issue binding digital Purchase Orders, coordinate dispatches with weighbridge verification, and maintain transparent payment obligations.',
+    icon: Truck,
   },
 ];
 
 export function HowItWorksSection() {
   return (
-    <section className="py-24 bg-white relative overflow-hidden border-t border-[#E1E5E8] live-bg-canvas">
-      {/* Live Ambient Moving Light */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-[#F1F3F5]/60 via-[#E5E9ED]/30 to-transparent blur-[140px] pointer-events-none -z-10 live-orb-3" />
-
+    <section id="how-it-works" className="py-24 bg-[#F4F7FA] relative overflow-hidden border-t border-b border-[#E2E8EF]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-[#E1E5E8] text-[11px] font-semibold tracking-wider text-[#1F2933] uppercase mb-4 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#1F2933]"></span>
-            <span>Operating Methodology</span>
+        <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-[#E2E8EF] text-[11px] font-mono font-semibold tracking-wider text-[#315F91] uppercase shadow-xs">
+            <span className="w-1.5 h-1.5 bg-[#315F91]"></span>
+            <span>PROCUREMENT METHODOLOGY</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1F2933] mb-4">
-            Quiet Simplicity. <span className="live-flowing-text">Total Control.</span>
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-[#243447]">
+            How PROVENTA Works.
           </h2>
-          <p className="text-base sm:text-lg text-[#66717C] leading-relaxed">
-            AI discovers. Customer chooses. Concierge executes. A seamless hybrid lifecycle.
+          <p className="text-base sm:text-lg text-[#6B7785] leading-relaxed">
+            Four connected milestones transforming material procurement into an auditable corporate workflow.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {STEPS.map((s, idx) => {
             const Icon = s.icon;
             return (
               <div
                 key={idx}
-                className="p-6 rounded-2xl bg-white/85 backdrop-blur-xl border border-[#E1E5E8] hover:border-[#A7B0B8] flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-lg hover:-translate-y-1.5 group"
+                className="p-6 bg-white border border-[#E2E8EF] hover:border-[#315F91] flex flex-col justify-between transition-all duration-200 shadow-2xs rounded-xs group"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="text-2xl font-bold text-[#1F2933] group-hover:text-[#111820] transition-colors">{s.step}</span>
-                    <div className="w-10 h-10 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] group-hover:bg-[#1F2933] group-hover:text-white transition-all duration-300 shadow-2xs">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-mono text-2xl font-black text-[#315F91] tracking-tight">{s.step}</span>
+                    <div className="w-8 h-8 rounded-xs bg-[#F4F7FA] text-[#315F91] flex items-center justify-center">
                       <Icon className="h-4 w-4" />
                     </div>
                   </div>
-                  <h3 className="text-base font-semibold text-[#1F2933] mb-2">{s.title}</h3>
-                  <p className="text-xs sm:text-sm text-[#66717C] leading-relaxed">{s.description}</p>
+                  <h3 className="text-base font-heading font-bold text-[#243447] mb-2">{s.title}</h3>
+                  <p className="text-xs text-[#6B7785] leading-relaxed">{s.description}</p>
+                </div>
+
+                <div className="pt-4 border-t border-[#E2E8EF] mt-6">
+                  <Link
+                    href="/rfq/new"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#315F91] group-hover:text-[#264B74]"
+                  >
+                    <span>Start Process</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            href="/wave1"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#1F2933] text-white font-semibold text-xs uppercase tracking-wider hover:bg-[#111820] hover:shadow-md transition-all shadow-xs active:scale-[0.98]"
-          >
-            <span>Apply for Early Access</span>
-            <ArrowRight className="h-3.5 w-3.5 text-[#A7B0B8]" />
-          </Link>
         </div>
       </div>
     </section>

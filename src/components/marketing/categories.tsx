@@ -1,107 +1,114 @@
-import { UtensilsCrossed, Plane, ShoppingBag, Ticket, Calendar, Home, User, Briefcase, Sparkles, ArrowRight } from 'lucide-react';
+import { Layers, HardHat, ShieldCheck, Truck, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 const CATEGORIES = [
   {
-    icon: UtensilsCrossed,
-    name: 'Fine Dining & Verified Tables',
-    description: 'Prime dinner tables, private dining alcoves, and curated chef tasting menus at premier restaurants.',
-    examples: ['Agashiye Heritage', 'Tinello Hyatt', 'Rooftop VIP Reservations'],
-    href: '/wave1?intent=Fine+Dining',
+    slug: 'steel-metals',
+    name: 'Steel & TMT Rebars',
+    spec: 'IS 1786:2008 · Fe 500D / 550D / 550D CRS',
+    description: 'Primary producer TMT rebars (8mm to 36mm), structural MS angles, channels, beams, plates, and wire.',
+    unit: 'Metric Tonnes (MT)',
+    href: '/rfq/new?category=steel-metals',
   },
   {
-    icon: Plane,
-    name: 'Executive Travel & Curated Stays',
-    description: 'Scheduled commercial and business flights, boutique heritage hotels, and executive chauffeur airport transfers.',
-    examples: ['SVP Airport Chauffeur', 'Heritage Haveli Retreats', 'Flight Ticketing'],
-    href: '/wave1?intent=Curated+Travel',
+    slug: 'cement-concrete',
+    name: 'Cement & Ready-Mix Concrete',
+    spec: 'IS 269:2015 · IS 1489:2015 · OPC 43/53 & PPC',
+    description: 'Factory-direct 50kg bags, bulk tanker bulker supply, and computerized transit-mixer ready-mix concrete (RMC).',
+    unit: 'Bags (50kg) / MT',
+    href: '/rfq/new?category=cement-concrete',
   },
   {
-    icon: ShoppingBag,
-    name: 'Luxury Sourcing & Gifting',
-    description: 'Bespoke corporate gifting hampers, rare artisanal textiles, and hand-delivered luxury gifts.',
-    examples: ['Executive Hampers', 'Ashavali Silk Dupattas', 'Artisanal Silver'],
-    href: '/wave1?intent=Luxury+Gifting',
+    slug: 'building-materials',
+    name: 'Aggregates & Sand',
+    spec: 'IS 383:2016 · 10mm, 20mm & Crushed Sand',
+    description: 'Crushed basalt aggregates (10mm, 20mm, 40mm), manufactured sand (M-Sand), washed river sand, and road base.',
+    unit: 'Metric Tonnes (MT) / Brass',
+    href: '/rfq/new?category=building-materials',
   },
   {
-    icon: Home,
-    name: 'Home Logistics & Appointments',
-    description: 'Dispatch of vetted estate specialists, HVAC diagnostics, and priority appointments.',
-    examples: ['Estate Diagnostics', 'Villa Maintenance', 'Wellness Bookings'],
-    href: '/wave1?intent=Estate+Care',
+    slug: 'pipes-plumbing',
+    name: 'Pipes & Drainage Systems',
+    spec: 'IS 15778 · IS 4984 · CPVC, UPVC, HDPE & DI',
+    description: 'SDR 11/13.5 CPVC pressure piping, SWR drainage systems, underground HDPE coils, and DI K7/K9 infrastructure lines.',
+    unit: 'Running Metres (Rm) / Nos',
+    href: '/rfq/new?category=pipes-plumbing',
   },
   {
-    icon: Sparkles,
-    name: 'Bespoke Lifestyle Operations',
-    description: 'Confidential lifestyle research, VIP experience passes, event access, and complex personalized requests.',
-    examples: ['VIP Passes', 'Bespoke Itineraries', 'Executive Errands'],
-    href: '/wave1?intent=Life+Logistics',
+    slug: 'electrical-materials',
+    name: 'Electrical Materials & Switchgear',
+    spec: 'IS 694:2010 · IS 7098 · FRLSH & XLPE',
+    description: 'Commercial wiring, copper busbars, LT/HT armoured underground cables, distribution boards, and modular switchgear.',
+    unit: 'Running Metres / Units',
+    href: '/rfq/new?category=electrical-materials',
+  },
+  {
+    slug: 'construction-chemicals',
+    name: 'Construction Chemicals',
+    spec: 'ASTM C836 · IS 2645 · Admixtures & Membranes',
+    description: 'High-range water-reducing plasticizers, elastomeric waterproofing, polymer tile adhesives, and structural grouts.',
+    unit: 'Litres (L) / Bags (25kg)',
+    href: '/rfq/new?category=construction-chemicals',
+  },
+  {
+    slug: 'building-blocks',
+    name: 'Building Blocks & Masonry',
+    spec: 'IS 2185 Part 3 · AAC Blocks & Fly Ash Bricks',
+    description: 'Precision autoclaved aerated concrete (AAC) blocks, structural masonry mortars, and fly ash construction bricks.',
+    unit: 'Cubic Metres (Cu.m) / Units',
+    href: '/rfq/new?category=building-blocks',
   },
 ];
 
 export function CategoriesSection() {
   return (
-    <section className="py-24 bg-[#F7F8FA]/70 relative overflow-hidden border-t border-[#E1E5E8] live-bg-canvas">
-      {/* Moving Ambient Lights */}
-      <div className="absolute top-1/4 right-10 w-[500px] h-[500px] bg-gradient-to-bl from-[#E5E9ED]/50 to-transparent blur-[140px] pointer-events-none -z-10 live-orb-1" />
-      <div className="absolute bottom-10 left-10 w-[450px] h-[450px] bg-gradient-to-tr from-[#F1F3F5]/60 to-transparent blur-[120px] pointer-events-none -z-10 live-orb-2" />
-
+    <section className="py-24 bg-[#FFFFFF] relative overflow-hidden border-t border-b border-[#E2E8EF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="max-w-3xl mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-[#E1E5E8] text-[11px] font-semibold tracking-wider text-[#1F2933] uppercase mb-4 shadow-2xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#1F2933]"></span>
-            <span>Core Capabilities</span>
+        <div className="max-w-3xl mb-14 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#F4F7FA] border border-[#E2E8EF] text-[11px] font-mono font-semibold tracking-wider text-[#315F91] uppercase shadow-xs">
+            <span className="w-1.5 h-1.5 bg-[#315F91]"></span>
+            <span>MATERIAL TAXONOMY</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#1F2933] mb-4">
-            Everything You Need Handled. <span className="live-flowing-text font-normal">Precisely.</span>
+          <h2 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight text-[#243447]">
+            Commercial Industrial Materials.
           </h2>
-          <p className="text-base sm:text-lg text-[#66717C] leading-relaxed">
-            From verified dining reservations to executive travel and discreet lifestyle coordination. One request, completely handled.
+          <p className="text-base sm:text-lg text-[#6B7785] leading-relaxed">
+            Direct procurement across seven core commercial categories with standardized technical specifications.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {CATEGORIES.map((cat, idx) => {
-            const Icon = cat.icon;
-            const isFeatured = idx === 0;
-            return (
-              <div
-                key={idx}
-                className={`p-6 rounded-2xl bg-white/85 backdrop-blur-xl border border-[#E1E5E8] hover:border-[#A7B0B8] flex flex-col justify-between transition-all duration-300 shadow-xs hover:shadow-lg hover:-translate-y-1 group ${
-                  isFeatured ? 'md:col-span-2 lg:col-span-2' : ''
-                }`}
-              >
-                <div>
-                  <div className="w-10 h-10 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center text-[#1F2933] mb-5 group-hover:bg-[#1F2933] group-hover:text-white transition-all duration-300 shadow-2xs">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="text-base sm:text-lg font-semibold text-[#1F2933] mb-2">{cat.name}</h3>
-                  <p className="text-xs sm:text-sm text-[#66717C] leading-relaxed mb-5">{cat.description}</p>
-                </div>
-
-                <div>
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {cat.examples.map((ex, exIdx) => (
-                      <span
-                        key={exIdx}
-                        className="inline-block px-2.5 py-1 rounded-lg text-[11px] bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] group-hover:border-[#A7B0B8]/40 transition-colors"
-                      >
-                        {ex}
-                      </span>
-                    ))}
-                  </div>
-
-                  <Link
-                    href={cat.href}
-                    className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wider font-semibold text-[#1F2933] group-hover:text-[#111820] transition-colors"
-                  >
-                    <span>Request with Concierge</span>
-                    <ArrowRight className="h-3 w-3 text-[#A7B0B8] group-hover:translate-x-0.5 transition-transform" />
-                  </Link>
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {CATEGORIES.map((cat) => (
+            <div
+              key={cat.slug}
+              className="p-6 bg-white border border-[#E2E8EF] hover:border-[#AEBBC6] transition-all rounded-xs flex flex-col justify-between shadow-2xs group"
+            >
+              <div className="space-y-3">
+                <span className="text-[10px] font-mono font-semibold text-[#315F91] block">
+                  {cat.spec}
+                </span>
+                <h3 className="font-heading text-lg font-bold text-[#243447] group-hover:text-[#315F91] transition-colors">
+                  {cat.name}
+                </h3>
+                <p className="text-xs text-[#6B7785] leading-relaxed">
+                  {cat.description}
+                </p>
               </div>
-            );
-          })}
+
+              <div className="pt-6 border-t border-[#E2E8EF] mt-6 flex items-center justify-between">
+                <span className="font-mono text-[10px] text-[#6B7785] uppercase">
+                  {cat.unit}
+                </span>
+                <Link
+                  href={cat.href}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#315F91] hover:text-[#264B74]"
+                >
+                  <span>Request Quote</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

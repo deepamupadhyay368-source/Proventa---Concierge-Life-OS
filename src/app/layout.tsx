@@ -82,7 +82,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#191B20',
+  themeColor: '#FFFFFF',
 };
 
 export default function RootLayout({
@@ -96,11 +96,11 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${sansFont.variable} ${displayFont.variable} ${monoFont.variable}`}
     >
-      <body className="min-h-screen bg-[#292F3D] text-[#F1F2F4] antialiased selection:bg-[#536B88] selection:text-[#FFFFFF]">
+      <body className="min-h-screen bg-[#FFFFFF] text-[#243447] antialiased selection:bg-[#315F91] selection:text-[#FFFFFF]">
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
-          forcedTheme="dark"
+          defaultTheme="light"
+          forcedTheme="light"
           enableSystem={false}
           disableTransitionOnChange
         >

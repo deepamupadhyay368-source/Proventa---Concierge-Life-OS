@@ -90,47 +90,47 @@ export default function SupplierDashboardPage() {
   const verificationStatus = businessProfile?.verificationStatus || 'DRAFT';
 
   return (
-    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] font-sans py-10">
+    <div className="min-h-screen bg-[#F4F7FA] text-[#243447] font-sans py-10">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
         {/* Header with Multi-Business Switcher */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#414957] pb-6 bg-[#303746] p-6 sm:p-8 border shadow-sm rounded-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border border-[#E2E8EF] pb-6 bg-[#FFFFFF] p-6 sm:p-8 shadow-xs rounded-xs">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#536B88] font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#315F91] font-bold uppercase tracking-wider">
               <Store className="w-3.5 h-3.5" />
-              <span>SUPPLIER & DISTRIBUTOR PORTAL</span>
+              <span>SUPPLIER &amp; DISTRIBUTOR PORTAL</span>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#FFFFFF] font-heading">
+              <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#243447] font-heading">
                 {businessName}
               </h1>
 
               {verificationStatus === 'VERIFIED' ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-950/80 border border-emerald-500/60 text-emerald-400 text-xs font-mono font-bold uppercase rounded-sm">
-                  <CheckCircle2 className="w-3 h-3" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-mono font-bold uppercase rounded-xs">
+                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                   <span>Verified Supplier</span>
                 </span>
               ) : (
                 <Link
                   href="/settings/business-profile"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-950/80 border border-amber-500/60 text-amber-400 text-xs font-mono font-bold uppercase rounded-sm hover:underline"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-mono font-bold uppercase rounded-xs hover:underline"
                 >
-                  <Clock className="w-3 h-3" />
+                  <Clock className="w-3 h-3 text-amber-600" />
                   <span>Verification: {verificationStatus}</span>
                 </Link>
               )}
 
               {/* Multi-Business Switcher */}
               {authorizedBusinesses.length > 1 && (
-                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#191B20] border border-[#536B88] rounded-sm text-xs font-mono">
-                  <Building2 className="w-3 h-3 text-[#C66A42]" />
-                  <span className="text-[#A8ADB7] mr-1">Business:</span>
+                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#F4F7FA] border border-[#E2E8EF] rounded-xs text-xs font-mono">
+                  <Building2 className="w-3 h-3 text-[#315F91]" />
+                  <span className="text-[#6B7785] mr-1">Business:</span>
                   <select
                     value={activeSupplierId}
                     onChange={(e) => handleBusinessSwitch(e.target.value)}
-                    className="bg-transparent text-[#FFFFFF] font-bold outline-none cursor-pointer"
+                    className="bg-transparent text-[#243447] font-bold outline-none cursor-pointer"
                   >
                     {authorizedBusinesses.map((b) => (
-                      <option key={b.id} value={b.id} className="bg-[#191B20] text-[#FFFFFF]">
+                      <option key={b.id} value={b.id} className="bg-white text-[#243447]">
                         {b.name} ({b.platformRole})
                       </option>
                     ))}
@@ -138,38 +138,38 @@ export default function SupplierDashboardPage() {
                 </div>
               )}
             </div>
-            <p className="text-xs text-[#A8ADB7]">
-              Certified Material Stockist & Logistics Desk &bull; Ahmedabad, Gujarat Region
+            <p className="text-xs text-[#6B7785]">
+              Certified Material Stockist &amp; Logistics Desk • Ahmedabad, Gujarat Region
             </p>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
               href="/supplier/catalogue"
-              className="px-3.5 py-2 bg-[#536B88] hover:bg-[#637d9e] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-sm transition-colors flex items-center gap-1.5 shadow-sm"
+              className="px-3.5 py-2 bg-[#315F91] hover:bg-[#264B74] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-xs transition-colors flex items-center gap-1.5 shadow-xs"
             >
               <Store className="w-3.5 h-3.5" />
               <span>Product Catalogue</span>
             </Link>
             <Link
               href="/supplier/performance"
-              className="px-3.5 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#536B88] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-sm transition-colors flex items-center gap-1.5 shadow-sm"
+              className="px-3.5 py-2 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] text-xs font-mono uppercase tracking-wider text-[#243447] font-bold rounded-xs transition-colors flex items-center gap-1.5 shadow-xs"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#536B88]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#315F91]" />
               <span>Performance</span>
             </Link>
             {role === 'BOTH' && (
               <Link
                 href="/buyer/dashboard"
-                className="px-3.5 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#C66A42] text-xs font-mono uppercase tracking-wider text-[#FFFFFF] font-bold rounded-sm transition-colors flex items-center gap-1.5 shadow-sm"
+                className="px-3.5 py-2 bg-white hover:bg-[#F4F7FA] border border-[#315F91] text-xs font-mono uppercase tracking-wider text-[#315F91] font-bold rounded-xs transition-colors flex items-center gap-1.5 shadow-xs"
               >
-                <ShoppingCart className="w-3.5 h-3.5 text-[#C66A42]" />
+                <ShoppingCart className="w-3.5 h-3.5 text-[#315F91]" />
                 <span>Switch to Buyer Desk</span>
               </Link>
             )}
             <Link
               href="/settings/business-profile"
-              className="px-4 py-2 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] text-xs font-mono uppercase tracking-wider text-[#F1F2F4] font-bold rounded-sm transition-colors"
+              className="px-4 py-2 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] text-xs font-mono uppercase tracking-wider text-[#6B7785] hover:text-[#243447] font-bold rounded-xs transition-colors"
             >
               Settings
             </Link>
@@ -178,44 +178,44 @@ export default function SupplierDashboardPage() {
 
         {/* 4 Clean Metric Panels */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
-            <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7] uppercase">
+          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
+            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
               <span>MATCHING OPEN RFQS</span>
-              <FileSpreadsheet className="w-4 h-4 text-[#536B88]" />
+              <FileSpreadsheet className="w-4 h-4 text-[#315F91]" />
             </div>
-            <div className="font-mono text-3xl font-black text-[#536B88]">{rfqs.length}</div>
-            <div className="text-[11px] text-[#A8ADB7]">Ready for quotation submission</div>
+            <div className="font-mono text-3xl font-black text-[#315F91]">{rfqs.length}</div>
+            <div className="text-[11px] text-[#6B7785]">Ready for quotation submission</div>
           </div>
 
-          <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
-            <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7] uppercase">
+          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
+            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
               <span>ACTIVE ORDERS</span>
-              <Truck className="w-4 h-4 text-[#C66A42]" />
+              <Truck className="w-4 h-4 text-[#315F91]" />
             </div>
-            <div className="font-mono text-3xl font-black text-[#FFFFFF]">{orders.length}</div>
-            <div className="text-[11px] text-[#A8ADB7]">In processing & transit</div>
+            <div className="font-mono text-3xl font-black text-[#243447]">{orders.length}</div>
+            <div className="text-[11px] text-[#6B7785]">In processing &amp; transit</div>
           </div>
 
-          <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
-            <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7] uppercase">
+          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
+            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
               <span>FULFILLED DELIVERIES</span>
-              <CheckCircle2 className="w-4 h-4 text-[#4A7C59]" />
+              <CheckCircle2 className="w-4 h-4 text-[#2E7D32]" />
             </div>
-            <div className="font-mono text-3xl font-black text-[#FFFFFF]">
+            <div className="font-mono text-3xl font-black text-[#243447]">
               {orders.filter((o) => ['DELIVERED', 'COMPLETED'].includes(o.deliveryStatus)).length}
             </div>
-            <div className="text-[11px] text-[#A8ADB7]">Site weighbridge confirmed</div>
+            <div className="text-[11px] text-[#6B7785]">Site weighbridge confirmed</div>
           </div>
 
-          <div className="bg-[#303746] border border-[#414957] p-5 space-y-2 shadow-sm rounded-sm">
-            <div className="flex items-center justify-between text-xs font-mono text-[#A8ADB7] uppercase">
+          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
+            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
               <span>PAYMENT INTEGRITY</span>
-              <Building2 className="w-4 h-4 text-[#536B88]" />
+              <Building2 className="w-4 h-4 text-[#315F91]" />
             </div>
-            <div className="font-mono text-3xl font-black text-[#536B88]">
+            <div className="font-mono text-3xl font-black text-[#315F91]">
               {orders.length > 0 ? `${orders.length} Orders` : '—'}
             </div>
-            <div className="text-[11px] text-[#A8ADB7]">Commercial transaction depth</div>
+            <div className="text-[11px] text-[#6B7785]">Commercial transaction depth</div>
           </div>
         </div>
 
@@ -223,103 +223,103 @@ export default function SupplierDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <Link
             href="/supplier/rfqs"
-            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
           >
             <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Bidding</div>
-              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Open RFQs</div>
+              <div className="text-[10px] font-mono uppercase text-[#6B7785]">Bidding</div>
+              <div className="text-xs font-bold uppercase text-[#243447]">Open RFQs</div>
             </div>
-            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
           </Link>
 
           <Link
             href="/supplier/catalogue"
-            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
           >
             <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Inventory</div>
-              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Product Catalogue</div>
+              <div className="text-[10px] font-mono uppercase text-[#6B7785]">Inventory</div>
+              <div className="text-xs font-bold uppercase text-[#243447]">Product Catalogue</div>
             </div>
-            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
           </Link>
 
           <Link
             href="/supplier/performance"
-            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#536B88] rounded-sm transition-colors flex items-center justify-between group"
+            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
           >
             <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#A8ADB7]">Reputation</div>
-              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Performance Desk</div>
+              <div className="text-[10px] font-mono uppercase text-[#6B7785]">Reputation</div>
+              <div className="text-xs font-bold uppercase text-[#243447]">Performance Desk</div>
             </div>
-            <ArrowRight className="w-4 h-4 text-[#536B88] group-hover:text-[#FFFFFF] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
           </Link>
 
           <Link
             href="/supplier/payments"
-            className="p-4 bg-[#252B38] hover:bg-[#191B20] border border-[#414957] hover:border-[#C66A42] rounded-sm transition-colors flex items-center justify-between group"
+            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#315F91] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
           >
             <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#C66A42]">Invoices</div>
-              <div className="text-xs font-bold uppercase text-[#FFFFFF]">Payment Intelligence</div>
+              <div className="text-[10px] font-mono uppercase text-[#315F91]">Invoices</div>
+              <div className="text-xs font-bold uppercase text-[#243447]">Payment Intelligence</div>
             </div>
-            <ArrowRight className="w-4 h-4 text-[#C66A42] group-hover:text-[#FFFFFF] transition-colors" />
+            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
 
         {/* Section: Incoming Matching RFQs to Quote On */}
-        <div className="bg-[#303746] border border-[#414957] p-6 sm:p-8 space-y-5 shadow-sm rounded-sm">
-          <div className="flex items-center justify-between border-b border-[#414957] pb-4">
+        <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-6 sm:p-8 space-y-5 shadow-xs rounded-xs">
+          <div className="flex items-center justify-between border-b border-[#E2E8EF] pb-4">
             <div>
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#FFFFFF]">
+              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#243447]">
                 New Buyer Requirements Matching Your Inventory
               </h2>
-              <p className="text-xs text-[#A8ADB7]">
+              <p className="text-xs text-[#6B7785]">
                 Submit itemized rates, GST %, freight charges, and delivery lead times.
               </p>
             </div>
           </div>
 
           {loading ? (
-            <div className="py-12 text-center text-xs font-mono text-[#A8ADB7]">Loading matching RFQs...</div>
+            <div className="py-12 text-center text-xs font-mono text-[#6B7785]">Loading matching RFQs...</div>
           ) : rfqs.length === 0 ? (
-            <div className="py-8 text-center text-xs font-mono text-[#A8ADB7]">No matching open RFQs in your category at this moment.</div>
+            <div className="py-8 text-center text-xs font-mono text-[#6B7785]">No matching open RFQs in your category at this moment.</div>
           ) : (
             <div className="space-y-4">
               {rfqs.map((rfq) => (
                 <div
                   key={rfq.id}
-                  className="bg-[#252B38] border border-[#414957] p-5 hover:border-[#536B88] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-sm"
+                  className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 hover:border-[#315F91] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xs shadow-2xs"
                 >
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs font-bold text-[#536B88] px-2 py-0.5 bg-[#191B20] border border-[#414957] rounded-sm">
+                      <span className="font-mono text-xs font-bold text-[#315F91] px-2 py-0.5 bg-[#F4F7FA] border border-[#E2E8EF] rounded-xs">
                         {rfq.referenceCode}
                       </span>
-                      <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#303746] text-[#F1F2F4] rounded-sm">
+                      <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#F4F7FA] text-[#243447] rounded-xs">
                         {rfq.urgency} Urgency
                       </span>
-                      <span className="text-xs text-[#A8ADB7]">
-                        Deliver to: <strong className="text-[#FFFFFF]">{rfq.delivery?.city || 'Ahmedabad'}</strong> ({rfq.delivery?.vehicleAccessibility || 'Standard Access'})
+                      <span className="text-xs text-[#6B7785]">
+                        Deliver to: <strong className="text-[#243447]">{rfq.delivery?.city || 'Ahmedabad'}</strong> ({rfq.delivery?.vehicleAccessibility || 'Standard Access'})
                       </span>
                     </div>
 
-                    <h3 className="font-heading font-black text-base text-[#FFFFFF]">
+                    <h3 className="font-heading font-black text-base text-[#243447]">
                       {rfq.title}
                     </h3>
 
-                    <div className="flex flex-wrap gap-2 text-xs text-[#F1F2F4]">
+                    <div className="flex flex-wrap gap-2 text-xs text-[#243447]">
                       {rfq.items.map((it, idx) => (
-                        <span key={idx} className="px-2 py-0.5 bg-[#191B20] border border-[#414957] font-mono text-[11px] text-[#A8ADB7] rounded-sm">
+                        <span key={idx} className="px-2 py-0.5 bg-[#F4F7FA] border border-[#E2E8EF] font-mono text-[11px] text-[#6B7785] rounded-xs">
                           {it.materialName} ({it.quantity} {it.unit})
                         </span>
                       ))}
                     </div>
                   </div>
 
-                  <div className="shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-[#414957]">
+                  <div className="shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-[#E2E8EF]">
                     <Link
                       href={`/supplier/rfqs/${rfq.id}/quote`}
-                      className="px-5 py-2.5 bg-[#C66A42] hover:bg-[#B35A33] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5 shadow-sm rounded-sm"
+                      className="px-5 py-2.5 bg-[#315F91] hover:bg-[#264B74] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5 shadow-xs rounded-xs"
                     >
                       <span>Submit Quotation</span>
                       <ArrowRight className="w-3.5 h-3.5" />

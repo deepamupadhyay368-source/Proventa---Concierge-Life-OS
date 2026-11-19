@@ -15,19 +15,30 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
-        // PROVENTA DARK INFRASTRUCTURE CORPORATE PALETTE
+        // PROVENTA ARCHITECTURAL INDUSTRIAL PALETTE
+        arch: {
+          bg: '#FFFFFF',          // Primary background
+          secondary: '#F4F7FA',   // Secondary background
+          text: '#243447',        // Primary text
+          muted: '#6B7785',       // Secondary text
+          blue: '#315F91',        // Primary blue
+          'blue-hover': '#264B74',
+          steel: '#AEBBC6',       // Steel grey
+          border: '#E2E8EF',      // Light border
+          white: '#FFFFFF',
+        },
         infra: {
-          bg: '#292F3D',         // Primary background
-          nav: '#191B20',        // Navigation charcoal
-          secondary: '#252B38',  // Secondary background
-          surface: '#303746',    // Working surface / panel
-          steel: '#536B88',      // Steel blue
-          'steel-hover': '#435770',
-          orange: '#C66A42',     // Accent orange
-          'orange-hover': '#B35A33',
-          border: '#414957',     // Structural borders
-          text: '#F1F2F4',       // Primary typography
-          muted: '#A8ADB7',      // Secondary typography
+          bg: '#FFFFFF',
+          nav: '#FFFFFF',
+          secondary: '#F4F7FA',
+          surface: '#FFFFFF',
+          steel: '#315F91',
+          'steel-hover': '#264B74',
+          orange: '#315F91',
+          'orange-hover': '#264B74',
+          border: '#E2E8EF',
+          text: '#243447',
+          muted: '#6B7785',
           white: '#FFFFFF',
         },
         background: 'hsl(var(--background))',

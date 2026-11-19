@@ -4,46 +4,46 @@
 
 @layer base {
   :root {
-    /* PROVENTA DARK INFRASTRUCTURE CORPORATE PALETTE */
-    /* Primary Background: #292F3D | Navigation: #191B20 | Secondary: #252B38 */
-    /* Working Surface: #303746 | Steel Blue: #536B88 | Primary Typography: #F1F2F4 */
-    /* Secondary Typography: #A8ADB7 | Structural Borders: #414957 | Accent Orange: #C66A42 */
+    /* PROVENTA ARCHITECTURAL INDUSTRIAL PALETTE */
+    /* Primary Background: #FFFFFF | Secondary Background: #F4F7FA */
+    /* Primary Text: #243447 | Secondary Text: #6B7785 */
+    /* Primary Blue: #315F91 | Steel Grey: #AEBBC6 | Light Border: #E2E8EF */
 
-    --background: 223 20% 21%;     /* #292F3D Primary Background */
-    --foreground: 220 10% 95%;     /* #F1F2F4 Primary Typography */
+    --background: 0 0% 100%;       /* #FFFFFF */
+    --foreground: 213 33% 21%;     /* #243447 */
 
-    --card: 220 19% 23%;           /* #303746 Working Surface */
-    --card-foreground: 220 10% 95%;
+    --card: 0 0% 100%;             /* #FFFFFF */
+    --card-foreground: 213 33% 21%;
 
-    --popover: 220 19% 23%;
-    --popover-foreground: 220 10% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 33% 21%;
 
-    /* Primary: Steel Blue (#536B88) */
-    --primary: 213 24% 43%;
+    /* Primary: Architectural Blue (#315F91) */
+    --primary: 211 49% 38%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary Background (#252B38) */
-    --secondary: 222 20% 18%;
-    --secondary-foreground: 220 10% 95%;
+    /* Secondary Background (#F4F7FA) */
+    --secondary: 210 29% 97%;
+    --secondary-foreground: 213 33% 21%;
 
-    /* Muted Typography (#A8ADB7) */
-    --muted: 222 20% 18%;
-    --muted-foreground: 220 8% 69%;
+    /* Muted Typography (#6B7785) */
+    --muted: 210 29% 97%;
+    --muted-foreground: 214 11% 47%;
 
-    /* Accent Orange (#C66A42) */
-    --accent: 18 54% 52%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent / Focus: #315F91 */
+    --accent: 210 29% 97%;
+    --accent-foreground: 211 49% 38%;
 
     /* Destructive / Error: #D9534F */
     --destructive: 2 64% 58%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Structural Borders (#414957) */
-    --border: 220 15% 30%;
-    --input: 220 15% 30%;
-    --ring: 213 24% 43%;
+    /* Light Structural Border (#E2E8EF) */
+    --border: 212 24% 91%;
+    --input: 212 24% 91%;
+    --ring: 211 49% 38%;
 
-    --radius: 2px;
+    --radius: 3px;
 
     /* Typographic System */
     --font-sans: 'Inter', 'Manrope', 'DM Sans', system-ui, -apple-system, sans-serif;
@@ -52,25 +52,25 @@
   }
 
   .dark {
-    --background: 223 20% 21%;
-    --foreground: 220 10% 95%;
-    --card: 220 19% 23%;
-    --card-foreground: 220 10% 95%;
-    --popover: 220 19% 23%;
-    --popover-foreground: 220 10% 95%;
-    --primary: 213 24% 43%;
+    --background: 0 0% 100%;
+    --foreground: 213 33% 21%;
+    --card: 0 0% 100%;
+    --card-foreground: 213 33% 21%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 33% 21%;
+    --primary: 211 49% 38%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 222 20% 18%;
-    --secondary-foreground: 220 10% 95%;
-    --muted: 222 20% 18%;
-    --muted-foreground: 220 8% 69%;
-    --accent: 18 54% 52%;
-    --accent-foreground: 0 0% 100%;
+    --secondary: 210 29% 97%;
+    --secondary-foreground: 213 33% 21%;
+    --muted: 210 29% 97%;
+    --muted-foreground: 214 11% 47%;
+    --accent: 210 29% 97%;
+    --accent-foreground: 211 49% 38%;
     --destructive: 2 64% 58%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 15% 30%;
-    --input: 220 15% 30%;
-    --ring: 213 24% 43%;
+    --border: 212 24% 91%;
+    --input: 212 24% 91%;
+    --ring: 211 49% 38%;
   }
 }
 
@@ -81,26 +81,26 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #292F3D;
-    color: #F1F2F4;
+    background-color: #FFFFFF;
+    color: #243447;
   }
 
   body {
-    background-color: #292F3D;
-    color: #F1F2F4;
+    background-color: #FFFFFF;
+    color: #243447;
     font-family: var(--font-sans);
     min-height: 100vh;
     letter-spacing: -0.011em;
   }
 
   ::selection {
-    background-color: #536B88;
+    background-color: #315F91;
     color: #FFFFFF;
   }
 
   h1, h2, h3, h4, h5, h6, .font-heading {
     font-family: var(--font-display);
-    color: #F1F2F4;
+    color: #243447;
     letter-spacing: -0.025em;
   }
 }
@@ -110,16 +110,66 @@
     text-wrap: balance;
   }
 
-  /* Infrastructure Corporate Design System Helpers */
+  /* Architectural Industrial Design System Helpers */
+  .arch-card {
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8EF;
+    color: #243447;
+  }
+
+  .arch-panel {
+    background-color: #F4F7FA;
+    border: 1px solid #E2E8EF;
+  }
+
+  .arch-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.375rem;
+    background-color: #315F91;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    border-radius: 2px;
+    transition: background-color 0.18s ease-in-out;
+  }
+  .arch-btn-primary:hover {
+    background-color: #264B74;
+  }
+
+  .arch-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.375rem;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8EF;
+    color: #243447;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    border-radius: 2px;
+    transition: all 0.18s ease-in-out;
+  }
+  .arch-btn-secondary:hover {
+    background-color: #F4F7FA;
+    border-color: #AEBBC6;
+  }
+
+  /* Retain backward-compatible infra classes mapped to modern architectural tokens */
   .infra-card {
-    background-color: #303746;
-    border: 1px solid #414957;
-    color: #F1F2F4;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8EF;
+    color: #243447;
   }
 
   .infra-panel {
-    background-color: #252B38;
-    border: 1px solid #414957;
+    background-color: #F4F7FA;
+    border: 1px solid #E2E8EF;
   }
 
   .infra-btn-primary {
@@ -128,16 +178,15 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background-color: #536B88;
+    background-color: #315F91;
     color: #FFFFFF;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     font-size: 0.75rem;
+    letter-spacing: 0.04em;
     transition: background-color 0.15s ease-in-out;
   }
   .infra-btn-primary:hover {
-    background-color: #435770;
+    background-color: #264B74;
   }
 
   .infra-btn-orange {
@@ -146,16 +195,15 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background-color: #C66A42;
+    background-color: #315F91;
     color: #FFFFFF;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     font-size: 0.75rem;
+    letter-spacing: 0.04em;
     transition: background-color 0.15s ease-in-out;
   }
   .infra-btn-orange:hover {
-    background-color: #B35A33;
+    background-color: #264B74;
   }
 
   .infra-btn-secondary {
@@ -164,18 +212,17 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
-    background-color: #303746;
-    border: 1px solid #414957;
-    color: #F1F2F4;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E8EF;
+    color: #243447;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
     font-size: 0.75rem;
+    letter-spacing: 0.04em;
     transition: all 0.15s ease-in-out;
   }
   .infra-btn-secondary:hover {
-    background-color: #252B38;
-    border-color: #536B88;
+    background-color: #F4F7FA;
+    border-color: #AEBBC6;
   }
 }
 
@@ -188,21 +235,21 @@
   }
 }
 
-/* Dark Infrastructure Architectural Scrollbar */
+/* Light Architectural Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #191B20;
+  background: #F4F7FA;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #414957;
+  background: #AEBBC6;
   border-radius: 2px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #536B88;
+  background: #315F91;
 }
