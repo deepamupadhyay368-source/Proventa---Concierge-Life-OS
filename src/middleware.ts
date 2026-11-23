@@ -88,6 +88,8 @@ export default auth(async (req) => {
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname.startsWith('/home') ||
+    pathname.startsWith('/api/home') ||
     pathname.startsWith('/buyer/') ||
     pathname.startsWith('/supplier/') ||
     pathname.startsWith('/suppliers/') ||
