@@ -15,6 +15,26 @@ const config: Config = {
         mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
+        // PROVENTA HOME WARM ARCHITECTURAL PALETTE
+        home: {
+          olive: '#53634A',
+          'olive-dark': '#3F4C38',
+          'olive-light': '#6B7E5F',
+          stone: '#F2F0E9',
+          'stone-dark': '#E6E2D6',
+          'stone-card': '#FAF8F5',
+          black: '#171A17',
+          charcoal: '#242B24',
+          sage: '#89947F',
+          'sage-light': '#D6DBD2',
+          border: '#E3DFD5',
+          'border-dark': '#C9C4B7',
+          terracotta: '#C97A53',
+          'terracotta-dark': '#AD623E',
+          card: '#FFFFFF',
+          text: '#171A17',
+          muted: '#5F685B',
+        },
         // PROVENTA ARCHITECTURAL INDUSTRIAL PALETTE
         arch: {
           bg: '#FFFFFF',          // Primary background
