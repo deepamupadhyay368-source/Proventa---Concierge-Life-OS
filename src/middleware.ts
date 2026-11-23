@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth/config';
 // Public routes — no auth needed
 const PUBLIC_ROUTES = [
   '/',
+  '/industrial',
   '/services',
   '/service-areas',
   '/join',
