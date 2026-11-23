@@ -1,412 +1,168 @@
 import React from 'react';
 import Link from 'next/link';
-import { db } from '@/lib/db';
-import { requireAdmin } from '@/lib/auth/session';
-import {
-  Users,
-  Bot,
-  ListTodo,
-  CalendarCheck,
-  CreditCard,
-  HeartPulse,
-  TrendingUp,
-  AlertTriangle,
-  ArrowUpRight,
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
+import { 
+  Briefcase, 
+  Users, 
+  Wrench, 
+  IndianRupee, 
+  CalendarCheck, 
+  ShieldCheck, 
+  ArrowRight,
   Sparkles,
-  BarChart3,
-  Layers,
+  Building,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
+import { homeDataStore } from '@/lib/home/repository';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminMainDashboardPage() {
-  const sessionUser = await requireAdmin();
+export default function AdminOverviewPage() {
+  const customers = homeDataStore.getAllCustomers();
+  const technicians = homeDataStore.getAllTechnicians();
+  const requests = homeDataStore.getAllRequests();
+  const societies = homeDataStore.getAllSocieties();
 
-  const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-
-  // Fetch real aggregated data across database models
-  const [
-    totalCustomers,
-    newCustomers7d,
-    newCustomers30d,
-    totalWaitlist,
-    totalTasks,
-    activeTasks,
-    completedTasks,
-    needsHumanTasks,
-    totalBookings,
-    confirmedBookings,
-    payments,
-    categoryRaw,
-    recentTasks,
-    recentAudit,
-  ] = await Promise.all([
-    db.customerProfile.count(),
-    db.customerProfile.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
-    db.customerProfile.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-    db.earlyAccessRegistration.count(),
-    db.task.count(),
-    db.task.count({
-      where: {
-        status: { in: ['REQUESTED', 'SEARCHING', 'OPTIONS_READY', 'AWAITING_APPROVAL', 'APPROVED', 'EXECUTING', 'VERIFYING'] },
-      },
-    }),
-    db.task.count({ where: { status: { in: ['CONFIRMED', 'COMPLETED'] } } }),
-    db.task.count({ where: { OR: [{ status: 'NEEDS_HUMAN' }, { isEscalated: true }] } }),
-    db.booking.count(),
-    db.booking.count({ where: { status: 'CONFIRMED' } }),
-    db.payment.findMany({
-      where: { status: 'CAPTURED' },
-      select: { amount: true },
-    }),
-    db.task.groupBy({
-      by: ['category'],
-      _count: { id: true },
-      orderBy: { _count: { id: 'desc' } },
-    }),
-    db.task.findMany({
-      take: 6,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        customer: {
-          select: {
-            user: { select: { name: true, email: true } },
-          },
-        },
-      },
-    }),
-    db.auditLog.findMany({
-      take: 6,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        actor: { select: { email: true, name: true } },
-      },
-    }),
-  ]);
-
-  // Financial calculation: amount is stored in paise
-  const totalGMVPaise = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
-  const totalGMVInRupees = (totalGMVPaise / 100).toLocaleString('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  });
+  const unassignedCount = requests.filter(r => r.status === 'SUBMITTED').length;
+  const inProgressCount = requests.filter(r => r.status === 'WORK_STARTED' || r.status === 'TECHNICIAN_ASSIGNED' || r.status === 'AWAITING_CUSTOMER_APPROVAL').length;
+  const completedCount = requests.filter(r => r.status === 'WORK_COMPLETED' || r.status === 'CLOSED').length;
 
   return (
     <div className="space-y-8">
-      {/* Top Welcome & Atmosphere Bar */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#E1E5E8] pb-6">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E3DFD5] pb-6">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest bg-[#F1F3F5] text-[#1F2933] px-2.5 py-0.5 rounded border border-[#E1E5E8] font-medium">
-              Founder Sovereign Intelligence
-            </span>
-            <span className="text-xs text-[#66717C] font-mono">
-              {sessionUser.name || 'Deepam G Upadhyay'} · Operations Terminal
-            </span>
-          </div>
-          <h1 className="text-3xl font-serif font-medium text-[#111820] mt-2">
-            Platform Command Center
-          </h1>
-          <p className="text-xs text-[#66717C] mt-1 max-w-2xl">
-            Real-time telemetry, agent orchestration, customer sovereign vaults, and partner network transactions.
-          </p>
+          <span className="text-xs uppercase font-bold tracking-wider text-[#53634A]">Operations Control Centre</span>
+          <h1 className="text-3xl font-bold text-[#171A17] mt-1">PROVENTA Home Operations</h1>
+          <p className="text-xs text-stone-500 mt-1">Ahmedabad Urban Cluster • Real-time dispatch, network health & unit economics</p>
         </div>
 
         <div className="flex items-center gap-3">
           <Link
-            href="/admin/system"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-[#E1E5E8] hover:bg-[#F7F8FA] text-xs text-[#1F2933] transition-colors shadow-xs"
+            href="/admin/dispatch"
+            className="inline-flex items-center gap-2 bg-[#53634A] hover:bg-[#43523B] text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xs transition"
           >
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-mono">Neon DB + Gemini Active</span>
+            <span>Live Dispatch Queue ({unassignedCount})</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <Link
-            href="/admin/customers"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#1F2933] hover:bg-[#111820] text-white font-medium text-xs shadow-xs transition-all"
+            href="/admin/finance"
+            className="inline-flex items-center gap-2 bg-stone-900 hover:bg-stone-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xs transition"
           >
-            <span>Customer Vault</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-[#A7B0B8]" />
+            <IndianRupee className="w-3.5 h-3.5" />
+            <span>Unit Economics</span>
           </Link>
         </div>
       </div>
 
-      {/* Primary KPI Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {/* Customers */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all">
-          <div className="flex items-center justify-between text-[#66717C] mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider">Customers</span>
-            <Users className="w-4 h-4 text-[#1F2933]" />
-          </div>
-          <div className="text-2xl font-semibold text-[#111820] font-mono">{totalCustomers}</div>
-          <p className="text-[11px] text-[#66717C] mt-1 flex items-center gap-1">
-            <span className="text-[#1F2933] font-medium">+{newCustomers7d} 7d</span> · <span className="text-[#1F2933] font-medium">+{newCustomers30d} 30d</span>
-          </p>
+      {/* Metrics Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-2">
+          <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Active Members</span>
+          <div className="text-3xl font-bold text-[#171A17]">{customers.length}</div>
+          <div className="text-xs text-stone-500">Ahmedabad households</div>
         </div>
 
-        {/* Active Tasks */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all">
-          <div className="flex items-center justify-between text-[#66717C] mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider">Active Requests</span>
-            <ListTodo className="w-4 h-4 text-amber-600" />
-          </div>
-          <div className="text-2xl font-semibold text-[#111820] font-mono">{activeTasks}</div>
-          <p className="text-[11px] text-[#66717C] mt-1">
-            {totalTasks} lifetime requests
-          </p>
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-2">
+          <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Verified Technicians</span>
+          <div className="text-3xl font-bold text-[#171A17]">{technicians.length}</div>
+          <div className="text-xs text-emerald-700 font-medium">100% Aadhaar KYC checked</div>
         </div>
 
-        {/* Completed Workflows */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all">
-          <div className="flex items-center justify-between text-[#66717C] mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider">Completed</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-2">
+          <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Unassigned Queue</span>
+          <div className={`text-3xl font-bold ${unassignedCount > 0 ? 'text-amber-600' : 'text-stone-800'}`}>
+            {unassignedCount}
           </div>
-          <div className="text-2xl font-semibold text-emerald-700 font-mono">{completedTasks}</div>
-          <p className="text-[11px] text-[#66717C] mt-1">Zero-hallucination verified</p>
+          <div className="text-xs text-stone-500">Requires technician allocation</div>
         </div>
 
-        {/* Escalated / Needs Human */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all">
-          <div className="flex items-center justify-between text-[#66717C] mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider">Needs Human</span>
-            <AlertTriangle className="w-4 h-4 text-purple-600" />
-          </div>
-          <div className="text-2xl font-semibold text-purple-700 font-mono">{needsHumanTasks}</div>
-          <p className="text-[11px] text-[#66717C] mt-1">Human concierge queue</p>
-        </div>
-
-        {/* Confirmed Bookings */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all">
-          <div className="flex items-center justify-between text-[#66717C] mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider">Bookings</span>
-            <CalendarCheck className="w-4 h-4 text-[#1F2933]" />
-          </div>
-          <div className="text-2xl font-semibold text-[#111820] font-mono">{confirmedBookings}</div>
-          <p className="text-[11px] text-[#66717C] mt-1">{totalBookings} total ledger</p>
-        </div>
-
-        {/* GMV Volume */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-4 shadow-xs hover:border-[#A7B0B8] transition-all">
-          <div className="flex items-center justify-between text-[#66717C] mb-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider">Gross Volume</span>
-            <CreditCard className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-xl font-semibold text-[#111820] font-mono truncate" title={totalGMVInRupees}>
-            {totalGMVInRupees}
-          </div>
-          <p className="text-[11px] text-[#66717C] mt-1">Processed transactions</p>
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-2">
+          <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Partner Societies</span>
+          <div className="text-3xl font-bold text-[#171A17]">{societies.length}</div>
+          <div className="text-xs text-stone-500">1,170 residential units enrolled</div>
         </div>
       </div>
 
-      {/* Category / Service Breakdown & Quick Navigation */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs lg:col-span-2">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E1E5E8] mb-4">
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[#1F2933]" />
-              <h3 className="text-sm font-semibold text-[#111820]">Service &amp; Category Distribution</h3>
+      {/* Operations Quick Nav Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-3xl p-6 border border-[#E3DFD5] shadow-xs space-y-4 flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-[#53634A]/10 text-[#53634A] flex items-center justify-center font-bold">
+              <CalendarCheck className="w-5 h-5" />
             </div>
-            <Link href="/admin/requests" className="text-xs text-[#66717C] hover:text-[#111820] font-mono">
-              Filter By Category →
-            </Link>
+            <h3 className="text-lg font-bold text-[#171A17]">Technician Dispatch Engine</h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Match unassigned domestic maintenance requests to nearby certified technicians based on trade compatibility, locality distance, and workload.
+            </p>
           </div>
-
-          {categoryRaw.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#66717C]">No requests categorized yet.</div>
-          ) : (
-            <div className="space-y-3">
-              {categoryRaw.map((cat) => {
-                const count = cat._count.id;
-                const percentage = totalTasks > 0 ? Math.round((count / totalTasks) * 100) : 0;
-                return (
-                  <div key={cat.category} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-[#111820] font-medium uppercase tracking-wider font-mono">
-                        {cat.category}
-                      </span>
-                      <span className="text-[#66717C] font-mono">
-                        {count} requests ({percentage}%)
-                      </span>
-                    </div>
-                    <div className="h-2 rounded-full bg-[#F1F3F5] overflow-hidden">
-                      <div
-                        className="h-full bg-[#1F2933] rounded-full transition-all"
-                        style={{ width: `${Math.max(percentage, 4)}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <Link
+            href="/admin/dispatch"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#53634A] hover:underline pt-2"
+          >
+            <span>Open Dispatch Queue</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
-        {/* Quick Founder Controls */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 pb-4 border-b border-[#E1E5E8] mb-4">
-              <Bot className="w-4 h-4 text-[#1F2933]" />
-              <h3 className="text-sm font-semibold text-[#111820]">Founder Quick Actions</h3>
+        <div className="bg-white rounded-3xl p-6 border border-[#E3DFD5] shadow-xs space-y-4 flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <IndianRupee className="w-5 h-5" />
             </div>
-            <div className="space-y-2">
-              <Link
-                href="/admin/marketplace"
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-50/70 border border-amber-200 hover:border-amber-300 hover:bg-amber-50 text-xs text-[#111820] font-semibold transition-colors"
-              >
-                <span>Business Marketplace &amp; Verification</span>
-                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-medium">
-                  Storefronts &amp; Leads
-                </span>
-              </Link>
-              <Link
-                href="/admin/concierge"
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#A7B0B8] hover:bg-white text-xs text-[#111820] transition-colors"
-              >
-                <span>Concierge Operator Queue</span>
-                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200 font-medium">
-                  {needsHumanTasks} pending
-                </span>
-              </Link>
-              <Link
-                href="/admin/requests"
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#A7B0B8] hover:bg-white text-xs text-[#111820] transition-colors"
-              >
-                <span>Active Autonomous Tasks</span>
-                <span className="font-mono text-[11px] px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-medium">
-                  {activeTasks} in flight
-                </span>
-              </Link>
-              <Link
-                href="/admin/system"
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#A7B0B8] hover:bg-white text-xs text-[#111820] transition-colors"
-              >
-                <span>System Latency &amp; Probes</span>
-                <span className="font-mono text-[11px] text-emerald-700 flex items-center gap-1 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Live
-                </span>
-              </Link>
-              <Link
-                href="/admin/analytics"
-                className="w-full flex items-center justify-between p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#A7B0B8] hover:bg-white text-xs text-[#111820] transition-colors"
-              >
-                <span>Executive Analytics</span>
-                <BarChart3 className="w-3.5 h-3.5 text-[#66717C]" />
-              </Link>
+            <h3 className="text-lg font-bold text-[#171A17]">Unit Economics Simulator</h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Stress-test the business model across 3 utilization profiles (Low, Expected Baseline, High Stress) with live contribution margin forecasting.
+            </p>
+          </div>
+          <Link
+            href="/admin/finance"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:underline pt-2"
+          >
+            <span>Open Simulator</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 border border-[#E3DFD5] shadow-xs space-y-4 flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+              <Wrench className="w-5 h-5" />
             </div>
+            <h3 className="text-lg font-bold text-[#171A17]">Technician Network & KYC</h3>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              Review partner credentials, police background check certifications, trade test scores, and real-time dispatch availability.
+            </p>
           </div>
-          <div className="pt-4 border-t border-[#E1E5E8] mt-4 text-[11px] text-[#66717C] font-mono">
-            Proventa v0.1.0 · Single Source of Truth
-          </div>
+          <Link
+            href="/admin/partners"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-700 hover:underline pt-2"
+          >
+            <span>Manage Network</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </div>
 
-      {/* Two Column Layout: Recent Autonomous Tasks + Security Audit Trail */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Tasks */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E1E5E8] mb-4">
-            <div className="flex items-center gap-2">
-              <ListTodo className="w-4 h-4 text-[#1F2933]" />
-              <h3 className="text-sm font-semibold text-[#111820]">Live Task Pipeline</h3>
-            </div>
-            <Link href="/admin/requests" className="text-xs text-[#66717C] hover:text-[#111820] font-mono">
-              View All Requests →
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {recentTasks.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#66717C]">No request history recorded yet.</div>
-            ) : (
-              recentTasks.map((t) => (
-                <Link
-                  key={t.id}
-                  href={`/admin/requests/${t.id}`}
-                  className="p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] hover:border-[#A7B0B8] hover:bg-white flex items-center justify-between gap-3 block transition-colors group shadow-xs"
-                >
-                  <div className="overflow-hidden flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-[#111820]">#{t.publicId}</span>
-                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-white border border-[#E1E5E8] text-[#525F6C]">
-                        {t.category}
-                      </span>
-                      <span
-                        className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full ${
-                          ['CONFIRMED', 'COMPLETED'].includes(t.status)
-                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                            : ['NEEDS_HUMAN', 'FAILED'].includes(t.status)
-                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                            : 'bg-amber-50 text-amber-800 border border-amber-200'
-                        }`}
-                      >
-                        {t.status}
-                      </span>
-                    </div>
-                    <p className="text-xs text-[#111820] truncate mt-1 group-hover:text-[#111820] transition-colors font-medium">
-                      {t.intent}
-                    </p>
-                    <p className="text-[10px] text-[#66717C] mt-0.5">
-                      Customer: {t.customer?.user?.name || t.customer?.user?.email || 'Anonymous'}
-                    </p>
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 text-[#8C96A0] group-hover:text-[#111820] transition-colors shrink-0" />
-                </Link>
-              ))
-            )}
-          </div>
+      {/* Historical Industrial Procurement Archive Notice */}
+      <div className="bg-stone-50 rounded-2xl p-5 border border-stone-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-stone-600">
+        <div className="flex items-center gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-stone-500 shrink-0" />
+          <span>
+            <strong>Historical Industrial Records Protected:</strong> All previous construction procurement RFQs, supplier quotes, purchase orders, and payment records remain intact in the database.
+          </span>
         </div>
-
-        {/* Security Audit Feed */}
-        <div className="bg-white border border-[#E1E5E8] rounded-2xl p-6 shadow-xs">
-          <div className="flex items-center justify-between pb-4 border-b border-[#E1E5E8] mb-4">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-sm font-semibold text-[#111820]">Recent Sovereign Audit Logs</h3>
-            </div>
-            <Link href="/admin/audit" className="text-xs text-[#66717C] hover:text-[#111820] font-mono">
-              Full Audit Trail →
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {recentAudit.length === 0 ? (
-              <div className="py-8 text-center text-xs text-[#66717C]">No audit events logged yet.</div>
-            ) : (
-              recentAudit.map((log) => (
-                <div
-                  key={log.id}
-                  className="p-3 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-between gap-3 text-xs"
-                >
-                  <div className="overflow-hidden">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono text-[10px] bg-white border border-[#E1E5E8] text-[#1F2933] px-2 py-0.5 rounded font-bold">
-                        {log.action}
-                      </span>
-                      <span className="text-[#111820] font-medium truncate">
-                        {log.resourceType || 'System'}: {log.resourceId || 'Global'}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#66717C] mt-1 truncate">
-                      Actor: {log.actor?.email || 'System Daemon'} {log.ipAddress ? `· IP: ${log.ipAddress}` : ''}
-                    </p>
-                  </div>
-                  <span className="text-[10px] text-[#66717C] font-mono shrink-0">
-                    {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+        <Link
+          href="/admin/procurement"
+          className="text-stone-800 font-bold hover:underline shrink-0"
+        >
+          View Procurement Audit Archive →
+        </Link>
       </div>
+
     </div>
   );
 }

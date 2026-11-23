@@ -1,94 +1,88 @@
-import type { Metadata } from 'next';
+import React from 'react';
 import Link from 'next/link';
-import { Building2, ArrowRight, Globe, ShieldCheck, Handshake } from 'lucide-react';
-import { BRAND_CONFIG } from '@/lib/brand';
-
-export const metadata: Metadata = {
-  title: `About ${BRAND_CONFIG.name} — ${BRAND_CONFIG.tagline}`,
-  description: `${BRAND_CONFIG.supportingStatement} ${BRAND_CONFIG.centralValueProposition}`,
-};
+import { ShieldCheck, HeartHandshake, Award, Sparkles, ArrowRight } from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <div className="pt-20 md:pt-24 pb-20 min-h-screen bg-background">
-      <div className="container-wide max-w-4xl">
-        <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-          About {BRAND_CONFIG.name}
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-16 space-y-16">
+      
+      {/* Header */}
+      <div className="text-center space-y-4 max-w-2xl mx-auto">
+        <span className="text-xs font-bold uppercase tracking-widest text-[#53634A] bg-[#53634A]/10 px-3 py-1 rounded-full border border-[#53634A]/20">
+          Our Mission
         </span>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold text-foreground mt-1">
-          {BRAND_CONFIG.tagline}
-        </h1>
-        <p className="text-lg text-muted-foreground mt-4 leading-relaxed">
-          {BRAND_CONFIG.supportingStatement}{' '}
-          {BRAND_CONFIG.centralValueProposition}
+        <h1 className="text-4xl font-bold text-[#171A17]">Rebuilding Trust in Home Care</h1>
+        <p className="text-stone-600 text-sm leading-relaxed">
+          PROVENTA Home was founded to solve a fundamental urban Indian frustration: the broken, unpredictable, and stressful experience of managing everyday household repairs.
+        </p>
+      </div>
+
+      {/* Story */}
+      <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#E3DFD5] shadow-xs space-y-6 text-stone-700 text-sm leading-relaxed">
+        <h2 className="text-2xl font-bold text-[#171A17]">The Household Frustration We Saw</h2>
+        <p>
+          Whether in Bopal, Satellite, or Gota, every homeowner experiences the same ordeal: an electrical switch starts sparking, a toilet flush valve starts hissing, or an air conditioner fails in peak May heat. 
+        </p>
+        <p>
+          Finding a dependable technician usually involves begging the building security guard for numbers, calling three different handymen who show up four hours late, and facing high arbitrary quotes once work has begun.
+        </p>
+        <p>
+          Meanwhile, skilled technicians struggle with unstable daily income, excessive platform commission deductions (up to 30%), and zero long-term security.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-          <div className="bg-card border border-border rounded-xl p-6">
-            <Globe className="w-6 h-6 text-primary mb-3" />
-            <h2 className="font-display text-lg font-bold text-foreground">
-              Universal Discovery
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-              Whether a business sells industrial machinery, construction
-              materials, software services, legal consulting, or retail products,
-              PROVENTA gives it a structured, searchable digital storefront.
-            </p>
-          </div>
+        <h2 className="text-2xl font-bold text-[#171A17] pt-4">The PROVENTA Model</h2>
+        <p>
+          We created a <strong>managed subscription infrastructure</strong>. By turning unpredictable maintenance into an affordable monthly membership, households receive committed 2-hour response windows, police-verified technicians, and a digital Home Maintenance Passport.
+        </p>
+        <p>
+          For technicians, we guarantee steady local jobs within 5-7 km of their neighbourhood and direct weekly payouts with zero lead fees.
+        </p>
+      </div>
 
-          <div className="bg-card border border-border rounded-xl p-6">
-            <Handshake className="w-6 h-6 text-primary mb-3" />
-            <h2 className="font-display text-lg font-bold text-foreground">
-              Enquiry &amp; Quotation Engine
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-              Customers post what they need once. Our deterministic matching
-              engine notifies relevant businesses by category, specialty, and
-              service area so customers can compare structured quotes.
-            </p>
+      {/* 3 Core Values */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-[#53634A]/10 text-[#53634A] flex items-center justify-center">
+            <ShieldCheck className="w-5 h-5" />
           </div>
-
-          <div className="bg-card border border-border rounded-xl p-6">
-            <ShieldCheck className="w-6 h-6 text-primary mb-3" />
-            <h2 className="font-display text-lg font-bold text-foreground">
-              Honest Verification
-            </h2>
-            <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
-              We never fabricate business listings or claim a business is legally
-              verified merely because it registered. Verification badges reflect
-              real contact and document review.
-            </p>
-          </div>
+          <h3 className="font-bold text-base text-[#171A17]">Absolute Integrity</h3>
+          <p className="text-xs text-stone-600 leading-relaxed">
+            Standardized diagnostic fees, zero spare part markups, and upfront digital approvals before any wrench is turned.
+          </p>
         </div>
 
-        <div className="mt-12 bg-card border border-border rounded-2xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div>
-            <h2 className="font-display text-2xl font-bold text-foreground">
-              Ready to join {BRAND_CONFIG.name}?
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              Explore published businesses across Gujarat and India or register
-              your own storefront.
-            </p>
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <HeartHandshake className="w-5 h-5" />
           </div>
-          <div className="flex flex-wrap gap-3 shrink-0">
-            <Link
-              href="/businesses"
-              className="inline-flex items-center gap-1.5 bg-foreground text-background text-sm font-semibold px-5 py-2.5 rounded-lg"
-            >
-              Explore Businesses
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/business/register"
-              className="inline-flex items-center gap-1.5 border border-border bg-background text-foreground text-sm font-medium px-5 py-2.5 rounded-lg"
-            >
-              <Building2 className="w-4 h-4" />
-              Register Business
-            </Link>
+          <h3 className="font-bold text-base text-[#171A17]">Technician Dignity</h3>
+          <p className="text-xs text-stone-600 leading-relaxed">
+            We treat our technician partners with respect, providing professional equipment, safety protocols, and fair weekly compensations.
+          </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+            <Award className="w-5 h-5" />
           </div>
+          <h3 className="font-bold text-base text-[#171A17]">30-Day Guarantee</h3>
+          <p className="text-xs text-stone-600 leading-relaxed">
+            Every completed job is backed by a 30-day workmanship guarantee. If the issue recurs, our team fixes it at zero cost.
+          </p>
         </div>
       </div>
+
+      {/* CTA */}
+      <div className="text-center pt-4">
+        <Link
+          href="/membership"
+          className="inline-flex items-center gap-2 bg-[#53634A] hover:bg-[#43523B] text-white text-xs font-semibold px-8 py-3.5 rounded-xl shadow-md transition"
+        >
+          <span>Explore Household Memberships</span>
+          <ArrowRight className="w-4 h-4" />
+        </Link>
+      </div>
+
     </div>
   );
 }

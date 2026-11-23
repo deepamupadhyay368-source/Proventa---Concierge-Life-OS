@@ -1,320 +1,207 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Metadata } from 'next';
-import {
-  Check,
-  Sparkles,
-  ShieldCheck,
-  ArrowRight,
-  HelpCircle,
-  Info,
-  Clock,
-  UserCheck,
-  Star,
-  ChevronRight,
-} from 'lucide-react';
-import {
-  CANONICAL_MEMBERSHIP_PLANS,
-  MEMBERSHIP_PLANS_LIST,
-  MEMBERSHIP_COMPARISON_MATRIX,
-  MEMBERSHIP_PAYMENT_DISCLOSURE,
-} from '@/lib/membership/plans';
+import { CheckCircle2, XCircle, ArrowRight, ShieldCheck, HelpCircle } from 'lucide-react';
+import { HOME_SUBSCRIPTION_PLANS } from '@/lib/home/constants';
 
-export const metadata: Metadata = {
-  title: 'Membership & Pricing — Proventa',
-  description:
-    'Choose how you want Proventa to handle your life. From everyday requests to highly personal Concierge assistance.',
-};
-
-export default function MembershipPricingPage() {
-  const faqs = [
-    {
-      q: 'What does a Proventa membership include?',
-      a: "Membership covers Proventa's intelligent AI planning, request coordination, verified recommendations, and human Concierge desk execution. Whether you need dinner tables, complex travel itineraries, rare sourcing, or daily appointment scheduling, our team handles it end-to-end.",
-    },
-    {
-      q: 'How do payments for bookings and purchases work?',
-      a: "Membership covers Proventa's Concierge service. Purchases, venue deposits, flight tickets, hotel stays, and third-party services are charged separately with your explicit prior approval or through your pre-authorized mandate.",
-    },
-    {
-      q: 'What is the difference between Select, Private, and Reserve?',
-      a: 'Select (₹2,499/mo) is designed for everyday personal and professional requests with standard priority. Private (₹4,999/mo) offers priority concierge dispatch, faster response SLAs, family assistance, and bespoke planning. Reserve (₹9,999/mo) provides dedicated concierge operators, proactive lifestyle management, and highest priority queue handling.',
-    },
-    {
-      q: 'Can I switch or cancel my plan at any time?',
-      a: 'Yes. You can upgrade, downgrade, or cancel your Proventa membership at any time directly from your member profile. Changes take effect on the next billing cycle.',
-    },
-    {
-      q: 'Is there a limit on the number of requests I can submit?',
-      a: 'Members enjoy fair-use request submission for personal and family needs. For high-volume bespoke lifestyle management or family office assistance, Reserve tier is recommended.',
-    },
-  ];
+export default function MembershipPage() {
+  const [billingCycle, setBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('ANNUAL');
 
   return (
-    <div className="bg-[#F7F8FA] text-[#1F2933] min-h-screen">
-      {/* Hero Header */}
-      <section className="relative pt-32 pb-16 sm:pt-40 sm:pb-24 border-b border-[#E1E5E8] bg-white overflow-hidden">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11px] font-semibold tracking-widest uppercase bg-[#F1F3F5] text-[#1F2933] border border-[#E1E5E8] mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-[#1F2933]" />
-            <span>Membership Plans &amp; Tiers</span>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 space-y-16">
+      
+      {/* Header */}
+      <div className="text-center space-y-4 max-w-3xl mx-auto">
+        <span className="text-xs font-bold uppercase tracking-widest text-[#53634A] bg-[#53634A]/10 px-3 py-1 rounded-full border border-[#53634A]/20">
+          Transparent Pricing
+        </span>
+        <h1 className="text-4xl sm:text-5xl font-bold text-[#171A17]">
+          One Membership. Every Household Essential.
+        </h1>
+        <p className="text-stone-600 text-sm sm:text-base leading-relaxed">
+          Select the membership that fits your apartment or villa. All tiers include certified technicians, upfront part approval, and a 30-day workmanship warranty.
+        </p>
 
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[#111820] max-w-4xl mx-auto leading-[1.15]">
-            Choose how you want Proventa to handle your life.
-          </h1>
-
-          <p className="mt-6 text-base sm:text-lg text-[#66717C] max-w-2xl mx-auto leading-relaxed">
-            From everyday requests to highly personal Concierge assistance. For people who value their time.
-          </p>
-
-          {/* Payment Disclosure Banner */}
-          <div className="mt-8 max-w-2xl mx-auto p-3.5 rounded-xl bg-[#F7F8FA] border border-[#E1E5E8] flex items-center justify-center gap-2.5 text-xs text-[#525F6C]">
-            <Info className="w-4 h-4 text-[#1F2933] shrink-0" />
-            <span>{MEMBERSHIP_PAYMENT_DISCLOSURE}</span>
-          </div>
-        </div>
-      </section>
-
-      {/* First Request Free Discovery Banner */}
-      <section className="pt-8 pb-4 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-4 sm:p-5 rounded-2xl bg-white border border-[#E1E5E8] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5 text-center sm:text-left">
-            <div className="w-10 h-10 rounded-xl bg-[#F1F3F5] flex items-center justify-center text-[#1F2933] shrink-0 border border-[#E1E5E8]">
-              <Sparkles className="w-5 h-5 text-[#1F2933]" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#1F2933]">
-                Your first request is on us.
-              </p>
-              <p className="text-xs text-[#66717C] mt-0.5">
-                Not sure yet? Experience Proventa first before choosing a membership.
-              </p>
-            </div>
-          </div>
-          <Link
-            href="/dashboard"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1F2933] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#111820] transition-all shadow-xs"
+        {/* Toggle */}
+        <div className="inline-flex items-center p-1 rounded-xl bg-stone-200/60 border border-[#E3DFD5] text-xs font-semibold mt-4">
+          <button
+            onClick={() => setBillingCycle('MONTHLY')}
+            className={`px-5 py-2.5 rounded-lg transition ${billingCycle === 'MONTHLY' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-600'}`}
           >
-            <span>Try Your First Request</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+            Monthly Billing
+          </button>
+          <button
+            onClick={() => setBillingCycle('ANNUAL')}
+            className={`px-5 py-2.5 rounded-lg transition flex items-center gap-1.5 ${billingCycle === 'ANNUAL' ? 'bg-[#53634A] text-white shadow-xs' : 'text-stone-600'}`}
+          >
+            <span>Annual Membership (Save up to 20%)</span>
+          </button>
         </div>
-      </section>
+      </div>
 
-      {/* Pricing Cards Grid */}
-      <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
-          {MEMBERSHIP_PLANS_LIST.map((plan) => {
-            const isRecommended = plan.recommended;
-            return (
-              <div
-                key={plan.id}
-                className={`relative flex flex-col justify-between rounded-2xl transition-all ${
-                  isRecommended
-                    ? 'bg-white border-2 border-[#1F2933] shadow-xl ring-1 ring-[#1F2933]/10 scale-[1.02] z-10'
-                    : 'bg-white border border-[#E1E5E8] shadow-sm hover:shadow-md'
-                } p-8 sm:p-10`}
-              >
-                {/* Recommended Badge */}
-                {isRecommended && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#1F2933] text-white text-[11px] font-semibold tracking-wider uppercase px-4 py-1 rounded-full shadow-sm">
-                    Most Popular · Recommended
-                  </div>
+      {/* Pricing Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        {HOME_SUBSCRIPTION_PLANS.map((plan) => {
+          const effectiveMonthly = billingCycle === 'ANNUAL'
+            ? Math.round(plan.annualPrice / 12)
+            : plan.monthlyPrice;
+
+          return (
+            <div
+              key={plan.id}
+              className={`rounded-2xl p-8 flex flex-col justify-between border transition relative ${
+                plan.isPopular 
+                  ? 'bg-white border-[#53634A] shadow-xl ring-2 ring-[#53634A]/20' 
+                  : 'bg-white border-[#E3DFD5] shadow-xs'
+              }`}
+            >
+              {plan.isPopular && (
+                <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#53634A] text-white text-[11px] font-bold tracking-wider uppercase px-4 py-1 rounded-full shadow-sm">
+                  Recommended for Most Families
+                </span>
+              )}
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="font-bold text-2xl text-[#171A17]">{plan.name}</h3>
+                  <p className="text-xs text-stone-500 mt-1">{plan.tagline}</p>
+                </div>
+
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-extrabold text-[#171A17]">₹{effectiveMonthly}</span>
+                  <span className="text-xs text-stone-500">/ month</span>
+                </div>
+                {billingCycle === 'ANNUAL' && (
+                  <p className="text-xs text-[#53634A] font-medium">Billed annually at ₹{plan.annualPrice} (Includes 2 months free)</p>
                 )}
 
-                <div>
-                  {/* Tier Name & Positioning */}
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-xl font-bold tracking-tight text-[#111820]">
-                      {plan.name}
-                    </h2>
-                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F1F3F5] text-[#525F6C] border border-[#E1E5E8]">
-                      {plan.priorityLevel.replace('_', ' ')}
-                    </span>
+                <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 space-y-1.5 text-xs">
+                  <div className="font-bold text-[#171A17] flex items-center justify-between">
+                    <span>Included Monthly Visits:</span>
+                    <span className="text-[#53634A] text-sm">{plan.includedVisitsPerBillingMonth} Visits</span>
                   </div>
-
-                  <p className="text-xs font-medium text-[#66717C] mt-2 italic">
-                    "{plan.positioning}"
-                  </p>
-
-                  {/* Price */}
-                  <div className="mt-6 flex items-baseline gap-1">
-                    <span className="text-4xl sm:text-5xl font-bold tracking-tight text-[#111820]">
-                      {plan.formattedPrice}
-                    </span>
-                    <span className="text-xs font-semibold text-[#66717C] uppercase tracking-wider">
-                      {plan.cadence}
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-[#525F6C] mt-3 leading-relaxed">
-                    {plan.description}
-                  </p>
-
-                  {/* Divider */}
-                  <div className="my-6 border-t border-[#E1E5E8]" />
-
-                  {/* Benefit Checklist */}
-                  <div className="space-y-3">
-                    <div className="text-[11px] font-semibold uppercase tracking-wider text-[#111820]">
-                      What's Included
-                    </div>
-                    <ul className="space-y-2.5 text-xs text-[#525F6C]">
-                      {plan.benefits.map((benefit, i) => (
-                        <li key={i} className="flex items-start gap-2.5">
-                          <Check
-                            className={`w-4 h-4 shrink-0 mt-0.5 ${
-                              isRecommended ? 'text-[#1F2933]' : 'text-[#66717C]'
-                            }`}
-                          />
-                          <span className="text-[#1F2933] font-medium">{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
+                  <div className="text-stone-500 text-[11px]">
+                    Cap: {plan.visitDurationCapHours} hrs per visit • {plan.visitRolloverAllowed ? 'Rollover up to ' + plan.maxRolloverVisits + ' visits' : 'No rollover'}
                   </div>
                 </div>
 
-                {/* Card CTA Button */}
-                <div className="mt-8 pt-6 border-t border-[#E1E5E8]">
-                  <Link
-                    href={`/membership/checkout?plan=${plan.id}`}
-                    className={`w-full inline-flex items-center justify-center gap-2 py-3.5 px-5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all ${
-                      isRecommended
-                        ? 'bg-[#1F2933] text-white hover:bg-[#111820] shadow-sm'
-                        : 'bg-[#F1F3F5] text-[#1F2933] hover:bg-[#E1E5E8] border border-[#E1E5E8]'
-                    }`}
-                  >
-                    <span>Continue with {plan.name}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                <div className="space-y-3 pt-2">
+                  <span className="text-xs font-bold text-stone-400 uppercase tracking-wider">Features & Entitlements</span>
+                  <ul className="space-y-2.5 text-xs text-stone-700">
+                    {plan.features.map((feat, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5">
+                        <CheckCircle2 className="w-4 h-4 text-[#53634A] shrink-0 mt-0.5" />
+                        <span>{feat}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* Feature Comparison Matrix Section */}
-      <section className="py-16 bg-white border-y border-[#E1E5E8]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111820]">
-              Full Tier Comparison
-            </h2>
-            <p className="mt-2 text-xs sm:text-sm text-[#66717C]">
-              Compare capabilities, priority response levels, and Concierge execution depth across plans.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto rounded-2xl border border-[#E1E5E8] bg-white shadow-xs">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className="bg-[#F7F8FA] border-b border-[#E1E5E8] text-[#111820]">
-                  <th className="py-4 px-6 font-semibold uppercase tracking-wider text-[11px] w-1/2">
-                    Service Capability
-                  </th>
-                  <th className="py-4 px-4 font-semibold text-center uppercase tracking-wider text-[11px] w-1/6">
-                    SELECT<br />
-                    <span className="text-[10px] font-normal text-[#66717C]">₹2,499/mo</span>
-                  </th>
-                  <th className="py-4 px-4 font-semibold text-center uppercase tracking-wider text-[11px] w-1/6 bg-[#F1F3F5]/60">
-                    PRIVATE<br />
-                    <span className="text-[10px] font-bold text-[#1F2933]">₹4,999/mo</span>
-                  </th>
-                  <th className="py-4 px-4 font-semibold text-center uppercase tracking-wider text-[11px] w-1/6">
-                    RESERVE<br />
-                    <span className="text-[10px] font-normal text-[#66717C]">₹9,999/mo</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E1E5E8]">
-                {MEMBERSHIP_COMPARISON_MATRIX.map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className={`hover:bg-[#F7F8FA]/60 transition-colors ${
-                      idx % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'
-                    }`}
-                  >
-                    <td className="py-3.5 px-6 font-medium text-[#1F2933]">
-                      {row.feature}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      {row.select ? (
-                        <Check className="w-4 h-4 text-[#10B981] mx-auto" />
-                      ) : (
-                        <span className="text-[#A7B0B8] text-base">—</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-center bg-[#F1F3F5]/40 font-semibold">
-                      {row.private ? (
-                        <Check className="w-4 h-4 text-[#1F2933] mx-auto stroke-[2.5]" />
-                      ) : (
-                        <span className="text-[#A7B0B8] text-base">—</span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      {row.reserve ? (
-                        <Check className="w-4 h-4 text-[#10B981] mx-auto" />
-                      ) : (
-                        <span className="text-[#A7B0B8] text-base">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-16 sm:py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#111820]">
-            Frequently Asked Questions
-          </h2>
-          <p className="mt-2 text-xs sm:text-sm text-[#66717C]">
-            Everything you need to know about Proventa membership and billing.
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {faqs.map((faq, i) => (
-            <div
-              key={i}
-              className="p-6 rounded-2xl bg-white border border-[#E1E5E8] shadow-xs space-y-2"
-            >
-              <h3 className="text-sm font-bold text-[#111820] flex items-center gap-2">
-                <HelpCircle className="w-4 h-4 text-[#1F2933] shrink-0" />
-                <span>{faq.q}</span>
-              </h3>
-              <p className="text-xs text-[#525F6C] leading-relaxed pl-6">
-                {faq.a}
-              </p>
+              <div className="pt-8 mt-8 border-t border-stone-100">
+                <Link
+                  href={`/join?plan=${plan.tier.toLowerCase()}&frequency=${billingCycle.toLowerCase()}`}
+                  className={`w-full py-3.5 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 transition ${
+                    plan.isPopular
+                      ? 'bg-[#53634A] hover:bg-[#43523B] text-white shadow-md'
+                      : 'bg-[#171A17] hover:bg-stone-800 text-white'
+                  }`}
+                >
+                  <span>Subscribe to {plan.name}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* Bottom CTA Box */}
-        <div className="mt-16 p-8 sm:p-10 rounded-2xl bg-[#111820] text-white text-center space-y-5 border border-[#1F2933] shadow-lg">
-          <h3 className="text-xl sm:text-2xl font-bold">
-            Ready to experience life, handled?
-          </h3>
-          <p className="text-xs sm:text-sm text-[#A7B0B8] max-w-xl mx-auto">
-            Apply for Cohort 1 Early Access today and delegate your requests to Ahmedabad's premier Concierge Life OS.
-          </p>
-          <div className="pt-2">
-            <Link
-              href="/wave1"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-[#111820] text-xs font-semibold tracking-wider uppercase hover:bg-[#F1F3F5] transition-all shadow-sm"
-            >
-              <span>Request Cohort 1 Access</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+      {/* Detailed Entitlements Comparison Matrix */}
+      <div className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E3DFD5] shadow-xs space-y-6">
+        <h3 className="font-bold text-xl text-[#171A17]">Plan Comparison Matrix</h3>
+        
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left">
+            <thead>
+              <tr className="border-b border-stone-200 text-stone-500 uppercase tracking-wider">
+                <th className="py-3 px-4 font-semibold">Entitlement / Feature</th>
+                <th className="py-3 px-4 font-semibold">Essential (₹299/mo)</th>
+                <th className="py-3 px-4 font-semibold">Family (₹599/mo)</th>
+                <th className="py-3 px-4 font-semibold">Premium (₹999/mo)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-100 text-stone-700">
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Included Visits / Month</td>
+                <td className="py-3.5 px-4 font-semibold text-stone-900">1 Visit</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">2 Visits</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">4 Visits</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Max Duration / Visit Covered</td>
+                <td className="py-3.5 px-4">1.0 Hour</td>
+                <td className="py-3.5 px-4">1.5 Hours</td>
+                <td className="py-3.5 px-4">2.0 Hours</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Unused Visit Rollover</td>
+                <td className="py-3.5 px-4 text-stone-400">None</td>
+                <td className="py-3.5 px-4">Up to 2 visits</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">Up to 4 visits</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Electrical, Plumbing & Carpentry</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">AC & Appliance Diagnostics</td>
+                <td className="py-3.5 px-4 text-stone-400">Extra charge</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Water Tank / Sump Cleaning Check</td>
+                <td className="py-3.5 px-4 text-stone-400">Extra charge</td>
+                <td className="py-3.5 px-4 text-stone-400">Extra charge</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included (Annual)</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Emergency SLA Dispatch</td>
+                <td className="py-3.5 px-4">Next Day</td>
+                <td className="py-3.5 px-4">Same Day (&lt; 4 hrs)</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">Priority (&lt; 90 mins)</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Digital Maintenance Passport</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Spare Parts Markup</td>
+                <td className="py-3.5 px-4">Zero (At MRP)</td>
+                <td className="py-3.5 px-4">Zero (At MRP)</td>
+                <td className="py-3.5 px-4">Zero (At MRP)</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </section>
+      </div>
+
+      {/* Rollover & Fair Usage Policy */}
+      <div className="bg-stone-100 rounded-2xl p-6 sm:p-8 border border-stone-200 space-y-3">
+        <h4 className="font-bold text-base text-[#171A17] flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-[#53634A]" />
+          <span>Fair Usage & Visit Rollover Policy</span>
+        </h4>
+        <p className="text-xs text-stone-600 leading-relaxed">
+          Memberships are tied to a single registered residential address in Ahmedabad. If you do not use your included visits in a month on Family or Premium plans, up to 2 or 4 visits rollover into subsequent months for up to 90 days. Additional visits beyond your monthly allowance can be booked at preferential member rates (up to 30% discount off standard single callout charges).
+        </p>
+      </div>
+
     </div>
   );
 }

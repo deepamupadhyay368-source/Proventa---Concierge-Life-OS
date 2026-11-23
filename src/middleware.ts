@@ -5,23 +5,30 @@ import { auth } from '@/lib/auth/config';
 // Public routes — no auth needed
 const PUBLIC_ROUTES = [
   '/',
+  '/services',
+  '/service-areas',
+  '/join',
+  '/partners',
+  '/societies',
+  '/refund-policy',
+  '/how-it-works',
+  '/membership',
+  '/membership/checkout',
+  '/pricing',
+  '/about',
+  '/faq',
+  '/contact',
+  '/terms',
+  '/privacy',
   '/businesses',
   '/business/register',
   '/listings',
   '/for-businesses',
   '/enquiries/new',
   '/guidelines',
-  '/how-it-works',
   '/what-we-handle',
-  '/membership',
-  '/membership/checkout',
-  '/pricing',
-  '/about',
-  '/faq',
   '/wave1',
   '/legal',
-  '/privacy',
-  '/terms',
   '/cookie-policy',
   '/refund-cancellation',
   '/cancellation-policy',
@@ -30,7 +37,6 @@ const PUBLIC_ROUTES = [
   '/concierge-terms',
   '/third-party-disclosure',
   '/trust',
-  '/contact',
   '/sign-in',
   '/sign-up',
   '/verify',
@@ -90,6 +96,10 @@ export default auth(async (req) => {
     PUBLIC_ROUTES.some((r) => pathname === r) ||
     pathname.startsWith('/home') ||
     pathname.startsWith('/api/home') ||
+    pathname.startsWith('/customer') ||
+    pathname.startsWith('/api/customer') ||
+    pathname.startsWith('/partner') ||
+    pathname.startsWith('/api/partner') ||
     pathname.startsWith('/buyer/') ||
     pathname.startsWith('/supplier/') ||
     pathname.startsWith('/suppliers/') ||

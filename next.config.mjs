@@ -30,6 +30,20 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/home/:path*',
+        destination: '/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [
       {

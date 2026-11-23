@@ -3,18 +3,20 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ArrowUpRight } from 'lucide-react';
-import { BRAND_CONFIG } from '@/lib/brand';
 import { cn } from '@/lib/utils';
 
 const ADMIN_INDEX_LINKS = [
-  { code: '01', label: 'Marketplace Moderation', href: '/admin/marketplace' },
-  { code: '02', label: 'Console Overview', href: '/admin' },
-  { code: '03', label: 'Registrations', href: '/admin/registrations' },
-  { code: '04', label: 'Providers', href: '/admin/providers' },
-  { code: '05', label: 'Requests', href: '/admin/requests' },
-  { code: '06', label: 'Analytics', href: '/admin/analytics' },
-  { code: '07', label: 'Audit Logs', href: '/admin/audit-logs' },
-  { code: '08', label: 'Settings', href: '/admin/settings' },
+  { code: '01', label: 'Operations Overview', href: '/admin' },
+  { code: '02', label: 'Dispatch Engine', href: '/admin/dispatch' },
+  { code: '03', label: 'Customers & Members', href: '/admin/customers' },
+  { code: '04', label: 'Technician Partners', href: '/admin/partners' },
+  { code: '05', label: 'Service Requests', href: '/admin/requests' },
+  { code: '06', label: 'Subscriptions', href: '/admin/subscriptions' },
+  { code: '07', label: 'Finance & Payouts', href: '/admin/finance' },
+  { code: '08', label: 'Service Areas', href: '/admin/service-areas' },
+  { code: '09', label: 'Society Accounts', href: '/admin/societies' },
+  { code: '10', label: 'Settings', href: '/admin/settings' },
+  { code: '11', label: 'Industrial Procurement (Archive)', href: '/admin/procurement' },
 ];
 
 export function AdminShell({
@@ -26,22 +28,22 @@ export function AdminShell({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row bg-[#F5F0E5] text-[#181914]">
-      {/* Left Architectural Charcoal Governance Rail */}
-      <aside className="w-full lg:w-64 shrink-0 bg-[#171A14] text-[#F6F0E4] border-b lg:border-b-0 lg:border-r border-[#4C4A40]/70 flex flex-col justify-between">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-[#F2F0E9] text-[#171A17]">
+      {/* Left Charcoal Operations Rail */}
+      <aside className="w-full lg:w-72 shrink-0 bg-[#171A17] text-[#F2F0E9] border-b lg:border-b-0 lg:border-r border-[#323631] flex flex-col justify-between">
         <div>
-          <div className="p-5 border-b border-[#4C4A40]/70 flex items-center justify-between">
+          <div className="p-5 border-b border-[#323631] flex items-center justify-between">
             <Link href="/" className="block">
-              <span className="font-sans text-base font-semibold uppercase tracking-[0.26em] text-[#F6F0E4] block">
-                {BRAND_CONFIG.name}
+              <span className="font-sans text-base font-bold uppercase tracking-[0.2em] text-[#F2F0E9] block">
+                PROVENTA HOME
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#B94E2D] block mt-0.5">
-                Admin Governance
+              <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-[#89947F] block mt-0.5">
+                Operations Control Centre
               </span>
             </Link>
           </div>
 
-          <nav className="divide-y divide-[#4C4A40]/40">
+          <nav className="divide-y divide-[#323631]/60">
             {ADMIN_INDEX_LINKS.map((item) => {
               const active =
                 item.href === '/admin'
@@ -52,10 +54,10 @@ export function AdminShell({
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    'flex items-center justify-between px-5 py-3.5 font-mono text-[11px] uppercase tracking-[0.12em] transition-colors',
+                    'flex items-center justify-between px-5 py-3 font-mono text-[11px] uppercase tracking-[0.1em] transition-colors',
                     active
-                      ? 'bg-[#B94E2D] text-[#F6F0E4] font-semibold'
-                      : 'text-[#A7A194] hover:bg-[#20211C] hover:text-[#F6F0E4]',
+                      ? 'bg-[#53634A] text-white font-bold'
+                      : 'text-[#89947F] hover:bg-[#20241F] hover:text-[#F2F0E9]',
                   )}
                 >
                   <span>
@@ -68,30 +70,34 @@ export function AdminShell({
           </nav>
         </div>
 
-        <div className="p-5 border-t border-[#4C4A40]/70 font-mono text-[10px] space-y-2">
+        <div className="p-5 border-t border-[#323631] font-mono text-[10px] space-y-2">
           <Link
-            href="/businesses"
-            className="flex items-center justify-between text-[#A98253] hover:text-[#F6F0E4]"
+            href="/"
+            className="flex items-center justify-between text-[#89947F] hover:text-white"
           >
-            <span>PUBLIC DIRECTORY</span>
+            <span>PUBLIC PLATFORM</span>
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
-          <div className="text-[#6B675E]">PROVENTA GOVERNANCE CONSOLE</div>
+          <div className="text-stone-500">PROVENTA AHMEDABAD DISPATCH ENGINE</div>
         </div>
       </aside>
 
       {/* Main Content Workspace */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-12 border-b border-[#D5CBB8] bg-[#FAF6EC] px-6 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em] text-[#6B675E]">
-          <span>Marketplace Trust &amp; Moderation</span>
+        <header className="h-14 border-b border-[#E3DFD5] bg-white px-6 flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em] text-stone-500 shadow-2xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="font-semibold text-[#171A17]">Ahmedabad Operations Live</span>
+            <span className="text-stone-400">• Bopal / Satellite / Prahlad Nagar</span>
+          </div>
           <Link
             href="/"
-            className="font-semibold text-[#181914] hover:text-[#B94E2D]"
+            className="font-semibold text-[#53634A] hover:text-[#171A17] flex items-center gap-1"
           >
             Return to Public Website →
           </Link>
         </header>
-        <main className="flex-1 p-6 lg:p-10">{children}</main>
+        <main className="flex-1 p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );

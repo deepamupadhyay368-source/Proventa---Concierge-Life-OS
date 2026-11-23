@@ -21,12 +21,12 @@ export default function HomeNav() {
   const [portalDropdownOpen, setPortalDropdownOpen] = useState(false);
 
   const navLinks = [
-    { label: 'Services', href: '/home/services' },
-    { label: 'How It Works', href: '/home/how-it-works' },
-    { label: 'Membership', href: '/home/membership' },
-    { label: 'Service Areas', href: '/home/service-areas' },
-    { label: 'Societies', href: '/home/societies' },
-    { label: 'Partners', href: '/home/partners' },
+    { label: 'Services', href: '/services' },
+    { label: 'How It Works', href: '/how-it-works' },
+    { label: 'Membership', href: '/membership' },
+    { label: 'Service Areas', href: '/service-areas' },
+    { label: 'Societies', href: '/societies' },
+    { label: 'Partners', href: '/partners' },
   ];
 
   return (
@@ -40,10 +40,7 @@ export default function HomeNav() {
             <span className="text-stone-300">Bopal, South Bopal, Satellite, Prahlad Nagar, Gota, Science City & more</span>
           </div>
           <div className="flex items-center gap-4 text-xs font-mono">
-            <span>24/7 Emergency Dispatch: <strong className="text-white">+91 79 4900 8800</strong></span>
-            <Link href="/" className="text-stone-400 hover:text-stone-200 transition underline underline-offset-2">
-              Proventa Industrial ↗
-            </Link>
+            <span>24/7 Breakdown Dispatch: <strong className="text-white">+91 79 4900 8800</strong></span>
           </div>
         </div>
       </div>
@@ -51,7 +48,7 @@ export default function HomeNav() {
       {/* Main Navigation */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 h-18 flex items-center justify-between">
         {/* Brand */}
-        <Link href="/home" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group">
           <div className="w-9 h-9 rounded-lg bg-[#53634A] text-white flex items-center justify-center font-bold text-lg tracking-wider shadow-sm group-hover:bg-[#43523B] transition">
             P
           </div>
@@ -62,7 +59,7 @@ export default function HomeNav() {
                 HOME
               </span>
             </div>
-            <span className="text-[10px] text-stone-500 tracking-wider uppercase font-medium">Household Care & Maintenance</span>
+            <span className="text-[10px] text-stone-500 tracking-wider uppercase font-medium">Household Maintenance Membership</span>
           </div>
         </Link>
 
@@ -108,7 +105,7 @@ export default function HomeNav() {
                   Select Workspace
                 </div>
                 <Link
-                  href="/home/customer/dashboard"
+                  href="/customer/dashboard"
                   onClick={() => setPortalDropdownOpen(false)}
                   className="flex items-center gap-2.5 px-3 py-2 text-xs text-stone-800 hover:bg-stone-50 transition"
                 >
@@ -119,7 +116,7 @@ export default function HomeNav() {
                   </div>
                 </Link>
                 <Link
-                  href="/home/partner/dashboard"
+                  href="/partner/dashboard"
                   onClick={() => setPortalDropdownOpen(false)}
                   className="flex items-center gap-2.5 px-3 py-2 text-xs text-stone-800 hover:bg-stone-50 transition"
                 >
@@ -130,7 +127,7 @@ export default function HomeNav() {
                   </div>
                 </Link>
                 <Link
-                  href="/home/admin"
+                  href="/admin"
                   onClick={() => setPortalDropdownOpen(false)}
                   className="flex items-center gap-2.5 px-3 py-2 text-xs text-stone-800 hover:bg-stone-50 transition"
                 >
@@ -145,7 +142,7 @@ export default function HomeNav() {
           </div>
 
           <Link
-            href="/home/customer/book"
+            href="/customer/book"
             className="flex items-center gap-1.5 bg-[#53634A] hover:bg-[#43523B] text-white text-xs font-semibold px-4 py-2 rounded-lg shadow-sm transition"
           >
             <CalendarCheck className="w-3.5 h-3.5" />
@@ -181,28 +178,28 @@ export default function HomeNav() {
 
           <div className="pt-3 border-t border-[#E3DFD5] space-y-2">
             <Link
-              href="/home/customer/dashboard"
+              href="/customer/dashboard"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 text-xs font-medium text-stone-700 p-2 rounded-lg bg-white border border-[#E3DFD5]"
             >
               <User className="w-4 h-4 text-[#53634A]" /> Customer Dashboard
             </Link>
             <Link
-              href="/home/partner/dashboard"
+              href="/partner/dashboard"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 text-xs font-medium text-stone-700 p-2 rounded-lg bg-white border border-[#E3DFD5]"
             >
               <Wrench className="w-4 h-4 text-amber-600" /> Technician Partner Portal
             </Link>
             <Link
-              href="/home/admin"
+              href="/admin"
               onClick={() => setMobileMenuOpen(false)}
               className="flex items-center gap-2 text-xs font-medium text-stone-700 p-2 rounded-lg bg-white border border-[#E3DFD5]"
             >
               <Briefcase className="w-4 h-4 text-indigo-600" /> Admin Control Centre
             </Link>
             <Link
-              href="/home/customer/book"
+              href="/customer/book"
               onClick={() => setMobileMenuOpen(false)}
               className="w-full flex items-center justify-center gap-2 bg-[#53634A] text-white text-xs font-semibold py-2.5 rounded-lg shadow-sm"
             >

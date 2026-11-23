@@ -1,73 +1,86 @@
-import type { Metadata } from 'next';
+import React from 'react';
 import Link from 'next/link';
+import { HelpCircle, ChevronRight, ArrowRight } from 'lucide-react';
 
-export const metadata: Metadata = {
-  title: 'FAQ | PROVENTA — Every Business. One Place.',
-  description: 'Frequently asked questions about PROVENTA universal business discovery, digital storefronts, and customer enquiries.',
-};
+export default function FaqPage() {
+  const faqs = [
+    {
+      q: 'What is PROVENTA Home and how does the membership work?',
+      a: 'PROVENTA Home is a household maintenance subscription. Instead of paying arbitrary callout fees every time an electrical or plumbing issue arises, you subscribe to an affordable monthly or annual plan. Depending on your tier (Essential, Family, or Premium), you receive 1, 2, or 4 included technician visits every month, covering all standard labour, diagnostics, and repairs.'
+    },
+    {
+      q: 'Who pays for spare parts and replacement materials?',
+      a: 'Labour is 100% covered under your membership visits. If replacement parts are needed (such as a new MCB, brass valve, or diverter cartridge), our technician submits a transparent digital estimate with exact market prices. Work proceeds only after you review and approve the charge in your portal.'
+    },
+    {
+      q: 'What happens if I do not use my included monthly visits?',
+      a: 'On Family and Premium plans, unused visits automatically roll over to the subsequent months (up to 2 visits for Family and 4 visits for Premium) for up to 90 days. Essential plan visits do not roll over.'
+    },
+    {
+      q: 'How fast can a technician arrive for an emergency?',
+      a: 'For urgent issues like active water pipe bursts, major electrical short circuits, or total power failure, Premium members receive emergency priority dispatch with guaranteed arrival within 90 minutes in active Ahmedabad zones.'
+    },
+    {
+      q: 'How do you verify your technician partners?',
+      a: 'Every technician undergoes four-tier screening: government Aadhaar KYC, criminal history police verification through the local police commissionerate, trade competency evaluation (ITI certification or 3+ years verified work), and a mandatory 2-hour domestic etiquette and electrical/plumbing safety briefing.'
+    },
+    {
+      q: 'What is the 30-Day Workmanship Warranty?',
+      a: 'If a repair completed by a PROVENTA technician reoccurs or fails within 30 days of completion, simply open your portal or call our helpdesk. We will dispatch a senior technician to rectify the problem completely free of charge.'
+    },
+    {
+      q: 'Can I cancel or pause my subscription?',
+      a: 'Yes. Monthly memberships can be cancelled anytime with a single click from your member portal before the next billing cycle. If you are traveling or renovating, you can pause your active membership for up to 60 days without losing accumulated benefits.'
+    },
+    {
+      q: 'Can I book a single service without buying a membership?',
+      a: 'Yes. Non-members can book one-off diagnostic visits at standard individual rates (starting from ₹399). However, becoming a member pays for itself within just one or two domestic visits.'
+    }
+  ];
 
-const FAQS = [
-  {
-    q: 'What is PROVENTA?',
-    a: 'PROVENTA ("Every Business. One Place.") is a universal business discovery, digital storefront, and customer enquiry marketplace. Businesses create verified digital storefronts and showcase their products or services, while customers discover businesses, post structured requirements, and compare quotations.',
-  },
-  {
-    q: 'Who can list a business on PROVENTA?',
-    a: 'Any legitimate business, shop, clinic, restaurant, service provider, agency, consultant, freelancer, wholesaler, distributor, or manufacturer can register a digital storefront on PROVENTA across 18 industry categories.',
-  },
-  {
-    q: 'How does the Customer Enquiry Marketplace work?',
-    a: 'Customers can either send a direct enquiry to a specific business or post a requirement to a category/city marketplace. PROVENTA matches the enquiry with relevant published businesses based on category, subcategory, location, and catalog relevance, and matched businesses respond with structured quotations.',
-  },
-  {
-    q: 'Is my contact information shared publicly when I post an enquiry?',
-    a: 'No. By default, customer contact details (email and phone number) are kept private and are only shared with businesses whose quotations you explicitly shortlist or accept.',
-  },
-  {
-    q: 'How does business verification work on PROVENTA?',
-    a: 'PROVENTA uses transparent, honest verification badges: Self-Reported (newly registered), Contact Verified, Document Reviewed, and Verified Business (admin-reviewed business identity and documentation). We never fabricate verification badges or reviews.',
-  },
-  {
-    q: 'Is it free for customers to search and post enquiries?',
-    a: 'Yes. Searching the business directory, browsing product and service catalogs, posting customer enquiries, and comparing quotations are completely free for customers.',
-  },
-  {
-    q: 'What plans are available for businesses?',
-    a: 'Businesses can start on the Free Storefront plan (public storefront, up to 10 listings, and up to 5 quotation responses per month) or upgrade to Growth Pro or Enterprise Premium for higher listing capacity, priority enquiry matching, and multi-member team management.',
-  },
-  {
-    q: 'Which cities and regions does PROVENTA support?',
-    a: 'PROVENTA is launching across Gujarat (Ahmedabad, Surat, Vadodara, Rajkot, Gandhinagar, and surrounding industrial/commercial hubs) with pan-India and global expansion support built into every storefront.',
-  },
-];
-
-export default function FAQPage() {
   return (
-    <div className="min-h-screen bg-white pt-16">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="mb-14">
-          <h1 className="text-4xl font-semibold tracking-tight text-neutral-900 mb-4">Frequently Asked Questions</h1>
-          <p className="text-neutral-500">
-            Have another question? <Link href="/contact" className="text-brand-700 hover:underline">Contact our team</Link>.
-          </p>
-        </div>
-        <div className="space-y-8">
-          {FAQS.map((faq) => (
-            <div key={faq.q} className="border-b border-neutral-100 pb-8">
-              <h2 className="text-base font-semibold text-neutral-900 mb-3">{faq.q}</h2>
-              <p className="text-sm text-neutral-500 leading-relaxed">{faq.a}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-14 flex flex-wrap items-center justify-center gap-4">
-          <Link href="/businesses" className="inline-flex items-center px-6 py-3 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-            Explore Businesses
-          </Link>
-          <Link href="/business/register" className="inline-flex items-center px-6 py-3 border border-neutral-300 text-neutral-900 text-sm font-medium rounded-lg hover:bg-neutral-50 transition-colors">
-            List Your Business
-          </Link>
-        </div>
+    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 space-y-12">
+      
+      {/* Header */}
+      <div className="text-center space-y-3">
+        <span className="text-xs font-bold uppercase tracking-widest text-[#53634A] bg-[#53634A]/10 px-3 py-1 rounded-full border border-[#53634A]/20">
+          Frequently Asked Questions
+        </span>
+        <h1 className="text-4xl font-bold text-[#171A17]">Common Questions Answered</h1>
+        <p className="text-stone-600 text-sm">
+          Everything you need to know about PROVENTA Home memberships, service coverage, and technician standards.
+        </p>
       </div>
+
+      {/* FAQ list */}
+      <div className="space-y-4">
+        {faqs.map((faq, idx) => (
+          <div key={idx} className="bg-white rounded-2xl p-6 sm:p-7 border border-[#E3DFD5] shadow-xs space-y-2.5">
+            <h3 className="font-bold text-base text-[#171A17] flex items-start gap-2">
+              <span className="text-[#53634A] font-mono text-sm shrink-0">Q.</span>
+              <span>{faq.q}</span>
+            </h3>
+            <p className="text-xs sm:text-sm text-stone-600 pl-6 leading-relaxed">
+              {faq.a}
+            </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Contact box */}
+      <div className="bg-[#F2F0E9] rounded-2xl p-6 sm:p-8 border border-[#E3DFD5] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div>
+          <h4 className="font-bold text-base text-[#171A17]">Still have questions?</h4>
+          <p className="text-xs text-stone-600">Our Ahmedabad support team is available 24/7 to assist you.</p>
+        </div>
+        <Link
+          href="/contact"
+          className="bg-[#53634A] hover:bg-[#43523B] text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition shadow-xs shrink-0"
+        >
+          Contact Our Concierge
+        </Link>
+      </div>
+
     </div>
   );
 }

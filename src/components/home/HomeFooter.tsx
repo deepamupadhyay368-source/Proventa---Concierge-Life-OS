@@ -41,12 +41,12 @@ export default function HomeFooter() {
           <div className="space-y-3">
             <h4 className="text-xs font-bold tracking-wider text-white uppercase">Platform</h4>
             <ul className="space-y-2 text-sm text-stone-400">
-              <li><Link href="/home/membership" className="hover:text-white transition">Membership Plans</Link></li>
-              <li><Link href="/home/services" className="hover:text-white transition">Service Catalogue</Link></li>
-              <li><Link href="/home/how-it-works" className="hover:text-white transition">How It Works</Link></li>
-              <li><Link href="/home/societies" className="hover:text-white transition">Apartment Societies</Link></li>
-              <li><Link href="/home/partners" className="hover:text-white transition">Join as a Technician</Link></li>
-              <li><Link href="/home/customer/dashboard" className="hover:text-white transition">Member Portal</Link></li>
+              <li><Link href="/membership" className="hover:text-white transition">Membership Plans</Link></li>
+              <li><Link href="/services" className="hover:text-white transition">Service Catalogue</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-white transition">How It Works</Link></li>
+              <li><Link href="/societies" className="hover:text-white transition">Apartment Societies</Link></li>
+              <li><Link href="/partners" className="hover:text-white transition">Join as a Technician</Link></li>
+              <li><Link href="/customer/dashboard" className="hover:text-white transition">Member Portal</Link></li>
             </ul>
           </div>
 
@@ -62,7 +62,7 @@ export default function HomeFooter() {
               ))}
             </ul>
             <div className="pt-2">
-              <Link href="/home/service-areas" className="text-xs text-[#89947F] hover:text-white underline underline-offset-2">
+              <Link href="/service-areas" className="text-xs text-[#89947F] hover:text-white underline underline-offset-2">
                 Check Pincode Coverage →
               </Link>
             </div>
@@ -103,10 +103,9 @@ export default function HomeFooter() {
             © {new Date().getFullYear()} PROVENTA Technologies Pvt Ltd. All rights reserved.
           </div>
           <div className="flex items-center gap-6">
-            <Link href="/home/terms" className="hover:text-stone-300 transition">Terms of Service</Link>
-            <Link href="/home/privacy" className="hover:text-stone-300 transition">Privacy Policy</Link>
-            <Link href="/home/refund-policy" className="hover:text-stone-300 transition">Refund & Cancellation</Link>
-            <Link href="/" className="text-stone-400 hover:text-white transition">Parent Vertical: Proventa Industrial</Link>
+            <Link href="/terms" className="hover:text-stone-300 transition">Terms of Service</Link>
+            <Link href="/privacy" className="hover:text-stone-300 transition">Privacy Policy</Link>
+            <Link href="/refund-policy" className="hover:text-stone-300 transition">Refund & Cancellation</Link>
           </div>
         </div>
       </div>
