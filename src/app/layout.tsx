@@ -5,9 +5,23 @@ import { SessionProvider } from '@/components/providers/session-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
-const sansFont = { variable: '--font-sans' };
-const displayFont = { variable: '--font-display' };
-const monoFont = { variable: '--font-mono' };
+import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
+
+const displayFont = Cormorant_Garamond({
+  subsets: ['latin'],
+  weight: ['300','400','500','600','700'],
+  variable: '--font-display',
+  display: 'swap',
+});
+
+const sansFont = DM_Sans({
+  subsets: ['latin'],
+  weight: ['300','400','500','600','700'],
+  variable: '--font-sans',
+  display: 'swap',
+});
+
+// monoFont removed as not used
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
@@ -93,7 +107,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sansFont.variable} ${displayFont.variable} ${monoFont.variable}`}
+      className={`${sansFont.variable} ${displayFont.variable}`}
     >
       <body className="min-h-screen bg-[#F2F0E9] text-[#171A17] antialiased selection:bg-[#53634A] selection:text-white">
         <ThemeProvider

@@ -1,485 +1,227 @@
-'use client';
-
-import React, { useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { 
-  ShieldCheck, 
-  CheckCircle2, 
-  ArrowRight, 
-  Zap, 
-  Droplet, 
-  Hammer, 
-  Wind, 
-  Sparkles, 
-  Search, 
-  Clock, 
-  Calendar,
-  Building,
-  UserCheck,
-  Award,
-  ChevronRight,
-  Star
-} from 'lucide-react';
-import { HOME_SERVICE_CATEGORIES, HOME_SUBSCRIPTION_PLANS, AHMEDABAD_LOCALITIES } from '@/lib/home/constants';
+import { SectionWrapper } from '@/components/home/ui/SectionWrapper';
+import { Card } from '@/components/home/ui/Card';
 
-export default function RootHomePage() {
-  const [selectedLocality, setSelectedLocality] = useState('');
-  const [localityStatus, setLocalityStatus] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'MONTHLY' | 'ANNUAL'>('ANNUAL');
+const SERVICES = [
+  { icon: '⚡', title: 'Electrical', desc: 'Fan installation, switch repairs, DB box checks, light fittings.' },
+  { icon: '🔧', title: 'Plumbing', desc: 'Tap repairs, drainage clearing, tank cleaning, pipe leaks.' },
+  { icon: '❄️', title: 'Air Conditioning', desc: 'Service, gas refill, filter cleaning, installation.' },
+  { icon: '🔨', title: 'Carpentry', desc: 'Door/window repairs, furniture assembly, cabinet work.' },
+  { icon: '🎨', title: 'Painting', desc: 'Touch-ups, full-room painting, wall texture work.' },
+  { icon: '🧹', title: 'Deep Cleaning', desc: 'Kitchen, bathroom, full-flat, post-renovation cleaning.' },
+];
 
-  const handleCheckLocality = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedLocality.trim()) return;
+const PLAN_HIGHLIGHTS = [
+  { tier: 'Essential', price: '₹999/mo', desc: 'Up to 4 service visits. Perfect for a compact home.' },
+  { tier: 'Standard', price: '₹1,999/mo', desc: 'Up to 8 visits. Most popular for 2–3 BHK.' },
+  { tier: 'Premium', price: '₹3,499/mo', desc: 'Unlimited visits + dedicated technician.' },
+];
 
-    const match = AHMEDABAD_LOCALITIES.find(
-      loc => loc.name.toLowerCase().includes(selectedLocality.toLowerCase()) ||
-             loc.pincodes.some(p => p.includes(selectedLocality.trim()))
-    );
+const HOW_IT_WORKS = [
+  { step: '01', title: 'Subscribe', desc: 'Choose a plan. Subscribe in under 2 minutes.' },
+  { step: '02', title: 'Book', desc: 'Request any service from your dashboard. Available 7 days a week.' },
+  { step: '03', title: 'We Send a Pro', desc: 'A verified, background-checked technician arrives on time.' },
+  { step: '04', title: 'Stay Informed', desc: 'Your Household Maintenance Passport logs every visit and repair.' },
+];
 
-    if (match) {
-      setLocalityStatus(`✓ Full coverage available in ${match.name} (Avg. Response: ${match.averageResponseTimeMin} mins, ${match.activeTechniciansCount} active technicians).`);
-    } else {
-      setLocalityStatus(`Coverage expanding soon to ${selectedLocality}. You can join our priority waitlist for early invitation.`);
-    }
-  };
-
-  const getCategoryIcon = (key: string) => {
-    switch (key) {
-      case 'ELECTRICAL': return <Zap className="w-5 h-5 text-amber-600" />;
-      case 'PLUMBING': return <Droplet className="w-5 h-5 text-blue-600" />;
-      case 'CARPENTRY': return <Hammer className="w-5 h-5 text-amber-800" />;
-      case 'APPLIANCE': return <Wind className="w-5 h-5 text-teal-600" />;
-      case 'CLEANING': return <Sparkles className="w-5 h-5 text-emerald-600" />;
-      default: return <WrenchIcon className="w-5 h-5 text-[#53634A]" />;
-    }
-  };
-
+export default function HomePage() {
   return (
-    <div className="space-y-24 pb-20">
-      
-      {/* 1. HERO SECTION */}
-      <section className="relative pt-12 md:pt-20 lg:pt-24 px-4 sm:px-8 max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#53634A]/10 text-[#53634A] text-xs font-semibold tracking-wide border border-[#53634A]/20">
-              <ShieldCheck className="w-4 h-4 text-[#53634A]" />
-              <span>Ahmedabad's Household Maintenance Membership</span>
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#171A17] leading-[1.12]">
-              Your Home.<br />
-              <span className="text-[#53634A]">Always Taken Care Of.</span>
-            </h1>
-
-            <p className="text-lg text-stone-600 max-w-xl leading-relaxed">
-              One transparent membership covering scheduled maintenance, emergency repairs, and seasonal servicing. Connected with verified local technicians across Ahmedabad.
-            </p>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
-              <Link
-                href="/membership"
-                className="inline-flex items-center justify-center gap-2 bg-[#53634A] hover:bg-[#43523B] text-white font-semibold text-sm px-7 py-3.5 rounded-xl shadow-md transition"
-              >
-                <span>View Membership Plans</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/customer/book"
-                className="inline-flex items-center justify-center gap-2 bg-white hover:bg-stone-100 text-stone-800 font-semibold text-sm px-6 py-3.5 rounded-xl border border-[#E3DFD5] shadow-xs transition"
-              >
-                <span>Book a Single Diagnostic Visit</span>
-              </Link>
-            </div>
-
-            {/* Key trust badges */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#E3DFD5] text-xs text-stone-600">
-              <div>
-                <strong className="block text-base font-bold text-[#171A17]">4.88 ★</strong>
-                <span>Verified ratings</span>
-              </div>
-              <div>
-                <strong className="block text-base font-bold text-[#171A17]">30-Day</strong>
-                <span>Work warranty</span>
-              </div>
-              <div>
-                <strong className="block text-base font-bold text-[#171A17]">100%</strong>
-                <span>Background checked</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Card / Pincode Availability & Live Status */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-[#E3DFD5] space-y-6">
-              
-              <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-                <div>
-                  <h3 className="font-bold text-lg text-[#171A17]">Check Local Coverage</h3>
-                  <p className="text-xs text-stone-500">Live technician hubs across Ahmedabad</p>
-                </div>
-                <span className="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-              </div>
-
-              <form onSubmit={handleCheckLocality} className="space-y-3">
-                <label className="block text-xs font-semibold text-stone-700">Enter Locality or 6-digit Pincode</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={selectedLocality}
-                    onChange={(e) => setSelectedLocality(e.target.value)}
-                    placeholder="e.g. Bopal, 380058, Satellite..."
-                    className="w-full text-sm rounded-xl border border-[#E3DFD5] px-4 py-3 pl-10 focus:outline-none focus:ring-2 focus:ring-[#53634A] focus:border-transparent bg-stone-50"
-                  />
-                  <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3.5" />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full bg-[#171A17] hover:bg-stone-800 text-white text-xs font-semibold py-3 rounded-xl transition flex items-center justify-center gap-1.5"
-                >
-                  <span>Verify Availability</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </form>
-
-              {localityStatus && (
-                <div className="p-3.5 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-700 font-medium">
-                  {localityStatus}
-                </div>
-              )}
-
-              {/* Sample Operational Hubs */}
-              <div className="pt-2">
-                <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider block mb-2">
-                  Immediate Dispatch Zones
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {['South Bopal', 'Satellite', 'Prahlad Nagar', 'Gota', 'Science City', 'Thaltej', 'Bodakdev'].map(loc => (
-                    <button
-                      key={loc}
-                      onClick={() => { setSelectedLocality(loc); setLocalityStatus(`✓ Full coverage available in ${loc}.`); }}
-                      className="text-xs px-2.5 py-1 rounded-md bg-[#F2F0E9] hover:bg-[#53634A]/10 text-stone-700 hover:text-[#53634A] transition"
-                    >
-                      {loc}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
-
+    <main>
+      {/* HERO */}
+      <section className="relative min-h-[90vh] flex items-center bg-[#F2F0E9]">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=85"
+            alt="Premium Indian living room interior"
+            fill
+            priority
+            className="object-cover object-center"
+            sizes="100vw"
+          />
+          <div className="absolute inset-0 bg-[#F2F0E9]/60" />
         </div>
-      </section>
-
-      {/* 2. THE FOUR PILLARS OF PROVENTA HOME */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-          <h2 className="text-xs font-bold tracking-widest text-[#53634A] uppercase">The Platform Difference</h2>
-          <h3 className="text-3xl font-bold text-[#171A17]">Built for Dependable Household Care</h3>
-          <p className="text-sm text-stone-600">
-            Unlike fragmented local directories or commission-heavy aggregators, PROVENTA Home operates as a managed membership with standardized accountability.
+        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 py-24">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-[#53634A]">
+            Household Maintenance Membership
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-[#53634A]/10 flex items-center justify-center text-[#53634A]">
-              <UserCheck className="w-5 h-5" />
-            </div>
-            <h4 className="font-bold text-base text-[#171A17]">Verified Technicians</h4>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Every professional undergoes Aadhaar KYC, police background verification, technical trade evaluation, and safety briefing before entering your home.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
-              <Clock className="w-5 h-5" />
-            </div>
-            <h4 className="font-bold text-base text-[#171A17]">Guaranteed Response</h4>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Book fixed 2-hour arrival windows. For emergency plumbing leaks and electrical faults, priority dispatch responds within 90 minutes in active zones.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-700">
-              <Award className="w-5 h-5" />
-            </div>
-            <h4 className="font-bold text-base text-[#171A17]">30-Day Work Warranty</h4>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              If an issue reoccurs within 30 days of completion, our team returns and fixes it free of charge with zero diagnostic or labour fees.
-            </p>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] shadow-xs space-y-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-700">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <h4 className="font-bold text-base text-[#171A17]">Maintenance Passport</h4>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              Every service, part replacement, and appliance checkup is automatically logged into your digital home passport to preserve long-term property value.
-            </p>
+          <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight text-[#171A17] max-w-3xl">
+            Your Home.<br />Always Taken<br />Care Of.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg text-[#4B5563] leading-relaxed">
+            One membership. Every household essential. Verified local technicians for plumbing, electrical, carpentry, AC and more — across Ahmedabad.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Link
+              href="/signup"
+              className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md bg-[#53634A] text-white hover:bg-[#3d4a36] transition-all"
+            >
+              Join PROVENTA
+            </Link>
+            <Link
+              href="/membership"
+              className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md border border-[#171A17] text-[#171A17] hover:bg-[#171A17] hover:text-white transition-all"
+            >
+              View Plans
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 3. SERVICE CATEGORIES */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
-          <div>
-            <h2 className="text-xs font-bold tracking-widest text-[#53634A] uppercase">Full Coverage</h2>
-            <h3 className="text-3xl font-bold text-[#171A17]">7 Essential Household Disciplines</h3>
-          </div>
-          <Link href="/services" className="text-xs font-semibold text-[#53634A] hover:underline flex items-center gap-1">
-            Browse complete 20+ service catalogue →
+      {/* TRUST BAR */}
+      <div className="border-y border-[#E5E3DB] bg-white py-5">
+        <div className="max-w-6xl mx-auto px-6 md:px-12 flex flex-wrap items-center justify-center gap-8 md:gap-16 text-sm text-[#6B7280]">
+          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> Background-verified technicians</span>
+          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> 7-day a week service</span>
+          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> Digital Maintenance Passport</span>
+          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> No surprise charges</span>
+        </div>
+      </div>
+
+      {/* SERVICES GRID */}
+      <SectionWrapper>
+        <div className="text-center mb-12">
+          <h2 className="font-display text-4xl font-bold text-[#171A17]">Every Home Essential, Covered.</h2>
+          <p className="mt-3 text-[#6B7280] max-w-xl mx-auto">From a dripping tap to a full AC overhaul — your membership covers it all.</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {SERVICES.map((s) => (
+            <Card key={s.title} className="hover:border-[#53634A] transition-colors">
+              <div className="text-3xl mb-3">{s.icon}</div>
+              <h3 className="font-display text-lg font-semibold text-[#171A17] mb-1">{s.title}</h3>
+              <p className="text-sm text-[#6B7280]">{s.desc}</p>
+            </Card>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link href="/services" className="text-sm font-medium text-[#53634A] hover:underline">
+            View all services →
           </Link>
         </div>
+      </SectionWrapper>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {HOME_SERVICE_CATEGORIES.map((cat) => (
-            <div key={cat.key} className="bg-white rounded-2xl p-6 border border-[#E3DFD5] hover:border-[#53634A]/50 transition group shadow-2xs">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2.5 rounded-xl bg-stone-100 group-hover:bg-[#53634A]/10 transition">
-                  {getCategoryIcon(cat.key)}
-                </div>
-                <div>
-                  <h4 className="font-bold text-[#171A17]">{cat.name}</h4>
-                  <p className="text-[11px] text-stone-500">{cat.tagline}</p>
-                </div>
-              </div>
-              <p className="text-xs text-stone-600 mb-4 line-clamp-2 leading-relaxed">
-                {cat.description}
-              </p>
-              <div className="space-y-1.5 pt-3 border-t border-stone-100">
-                {cat.services.slice(0, 3).map(s => (
-                  <div key={s.id} className="flex items-center justify-between text-xs text-stone-700">
-                    <span className="truncate pr-2">• {s.name}</span>
-                    <span className="text-[10px] font-mono text-stone-400 shrink-0">{s.estimatedDurationMin}m</span>
-                  </div>
-                ))}
-              </div>
+      {/* EDITORIAL IMAGE BREAK */}
+      <div className="relative h-72 md:h-[480px] overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=80"
+          alt="A technician working professionally in a home"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[#171A17]/40 flex items-center justify-center">
+          <blockquote className="text-center text-white max-w-2xl px-6">
+            <p className="font-display text-3xl md:text-5xl font-light italic leading-snug">
+              &ldquo;A home that runs smoothly is a home at peace.&rdquo;
+            </p>
+          </blockquote>
+        </div>
+      </div>
+
+      {/* HOW IT WORKS */}
+      <SectionWrapper className="bg-white">
+        <div className="text-center mb-12">
+          <h2 className="font-display text-4xl font-bold text-[#171A17]">Simple. Reliable. Always On.</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {HOW_IT_WORKS.map((step) => (
+            <div key={step.step} className="text-center">
+              <div className="font-display text-5xl font-bold text-[#E5E3DB] mb-3">{step.step}</div>
+              <h3 className="font-display text-xl font-semibold text-[#171A17] mb-2">{step.title}</h3>
+              <p className="text-sm text-[#6B7280]">{step.desc}</p>
             </div>
           ))}
         </div>
-      </section>
+      </SectionWrapper>
 
-      {/* 4. SUBSCRIPTION PLANS */}
-      <section className="bg-white py-16 border-y border-[#E3DFD5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8">
-          
-          <div className="text-center max-w-2xl mx-auto space-y-3 mb-10">
-            <h2 className="text-xs font-bold tracking-widest text-[#53634A] uppercase">Flexible Subscriptions</h2>
-            <h3 className="text-3xl font-bold text-[#171A17]">Simple, Transparent Membership Tiers</h3>
-            <p className="text-sm text-stone-600">
-              No hidden consultation charges. Choose the plan matching your household size.
-            </p>
-
-            {/* Toggle */}
-            <div className="inline-flex items-center p-1 rounded-xl bg-stone-100 border border-stone-200 text-xs font-semibold mt-4">
-              <button
-                onClick={() => setBillingCycle('MONTHLY')}
-                className={`px-4 py-2 rounded-lg transition ${billingCycle === 'MONTHLY' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500'}`}
-              >
-                Monthly Billing
-              </button>
-              <button
-                onClick={() => setBillingCycle('ANNUAL')}
-                className={`px-4 py-2 rounded-lg transition flex items-center gap-1.5 ${billingCycle === 'ANNUAL' ? 'bg-[#53634A] text-white shadow-xs' : 'text-stone-500'}`}
-              >
-                <span>Annual (Save ~20%)</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-            {HOME_SUBSCRIPTION_PLANS.map((plan) => {
-              const price = billingCycle === 'ANNUAL' 
-                ? Math.round(plan.annualPrice / 12) 
-                : plan.monthlyPrice;
-
-              return (
-                <div
-                  key={plan.id}
-                  className={`rounded-2xl p-7 flex flex-col justify-between border transition relative ${
-                    plan.isPopular 
-                      ? 'bg-[#F2F0E9] border-[#53634A] shadow-md ring-2 ring-[#53634A]/20' 
-                      : 'bg-white border-[#E3DFD5] shadow-xs'
-                  }`}
-                >
-                  {plan.isPopular && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#53634A] text-white text-[11px] font-bold tracking-wider uppercase px-3 py-0.5 rounded-full shadow-sm">
-                      Most Popular
-                    </span>
-                  )}
-
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="font-bold text-xl text-[#171A17]">{plan.name}</h4>
-                      <p className="text-xs text-stone-500 mt-0.5">{plan.tagline}</p>
-                    </div>
-
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-[#171A17]">₹{price}</span>
-                      <span className="text-xs text-stone-500">/ month</span>
-                      {billingCycle === 'ANNUAL' && (
-                        <span className="text-[10px] text-stone-400 block ml-2">billed ₹{plan.annualPrice}/yr</span>
-                      )}
-                    </div>
-
-                    <div className="p-3 rounded-xl bg-white border border-[#E3DFD5] text-xs space-y-1">
-                      <div className="font-semibold text-[#53634A]">
-                        {plan.includedVisitsPerBillingMonth} Technician Visits Included
-                      </div>
-                      <div className="text-stone-500 text-[11px]">
-                        Up to {plan.visitDurationCapHours} hours per visit • {plan.visitRolloverAllowed ? 'Rollover allowed' : 'No rollover'}
-                      </div>
-                    </div>
-
-                    <ul className="space-y-2.5 pt-2 text-xs text-stone-700">
-                      {plan.features.map((feat, idx) => (
-                        <li key={idx} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-[#53634A] shrink-0 mt-0.5" />
-                          <span>{feat}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-8 mt-6 border-t border-[#E3DFD5]/60">
-                    <Link
-                      href={`/join?plan=${plan.tier.toLowerCase()}&frequency=${billingCycle.toLowerCase()}`}
-                      className={`w-full py-3 px-4 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
-                        plan.isPopular
-                          ? 'bg-[#53634A] hover:bg-[#43523B] text-white shadow-sm'
-                          : 'bg-[#171A17] hover:bg-stone-800 text-white'
-                      }`}
-                    >
-                      <span>Choose {plan.name}</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
+      {/* MEMBERSHIP PLANS */}
+      <SectionWrapper>
+        <div className="text-center mb-12">
+          <h2 className="font-display text-4xl font-bold text-[#171A17]">One Membership. Full Peace of Mind.</h2>
+          <p className="mt-3 text-[#6B7280] max-w-lg mx-auto">Transparent pricing. No hidden charges. Cancel anytime.</p>
         </div>
-      </section>
-
-      {/* 5. RESIDENTIAL SOCIETIES PARTNERSHIP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="bg-[#171A17] text-white rounded-3xl p-8 sm:p-12 relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            <div className="lg:col-span-8 space-y-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-semibold">
-                <Building className="w-3.5 h-3.5" />
-                <span>Apartment & Society Management</span>
-              </div>
-              <h3 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Bulk Household Coverage for Resident Welfare Associations (RWA)
-              </h3>
-              <p className="text-stone-300 text-sm max-w-2xl leading-relaxed">
-                Partner your housing society with PROVENTA Home. We station dedicated on-premise technician pods, offer bulk maintenance discounts of up to 20%, and maintain common-area electrical and pumping infrastructure.
-              </p>
-              <div className="pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {PLAN_HIGHLIGHTS.map((plan, i) => (
+            <Card key={plan.tier} className={i === 1 ? 'border-[#53634A] ring-1 ring-[#53634A]' : ''}>
+              {i === 1 && (
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#53634A]">Most Popular</p>
+              )}
+              <h3 className="font-display text-2xl font-bold text-[#171A17]">{plan.tier}</h3>
+              <p className="mt-1 text-3xl font-bold text-[#53634A]">{plan.price}</p>
+              <p className="mt-3 text-sm text-[#6B7280]">{plan.desc}</p>
+              <div className="mt-6">
                 <Link
-                  href="/societies"
-                  className="inline-flex items-center gap-2 bg-white text-stone-900 font-semibold text-xs px-6 py-3 rounded-xl hover:bg-stone-100 transition"
+                  href="/signup"
+                  className="inline-flex w-full items-center justify-center h-10 px-5 text-sm font-semibold rounded-md bg-[#53634A] text-white hover:bg-[#3d4a36] transition-all"
                 >
-                  <span>Explore Society Partnerships</span>
-                  <ChevronRight className="w-4 h-4" />
+                  Get Started
                 </Link>
               </div>
-            </div>
+            </Card>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link href="/membership" className="text-sm font-medium text-[#53634A] hover:underline">
+            Compare all plans →
+          </Link>
+        </div>
+      </SectionWrapper>
 
-            <div className="lg:col-span-4 bg-stone-900/80 p-6 rounded-2xl border border-stone-800 space-y-3">
-              <span className="text-xs text-stone-400 uppercase tracking-wider font-semibold">Current Society Partners</span>
-              <div className="space-y-2 text-xs">
-                <div className="p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/50">
-                  <div className="font-semibold text-white">Orchid Harmony</div>
-                  <div className="text-stone-400 text-[11px]">South Bopal • 320 Flats (84 Enrolled)</div>
-                </div>
-                <div className="p-2.5 rounded-lg bg-stone-800/60 border border-stone-700/50">
-                  <div className="font-semibold text-white">Godrej Garden City (Pine)</div>
-                  <div className="text-stone-400 text-[11px]">Gota, SG Highway • 850 Flats</div>
-                </div>
-              </div>
+      {/* HOUSEHOLD MAINTENANCE PASSPORT SECTION */}
+      <SectionWrapper className="bg-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#53634A]">Exclusive Feature</p>
+            <h2 className="font-display text-4xl font-bold text-[#171A17] leading-tight">
+              Your Household<br />Maintenance Passport
+            </h2>
+            <p className="mt-4 text-[#6B7280] leading-relaxed">
+              Every repair, every technician visit, every part replaced — permanently recorded in your Household Maintenance Passport. Know your home&apos;s history. Never repeat the same mistake twice.
+            </p>
+            <ul className="mt-6 flex flex-col gap-3">
+              {['Complete service history', 'Appliance records & warranties', 'Technician details & ratings', 'PDF export for property resale'].map((item) => (
+                <li key={item} className="flex items-center gap-2 text-sm text-[#4B5563]">
+                  <span className="text-[#53634A]">✓</span> {item}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <Link href="/signup" className="inline-flex items-center justify-center h-10 px-6 text-sm font-semibold rounded-md bg-[#53634A] text-white hover:bg-[#3d4a36] transition-all">
+                Start Your Passport
+              </Link>
             </div>
+          </div>
+          <div className="relative h-80 md:h-96 rounded-xl overflow-hidden">
+            <Image
+              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80"
+              alt="Household maintenance record keeping"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+        </div>
+      </SectionWrapper>
 
+      {/* CTA BANNER */}
+      <section className="bg-[#53634A] py-20">
+        <div className="max-w-6xl mx-auto px-6 md:px-12 text-center">
+          <h2 className="font-display text-4xl md:text-5xl font-bold text-white leading-tight">
+            Your Home Deserves<br />Professional Care.
+          </h2>
+          <p className="mt-4 text-[#C8D5BC] max-w-xl mx-auto">
+            Join hundreds of Ahmedabad families who trust PROVENTA to keep their homes running.
+          </p>
+          <div className="mt-10 flex flex-wrap gap-4 justify-center">
+            <Link href="/signup" className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md bg-white text-[#53634A] hover:bg-[#F2F0E9] transition-all">
+              Join Today
+            </Link>
+            <Link href="/how-it-works" className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md border border-white text-white hover:bg-white/10 transition-all">
+              Learn How It Works
+            </Link>
           </div>
         </div>
       </section>
-
-      {/* 6. VERIFIED MEMBER REVIEWS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="text-center max-w-xl mx-auto space-y-2 mb-10">
-          <h2 className="text-xs font-bold tracking-widest text-[#53634A] uppercase">Customer Trust</h2>
-          <h3 className="text-2xl sm:text-3xl font-bold text-[#171A17]">Trusted by Ahmedabad Families</h3>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] space-y-3">
-            <div className="flex items-center gap-1 text-amber-500">
-              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-500" />)}
-            </div>
-            <p className="text-xs text-stone-700 italic leading-relaxed">
-              "Farooq bhai resolved our concealed shower mixer leak without chipping any Italian tiles. Having a single trusted subscription removes the headache of bargaining with local handymen."
-            </p>
-            <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-              <div>
-                <strong className="block text-stone-900">Dr. Ananya Sharma</strong>
-                <span className="text-stone-500 text-[11px]">Satellite, Ahmedabad</span>
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-600">Family Member</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] space-y-3">
-            <div className="flex items-center gap-1 text-amber-500">
-              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-500" />)}
-            </div>
-            <p className="text-xs text-stone-700 italic leading-relaxed">
-              "We run both ACs and induction cooker at home. Jignesh Solanki arrived within 45 minutes when the main DB tripped and replaced the faulty breaker safely."
-            </p>
-            <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-              <div>
-                <strong className="block text-stone-900">Rajesh Patel</strong>
-                <span className="text-stone-500 text-[11px]">South Bopal, Ahmedabad</span>
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-600">Premium Member</span>
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-2xl border border-[#E3DFD5] space-y-3">
-            <div className="flex items-center gap-1 text-amber-500">
-              {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-amber-500" />)}
-            </div>
-            <p className="text-xs text-stone-700 italic leading-relaxed">
-              "The Digital Maintenance Passport is brilliant. When selling our flat in Gota, being able to show complete HVAC and plumbing servicing logs gave buyers absolute confidence."
-            </p>
-            <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-              <div>
-                <strong className="block text-stone-900">Amitabh Joshi</strong>
-                <span className="text-stone-500 text-[11px]">Gota, SG Highway</span>
-              </div>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-stone-100 text-stone-600">Essential Member</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </div>
-  );
-}
-
-function WrenchIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" {...props}>
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-    </svg>
+    </main>
   );
 }
