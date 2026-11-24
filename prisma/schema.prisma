@@ -397,6 +397,8 @@ model User {
   @@index([status])
   @@index([deletedAt])
   @@map("users")
+  homeSubscriptions    HomeSubscription[]
+  homeEntitlements     EntitlementLedger[]
 }
 
 model UserRoleAssignment {
@@ -2994,4 +2996,111 @@ model PaymentConsent {
   updatedAt                    DateTime              @updatedAt
 
   @@map("payment_consents")
+}
+
+
+// ============================================================
+// PROVENTA HOME — CENTRAL MEMBERSHIP PRICING & ENTITLEMENTS
+// ============================================================
+
+enum PlanBillingInterval {
+  MONTHLY
+  ANNUAL
+}
+
+enum PlanBookingPriority {
+  STANDARD
+  PRIORITY
+  HIGHEST
+}
+
+enum EntitlementStatus {
+  AVAILABLE
+  RESERVED
+  CONSUMED
+  EXPIRED
+  FORFEITED
+}
+
+
+model MembershipPlan {
+  id                       String              @id
+  name                     String
+  pricePaise               Int
+  currency                 String              @default("INR")
+  billingInterval          PlanBillingInterval @default(MONTHLY)
+  visitEntitlement         Int
+  allocationIntervalMonths Int
+  visitsPerAllocation      Int
+  visitDurationMinutes     Int                 @default(45)
+  bookingPriority          PlanBookingPriority @default(STANDARD)
+  serviceCategories        String[]
+  features                 String[]
+  isActive                 Boolean             @default(true)
+  displayOrder             Int                 @default(0)
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+
+  subscriptions            HomeSubscription[]
+  history                  SubscriptionPlanHistory[]
+}
+
+model HomeSubscription {
+  id                     String              @id @default(cuid())
+  userId                 String
+  planId                 String
+  status                 SubscriptionStatus  @default(ACTIVE)
+  currentPeriodStart     DateTime
+  currentPeriodEnd       DateTime
+  cancelAtPeriodEnd      Boolean             @default(false)
+  canceledAt             DateTime?
+  stripeSubscriptionId   String?             @unique
+  razorpaySubscriptionId String?             @unique
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  user                   User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                   MembershipPlan      @relation(fields: [planId], references: [id])
+  entitlements           EntitlementLedger[]
+  history                SubscriptionPlanHistory[]
+
+  @@index([userId])
+  @@index([planId])
+  @@index([status])
+}
+
+model SubscriptionPlanHistory {
+  id             String            @id @default(cuid())
+  subscriptionId String
+  oldPlanId      String?
+  newPlanId      String
+  changedAt      DateTime          @default(now())
+  reason         String?
+
+  subscription   HomeSubscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  plan           MembershipPlan    @relation(fields: [newPlanId], references: [id])
+
+  @@index([subscriptionId])
+}
+
+model EntitlementLedger {
+  id             String             @id @default(cuid())
+  subscriptionId String
+  userId         String
+  status         EntitlementStatus  @default(AVAILABLE)
+  allocatedAt    DateTime           @default(now())
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  bookingId      String?
+  restoredAt     DateTime?
+  notes          String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  subscription   HomeSubscription   @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId])
+  @@index([userId])
+  @@index([status])
 }

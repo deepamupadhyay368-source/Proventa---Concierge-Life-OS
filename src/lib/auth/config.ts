@@ -293,8 +293,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: '/sign-in',
-    error: '/sign-in',
+    signIn: '/login',
+    error: '/login',
   },
   providers: [
     // Standard Email, Password & Proventa Pass/Access Key Provider
@@ -780,6 +780,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return `${baseUrl}/register-details`;
       }
       const safePath = sanitizeCallbackPath(url, baseUrl);
+      if (safePath === '/' || safePath === '') {
+        return baseUrl + '/customer/dashboard';
+      }
       return `${baseUrl}${safePath}`;
     },
 
