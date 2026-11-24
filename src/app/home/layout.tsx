@@ -1,6 +1,6 @@
 import React from 'react';
-import HomeNav from '@/components/home/HomeNav';
-import HomeFooter from '@/components/home/HomeFooter';
+import { HomeNav } from '@/components/home/HomeNav';
+import { HomeFooter } from '@/components/home/HomeFooter';
 
 export const metadata = {
   title: 'PROVENTA Home — Household Maintenance Membership & Property Care',

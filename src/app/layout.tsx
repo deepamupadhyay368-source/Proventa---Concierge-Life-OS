@@ -5,23 +5,11 @@ import { SessionProvider } from '@/components/providers/session-provider';
 import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
-import { Cormorant_Garamond, DM_Sans } from 'next/font/google';
+// Font imports removed to avoid network dependency during build.
+// Using system default fonts via CSS.
 
-const displayFont = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300','400','500','600','700'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-const sansFont = DM_Sans({
-  subsets: ['latin'],
-  weight: ['300','400','500','600','700'],
-  variable: '--font-sans',
-  display: 'swap',
-});
-
-// monoFont removed as not used
+const sansFont = { variable: '--font-sans' };
+const displayFont = { variable: '--font-display' };
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
