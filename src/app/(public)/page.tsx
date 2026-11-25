@@ -1,227 +1,386 @@
-import Image from 'next/image';
 import Link from 'next/link';
-import { SectionWrapper } from '@/components/home/ui/SectionWrapper';
-import { Card } from '@/components/home/ui/Card';
+import { AHMEDABAD_LOCALITIES, CANONICAL_PROJECTS, REAL_ESTATE_MEMBERSHIP_PLANS } from '@/lib/real-estate/constants';
+import { 
+  Building2, 
+  MapPin, 
+  BarChart3, 
+  Search, 
+  ShieldCheck, 
+  FileText, 
+  Calculator, 
+  ArrowRight, 
+  CheckCircle2, 
+  TrendingUp, 
+  Layers, 
+  Lock 
+} from 'lucide-react';
 
-const SERVICES = [
-  { icon: '⚡', title: 'Electrical', desc: 'Fan installation, switch repairs, DB box checks, light fittings.' },
-  { icon: '🔧', title: 'Plumbing', desc: 'Tap repairs, drainage clearing, tank cleaning, pipe leaks.' },
-  { icon: '❄️', title: 'Air Conditioning', desc: 'Service, gas refill, filter cleaning, installation.' },
-  { icon: '🔨', title: 'Carpentry', desc: 'Door/window repairs, furniture assembly, cabinet work.' },
-  { icon: '🎨', title: 'Painting', desc: 'Touch-ups, full-room painting, wall texture work.' },
-  { icon: '🧹', title: 'Deep Cleaning', desc: 'Kitchen, bathroom, full-flat, post-renovation cleaning.' },
-];
-
-const PLAN_HIGHLIGHTS = [
-  { tier: 'Essential', price: '₹349/mo', desc: '4 visits per year (1 visit every 3 months). Max 45 mins.' },
-  { tier: 'Family', price: '₹699/mo', desc: '12 visits per year (1 visit per month). Priority queue.' },
-  { tier: 'Premium', price: '₹1,199/mo', desc: '24 visits per year (2 visits per month). Highest priority.' },
-];
-
-const HOW_IT_WORKS = [
-  { step: '01', title: 'Subscribe', desc: 'Choose a plan. Subscribe in under 2 minutes.' },
-  { step: '02', title: 'Book', desc: 'Request any service from your dashboard. Available 7 days a week.' },
-  { step: '03', title: 'We Send a Pro', desc: 'A verified, background-checked technician arrives on time.' },
-  { step: '04', title: 'Stay Informed', desc: 'Your Household Maintenance Passport logs every visit and repair.' },
-];
-
-export default function HomePage() {
+export default function RealEstateHomePage() {
   return (
-    <main>
-      {/* HERO */}
-      <section className="relative min-h-[90vh] flex items-center bg-[#F2F0E9]">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1800&q=85"
-            alt="Premium Indian living room interior"
-            fill
-            priority
-            className="object-cover object-center"
-            sizes="100vw"
-          />
-          <div className="absolute inset-0 bg-[#F2F0E9]/60" />
-        </div>
-        <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 py-24">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.25em] text-[#53634A]">
-            Household Maintenance Membership
-          </p>
-          <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight text-[#171A17] max-w-3xl">
-            Your Home.<br />Always Taken<br />Care Of.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg text-[#4B5563] leading-relaxed">
-            One membership. Every household essential. Verified local technicians for plumbing, electrical, carpentry, AC and more — across Ahmedabad.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-4">
-            <Link
-              href="/signup"
-              className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md bg-[#53634A] text-white hover:bg-[#3d4a36] transition-all"
-            >
-              Join PROVENTA
-            </Link>
-            <Link
-              href="/membership"
-              className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md border border-[#171A17] text-[#171A17] hover:bg-[#171A17] hover:text-white transition-all"
-            >
-              View Plans
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* TRUST BAR */}
-      <div className="border-y border-[#E5E3DB] bg-white py-5">
-        <div className="max-w-6xl mx-auto px-6 md:px-12 flex flex-wrap items-center justify-center gap-8 md:gap-16 text-sm text-[#6B7280]">
-          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> Background-verified technicians</span>
-          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> 7-day a week service</span>
-          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> Digital Maintenance Passport</span>
-          <span className="flex items-center gap-2"><span className="text-[#53634A] font-semibold">✓</span> No surprise charges</span>
-        </div>
-      </div>
-
-      {/* SERVICES GRID */}
-      <SectionWrapper>
-        <div className="text-center mb-12">
-          <h2 className="font-display text-4xl font-bold text-[#171A17]">Every Home Essential, Covered.</h2>
-          <p className="mt-3 text-[#6B7280] max-w-xl mx-auto">From a dripping tap to a full AC overhaul — your membership covers it all.</p>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {SERVICES.map((s) => (
-            <Card key={s.title} className="hover:border-[#53634A] transition-colors">
-              <div className="text-3xl mb-3">{s.icon}</div>
-              <h3 className="font-display text-lg font-semibold text-[#171A17] mb-1">{s.title}</h3>
-              <p className="text-sm text-[#6B7280]">{s.desc}</p>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-8 text-center">
-          <Link href="/services" className="text-sm font-medium text-[#53634A] hover:underline">
-            View all services →
-          </Link>
-        </div>
-      </SectionWrapper>
-
-      {/* EDITORIAL IMAGE BREAK */}
-      <div className="relative h-72 md:h-[480px] overflow-hidden">
-        <Image
-          src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&q=80"
-          alt="A technician working professionally in a home"
-          fill
-          className="object-cover object-center"
-          sizes="100vw"
-        />
-        <div className="absolute inset-0 bg-[#171A17]/40 flex items-center justify-center">
-          <blockquote className="text-center text-white max-w-2xl px-6">
-            <p className="font-display text-3xl md:text-5xl font-light italic leading-snug">
-              &ldquo;A home that runs smoothly is a home at peace.&rdquo;
-            </p>
-          </blockquote>
-        </div>
-      </div>
-
-      {/* HOW IT WORKS */}
-      <SectionWrapper className="bg-white">
-        <div className="text-center mb-12">
-          <h2 className="font-display text-4xl font-bold text-[#171A17]">Simple. Reliable. Always On.</h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {HOW_IT_WORKS.map((step) => (
-            <div key={step.step} className="text-center">
-              <div className="font-display text-5xl font-bold text-[#E5E3DB] mb-3">{step.step}</div>
-              <h3 className="font-display text-xl font-semibold text-[#171A17] mb-2">{step.title}</h3>
-              <p className="text-sm text-[#6B7280]">{step.desc}</p>
+    <div className="space-y-20 pb-20">
+      
+      {/* 1. HERO SECTION */}
+      <section className="border-b border-[#C8C4BA] bg-[#F5F3ED] pt-16 pb-20 sm:pt-24 sm:pb-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl space-y-6">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[#202B3C]/5 border border-[#202B3C]/15 rounded-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#547568]"></span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#202B3C]">
+                Independent Real Estate Intelligence
+              </span>
             </div>
-          ))}
-        </div>
-      </SectionWrapper>
 
-      {/* MEMBERSHIP PLANS */}
-      <SectionWrapper>
-        <div className="text-center mb-12">
-          <h2 className="font-display text-4xl font-bold text-[#171A17]">One Membership. Full Peace of Mind.</h2>
-          <p className="mt-3 text-[#6B7280] max-w-lg mx-auto">Transparent pricing. No hidden charges. Cancel anytime.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {PLAN_HIGHLIGHTS.map((plan, i) => (
-            <Card key={plan.tier} className={i === 1 ? 'border-[#53634A] ring-1 ring-[#53634A]' : ''}>
-              {i === 1 && (
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-[#53634A]">Most Popular</p>
-              )}
-              <h3 className="font-display text-2xl font-bold text-[#171A17]">{plan.tier}</h3>
-              <p className="mt-1 text-3xl font-bold text-[#53634A]">{plan.price}</p>
-              <p className="mt-3 text-sm text-[#6B7280]">{plan.desc}</p>
-              <div className="mt-6">
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#202B3C] leading-[1.08]">
+              Understand the value behind every property.
+            </h1>
+
+            <p className="text-base sm:text-lg text-[#69717B] leading-relaxed max-w-2xl font-normal">
+              Explore evidence-backed property valuations, benchmark micromarket prices, evaluate investment yields, and maintain an unalterable personal property vault — built specifically for Indian real estate.
+            </p>
+
+            {/* Integrated Search Box */}
+            <div className="pt-2">
+              <div className="bg-white border border-[#C8C4BA] p-2.5 sm:p-3 shadow-xs rounded-xs flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
+                <div className="flex-1 flex items-center gap-3 px-3 py-2 bg-stone-50 border border-stone-200 rounded-xs">
+                  <Search className="w-4 h-4 text-[#69717B]" />
+                  <input
+                    type="text"
+                    placeholder="Search Ahmedabad locality, project or society (e.g. South Bopal, Shela)..."
+                    className="w-full text-xs sm:text-sm bg-transparent text-[#202B3C] placeholder:text-stone-400 focus:outline-none"
+                  />
+                </div>
                 <Link
-                  href="/signup"
-                  className="inline-flex w-full items-center justify-center h-10 px-5 text-sm font-semibold rounded-md bg-[#53634A] text-white hover:bg-[#3d4a36] transition-all"
+                  href="/property-intelligence"
+                  className="inline-flex items-center justify-center px-6 py-3 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#151D29] transition-all rounded-xs whitespace-nowrap"
                 >
-                  Get Started
+                  <span>Explore Valuation</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                 </Link>
               </div>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-8 text-center">
-          <Link href="/membership" className="text-sm font-medium text-[#53634A] hover:underline">
-            Compare all plans →
-          </Link>
-        </div>
-      </SectionWrapper>
 
-      {/* HOUSEHOLD MAINTENANCE PASSPORT SECTION */}
-      <SectionWrapper className="bg-white">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#53634A]">Exclusive Feature</p>
-            <h2 className="font-display text-4xl font-bold text-[#171A17] leading-tight">
-              Your Household<br />Maintenance Passport
-            </h2>
-            <p className="mt-4 text-[#6B7280] leading-relaxed">
-              Every repair, every technician visit, every part replaced — permanently recorded in your Household Maintenance Passport. Know your home&apos;s history. Never repeat the same mistake twice.
-            </p>
-            <ul className="mt-6 flex flex-col gap-3">
-              {['Complete service history', 'Appliance records & warranties', 'Technician details & ratings', 'PDF export for property resale'].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm text-[#4B5563]">
-                  <span className="text-[#53634A]">✓</span> {item}
-                </li>
-              ))}
-            </ul>
-            <div className="mt-8">
-              <Link href="/signup" className="inline-flex items-center justify-center h-10 px-6 text-sm font-semibold rounded-md bg-[#53634A] text-white hover:bg-[#3d4a36] transition-all">
-                Start Your Passport
-              </Link>
+              {/* Quick Locality Jump Tags */}
+              <div className="flex flex-wrap items-center gap-2 mt-4 text-xs text-[#69717B]">
+                <span className="font-semibold text-[#202B3C]">Top Markets:</span>
+                {AHMEDABAD_LOCALITIES.slice(0, 5).map((loc) => (
+                  <Link
+                    key={loc.slug}
+                    href={`/location-intelligence?locality=${loc.slug}`}
+                    className="hover:text-[#202B3C] underline decoration-[#C8C4BA] hover:decoration-[#202B3C]"
+                  >
+                    {loc.name}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="relative h-80 md:h-96 rounded-xl overflow-hidden">
-            <Image
-              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80"
-              alt="Household maintenance record keeping"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
-        </div>
-      </SectionWrapper>
-
-      {/* CTA BANNER */}
-      <section className="bg-[#53634A] py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-12 text-center">
-          <h2 className="font-display text-4xl md:text-5xl font-bold text-white leading-tight">
-            Your Home Deserves<br />Professional Care.
-          </h2>
-          <p className="mt-4 text-[#C8D5BC] max-w-xl mx-auto">
-            Join hundreds of Ahmedabad families who trust PROVENTA to keep their homes running.
-          </p>
-          <div className="mt-10 flex flex-wrap gap-4 justify-center">
-            <Link href="/signup" className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md bg-white text-[#53634A] hover:bg-[#F2F0E9] transition-all">
-              Join Today
-            </Link>
-            <Link href="/how-it-works" className="inline-flex items-center justify-center h-12 px-8 text-base font-semibold rounded-md border border-white text-white hover:bg-white/10 transition-all">
-              Learn How It Works
-            </Link>
           </div>
         </div>
       </section>
-    </main>
+
+      {/* 2. REAL MARKET BENCHMARKS (AHMEDABAD PILOT) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-[#C8C4BA]">
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#547568]">
+              Market Observations &bull; Ahmedabad Q3 2026
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-[#202B3C] tracking-tight mt-1">
+              Locality Price & Rental Benchmarks
+            </h2>
+          </div>
+          <Link
+            href="/location-intelligence"
+            className="text-xs font-bold uppercase tracking-wider text-[#202B3C] hover:text-[#547568] inline-flex items-center gap-1"
+          >
+            <span>View All 11 Localities</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* Data Table */}
+        <div className="mt-6 border border-[#C8C4BA] bg-white rounded-xs overflow-x-auto shadow-xs">
+          <table className="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr className="border-b border-[#C8C4BA] bg-stone-50 text-[#69717B] uppercase tracking-wider text-[11px] font-bold font-mono">
+                <th className="py-3.5 px-4">Locality</th>
+                <th className="py-3.5 px-4">Micro-Zone</th>
+                <th className="py-3.5 px-4">Benchmark Price / Sq Ft</th>
+                <th className="py-3.5 px-4">Gross Rental Yield</th>
+                <th className="py-3.5 px-4">1-Yr Price Shift</th>
+                <th className="py-3.5 px-4 text-right">Data Coverage</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-stone-200 text-[#202B3C]">
+              {AHMEDABAD_LOCALITIES.slice(0, 6).map((loc) => (
+                <tr key={loc.slug} className="hover:bg-stone-50/80 transition-colors">
+                  <td className="py-3.5 px-4 font-bold">
+                    <Link href={`/location-intelligence?locality=${loc.slug}`} className="hover:underline">
+                      {loc.name}
+                    </Link>
+                  </td>
+                  <td className="py-3.5 px-4 text-[#69717B]">{loc.zone}</td>
+                  <td className="py-3.5 px-4 font-mono font-semibold">
+                    ₹{loc.avgPriceSqFt.toLocaleString('en-IN')} <span className="text-[#69717B] text-[10px]">/ sq.ft</span>
+                  </td>
+                  <td className="py-3.5 px-4 font-mono font-medium text-[#547568]">
+                    {loc.grossRentalYield}%
+                  </td>
+                  <td className="py-3.5 px-4 font-mono font-semibold text-emerald-700">
+                    +{loc.historicalGrowth1Yr}%
+                  </td>
+                  <td className="py-3.5 px-4 text-right">
+                    <span className="inline-block px-2 py-0.5 bg-stone-100 border border-stone-200 text-[10px] font-mono text-[#69717B] rounded-2xs">
+                      {loc.confidenceScore}% Confidence
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 3. SIX CORE PRODUCT DIVISIONS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto space-y-2 mb-12">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#547568]">
+            Comprehensive Real Estate Stack
+          </span>
+          <h2 className="text-3xl font-black text-[#202B3C] tracking-tight">
+            Six Dedicated Intelligence Divisions
+          </h2>
+          <p className="text-xs text-[#69717B]">
+            Engineered to replace subjective broker opinions with transparent, empirical data.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          {/* Division 1: PROVENTA Price */}
+          <div className="border border-[#C8C4BA] bg-white p-6 rounded-xs space-y-4 hover:border-[#202B3C] transition-colors">
+            <div className="w-9 h-9 bg-[#202B3C]/5 text-[#202B3C] flex items-center justify-center rounded-xs">
+              <Search className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#202B3C]">1. PROVENTA Price</h3>
+            <p className="text-xs text-[#69717B] leading-relaxed">
+              Algorithmic property valuation engine based on usable carpet area, verified registry comps, floor-level variations and building age adjustments.
+            </p>
+            <Link href="/property-intelligence" className="inline-flex items-center text-xs font-bold text-[#547568] hover:underline gap-1">
+              <span>Evaluate Property Value</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Division 2: PROVENTA Locations */}
+          <div className="border border-[#C8C4BA] bg-white p-6 rounded-xs space-y-4 hover:border-[#202B3C] transition-colors">
+            <div className="w-9 h-9 bg-[#202B3C]/5 text-[#202B3C] flex items-center justify-center rounded-xs">
+              <MapPin className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#202B3C]">2. PROVENTA Locations</h3>
+            <p className="text-xs text-[#69717B] leading-relaxed">
+              In-depth research on Ahmedabad micromarkets: historical capital growth, rental yield distribution, infrastructure roadmaps, and zoning constraints.
+            </p>
+            <Link href="/location-intelligence" className="inline-flex items-center text-xs font-bold text-[#547568] hover:underline gap-1">
+              <span>Explore Locality Research</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Division 3: PROVENTA Projects */}
+          <div className="border border-[#C8C4BA] bg-white p-6 rounded-xs space-y-4 hover:border-[#202B3C] transition-colors">
+            <div className="w-9 h-9 bg-[#202B3C]/5 text-[#202B3C] flex items-center justify-center rounded-xs">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#202B3C]">3. PROVENTA Projects</h3>
+            <p className="text-xs text-[#69717B] leading-relaxed">
+              Gujarat RERA project monitoring, developer execution track records, configuration analysis, and verifiable possession progress records.
+            </p>
+            <Link href="/project-intelligence" className="inline-flex items-center text-xs font-bold text-[#547568] hover:underline gap-1">
+              <span>Browse Project Profiles</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Division 4: PROVENTA Invest */}
+          <div className="border border-[#C8C4BA] bg-white p-6 rounded-xs space-y-4 hover:border-[#202B3C] transition-colors">
+            <div className="w-9 h-9 bg-[#202B3C]/5 text-[#202B3C] flex items-center justify-center rounded-xs">
+              <Calculator className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#202B3C]">4. PROVENTA Invest</h3>
+            <p className="text-xs text-[#69717B] leading-relaxed">
+              Institutional-grade cashflow calculator incorporating Gujarat stamp duty, loan amortization, property taxes, vacancy allowances, and scenario models.
+            </p>
+            <Link href="/investment-intelligence" className="inline-flex items-center text-xs font-bold text-[#547568] hover:underline gap-1">
+              <span>Run Investment Model</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Division 5: PROVENTA Vault */}
+          <div className="border border-[#C8C4BA] bg-white p-6 rounded-xs space-y-4 hover:border-[#202B3C] transition-colors">
+            <div className="w-9 h-9 bg-[#202B3C]/5 text-[#202B3C] flex items-center justify-center rounded-xs">
+              <Lock className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#202B3C]">5. PROVENTA Vault</h3>
+            <p className="text-xs text-[#69717B] leading-relaxed">
+              A private digital registry to record sale deeds, index valuations, log renovation capital expenses, and monitor portfolio net worth over decades.
+            </p>
+            <Link href="/dashboard/property-vault" className="inline-flex items-center text-xs font-bold text-[#547568] hover:underline gap-1">
+              <span>Access Personal Vault</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Division 6: PROVENTA Reports */}
+          <div className="border border-[#C8C4BA] bg-white p-6 rounded-xs space-y-4 hover:border-[#202B3C] transition-colors">
+            <div className="w-9 h-9 bg-[#202B3C]/5 text-[#202B3C] flex items-center justify-center rounded-xs">
+              <FileText className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-[#202B3C]">6. PROVENTA Reports</h3>
+            <p className="text-xs text-[#69717B] leading-relaxed">
+              Institutional publications on quarterly Ahmedabad absorption, infrastructure-led appreciation corridors, and regulatory updates.
+            </p>
+            <Link href="/reports" className="inline-flex items-center text-xs font-bold text-[#547568] hover:underline gap-1">
+              <span>Read Market Reports</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 4. METHODOLOGY & EVIDENCE STATEMENT */}
+      <section className="bg-[#202B3C] text-white py-16 sm:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-7 space-y-5">
+              <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#547568] bg-white/10 px-2.5 py-1 rounded-xs">
+                Methodology & Principles
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black tracking-tight">
+                Evidence before estimates.
+              </h2>
+              <p className="text-sm text-stone-300 leading-relaxed max-w-xl">
+                We believe Indian real estate transactions suffer from severe information asymmetry. Asking prices on classified portals are routinely inflated, while government Jantri circle rates lag true market transactions.
+              </p>
+              <div className="space-y-3 pt-2 text-xs text-stone-200">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Zero Brokerage Bias:</strong> We do not broker properties, accept developer commissions, or list sponsored properties.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Carpet Area Standard:</strong> All evaluations normalized strictly on usable RERA carpet measurements.</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <span><strong>Confidence Indexing:</strong> Every valuation states exact confidence parameters and data limitations.</span>
+                </div>
+              </div>
+              <div className="pt-4">
+                <Link
+                  href="/methodology"
+                  className="inline-flex items-center px-6 py-3 bg-white text-[#202B3C] text-xs font-bold uppercase tracking-wider hover:bg-stone-100 transition-all rounded-xs"
+                >
+                  <span>Explore Valuation Methodology</span>
+                  <ArrowRight className="w-3.5 h-3.5 ml-2" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5 bg-white/5 border border-white/10 p-6 rounded-xs space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-stone-300">
+                Data Classification Standard
+              </h4>
+              <div className="space-y-2.5 text-xs">
+                <div className="p-2.5 bg-white/5 border border-white/10 rounded-2xs flex justify-between items-center">
+                  <span className="font-semibold text-emerald-400">VERIFIED</span>
+                  <span className="text-stone-300 text-[11px]">Sub-Registrar recorded transfers</span>
+                </div>
+                <div className="p-2.5 bg-white/5 border border-white/10 rounded-2xs flex justify-between items-center">
+                  <span className="font-semibold text-blue-400">SOURCE-REPORTED</span>
+                  <span className="text-stone-300 text-[11px]">Developer filings & audited reports</span>
+                </div>
+                <div className="p-2.5 bg-white/5 border border-white/10 rounded-2xs flex justify-between items-center">
+                  <span className="font-semibold text-amber-400">MODEL-ESTIMATED</span>
+                  <span className="text-stone-300 text-[11px]">Hedonic regression calculations</span>
+                </div>
+                <div className="p-2.5 bg-white/5 border border-white/10 rounded-2xs flex justify-between items-center">
+                  <span className="font-semibold text-stone-400">USER-SUBMITTED</span>
+                  <span className="text-stone-300 text-[11px]">Private personal vault logs</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. MEMBERSHIP TIERS OVERVIEW */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-xl mx-auto space-y-2 mb-12">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#547568]">
+            Membership Architecture
+          </span>
+          <h2 className="text-3xl font-black text-[#202B3C] tracking-tight">
+            Transparent Subscription Plans
+          </h2>
+          <p className="text-xs text-[#69717B]">
+            From casual homebuyers to professional wealth managers.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {REAL_ESTATE_MEMBERSHIP_PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              className={`border p-6 rounded-xs space-y-5 flex flex-col justify-between ${
+                plan.popular
+                  ? 'border-[#202B3C] bg-white ring-1 ring-[#202B3C] shadow-sm'
+                  : 'border-[#C8C4BA] bg-white'
+              }`}
+            >
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-base font-bold text-[#202B3C]">{plan.name}</h3>
+                  {plan.badge && (
+                    <span className="text-[9px] font-bold uppercase tracking-wider bg-[#547568] text-white px-2 py-0.5 rounded-2xs">
+                      {plan.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="font-mono">
+                  <span className="text-3xl font-black text-[#202B3C]">
+                    ₹{plan.monthlyPrice}
+                  </span>
+                  <span className="text-xs text-[#69717B]"> / month</span>
+                </div>
+                <p className="text-xs text-[#69717B] min-h-[36px]">{plan.tagline}</p>
+                <div className="pt-2 border-t border-stone-200">
+                  <ul className="space-y-2 text-xs text-[#202B3C]">
+                    {plan.features.map((f, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#547568] shrink-0 mt-0.5" />
+                        <span className="text-[11px] leading-tight">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <Link
+                href="/pricing"
+                className={`w-full py-2.5 text-center text-xs font-bold uppercase tracking-wider rounded-xs transition-all ${
+                  plan.popular
+                    ? 'bg-[#202B3C] text-white hover:bg-[#151D29]'
+                    : 'bg-stone-100 text-[#202B3C] hover:bg-stone-200 border border-stone-300'
+                }`}
+              >
+                Choose {plan.name}
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
+
+    </div>
   );
 }

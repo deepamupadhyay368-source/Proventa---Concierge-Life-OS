@@ -3,8 +3,8 @@ import { HomeSignInForm } from '@/components/auth/home-sign-in-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign In | PROVENTA HOME',
-  description: 'Sign in to your PROVENTA Home customer membership account.',
+  title: 'Sign In | PROVENTA Real Estate Intelligence',
+  description: 'Sign in to access your Personal Property Vault, valuation dossiers, and market intelligence.',
 };
 
 export default async function LoginPage({
@@ -19,49 +19,57 @@ export default async function LoginPage({
   const params = await searchParams;
 
   return (
-    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#53634A] selection:text-white">
+    <div className="min-h-screen bg-[#F5F3ED] text-[#202B3C] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#547568] selection:text-white">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <span className="font-display text-3xl font-bold tracking-tight text-[#171A17]">PROVENTA</span>
-            <span className="text-xs font-medium uppercase tracking-widest text-[#53634A]">Home</span>
+          <Link href="/" className="inline-flex flex-col items-center">
+            <span className="font-display text-3xl font-bold tracking-tight text-[#202B3C]">PROVENTA</span>
+            <span className="text-[10px] font-mono tracking-widest text-[#547568] uppercase font-semibold">
+              Real Estate Intelligence
+            </span>
           </Link>
-          <p className="text-xs text-[#6B7280]">
-            Household Maintenance Membership Portal
+          <p className="text-xs text-[#69717B]">
+            Know your property. Know its value.
           </p>
         </div>
 
         {params.registered && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium text-center rounded-md">
+          <div className="p-3 bg-emerald-50 border border-emerald-300 text-xs text-emerald-800 font-medium text-center">
             Account created successfully. Please sign in with your email and password.
           </div>
         )}
 
-        <div className="border border-[#D5CBB8] bg-white p-8 shadow-xs rounded-xl space-y-6">
-          <div className="border-b border-[#E5E3DB] pb-4">
-            <h1 className="font-display text-2xl font-bold text-[#171A17]">
-              Customer Sign In
+        <div className="border border-[#C8C4BA] bg-white p-8 shadow-xs space-y-6">
+          <div className="border-b border-[#C8C4BA]/50 pb-4">
+            <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+              Member Sign In
             </h1>
-            <p className="text-xs text-[#6B7280] mt-1">
-              Access your maintenance bookings, passport & member benefits.
+            <p className="text-xs text-[#69717B] mt-1">
+              Access your Property Vault, tracked assets & valuation dossiers.
             </p>
           </div>
 
-          <HomeSignInForm callbackUrl={params.callbackUrl} />
+          <HomeSignInForm callbackUrl={params.callbackUrl || '/dashboard'} />
         </div>
 
-        <div className="border border-[#D5CBB8] bg-white p-4 text-xs text-[#171A17] flex items-center justify-between rounded-xl shadow-xs">
-          <span className="text-[#6B7280]">New to PROVENTA Home?</span>
+        <div className="border border-[#C8C4BA] bg-white p-4 text-xs text-[#202B3C] flex items-center justify-between shadow-xs">
+          <span className="text-[#69717B]">New to PROVENTA?</span>
           <Link
             href={
               params.callbackUrl
                 ? `/signup?callbackUrl=${encodeURIComponent(params.callbackUrl)}`
                 : '/signup'
             }
-            className="text-[#53634A] hover:underline font-bold"
+            className="text-[#547568] hover:underline font-bold"
           >
-            Create an Account →
+            Create Account →
           </Link>
+        </div>
+
+        <div className="text-center text-[11px] text-[#69717B]">
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+          <span className="mx-2">•</span>
+          <Link href="/terms" className="hover:underline">Terms of Service</Link>
         </div>
       </div>
     </div>

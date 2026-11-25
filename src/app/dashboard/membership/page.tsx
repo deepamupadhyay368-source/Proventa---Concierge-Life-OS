@@ -1,0 +1,167 @@
+'use client';
+
+import { useState } from 'react';
+import Link from 'next/link';
+import { CreditCard, Check, Shield, Download, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { REAL_ESTATE_MEMBERSHIP_PLANS } from '@/lib/real-estate/constants';
+
+export default function MembershipBillingPage() {
+  const [activePlanId, setActivePlanId] = useState('personal');
+
+  const invoices = [
+    { id: 'INV-2026-0091', date: '01-Oct-2026', plan: 'Personal Member (Annual)', amount: '₹1,990', status: 'PAID' },
+    { id: 'INV-2025-0043', date: '01-Oct-2025', plan: 'Personal Member (Annual)', amount: '₹1,990', status: 'PAID' },
+  ];
+
+  const currentPlan = REAL_ESTATE_MEMBERSHIP_PLANS.find((p) => p.id === activePlanId) || REAL_ESTATE_MEMBERSHIP_PLANS[1];
+
+  return (
+    <div className="space-y-8 pb-12">
+      <div className="border-b border-[#C8C4BA] pb-4">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
+          Account Subscription
+        </span>
+        <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+          Membership & Billing Management
+        </h1>
+        <p className="text-xs text-[#69717B] mt-1">
+          Review your active entitlement limits, upgrade plan, or download tax invoices.
+        </p>
+      </div>
+
+      {/* Active Subscription Summary */}
+      <div className="bg-white border border-[#202B3C] p-6 space-y-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA]/50 pb-4">
+          <div>
+            <span className="text-[10px] font-mono font-bold text-[#547568] uppercase">
+              Current Active Tier
+            </span>
+            <h2 className="font-display text-2xl font-bold text-[#202B3C]">
+              {currentPlan.name}
+            </h2>
+            <p className="text-xs text-[#69717B]">{currentPlan.tagline}</p>
+          </div>
+
+          <div className="text-right font-mono">
+            <span className="text-2xl font-bold text-[#202B3C]">
+              ₹{currentPlan.annualPrice.toLocaleString('en-IN')}/yr
+            </span>
+            <span className="block text-[11px] text-[#547568]">Renews automatically on 01-Oct-2027</span>
+          </div>
+        </div>
+
+        {/* Usage & Limits */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
+          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40">
+            <span className="text-[#69717B] block text-[10px]">Property Vault Capacity</span>
+            <span className="font-bold text-[#202B3C]">2 / {currentPlan.trackedPropertiesLimit} Units Used</span>
+          </div>
+          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40">
+            <span className="text-[#69717B] block text-[10px]">Monthly Valuation Reports</span>
+            <span className="font-bold text-[#202B3C]">1 / {currentPlan.reportsPerMonth} Downloaded this month</span>
+          </div>
+          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40">
+            <span className="text-[#69717B] block text-[10px]">Billing Status</span>
+            <span className="font-bold text-[#547568]">Active • Good Standing</span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Link
+            href="/pricing"
+            className="px-4 py-2 bg-[#202B3C] text-white text-xs font-semibold hover:bg-[#202B3C]/90 shadow-xs"
+          >
+            Upgrade to Investor Suite (₹499/mo)
+          </Link>
+          <button
+            onClick={() => alert('Cancellation request recorded. Your plan remains active until the end of the billing period.')}
+            className="px-4 py-2 bg-white border border-[#C8C4BA] text-[#69717B] hover:text-[#202B3C] text-xs font-semibold hover:bg-[#F5F3ED]"
+          >
+            Cancel Subscription
+          </button>
+        </div>
+      </div>
+
+      {/* Available Plans Selector */}
+      <div className="space-y-4">
+        <h3 className="font-display text-lg font-bold text-[#202B3C]">
+          Available Membership Tiers
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {REAL_ESTATE_MEMBERSHIP_PLANS.filter((p) => p.id !== 'free').map((p) => (
+            <div
+              key={p.id}
+              className={`p-5 bg-white border flex flex-col justify-between ${
+                p.id === activePlanId ? 'border-[#202B3C] ring-1 ring-[#202B3C]' : 'border-[#C8C4BA]'
+              }`}
+            >
+              <div className="space-y-3">
+                <div className="flex justify-between items-start">
+                  <h4 className="font-display text-base font-bold text-[#202B3C]">{p.name}</h4>
+                  {p.id === activePlanId && (
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#547568] text-white font-bold uppercase">
+                      Current
+                    </span>
+                  )}
+                </div>
+                <div className="font-mono text-xl font-bold text-[#202B3C]">
+                  ₹{p.monthlyPrice}/mo
+                </div>
+                <ul className="space-y-1.5 text-xs text-[#202B3C]">
+                  {p.features.slice(0, 4).map((f, i) => (
+                    <li key={i} className="flex items-start gap-1.5">
+                      <Check className="h-3.5 w-3.5 text-[#547568] shrink-0 mt-0.5" />
+                      <span>{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {p.id !== activePlanId && (
+                <button
+                  onClick={() => {
+                    setActivePlanId(p.id);
+                    alert(`Switched preview plan to ${p.name}`);
+                  }}
+                  className="mt-4 w-full py-2 bg-white border border-[#202B3C] text-[#202B3C] text-xs font-semibold hover:bg-[#F5F3ED]"
+                >
+                  Select Plan
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Billing Invoices */}
+      <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
+        <h3 className="font-display text-lg font-bold text-[#202B3C]">
+          Billing History & GST Invoices
+        </h3>
+
+        <div className="divide-y divide-[#C8C4BA]/50 text-xs font-mono">
+          {invoices.map((inv) => (
+            <div key={inv.id} className="py-3 flex items-center justify-between">
+              <div>
+                <span className="font-bold text-[#202B3C]">{inv.id}</span>
+                <span className="text-[#69717B] ml-3">{inv.date}</span>
+                <span className="text-[#69717B] ml-3">• {inv.plan}</span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="font-bold text-[#202B3C]">{inv.amount}</span>
+                <button
+                  onClick={() => alert(`Downloading GST invoice: ${inv.id}`)}
+                  className="text-[#547568] hover:underline flex items-center gap-1"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  <span>Invoice</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,40 +1,70 @@
-import React from 'react';
-
-export default function PrivacyPage() {
+export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 space-y-8 text-stone-700 text-sm leading-relaxed">
-      <div className="space-y-2 border-b border-[#E3DFD5] pb-6">
-        <h1 className="text-3xl font-bold text-[#171A17]">Privacy Policy</h1>
-        <p className="text-xs text-stone-500">Effective Date: November 2026 • PROVENTA Technologies Pvt Ltd</p>
+    <div className="max-w-4xl mx-auto space-y-10 py-10 pb-20">
+      <div className="border-b border-[#C8C4BA] pb-6">
+        <span className="text-xs font-mono font-bold text-[#547568] uppercase tracking-wider">
+          Regulatory Governance
+        </span>
+        <h1 className="font-display text-3xl md:text-4xl font-bold text-[#202B3C] mt-1">
+          Privacy Policy & Data Protection
+        </h1>
+        <p className="text-xs text-[#69717B] font-mono mt-2">
+          Effective Date: 01 October 2026 | In compliance with India Digital Personal Data Protection Act (DPDPA), 2023
+        </p>
       </div>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">1. Information We Collect</h2>
-        <p>
-          To deliver household maintenance services, PROVENTA collects your name, contact phone number, residential address, apartment/society details, email address, payment identifiers, and service history (including uploaded issue photographs and maintenance passport records).
-        </p>
-      </section>
+      <div className="space-y-8 text-xs md:text-sm text-[#202B3C] leading-relaxed">
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">1. Introduction & Scope</h2>
+          <p className="text-[#69717B]">
+            PROVENTA Real Estate Intelligence (&quot;PROVENTA&quot;, &quot;we&quot;, &quot;our&quot;) is committed to protecting the privacy and confidentiality of our users. This policy governs how we collect, store, process, and safeguard personal and property data across our platform (`proventa.in`) and associated mobile/API services.
+          </p>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">2. How Your Information is Used</h2>
-        <p>
-          We use your data strictly to dispatch verified local technicians to your home, process subscription renewals, maintain your digital Home Maintenance Passport, notify you of warranty updates, and resolve service queries.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">2. Personal Property Vault Encryption & Privacy</h2>
+          <p className="text-[#69717B]">
+            Data uploaded to the <strong>Personal Property Vault</strong>—including sale deeds, tax receipts, loan schedules, and private property addresses—is treated as strictly confidential User-Submitted Data.
+          </p>
+          <ul className="list-disc pl-5 text-[#69717B] space-y-1">
+            <li>Vault files are stored in private, server-side encrypted storage with time-limited signed URL access tokens.</li>
+            <li>We do not sell, rent, or syndicate individual user vault data to third-party brokers, lenders, or marketing agencies.</li>
+            <li>Individual user properties and documents are never displayed publicly or shared with other platform subscribers.</li>
+          </ul>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">3. Data Sharing & Security</h2>
-        <p>
-          Your residential address and phone number are shared solely with the specific verified technician assigned to your confirmed booking during the active service window. We do not sell, rent, or lease your domestic data to third-party advertisers or lead-generation brokers.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">3. Public Real Estate Data Sources</h2>
+          <p className="text-[#69717B]">
+            All public property intelligence, project profiles, and locality benchmarks published by PROVENTA are derived exclusively from lawful public records, statutory Gujarat RERA regulatory filings, town-planning layouts under AUDA/GUDA, and recorded sub-registrar transaction indices.
+          </p>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">4. Data Retention</h2>
-        <p>
-          Household maintenance records and appliance warranty logs in your Home Maintenance Passport are retained for the lifetime of your account so that property owners can transfer or view complete repair histories when renovating or selling property.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">4. User Rights Under DPDPA 2023</h2>
+          <p className="text-[#69717B]">
+            As a data principal under Indian data protection law, you retain the right to:
+          </p>
+          <ul className="list-disc pl-5 text-[#69717B] space-y-1">
+            <li>Request a summary of personal data held by PROVENTA.</li>
+            <li>Export your Personal Property Vault records and uploaded documents at any time.</li>
+            <li>Request the correction of inaccurate personal profile data.</li>
+            <li>Request complete erasure of your account and personal vault records.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">5. Contact Data Protection Officer</h2>
+          <p className="text-[#69717B]">
+            For data privacy inquiries or to exercise your rights of erasure or rectification, contact our Data Protection Officer at:
+          </p>
+          <div className="p-4 bg-white border border-[#C8C4BA] font-mono text-xs text-[#202B3C]">
+            Data Protection Officer, PROVENTA Real Estate Intelligence<br />
+            Email: privacy@proventa.in<br />
+            SG Highway Corridor, Ahmedabad, Gujarat 380054, India.
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

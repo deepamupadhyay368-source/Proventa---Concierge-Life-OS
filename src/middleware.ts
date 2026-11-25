@@ -3,66 +3,71 @@ import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/config';
 
 // Public routes — no auth needed
-  const PUBLIC_ROUTES = [
-    '/',
-    '/industrial',
-    '/services',
-    '/service-areas',
-    '/join',
-    '/partners',
-    '/societies',
-    '/refund-policy',
-    '/how-it-works',
-    '/membership',
-    '/membership/checkout',
-    '/pricing',
-    '/about',
-    '/faq',
-    '/contact',
-    '/terms',
-    '/privacy',
-    '/businesses',
-    '/business/register',
-    '/listings',
-    '/for-businesses',
-    '/enquiries/new',
-    '/guidelines',
-    '/what-we-handle',
-    '/wave1',
-    '/legal',
-    '/cookie-policy',
-    '/refund-cancellation',
-    '/cancellation-policy',
-    '/ai-concierge-disclosure',
-    '/data-rights',
-    '/concierge-terms',
-    '/third-party-disclosure',
-    '/trust',
-    '/sign-in',
-    '/sign-up',
-    '/verify',
-    '/reset-password',
-    '/forgot-password',
-    '/recover-passkey',
-    '/register-details',
-    '/demo',
-    '/categories',
-    '/for-buyers',
-    '/for-suppliers',
-    '/supplier/register',
-    '/onboarding/business',
-    '/rfq/new',
-    '/buyer/dashboard',
-    '/supplier/dashboard',
-    '/logistics/deliveries',
-    '/admin/procurement',
-    // Home specific public routes
-    '/login',
-    '/signup',
-    '/partner/login',
-    '/partner/signup',
-    '/partner/dashboard',
-  ];
+const PUBLIC_ROUTES = [
+  '/',
+  '/property-intelligence',
+  '/location-intelligence',
+  '/project-intelligence',
+  '/investment-intelligence',
+  '/reports',
+  '/pricing',
+  '/about',
+  '/methodology',
+  '/login',
+  '/signup',
+  '/forgot-password',
+  '/privacy',
+  '/terms',
+  '/industrial',
+  '/services',
+  '/service-areas',
+  '/join',
+  '/partners',
+  '/societies',
+  '/refund-policy',
+  '/how-it-works',
+  '/membership',
+  '/membership/checkout',
+  '/faq',
+  '/contact',
+  '/businesses',
+  '/business/register',
+  '/listings',
+  '/for-businesses',
+  '/enquiries/new',
+  '/guidelines',
+  '/what-we-handle',
+  '/wave1',
+  '/legal',
+  '/cookie-policy',
+  '/refund-cancellation',
+  '/cancellation-policy',
+  '/ai-concierge-disclosure',
+  '/data-rights',
+  '/concierge-terms',
+  '/third-party-disclosure',
+  '/trust',
+  '/sign-in',
+  '/sign-up',
+  '/verify',
+  '/reset-password',
+  '/recover-passkey',
+  '/register-details',
+  '/demo',
+  '/categories',
+  '/for-buyers',
+  '/for-suppliers',
+  '/supplier/register',
+  '/onboarding/business',
+  '/rfq/new',
+  '/buyer/dashboard',
+  '/supplier/dashboard',
+  '/logistics/deliveries',
+  '/admin/procurement',
+  '/partner/login',
+  '/partner/signup',
+  '/partner/dashboard',
+];
 
 const AUTH_ROUTES = ['/sign-in', '/sign-up', '/forgot-password', '/reset-password', '/login', '/signup'];
 
@@ -83,11 +88,6 @@ export default auth(async (req) => {
   if (pathname === '/register') {
     const search = nextUrl.search;
     return NextResponse.redirect(new URL(`/sign-up${search}`, nextUrl));
-  }
-
-  if (pathname === '/dashboard') {
-    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : userRoles.includes('BUYER') ? '/buyer/dashboard' : '/customer/dashboard';
-    return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 
   const isPublicGetApi =
@@ -141,16 +141,12 @@ export default auth(async (req) => {
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
   const conciergeToken = req.cookies.get('proventa_concierge_session')?.value;
 
-  // Customer auth pages: Never redirect away from /sign-in directly to dashboard.
-  // When a visitor clicks Sign In, the dedicated login form must always be presented.
-  // Customer auth pages: Never redirect away from /sign-in or /sign-up directly to dashboard.
-  // Visitors clicking Sign In or Create Account must always see their dedicated pages.
   if (isAuthRoute && pathname !== '/sign-in' && pathname !== '/sign-up' && isLoggedIn) {
     const callbackUrl = nextUrl.searchParams.get('callbackUrl');
     if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
       return NextResponse.redirect(new URL(callbackUrl, nextUrl));
     }
-    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : userRoles.includes('BUYER') ? '/buyer/dashboard' : '/customer/dashboard';
+    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : userRoles.includes('BUYER') ? '/buyer/dashboard' : '/dashboard';
     return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 

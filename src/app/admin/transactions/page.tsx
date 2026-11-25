@@ -1,181 +1,73 @@
-import React from 'react';
-import Link from 'next/link';
-import { db } from '@/lib/db';
-import { requireAdmin } from '@/lib/auth/session';
-import {
-  CreditCard,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  ShieldCheck,
-  TrendingUp,
-  Lock,
-} from 'lucide-react';
+'use client';
 
-export const dynamic = 'force-dynamic';
+import { useState } from 'react';
+import { Database, Plus, CheckCircle2, Filter } from 'lucide-react';
 
-export default async function AdminTransactionsPage() {
-  await requireAdmin();
-
-  const [payments, totalBookings] = await Promise.all([
-    db.payment.findMany({
-      include: {
-        customer: {
-          include: {
-            user: { select: { name: true, email: true } },
-          },
-        },
-        booking: {
-          select: {
-            id: true,
-            confirmationRef: true,
-            provider: { select: { name: true } },
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 100,
-    }),
-    db.booking.count(),
-  ]);
-
-  const totalCapturedPaise = payments
-    .filter((p) => p.status === 'CAPTURED')
-    .reduce((acc, p) => acc + p.amount, 0);
-
-  const totalINR = (totalCapturedPaise / 100).toLocaleString('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  });
+export default function AdminTransactionsPage() {
+  const transactions = [
+    { id: 'TX-AHM-9021', date: '24-Sep-2026', locality: 'Shela', project: 'Shilp Revanta', carpetSqFt: 1450, regAmountLakhs: 82.5, rateSqFt: 5689, classification: 'VERIFIED', subRegistrar: 'Sanand / AUDA' },
+    { id: 'TX-AHM-9022', date: '21-Sep-2026', locality: 'Bodakdev', project: 'Takshashila Air', carpetSqFt: 2950, regAmountLakhs: 345.0, rateSqFt: 11694, classification: 'VERIFIED', subRegistrar: 'Ahmedabad-City (West)' },
+    { id: 'TX-AHM-9023', date: '18-Sep-2026', locality: 'South Bopal', project: 'Aarohi Elegance', carpetSqFt: 880, regAmountLakhs: 48.0, rateSqFt: 5454, classification: 'VERIFIED', subRegistrar: 'Sanand / AUDA' },
+    { id: 'TX-AHM-9024', date: '14-Sep-2026', locality: 'GIFT City', project: 'Sobha Dream Heights', carpetSqFt: 1120, regAmountLakhs: 89.0, rateSqFt: 7946, classification: 'VERIFIED', subRegistrar: 'Gandhinagar Revenue' },
+  ];
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-[#23201c] pb-6">
+    <div className="space-y-6">
+      <div className="flex justify-between items-center border-b border-[#C8C4BA] pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-widest bg-[#26211b] text-[#c8b99d] px-2.5 py-0.5 rounded border border-[#3e352b]">
-              Financial Settlement
-            </span>
-            <span className="text-xs text-[#736f68] font-mono">
-              PCI-DSS Compliant Masked Ledger
-            </span>
-          </div>
-          <h1 className="text-3xl font-serif font-medium text-[#f5f3ef] mt-2">
-            Transactions &amp; GMV
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
+            Evidence Records
+          </span>
+          <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+            Sub-Registrar Transaction Evidence
           </h1>
-          <p className="text-xs text-[#928f88] mt-1 max-w-2xl">
-            Sovereign transaction ledger with masked card/UPI references, payment gateway reconciliation, and revenue telemetry.
-          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="px-3.5 py-2 rounded-xl bg-emerald-950/40 border border-emerald-800/50 text-xs font-mono text-emerald-300 flex items-center gap-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Encrypted Tokenization</span>
-          </div>
-        </div>
+        <button
+          onClick={() => alert('Batch deed upload dialog.')}
+          className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>Ingest Transaction Batch</span>
+        </button>
       </div>
 
-      {/* Financial Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Gross Volume (GMV)</div>
-          <div className="text-3xl font-bold font-mono text-[#c8b99d] mt-1">{totalINR}</div>
-          <div className="text-xs text-[#736f68] mt-1">Total captured through platform</div>
-        </div>
-
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Settled Transactions</div>
-          <div className="text-3xl font-bold font-mono text-emerald-400 mt-1">
-            {payments.filter((p) => p.status === 'CAPTURED').length}
-          </div>
-          <div className="text-xs text-[#736f68] mt-1">100% gateway verified</div>
-        </div>
-
-        <div className="bg-[#141210] border border-[#23201c] rounded-2xl p-5 shadow-sm">
-          <div className="text-[10px] font-mono uppercase text-[#736f68]">Pending Settlements</div>
-          <div className="text-3xl font-bold font-mono text-amber-400 mt-1">
-            {payments.filter((p) => p.status === 'PENDING').length}
-          </div>
-          <div className="text-xs text-[#736f68] mt-1">Awaiting completion</div>
-        </div>
-      </div>
-
-      {/* Transactions Table */}
-      <div className="bg-[#141210] border border-[#23201c] rounded-2xl overflow-hidden shadow-md">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-[#23201c] text-[#736f68] font-mono uppercase text-[10px]">
-                <th className="py-3.5 px-6 font-medium">TRANSACTION REF</th>
-                <th className="py-3.5 px-4 font-medium">CLIENT</th>
-                <th className="py-3.5 px-4 font-medium">METHOD</th>
-                <th className="py-3.5 px-4 font-medium">STATUS</th>
-                <th className="py-3.5 px-4 font-medium">DATE</th>
-                <th className="py-3.5 px-6 text-right font-medium">AMOUNT (INR)</th>
+      <div className="bg-white border border-[#C8C4BA] overflow-hidden">
+        <table className="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr className="bg-[#F5F3ED] border-b border-[#C8C4BA] text-[#202B3C]">
+              <th className="p-3.5 font-bold uppercase tracking-wider font-mono">Deed ID</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider">Date</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider">Project & Locality</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider font-mono">Carpet Area</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider font-mono">Registered Amount</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider font-mono">Derived ₹/Sq Ft</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider">Sub-Registrar</th>
+              <th className="p-3.5 font-bold uppercase tracking-wider">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[#C8C4BA]/50 font-mono">
+            {transactions.map((tx) => (
+              <tr key={tx.id} className="hover:bg-[#F5F3ED]/40 transition-colors">
+                <td className="p-3.5 font-bold text-[#202B3C]">{tx.id}</td>
+                <td className="p-3.5 text-[#69717B]">{tx.date}</td>
+                <td className="p-3.5 font-sans">
+                  <div className="font-bold text-[#202B3C]">{tx.project}</div>
+                  <div className="text-[11px] text-[#69717B]">{tx.locality}</div>
+                </td>
+                <td className="p-3.5 text-[#202B3C]">{tx.carpetSqFt} sq ft</td>
+                <td className="p-3.5 font-bold text-[#202B3C]">₹{tx.regAmountLakhs} L</td>
+                <td className="p-3.5 font-bold text-[#547568]">₹{tx.rateSqFt}</td>
+                <td className="p-3.5 font-sans text-[#69717B]">{tx.subRegistrar}</td>
+                <td className="p-3.5 font-sans">
+                  <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-mono font-bold">
+                    {tx.classification}
+                  </span>
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y divide-[#1e1b18]">
-              {payments.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-[#736f68]">
-                    No transactions captured in current cohort.
-                  </td>
-                </tr>
-              ) : (
-                payments.map((p) => (
-                  <tr key={p.id} className="hover:bg-[#181512] transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="font-mono font-bold text-[#f5f3ef]">
-                        {p.providerRef || `TXN-${p.id.slice(-8).toUpperCase()}`}
-                      </div>
-                      <div className="text-[10px] text-[#736f68] font-mono mt-0.5">
-                        Idempotency: {p.idempotencyKey.slice(0, 16)}...
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-4">
-                      <div className="font-medium text-[#f5f3ef]">
-                        {p.customer?.user?.name || 'Private VIP Member'}
-                      </div>
-                      <div className="text-[11px] text-[#736f68] font-mono">
-                        {p.customer?.user?.email}
-                      </div>
-                    </td>
-
-                    <td className="py-4 px-4">
-                      <span className="font-mono text-[#a8a49c] uppercase text-[11px]">
-                        {p.method || 'UPI / Card (Masked)'}
-                      </span>
-                    </td>
-
-                    <td className="py-4 px-4">
-                      <span
-                        className={`text-[10px] font-mono px-2 py-0.5 rounded-full uppercase font-medium ${
-                          p.status === 'CAPTURED'
-                            ? 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/40'
-                            : 'bg-amber-950/60 text-amber-400 border border-amber-800/40'
-                        }`}
-                      >
-                        {p.status}
-                      </span>
-                    </td>
-
-                    <td className="py-4 px-4 text-[#736f68] font-mono text-[11px]">
-                      {new Date(p.createdAt).toLocaleDateString()}
-                    </td>
-
-                    <td className="py-4 px-6 text-right font-mono font-bold text-[#c8b99d]">
-                      ₹{(p.amount / 100).toLocaleString('en-IN')}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

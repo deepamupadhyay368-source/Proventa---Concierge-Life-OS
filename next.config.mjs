@@ -2,9 +2,9 @@
 const nextConfig = {
   // When deploying to Vercel, output must remain undefined so Vercel can generate next-server nft traces.
   // For Docker container builds, output is 'standalone'.
-  output: process.env.VERCEL ? undefined : 'standalone',
+  output: process.env.BUILD_STANDALONE ? 'standalone' : undefined,
   typedRoutes: false,
-  distDir: process.env.VERCEL ? undefined : (process.env.NEXT_DIST_DIR || '.next_prod'),
+  distDir: process.env.VERCEL ? undefined : (process.env.NEXT_DIST_DIR || '.next'),
   typescript: {
     // Next.js 16 strict .next/types validation; project type safety is verified via tsc --noEmit
     ignoreBuildErrors: true,

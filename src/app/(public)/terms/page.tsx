@@ -1,47 +1,70 @@
-import React from 'react';
+import Link from 'next/link';
 
 export default function TermsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-16 space-y-8 text-stone-700 text-sm leading-relaxed">
-      <div className="space-y-2 border-b border-[#E3DFD5] pb-6">
-        <h1 className="text-3xl font-bold text-[#171A17]">Terms of Service</h1>
-        <p className="text-xs text-stone-500">Effective Date: November 2026 • PROVENTA Technologies Pvt Ltd</p>
+    <div className="max-w-4xl mx-auto space-y-10 py-10 pb-20">
+      <div className="border-b border-[#C8C4BA] pb-6">
+        <span className="text-xs font-mono font-bold text-[#547568] uppercase tracking-wider">
+          Legal Agreement
+        </span>
+        <h1 className="font-display text-3xl md:text-4xl font-bold text-[#202B3C] mt-1">
+          Terms of Service & Usage Agreement
+        </h1>
+        <p className="text-xs text-[#69717B] font-mono mt-2">
+          Effective Date: 01 October 2026 | Governing Law: State of Gujarat, India
+        </p>
       </div>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">1. Introduction & Acceptance</h2>
-        <p>
-          Welcome to PROVENTA Home, an operating vertical of PROVENTA Technologies Pvt Ltd ("PROVENTA", "we", "us"). By accessing our website, subscribing to household memberships, or booking service visits, you agree to be bound by these Terms of Service.
-        </p>
-      </section>
+      <div className="space-y-8 text-xs md:text-sm text-[#202B3C] leading-relaxed">
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">1. Acceptance of Terms</h2>
+          <p className="text-[#69717B]">
+            By accessing or subscribing to PROVENTA Real Estate Intelligence (`proventa.in`), you agree to be bound by these Terms of Service. If you do not agree with any provision herein, you must immediately cease use of the platform.
+          </p>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">2. Nature of Membership & Services</h2>
-        <p>
-          PROVENTA Home provides a managed household maintenance subscription connecting registered domestic property owners and tenants with verified independent technician partners. Memberships entitle users to designated labour visits across electrical, plumbing, carpentry, and minor appliance diagnostics as detailed in their specific plan tier.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">2. Nature of Intelligence & Explicit Valuation Disclaimer</h2>
+          <div className="p-4 bg-white border border-[#202B3C] space-y-2">
+            <p className="font-bold text-[#202B3C]">
+              IMPORTANT STATUTORY NOTICE:
+            </p>
+            <p className="text-[#69717B]">
+              PROVENTA provides analytical, informational, and mathematical market research estimates. We do NOT provide:
+            </p>
+            <ul className="list-disc pl-5 text-[#69717B] space-y-1">
+              <li>Statutory valuation certificates registered under the Companies Act or IBBI.</li>
+              <li>Bank solvency certificates or mortgage loan guarantees.</li>
+              <li>Government revenue certificates or legal title opinions.</li>
+              <li>Guaranteed property purchase, sale, or rental yields.</li>
+            </ul>
+            <p className="text-[#69717B]">
+              All valuations represent automated mathematical models. Users must conduct independent physical inspections, advocate title searches, and engineer structural reviews prior to executing any legal transaction or financial commitment.
+            </p>
+          </div>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">3. Spare Parts & Material Purchases</h2>
-        <p>
-          Membership fees cover diagnosis, labour, and workmanship. They do not include consumable materials, replacement fixtures, copper wiring, switches, valves, or hardware parts unless explicitly specified. Technicians are prohibited from fitting any materials without presenting a transparent digital estimate and obtaining prior customer authorization via the platform.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">3. Membership Subscriptions & Billing</h2>
+          <p className="text-[#69717B]">
+            Paid subscriptions (Personal, Investor, Professional) are billed in advance on a recurring monthly or annual basis via authorized Indian payment gateways (such as Razorpay). Subscriptions renew automatically unless cancelled before the renewal date. Cancellations take effect at the conclusion of the active billing period; partial refunds are not provided for unused monthly periods.
+          </p>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">4. 30-Day Workmanship Warranty</h2>
-        <p>
-          Work completed by PROVENTA-assigned technicians carries a 30-day workmanship guarantee from the timestamp of job sign-off. If a repaired component fails due to improper installation or faulty workmanship within 30 days, PROVENTA will dispatch a technician to rectify the fault at zero diagnostic or labour charge. The warranty does not cover pre-existing structural defects, customer negligence, or external electrical surges.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">4. Acceptable Use & Intellectual Property</h2>
+          <p className="text-[#69717B]">
+            All methodology algorithms, benchmark databases, quarterly research reports, UI designs, and analytical charts are the proprietary intellectual property of PROVENTA. Automated scraping, data extraction bots, bulk re-publishing, or commercial redistribution of PROVENTA benchmarks without written institutional agreement is strictly prohibited.
+          </p>
+        </section>
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-bold text-[#171A17]">5. Technician Safety & Conduct</h2>
-        <p>
-          Our technician partners are independent professionals verified through government identity records and local police verification. Members are expected to treat technicians with dignity and provide a safe, accessible working environment. PROVENTA reserves the right to terminate subscriptions immediately in cases of physical abuse, verbal harassment, or unsafe domestic conditions.
-        </p>
-      </section>
+        <section className="space-y-3">
+          <h2 className="font-display text-lg font-bold text-[#202B3C]">5. Jurisdiction</h2>
+          <p className="text-[#69717B]">
+            Any dispute arising out of or related to these terms shall be governed by the laws of India and subject to the exclusive jurisdiction of the competent courts in Ahmedabad, Gujarat, India.
+          </p>
+        </section>
+      </div>
     </div>
   );
 }

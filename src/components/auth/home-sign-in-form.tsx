@@ -8,7 +8,7 @@ import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 
 export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
-  const safeCallback = callbackUrl || '/customer/dashboard';
+  const safeCallback = callbackUrl || '/dashboard';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -59,24 +59,30 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
         callbackUrl: safeCallback,
       });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Google sign in failed.');
+      setError(err instanceof Error ? err.message : 'Google authentication failed.');
       setOauthLoading(false);
     }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-300 text-xs text-red-700 font-medium">
+          {error}
+        </div>
+      )}
+
       {/* Google OAuth Button */}
       <button
         type="button"
         onClick={handleGoogleSignIn}
         disabled={oauthLoading || loading}
-        className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-[#D5CBB8] rounded-md bg-white hover:bg-stone-50 text-[#171A17] font-medium text-sm transition-all shadow-xs cursor-pointer disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#C8C4BA] bg-white hover:bg-[#F5F3ED] text-xs font-semibold text-[#202B3C] transition-colors disabled:opacity-60"
       >
         {oauthLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin text-[#53634A]" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#202B3C]" />
         ) : (
-          <svg className="w-4 h-4" viewBox="0 0 24 24">
+          <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -98,61 +104,54 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <span>Continue with Google</span>
       </button>
 
-      <div className="relative flex items-center justify-center">
-        <div className="border-t border-[#E5E3DB] w-full" />
-        <span className="bg-[#F2F0E9] px-3 text-xs uppercase tracking-wider text-[#717886] font-semibold absolute">
-          or sign in with email
-        </span>
-      </div>
-
-      {error && (
-        <div
-          role="alert"
-          className="p-3 bg-red-50 border border-red-200 text-xs text-red-700 font-medium rounded-md text-center"
-        >
-          {error}
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-[#C8C4BA]/50" />
         </div>
-      )}
+        <div className="relative flex justify-center text-[10px] uppercase font-mono tracking-wider">
+          <span className="bg-white px-2 text-[#69717B]">Or sign in with email</span>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold uppercase tracking-wider text-[#4B5563] mb-1.5">
+          <label className="block text-xs font-semibold text-[#202B3C] mb-1">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-[#717886] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[#69717B]" />
             <input
               type="email"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D5CBB8] rounded-md text-sm text-[#171A17] focus:outline-none focus:ring-2 focus:ring-[#53634A]"
+              placeholder="name@domain.com"
+              required
+              className="w-full pl-9 pr-3 py-2 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#4B5563]">
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-xs font-semibold text-[#202B3C]">
               Password
             </label>
             <Link
               href="/forgot-password"
-              className="text-xs text-[#53634A] hover:underline font-medium"
+              className="text-[11px] text-[#547568] hover:underline"
             >
               Forgot password?
             </Link>
           </div>
           <div className="relative">
-            <Lock className="w-4 h-4 text-[#717886] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Lock className="absolute left-3 top-2.5 h-4 w-4 text-[#69717B]" />
             <input
               type="password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••••••"
-              className="w-full pl-10 pr-4 py-2.5 bg-white border border-[#D5CBB8] rounded-md text-sm text-[#171A17] focus:outline-none focus:ring-2 focus:ring-[#53634A]"
+              placeholder="••••••••"
+              required
+              className="w-full pl-9 pr-3 py-2 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
@@ -160,14 +159,14 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <button
           type="submit"
           disabled={loading || oauthLoading}
-          className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#53634A] hover:bg-[#3d4a36] text-white font-semibold text-sm rounded-md transition-all cursor-pointer disabled:opacity-60"
+          className="w-full py-2.5 px-4 bg-[#202B3C] text-white text-xs font-semibold hover:bg-[#202B3C]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-xs"
         >
           {loading ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <>
-              <span>Sign In</span>
-              <ArrowRight className="w-4 h-4" />
+              <span>Sign In to PROVENTA</span>
+              <ArrowRight className="h-3.5 w-3.5" />
             </>
           )}
         </button>
