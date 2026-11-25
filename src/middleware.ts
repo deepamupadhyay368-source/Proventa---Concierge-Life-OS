@@ -59,7 +59,6 @@ import { auth } from '@/lib/auth/config';
     // Home specific public routes
     '/login',
     '/signup',
-    '/customer/dashboard',
     '/partner/login',
     '/partner/signup',
     '/partner/dashboard',
@@ -87,7 +86,7 @@ export default auth(async (req) => {
   }
 
   if (pathname === '/dashboard') {
-    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : '/buyer/dashboard';
+    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : userRoles.includes('BUYER') ? '/buyer/dashboard' : '/customer/dashboard';
     return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 
@@ -104,8 +103,6 @@ export default auth(async (req) => {
     PUBLIC_ROUTES.some((r) => pathname === r) ||
     pathname.startsWith('/home') ||
     pathname.startsWith('/api/home') ||
-    pathname.startsWith('/customer') ||
-    pathname.startsWith('/api/customer') ||
     pathname.startsWith('/partner') ||
     pathname.startsWith('/api/partner') ||
     pathname.startsWith('/buyer/') ||
@@ -153,7 +150,7 @@ export default auth(async (req) => {
     if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
       return NextResponse.redirect(new URL(callbackUrl, nextUrl));
     }
-    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : '/buyer/dashboard';
+    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : userRoles.includes('BUYER') ? '/buyer/dashboard' : '/customer/dashboard';
     return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 
@@ -238,7 +235,8 @@ export default auth(async (req) => {
         { status: 401 },
       );
     }
-    const signInUrl = new URL('/sign-in', nextUrl);
+    const loginTarget = (pathname.startsWith('/buyer') || pathname.startsWith('/supplier') || pathname.startsWith('/procurement')) ? '/sign-in' : '/login';
+    const signInUrl = new URL(loginTarget, nextUrl);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
   }

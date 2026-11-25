@@ -82,7 +82,7 @@ export default function PricingPage() {
 
               <div className="pt-8">
                 <Link
-                  href="/sign-in"
+                  href="/signup"
                   className={`w-full py-3.5 font-mono text-xs uppercase tracking-wider font-bold text-center block transition-all rounded-xs ${
                     plan.recommended
                       ? 'bg-[#2457FF] text-white hover:bg-[#1D4ED8] shadow-md'

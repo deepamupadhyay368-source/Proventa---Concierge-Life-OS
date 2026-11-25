@@ -13,9 +13,9 @@ const SERVICES = [
 ];
 
 const PLAN_HIGHLIGHTS = [
-  { tier: 'Essential', price: '₹999/mo', desc: 'Up to 4 service visits. Perfect for a compact home.' },
-  { tier: 'Standard', price: '₹1,999/mo', desc: 'Up to 8 visits. Most popular for 2–3 BHK.' },
-  { tier: 'Premium', price: '₹3,499/mo', desc: 'Unlimited visits + dedicated technician.' },
+  { tier: 'Essential', price: '₹349/mo', desc: '4 visits per year (1 visit every 3 months). Max 45 mins.' },
+  { tier: 'Family', price: '₹699/mo', desc: '12 visits per year (1 visit per month). Priority queue.' },
+  { tier: 'Premium', price: '₹1,199/mo', desc: '24 visits per year (2 visits per month). Highest priority.' },
 ];
 
 const HOW_IT_WORKS = [

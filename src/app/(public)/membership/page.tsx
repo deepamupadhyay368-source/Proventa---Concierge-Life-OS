@@ -126,79 +126,79 @@ export default function MembershipPage() {
             <thead>
               <tr className="border-b border-stone-200 text-stone-500 uppercase tracking-wider">
                 <th className="py-3 px-4 font-semibold">Entitlement / Feature</th>
-                <th className="py-3 px-4 font-semibold">Essential (₹299/mo)</th>
-                <th className="py-3 px-4 font-semibold">Family (₹599/mo)</th>
-                <th className="py-3 px-4 font-semibold">Premium (₹999/mo)</th>
+                <th className="py-3 px-4 font-semibold">Essential (₹349/mo)</th>
+                <th className="py-3 px-4 font-semibold">Family (₹699/mo)</th>
+                <th className="py-3 px-4 font-semibold">Premium (₹1,199/mo)</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100 text-stone-700">
               <tr>
-                <td className="py-3.5 px-4 font-medium">Included Visits / Month</td>
-                <td className="py-3.5 px-4 font-semibold text-stone-900">1 Visit</td>
-                <td className="py-3.5 px-4 font-semibold text-[#53634A]">2 Visits</td>
-                <td className="py-3.5 px-4 font-semibold text-[#53634A]">4 Visits</td>
+                <td className="py-3.5 px-4 font-medium">Annual Entitlement</td>
+                <td className="py-3.5 px-4 font-semibold text-stone-900">4 Visits / Year</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">12 Visits / Year</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">24 Visits / Year</td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-medium">Max Duration / Visit Covered</td>
-                <td className="py-3.5 px-4">1.0 Hour</td>
-                <td className="py-3.5 px-4">1.5 Hours</td>
-                <td className="py-3.5 px-4">2.0 Hours</td>
+                <td className="py-3.5 px-4 font-medium">Allocation Interval</td>
+                <td className="py-3.5 px-4">1 visit every 3 months</td>
+                <td className="py-3.5 px-4">1 visit per month</td>
+                <td className="py-3.5 px-4 font-semibold text-[#53634A]">2 visits per month</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Max Duration / Visit</td>
+                <td className="py-3.5 px-4">Maximum 45 mins</td>
+                <td className="py-3.5 px-4">Maximum 45 mins</td>
+                <td className="py-3.5 px-4">Maximum 45 mins</td>
               </tr>
               <tr>
                 <td className="py-3.5 px-4 font-medium">Unused Visit Rollover</td>
-                <td className="py-3.5 px-4 text-stone-400">None</td>
-                <td className="py-3.5 px-4">Up to 2 visits</td>
-                <td className="py-3.5 px-4 font-semibold text-[#53634A]">Up to 4 visits</td>
+                <td className="py-3.5 px-4 text-stone-400">No Rollover</td>
+                <td className="py-3.5 px-4 text-stone-400">No Rollover</td>
+                <td className="py-3.5 px-4 text-stone-400">No Rollover</td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-medium">Electrical, Plumbing & Carpentry</td>
-                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
-                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
-                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 font-medium">Booking Priority</td>
+                <td className="py-3.5 px-4">Standard</td>
+                <td className="py-3.5 px-4 text-[#53634A] font-semibold">Priority</td>
+                <td className="py-3.5 px-4 text-[#53634A] font-bold">Highest</td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-medium">AC & Appliance Diagnostics</td>
-                <td className="py-3.5 px-4 text-stone-400">Extra charge</td>
-                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
-                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
-              </tr>
-              <tr>
-                <td className="py-3.5 px-4 font-medium">Water Tank / Sump Cleaning Check</td>
-                <td className="py-3.5 px-4 text-stone-400">Extra charge</td>
-                <td className="py-3.5 px-4 text-stone-400">Extra charge</td>
-                <td className="py-3.5 px-4 text-emerald-600">✓ Included (Annual)</td>
-              </tr>
-              <tr>
-                <td className="py-3.5 px-4 font-medium">Emergency SLA Dispatch</td>
-                <td className="py-3.5 px-4">Next Day</td>
-                <td className="py-3.5 px-4">Same Day (&lt; 4 hrs)</td>
-                <td className="py-3.5 px-4 font-semibold text-[#53634A]">Priority (&lt; 90 mins)</td>
-              </tr>
-              <tr>
-                <td className="py-3.5 px-4 font-medium">Digital Maintenance Passport</td>
+                <td className="py-3.5 px-4 font-medium">Minor Plumbing, Electrical & Carpentry</td>
                 <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
                 <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
                 <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
               </tr>
               <tr>
-                <td className="py-3.5 px-4 font-medium">Spare Parts Markup</td>
-                <td className="py-3.5 px-4">Zero (At MRP)</td>
-                <td className="py-3.5 px-4">Zero (At MRP)</td>
-                <td className="py-3.5 px-4">Zero (At MRP)</td>
+                <td className="py-3.5 px-4 font-medium">Household Maintenance Passport</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Preventive Maintenance Review</td>
+                <td className="py-3.5 px-4 text-stone-400">—</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Annual Review</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Quarterly Inspection</td>
+              </tr>
+              <tr>
+                <td className="py-3.5 px-4 font-medium">Household Asset Register</td>
+                <td className="py-3.5 px-4 text-stone-400">—</td>
+                <td className="py-3.5 px-4 text-stone-400">—</td>
+                <td className="py-3.5 px-4 text-emerald-600">✓ Included</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Rollover & Fair Usage Policy */}
+      {/* Fair Usage Policy */}
       <div className="bg-stone-100 rounded-2xl p-6 sm:p-8 border border-stone-200 space-y-3">
         <h4 className="font-bold text-base text-[#171A17] flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-[#53634A]" />
-          <span>Fair Usage & Visit Rollover Policy</span>
+          <span>Fair Usage & Entitlement Policy</span>
         </h4>
         <p className="text-xs text-stone-600 leading-relaxed">
-          Memberships are tied to a single registered residential address in Ahmedabad. If you do not use your included visits in a month on Family or Premium plans, up to 2 or 4 visits rollover into subsequent months for up to 90 days. Additional visits beyond your monthly allowance can be booked at preferential member rates (up to 30% discount off standard single callout charges).
+          Memberships are tied to a single registered residential address. Maintenance visit duration is capped at 45 minutes per visit. Unused visits do not roll over across allocation intervals. If PROVENTA fails to fulfil a valid request, the entitlement is never forfeited. Materials, spare parts, and specialist projects are separately chargeable.
         </p>
       </div>
 

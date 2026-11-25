@@ -10,9 +10,9 @@ export function SignOutButton({ className = '' }: { className?: string }) {
   const handleSignOut = async () => {
     setSigningOut(true);
     try {
-      await signOut({ callbackUrl: '/sign-in' });
+      await signOut({ callbackUrl: '/login' });
     } catch {
-      window.location.href = '/sign-in';
+      window.location.href = '/login';
     }
   };
 

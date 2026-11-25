@@ -79,13 +79,13 @@ function MembershipCheckoutContent() {
 
   const handleProceedToCheckout = async () => {
     if (!user) {
-      router.push(`/sign-in?callbackUrl=${encodeURIComponent(`/membership/checkout?plan=${plan.id}`)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/membership/checkout?plan=${plan.id}`)}`);
       return;
     }
 
     if (isAlreadyActive) {
       toast.info(`You already have an active ${plan.name} membership.`);
-      router.push('/dashboard');
+      router.push('/customer/dashboard');
       return;
     }
 
