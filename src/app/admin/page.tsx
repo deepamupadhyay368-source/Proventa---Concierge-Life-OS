@@ -30,7 +30,7 @@ export default function AdminOverviewPage() {
           <span className="text-xs uppercase font-bold tracking-wider text-[#547568] font-mono">
             Intelligence Operations Centre
           </span>
-          <h1 className="text-3xl font-bold text-[#202B3C] mt-1 font-display">
+          <h1 className="text-3xl font-normal text-[#202B3C] mt-1 font-editorial">
             PROVENTA Intelligence Console
           </h1>
           <p className="text-xs text-[#69717B] mt-1">
@@ -41,7 +41,7 @@ export default function AdminOverviewPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/admin/transactions"
-            className="inline-flex items-center gap-2 bg-[#202B3C] hover:bg-[#202B3C]/90 text-white text-xs font-semibold px-4 py-2.5 shadow-xs transition"
+            className="inline-flex items-center gap-2 bg-[#202B3C] hover:bg-[#202B3C]/90 text-white text-xs font-bold uppercase tracking-wider h-10 px-4 transition"
           >
             <span>Review Transaction Queue ({totalObservedDeeds})</span>
             <ArrowRight className="w-3.5 h-3.5" />

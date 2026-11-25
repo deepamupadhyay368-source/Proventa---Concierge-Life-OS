@@ -23,8 +23,8 @@ export default async function LoginPage({
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex flex-col items-center">
-            <span className="font-display text-3xl font-bold tracking-tight text-[#202B3C]">PROVENTA</span>
-            <span className="text-[10px] font-mono tracking-widest text-[#547568] uppercase font-semibold">
+            <span className="font-editorial text-3xl font-normal tracking-tight text-[#202B3C]">PROVENTA</span>
+            <span className="text-[10px] font-mono tracking-widest text-[#547568] uppercase font-bold">
               Real Estate Intelligence
             </span>
           </Link>
@@ -39,9 +39,9 @@ export default async function LoginPage({
           </div>
         )}
 
-        <div className="border border-[#C8C4BA] bg-white p-8 shadow-xs space-y-6">
+        <div className="border border-[#C8C4BA] bg-white p-8 space-y-6">
           <div className="border-b border-[#C8C4BA]/50 pb-4">
-            <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+            <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
               Member Sign In
             </h1>
             <p className="text-xs text-[#69717B] mt-1">

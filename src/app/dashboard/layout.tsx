@@ -56,10 +56,10 @@ export default function DashboardLayout({
             </button>
 
             <Link href="/" className="flex flex-col">
-              <span className="font-display text-xl font-bold tracking-tight text-[#202B3C]">
+              <span className="font-editorial text-xl font-normal tracking-tight text-[#202B3C]">
                 PROVENTA
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-[#547568] uppercase font-semibold">
+              <span className="text-[9px] font-mono tracking-widest text-[#547568] uppercase font-bold">
                 Real Estate Intelligence
               </span>
             </Link>
@@ -107,7 +107,7 @@ export default function DashboardLayout({
           {/* User Account Card */}
           <div className="bg-white border border-[#C8C4BA] p-4 space-y-2 shadow-2xs">
             <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 bg-[#202B3C] text-white flex items-center justify-center font-display font-bold text-sm">
+              <div className="h-9 w-9 bg-[#202B3C] text-white flex items-center justify-center font-editorial text-sm">
                 PR
               </div>
               <div className="min-w-0 flex-1">

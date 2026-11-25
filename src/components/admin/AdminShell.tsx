@@ -34,10 +34,10 @@ export function AdminShell({
         <div>
           <div className="p-5 border-b border-[#323E51] flex items-center justify-between">
             <Link href="/" className="block">
-              <span className="font-display text-base font-bold uppercase tracking-wider text-white block">
+              <span className="font-editorial text-lg font-normal tracking-wider text-white block">
                 PROVENTA
               </span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#547568] block mt-0.5">
+              <span className="font-mono text-[9px] uppercase tracking-widest text-[#547568] block mt-0.5 font-bold">
                 Real Estate Administration
               </span>
             </Link>

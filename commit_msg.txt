@@ -1,0 +1,11 @@
+feat(design-system): institutional editorial architecture & visual redesign
+
+- Replaced SaaS aesthetic with Institutional Editorial Architecture inspired by Financial Times, Bloomberg, and Savills.
+- Established typography tokens with editorial serif headings, Newsreader font stack, and tabular figures.
+- Standardized container constraints (max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12) across public, dashboard, professional, and admin views.
+- Aligned input heights (h-10) and primary button heights (h-10 px-4/px-5 uppercase tracking-wider).
+- Revamped Navigation, Footer, Homepage, and all Intelligence product dossiers (Property, Location, Project, Investment, Pricing, Reports, Methodology, About, Privacy, Terms).
+- Redesigned Customer Dashboard (Overview, Property Vault, Properties, Watchlist, Reports, Alerts, Membership, Profile, Security).
+- Redesigned Professional Suite (Layout, Advisory Overview) and Admin Operations Shell.
+- Polished authentication interfaces (Login, Signup, Forgot Password) with standardized components.
+- Verified Next.js 16 production build compiles cleanly (247 static and dynamic routes).

@@ -4,73 +4,73 @@
 
 @layer base {
   :root {
-    /* PROVENTA ARCHITECTURAL INDUSTRIAL PALETTE */
-    /* Primary Background: #FFFFFF | Secondary Background: #F4F7FA */
-    /* Primary Text: #243447 | Secondary Text: #6B7785 */
-    /* Primary Blue: #315F91 | Steel Grey: #AEBBC6 | Light Border: #E2E8EF */
+    /* PROVENTA INSTITUTIONAL EDITORIAL PALETTE */
+    /* Deep Navy: #202B3C | Warm Ivory: #F5F3ED | Muted Green: #547568 */
+    /* Stone Grey: #C8C4BA | Subtle Divider: #E2DFD6 | White: #FFFFFF */
+    /* Primary Text: #202B3C | Secondary Text: #69717B */
 
-    --background: 0 0% 100%;       /* #FFFFFF */
-    --foreground: 213 33% 21%;     /* #243447 */
+    --background: 44 26% 95%;       /* #F5F3ED */
+    --foreground: 216 30% 18%;     /* #202B3C */
 
     --card: 0 0% 100%;             /* #FFFFFF */
-    --card-foreground: 213 33% 21%;
+    --card-foreground: 216 30% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 33% 21%;
+    --popover-foreground: 216 30% 18%;
 
-    /* Primary: Architectural Blue (#315F91) */
-    --primary: 211 49% 38%;
+    /* Primary: Deep Navy (#202B3C) */
+    --primary: 216 30% 18%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary Background (#F4F7FA) */
-    --secondary: 210 29% 97%;
-    --secondary-foreground: 213 33% 21%;
+    /* Secondary: Warm Ivory (#F5F3ED) */
+    --secondary: 44 26% 95%;
+    --secondary-foreground: 216 30% 18%;
 
-    /* Muted Typography (#6B7785) */
-    --muted: 210 29% 97%;
-    --muted-foreground: 214 11% 47%;
+    /* Muted Typography: Secondary Text (#69717B) */
+    --muted: 44 26% 95%;
+    --muted-foreground: 213 8% 45%;
 
-    /* Accent / Focus: #315F91 */
-    --accent: 210 29% 97%;
-    --accent-foreground: 211 49% 38%;
+    /* Accent: Muted Green (#547568) */
+    --accent: 156 16% 39%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Destructive / Error: #D9534F */
-    --destructive: 2 64% 58%;
+    /* Destructive / Error: #B91C1C */
+    --destructive: 0 72% 42%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Light Structural Border (#E2E8EF) */
-    --border: 212 24% 91%;
-    --input: 212 24% 91%;
-    --ring: 211 49% 38%;
+    /* Structural Stone Border (#C8C4BA) */
+    --border: 41 11% 75%;
+    --input: 41 11% 75%;
+    --ring: 216 30% 18%;
 
-    --radius: 3px;
+    --radius: 0px;
 
     /* Typographic System */
-    --font-sans: 'Inter', 'Manrope', 'DM Sans', system-ui, -apple-system, sans-serif;
-    --font-display: 'Inter', 'Manrope', 'DM Sans', system-ui, sans-serif;
-    --font-mono: 'IBM Plex Mono', 'Geist Mono', 'SFMono-Regular', monospace;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-serif: 'Newsreader', 'Georgia', 'Charter', 'Times New Roman', serif;
+    --font-mono: 'Geist Mono', 'SFMono-Regular', 'Roboto Mono', 'Menlo', monospace;
   }
 
   .dark {
-    --background: 0 0% 100%;
-    --foreground: 213 33% 21%;
+    --background: 44 26% 95%;
+    --foreground: 216 30% 18%;
     --card: 0 0% 100%;
-    --card-foreground: 213 33% 21%;
+    --card-foreground: 216 30% 18%;
     --popover: 0 0% 100%;
-    --popover-foreground: 213 33% 21%;
-    --primary: 211 49% 38%;
+    --popover-foreground: 216 30% 18%;
+    --primary: 216 30% 18%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 29% 97%;
-    --secondary-foreground: 213 33% 21%;
-    --muted: 210 29% 97%;
-    --muted-foreground: 214 11% 47%;
-    --accent: 210 29% 97%;
-    --accent-foreground: 211 49% 38%;
-    --destructive: 2 64% 58%;
+    --secondary: 44 26% 95%;
+    --secondary-foreground: 216 30% 18%;
+    --muted: 44 26% 95%;
+    --muted-foreground: 213 8% 45%;
+    --accent: 156 16% 39%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 42%;
     --destructive-foreground: 0 0% 100%;
-    --border: 212 24% 91%;
-    --input: 212 24% 91%;
-    --ring: 211 49% 38%;
+    --border: 41 11% 75%;
+    --input: 41 11% 75%;
+    --ring: 216 30% 18%;
   }
 }
 
@@ -81,175 +81,49 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #FFFFFF;
-    color: #243447;
+    background-color: #F5F3ED;
+    color: #202B3C;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    background-color: #FFFFFF;
-    color: #243447;
+    background-color: #F5F3ED;
+    color: #202B3C;
     font-family: var(--font-sans);
     min-height: 100vh;
     letter-spacing: -0.011em;
   }
 
   ::selection {
-    background-color: #315F91;
+    background-color: #202B3C;
     color: #FFFFFF;
   }
 
-  h1, h2, h3, h4, h5, h6, .font-heading {
-    font-family: var(--font-display);
-    color: #243447;
-    letter-spacing: -0.025em;
+  /* Universal Tabular Numerals for Financial Data & Tables */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 }
 
+/* Institutional Design System Utilities */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* Editorial Heading Styles */
+  .font-editorial {
+    font-family: var(--font-serif);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Architectural Industrial Design System Helpers */
-  .arch-card {
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8EF;
-    color: #243447;
+  /* Consistent Section Dividers */
+  .editorial-rule {
+    height: 1px;
+    background-color: #C8C4BA;
+    width: 100%;
   }
 
-  .arch-panel {
-    background-color: #F4F7FA;
-    border: 1px solid #E2E8EF;
+  .editorial-rule-subtle {
+    height: 1px;
+    background-color: #E2DFD6;
+    width: 100%;
   }
-
-  .arch-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.375rem;
-    background-color: #315F91;
-    color: #FFFFFF;
-    font-weight: 600;
-    font-size: 0.8125rem;
-    letter-spacing: 0.02em;
-    border-radius: 2px;
-    transition: background-color 0.18s ease-in-out;
-  }
-  .arch-btn-primary:hover {
-    background-color: #264B74;
-  }
-
-  .arch-btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.375rem;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8EF;
-    color: #243447;
-    font-weight: 600;
-    font-size: 0.8125rem;
-    letter-spacing: 0.02em;
-    border-radius: 2px;
-    transition: all 0.18s ease-in-out;
-  }
-  .arch-btn-secondary:hover {
-    background-color: #F4F7FA;
-    border-color: #AEBBC6;
-  }
-
-  /* Retain backward-compatible infra classes mapped to modern architectural tokens */
-  .infra-card {
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8EF;
-    color: #243447;
-  }
-
-  .infra-panel {
-    background-color: #F4F7FA;
-    border: 1px solid #E2E8EF;
-  }
-
-  .infra-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    background-color: #315F91;
-    color: #FFFFFF;
-    font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    transition: background-color 0.15s ease-in-out;
-  }
-  .infra-btn-primary:hover {
-    background-color: #264B74;
-  }
-
-  .infra-btn-orange {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    background-color: #315F91;
-    color: #FFFFFF;
-    font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    transition: background-color 0.15s ease-in-out;
-  }
-  .infra-btn-orange:hover {
-    background-color: #264B74;
-  }
-
-  .infra-btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.625rem 1.25rem;
-    background-color: #FFFFFF;
-    border: 1px solid #E2E8EF;
-    color: #243447;
-    font-weight: 600;
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    transition: all 0.15s ease-in-out;
-  }
-  .infra-btn-secondary:hover {
-    background-color: #F4F7FA;
-    border-color: #AEBBC6;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, ::before, ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Light Architectural Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #F4F7FA;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #AEBBC6;
-  border-radius: 2px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #315F91;
 }

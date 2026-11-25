@@ -28,7 +28,7 @@ export default function SecuritySettingsPage() {
         <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
           Account Security
         </span>
-        <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+        <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
           Security & Access Controls
         </h1>
         <p className="text-xs text-[#69717B] mt-1">
@@ -38,7 +38,7 @@ export default function SecuritySettingsPage() {
 
       {/* Change Password Form */}
       <form onSubmit={handlePasswordChange} className="bg-white border border-[#C8C4BA] p-6 space-y-4 text-xs">
-        <h2 className="font-display text-base font-bold text-[#202B3C] border-b border-[#C8C4BA]/50 pb-2">
+        <h2 className="font-editorial text-lg font-normal text-[#202B3C] border-b border-[#C8C4BA]/50 pb-2">
           Change Account Password
         </h2>
 
@@ -55,7 +55,7 @@ export default function SecuritySettingsPage() {
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
@@ -67,7 +67,7 @@ export default function SecuritySettingsPage() {
             onChange={(e) => setNewPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
@@ -79,13 +79,13 @@ export default function SecuritySettingsPage() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
         <button
           type="submit"
-          className="px-5 py-2.5 bg-[#202B3C] text-white font-semibold text-xs hover:bg-[#202B3C]/90 shadow-xs"
+          className="h-10 px-5 bg-[#202B3C] text-white font-bold uppercase tracking-wider text-xs hover:bg-[#202B3C]/90"
         >
           Update Password
         </button>
@@ -93,7 +93,7 @@ export default function SecuritySettingsPage() {
 
       {/* Data Protection & Privacy Rights (DPDPA 2023) */}
       <div className="bg-white border border-[#C8C4BA] p-6 space-y-4 text-xs">
-        <h2 className="font-display text-base font-bold text-[#202B3C] border-b border-[#C8C4BA]/50 pb-2">
+        <h2 className="font-editorial text-lg font-normal text-[#202B3C] border-b border-[#C8C4BA]/50 pb-2">
           Data Principal Rights (DPDPA 2023)
         </h2>
         <p className="text-[#69717B] leading-relaxed">
@@ -103,7 +103,7 @@ export default function SecuritySettingsPage() {
         <div className="flex flex-wrap gap-3 pt-2">
           <button
             onClick={() => alert('Dossier archive requested. An encrypted ZIP export will be generated and emailed within 15 minutes.')}
-            className="px-4 py-2 bg-white border border-[#202B3C] text-[#202B3C] font-semibold text-xs flex items-center gap-2 hover:bg-[#F5F3ED]"
+            className="h-10 px-4 bg-white border border-[#202B3C] text-[#202B3C] font-bold uppercase tracking-wider text-xs flex items-center gap-2 hover:bg-[#F5F3ED]"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Export Personal Data Dossier</span>
@@ -115,7 +115,7 @@ export default function SecuritySettingsPage() {
                 alert('Account erasure request recorded under DPDPA 2023 protocol.');
               }
             }}
-            className="px-4 py-2 bg-white border border-red-300 text-red-600 font-semibold text-xs flex items-center gap-2 hover:bg-red-50"
+            className="h-10 px-4 bg-white border border-red-300 text-red-600 font-bold uppercase tracking-wider text-xs flex items-center gap-2 hover:bg-red-50"
           >
             <Trash2 className="h-3.5 w-3.5" />
             <span>Request Account Erasure</span>

@@ -39,7 +39,7 @@ export default function MarketAlertsPage() {
         <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
           Notifications Desk
         </span>
-        <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+        <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
           Property & Market Alerts
         </h1>
         <p className="text-xs text-[#69717B] mt-1">
@@ -52,7 +52,7 @@ export default function MarketAlertsPage() {
           <div
             key={alt.id}
             className={`p-5 bg-white border transition-colors ${
-              !alt.read ? 'border-[#202B3C] shadow-xs' : 'border-[#C8C4BA]'
+              !alt.read ? 'border-[#202B3C]' : 'border-[#C8C4BA]'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
@@ -61,10 +61,10 @@ export default function MarketAlertsPage() {
                   <span className="text-[10px] font-mono px-2 py-0.5 bg-[#547568]/10 text-[#547568] font-bold">
                     {alt.type}
                   </span>
-                  <span className="text-xs font-mono text-[#69717B]">{alt.date}</span>
+                  <span className="text-xs font-mono text-[#69717B] tabular-nums">{alt.date}</span>
                   <span className="text-xs font-mono text-[#202B3C]">• {alt.locality}</span>
                 </div>
-                <h3 className="font-display text-base font-bold text-[#202B3C]">{alt.title}</h3>
+                <h3 className="font-editorial text-lg font-normal text-[#202B3C]">{alt.title}</h3>
                 <p className="text-xs text-[#69717B] leading-relaxed max-w-2xl">{alt.summary}</p>
               </div>
 

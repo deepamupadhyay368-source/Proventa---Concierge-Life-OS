@@ -77,7 +77,7 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={oauthLoading || loading}
-        className="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-[#C8C4BA] bg-white hover:bg-[#F5F3ED] text-xs font-semibold text-[#202B3C] transition-colors disabled:opacity-60"
+        className="w-full h-10 flex items-center justify-center gap-3 px-4 border border-[#C8C4BA] bg-white hover:bg-[#F5F3ED] text-xs font-bold uppercase tracking-wider text-[#202B3C] transition-colors disabled:opacity-60"
       >
         {oauthLoading ? (
           <Loader2 className="h-4 w-4 animate-spin text-[#202B3C]" />
@@ -119,14 +119,14 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
             Email Address
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[#69717B]" />
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-[#69717B]" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@domain.com"
               required
-              className="w-full pl-9 pr-3 py-2 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
@@ -144,14 +144,14 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
             </Link>
           </div>
           <div className="relative">
-            <Lock className="absolute left-3 top-2.5 h-4 w-4 text-[#69717B]" />
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-[#69717B]" />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full pl-9 pr-3 py-2 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
@@ -159,7 +159,7 @@ export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <button
           type="submit"
           disabled={loading || oauthLoading}
-          className="w-full py-2.5 px-4 bg-[#202B3C] text-white text-xs font-semibold hover:bg-[#202B3C]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-xs"
+          className="w-full h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#202B3C]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />

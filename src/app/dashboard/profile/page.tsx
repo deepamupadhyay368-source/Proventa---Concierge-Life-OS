@@ -22,7 +22,7 @@ export default function ProfileSettingsPage() {
         <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
           Account Settings
         </span>
-        <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+        <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
           Personal Profile & Preferences
         </h1>
         <p className="text-xs text-[#69717B] mt-1">
@@ -45,7 +45,7 @@ export default function ProfileSettingsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
@@ -56,7 +56,7 @@ export default function ProfileSettingsPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
@@ -67,7 +67,7 @@ export default function ProfileSettingsPage() {
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             required
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
@@ -78,14 +78,14 @@ export default function ProfileSettingsPage() {
             value={city}
             onChange={(e) => setCity(e.target.value)}
             required
-            className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
           />
         </div>
 
         <div className="pt-2">
           <button
             type="submit"
-            className="px-5 py-2.5 bg-[#202B3C] text-white font-semibold text-xs flex items-center gap-2 hover:bg-[#202B3C]/90 shadow-xs"
+            className="h-10 px-5 bg-[#202B3C] text-white font-bold uppercase tracking-wider text-xs inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
           >
             <Save className="h-4 w-4" />
             <span>Save Profile</span>

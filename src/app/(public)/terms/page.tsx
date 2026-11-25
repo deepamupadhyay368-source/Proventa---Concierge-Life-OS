@@ -2,12 +2,12 @@ import Link from 'next/link';
 
 export default function TermsPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-10 py-10 pb-20">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       <div className="border-b border-[#C8C4BA] pb-6">
-        <span className="text-xs font-mono font-bold text-[#547568] uppercase tracking-wider">
+        <span className="text-[11px] font-mono font-bold text-[#547568] uppercase tracking-wider">
           Legal Agreement
         </span>
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-[#202B3C] mt-1">
+        <h1 className="font-editorial text-3xl md:text-4xl font-normal text-[#202B3C] mt-2">
           Terms of Service & Usage Agreement
         </h1>
         <p className="text-xs text-[#69717B] font-mono mt-2">
@@ -17,16 +17,16 @@ export default function TermsPage() {
 
       <div className="space-y-8 text-xs md:text-sm text-[#202B3C] leading-relaxed">
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">1. Acceptance of Terms</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">1. Acceptance of Terms</h2>
           <p className="text-[#69717B]">
             By accessing or subscribing to PROVENTA Real Estate Intelligence (`proventa.in`), you agree to be bound by these Terms of Service. If you do not agree with any provision herein, you must immediately cease use of the platform.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">2. Nature of Intelligence & Explicit Valuation Disclaimer</h2>
-          <div className="p-4 bg-white border border-[#202B3C] space-y-2">
-            <p className="font-bold text-[#202B3C]">
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">2. Nature of Intelligence & Explicit Valuation Disclaimer</h2>
+          <div className="p-5 bg-white border border-[#202B3C] space-y-3">
+            <p className="font-bold text-[#202B3C] uppercase text-xs tracking-wider">
               IMPORTANT STATUTORY NOTICE:
             </p>
             <p className="text-[#69717B]">
@@ -45,21 +45,21 @@ export default function TermsPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">3. Membership Subscriptions & Billing</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">3. Membership Subscriptions & Billing</h2>
           <p className="text-[#69717B]">
             Paid subscriptions (Personal, Investor, Professional) are billed in advance on a recurring monthly or annual basis via authorized Indian payment gateways (such as Razorpay). Subscriptions renew automatically unless cancelled before the renewal date. Cancellations take effect at the conclusion of the active billing period; partial refunds are not provided for unused monthly periods.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">4. Acceptable Use & Intellectual Property</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">4. Acceptable Use & Intellectual Property</h2>
           <p className="text-[#69717B]">
             All methodology algorithms, benchmark databases, quarterly research reports, UI designs, and analytical charts are the proprietary intellectual property of PROVENTA. Automated scraping, data extraction bots, bulk re-publishing, or commercial redistribution of PROVENTA benchmarks without written institutional agreement is strictly prohibited.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">5. Jurisdiction</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">5. Jurisdiction</h2>
           <p className="text-[#69717B]">
             Any dispute arising out of or related to these terms shall be governed by the laws of India and subject to the exclusive jurisdiction of the competent courts in Ahmedabad, Gujarat, India.
           </p>

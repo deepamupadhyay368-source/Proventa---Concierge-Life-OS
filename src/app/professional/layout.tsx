@@ -26,10 +26,10 @@ export default function ProfessionalLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex flex-col">
-              <span className="font-display text-xl font-bold tracking-tight text-[#202B3C]">
+              <span className="font-editorial text-xl font-normal tracking-tight text-[#202B3C]">
                 PROVENTA
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-[#547568] uppercase font-semibold">
+              <span className="text-[9px] font-mono tracking-widest text-[#547568] uppercase font-bold">
                 Professional Suite
               </span>
             </Link>

@@ -41,14 +41,14 @@ export default function WatchlistPage() {
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
             Asset Tracking
           </span>
-          <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+          <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
             Project & Locality Watchlist
           </h1>
         </div>
 
         <Link
           href="/project-intelligence"
-          className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+          className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>Track New Project</span>
@@ -60,13 +60,13 @@ export default function WatchlistPage() {
           <div key={item.id} className="bg-white border border-[#C8C4BA] p-5 space-y-3">
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-display text-base font-bold text-[#202B3C]">{item.name}</h3>
+                <h3 className="font-editorial text-lg font-normal text-[#202B3C]">{item.name}</h3>
                 <p className="text-xs text-[#69717B] flex items-center gap-1 mt-0.5">
                   <MapPin className="h-3 w-3 text-[#547568]" />
                   <span>{item.locality}</span>
                 </p>
               </div>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#547568]/10 text-[#547568] font-bold">
+              <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#547568]/10 text-[#547568] font-bold tabular-nums">
                 {item.priceTrendQuarter}
               </span>
             </div>
@@ -78,7 +78,7 @@ export default function WatchlistPage() {
               </div>
               <div className="flex justify-between text-[#69717B]">
                 <span>Price / Sq Ft:</span>
-                <span className="text-[#202B3C] font-semibold">{item.askingRangeSqFt}</span>
+                <span className="text-[#202B3C] font-semibold tabular-nums">{item.askingRangeSqFt}</span>
               </div>
             </div>
 

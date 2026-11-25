@@ -10,30 +10,22 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-sans)', 'Inter', 'Manrope', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['var(--font-display)', 'Manrope', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        sans: ['var(--font-sans)', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        editorial: ['var(--font-serif)', 'Newsreader', 'Georgia', 'Charter', 'Times New Roman', 'serif'],
+        display: ['var(--font-serif)', 'Newsreader', 'Georgia', 'Inter', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       colors: {
-        // PROVENTA HOME WARM ARCHITECTURAL PALETTE
-        home: {
-          olive: '#53634A',
-          'olive-dark': '#3F4C38',
-          'olive-light': '#6B7E5F',
-          stone: '#F2F0E9',
-          'stone-dark': '#E6E2D6',
-          'stone-card': '#FAF8F5',
-          black: '#171A17',
-          charcoal: '#242B24',
-          sage: '#89947F',
-          'sage-light': '#D6DBD2',
-          border: '#E3DFD5',
-          'border-dark': '#C9C4B7',
-          terracotta: '#C97A53',
-          'terracotta-dark': '#AD623E',
-          card: '#FFFFFF',
-          text: '#171A17',
-          muted: '#5F685B',
+        // PROVENTA REAL ESTATE INTELLIGENCE OFFICIAL PALETTE
+        proventa: {
+          navy: '#202B3C',
+          ivory: '#F5F3ED',
+          green: '#547568',
+          stone: '#C8C4BA',
+          stoneLight: '#E2DFD6',
+          white: '#FFFFFF',
+          text: '#202B3C',
+          muted: '#69717B',
         },
         // PROVENTA ARCHITECTURAL INDUSTRIAL PALETTE
         arch: {

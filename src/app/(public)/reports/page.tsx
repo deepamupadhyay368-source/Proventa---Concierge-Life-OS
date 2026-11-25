@@ -139,17 +139,20 @@ export default function ReportsPage() {
   });
 
   return (
-    <div className="space-y-12 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 font-sans">
       {/* Header */}
-      <section className="border-b border-[#C8C4BA] pb-10 pt-6">
+      <section className="border-b border-[#C8C4BA] pb-10">
         <div className="max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[#547568]/10 text-[#547568] text-xs font-semibold uppercase tracking-wider border border-[#547568]/20">
-            PROVENTA Research Desk
+          <div className="inline-flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#547568]" />
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#547568] font-bold">
+              PROVENTA Research Desk Publications
+            </span>
           </div>
-          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-[#202B3C]">
+          <h1 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight text-[#202B3C]">
             Independent Market Reports & Research
           </h1>
-          <p className="text-base md:text-lg text-[#69717B] leading-relaxed">
+          <p className="text-base sm:text-lg text-[#69717B] leading-relaxed">
             Quarterly market digests, micro-market dossiers, and empirical real estate intelligence for Ahmedabad and Gandhinagar. Grounded exclusively in verified RERA filings and observed sub-registrar transaction data.
           </p>
         </div>
@@ -223,7 +226,7 @@ export default function ReportsPage() {
                 </div>
 
                 <div>
-                  <h2 className="font-display text-xl md:text-2xl font-bold text-[#202B3C] leading-snug">
+                  <h2 className="font-editorial text-2xl md:text-3xl font-bold text-[#202B3C] leading-snug">
                     {report.title}
                   </h2>
                   <p className="mt-2 text-xs md:text-sm text-[#69717B] leading-relaxed">

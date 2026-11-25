@@ -36,14 +36,14 @@ export default function MyPropertiesPage() {
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
             Asset Registry
           </span>
-          <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+          <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
             My Tracked Real Estate Portfolio
           </h1>
         </div>
 
         <Link
           href="/dashboard/property-vault?action=new"
-          className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+          className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>Add Property</span>
@@ -70,13 +70,13 @@ export default function MyPropertiesPage() {
                   <div className="text-[11px] text-[#69717B]">{p.project}</div>
                 </td>
                 <td className="p-3.5 text-[#69717B]">{p.locality}</td>
-                <td className="p-3.5 font-mono text-[#202B3C]">{p.carpetAreaSqFt} sq ft</td>
-                <td className="p-3.5 font-mono font-bold text-[#547568]">₹{p.estimatedValueLakhs} L</td>
-                <td className="p-3.5 font-mono text-[#202B3C]">₹{p.purchasePriceLakhs} L</td>
+                <td className="p-3.5 font-mono text-[#202B3C] tabular-nums">{p.carpetAreaSqFt} sq ft</td>
+                <td className="p-3.5 font-mono font-bold text-[#547568] tabular-nums">₹{p.estimatedValueLakhs} L</td>
+                <td className="p-3.5 font-mono text-[#202B3C] tabular-nums">₹{p.purchasePriceLakhs} L</td>
                 <td className="p-3.5 text-right space-x-2">
                   <Link
                     href={`/dashboard/property-vault?id=${p.id}`}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#202B3C] text-white text-[11px] font-semibold"
+                    className="inline-flex items-center gap-1 h-8 px-3 bg-[#202B3C] text-white text-[11px] font-bold uppercase tracking-wider hover:bg-[#202B3C]/90"
                   >
                     <span>Vault</span>
                     <ArrowUpRight className="h-3 w-3" />

@@ -57,7 +57,7 @@ export default function DashboardOverviewPage() {
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
             Account Dashboard
           </span>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-[#202B3C]">
+          <h1 className="font-editorial text-2xl md:text-3xl font-normal text-[#202B3C]">
             Portfolio Intelligence Overview
           </h1>
         </div>
@@ -65,14 +65,14 @@ export default function DashboardOverviewPage() {
         <div className="flex items-center gap-2">
           <Link
             href="/dashboard/property-vault?action=new"
-            className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+            className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add Property to Vault</span>
           </Link>
           <Link
             href="/property-intelligence"
-            className="px-3.5 py-2 bg-white border border-[#C8C4BA] text-[#202B3C] text-xs font-semibold hover:bg-[#F5F3ED]"
+            className="h-10 px-4 bg-white border border-[#C8C4BA] text-[#202B3C] text-xs font-bold uppercase tracking-wider inline-flex items-center hover:bg-[#F5F3ED]"
           >
             Instant Valuation
           </Link>
@@ -81,11 +81,11 @@ export default function DashboardOverviewPage() {
 
       {/* Aggregate Metric Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1 shadow-2xs">
+        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Total Monitored Portfolio
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C]">
+          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
             ₹{(totalPortfolioValueLakhs / 100).toFixed(2)} Cr
           </div>
           <p className="text-[11px] text-[#547568] font-mono">
@@ -93,23 +93,23 @@ export default function DashboardOverviewPage() {
           </p>
         </div>
 
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1 shadow-2xs">
+        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Aggregate Unrealized Gain
           </span>
-          <div className="font-mono text-2xl font-bold text-[#547568]">
+          <div className="font-mono text-2xl font-bold text-[#547568] tabular-nums">
             +₹{totalGainLakhs.toFixed(1)} L
           </div>
-          <p className="text-[11px] text-[#547568] font-mono">
+          <p className="text-[11px] text-[#547568] font-mono tabular-nums">
             +{((totalGainLakhs / totalCostLakhs) * 100).toFixed(1)}% total holding gain
           </p>
         </div>
 
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1 shadow-2xs">
+        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Average Gross Rental Yield
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C]">
+          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
             3.4%
           </div>
           <p className="text-[11px] text-[#69717B] font-mono">
@@ -117,11 +117,11 @@ export default function DashboardOverviewPage() {
           </p>
         </div>
 
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1 shadow-2xs">
+        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Vault Documents Stored
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C]">
+          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
             7 Deeds & Receipts
           </div>
           <p className="text-[11px] text-[#547568] font-mono">
@@ -133,7 +133,7 @@ export default function DashboardOverviewPage() {
       {/* Properties Table & Cards */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">
             Tracked Assets in Personal Vault
           </h2>
           <Link
@@ -149,11 +149,11 @@ export default function DashboardOverviewPage() {
           {trackedProperties.map((prop) => (
             <div
               key={prop.id}
-              className="bg-white border border-[#C8C4BA] p-5 space-y-4 hover:shadow-xs transition-shadow"
+              className="bg-white border border-[#C8C4BA] p-5 space-y-4"
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-display text-base font-bold text-[#202B3C]">
+                  <h3 className="font-editorial text-lg font-normal text-[#202B3C]">
                     {prop.title}
                   </h3>
                   <div className="flex items-center gap-1.5 text-xs text-[#69717B] mt-0.5">
@@ -161,7 +161,7 @@ export default function DashboardOverviewPage() {
                     <span>{prop.project}, {prop.locality}</span>
                   </div>
                 </div>
-                <span className="font-mono text-xs px-2 py-0.5 bg-[#547568]/10 text-[#547568] font-bold">
+                <span className="font-mono text-xs px-2 py-0.5 bg-[#547568]/10 text-[#547568] font-bold tabular-nums">
                   {prop.carpetAreaSqFt} sq ft carpet
                 </span>
               </div>
@@ -169,11 +169,11 @@ export default function DashboardOverviewPage() {
               <div className="grid grid-cols-2 gap-2 p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 font-mono text-xs">
                 <div>
                   <span className="text-[#69717B] block text-[10px]">Estimated Value</span>
-                  <span className="font-bold text-[#202B3C]">₹{prop.estimatedValueLakhs} Lakhs</span>
+                  <span className="font-bold text-[#202B3C] tabular-nums">₹{prop.estimatedValueLakhs} Lakhs</span>
                 </div>
                 <div>
                   <span className="text-[#69717B] block text-[10px]">Acquisition Cost</span>
-                  <span className="text-[#202B3C]">₹{prop.purchasePriceLakhs} Lakhs ({prop.purchaseYear})</span>
+                  <span className="text-[#202B3C] tabular-nums">₹{prop.purchasePriceLakhs} Lakhs ({prop.purchaseYear})</span>
                 </div>
               </div>
 
@@ -202,7 +202,7 @@ export default function DashboardOverviewPage() {
             <span className="text-[10px] font-mono font-bold text-[#547568] uppercase">
               Quarterly Market Digest
             </span>
-            <h3 className="font-display text-base font-bold text-[#202B3C]">
+            <h3 className="font-editorial text-lg font-normal text-[#202B3C]">
               Ahmedabad & Gandhinagar Macro Trends (Q3 2026)
             </h3>
           </div>

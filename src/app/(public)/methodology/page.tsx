@@ -64,17 +64,20 @@ export default function MethodologyPage() {
   ];
 
   return (
-    <div className="space-y-16 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 font-sans">
       {/* Header */}
-      <section className="border-b border-[#C8C4BA] pb-12 pt-8">
-        <div className="max-w-3xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[#547568]/10 text-[#547568] text-xs font-semibold uppercase tracking-wider border border-[#547568]/20">
-            Transparent Data Architecture
+      <section className="border-b border-[#C8C4BA] pb-10">
+        <div className="max-w-3xl space-y-3">
+          <div className="inline-flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-[#547568]" />
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#547568] font-bold">
+              Transparent Data Architecture
+            </span>
           </div>
-          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-[#202B3C]">
+          <h1 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight text-[#202B3C]">
             Evidence before estimates.
           </h1>
-          <p className="text-base md:text-lg text-[#69717B] leading-relaxed">
+          <p className="text-base sm:text-lg text-[#69717B] leading-relaxed">
             The mathematical and regulatory foundation behind PROVENTA Real Estate Intelligence. How we normalize property data, filter broker speculation, and evaluate true fair market value across Ahmedabad and Gujarat.
           </p>
         </div>

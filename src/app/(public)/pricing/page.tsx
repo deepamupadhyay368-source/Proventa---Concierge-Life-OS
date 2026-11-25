@@ -45,14 +45,17 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="space-y-16 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 font-sans">
       {/* Hero Header */}
-      <section className="border-b border-[#C8C4BA] pb-12 pt-8">
+      <section className="border-b border-[#C8C4BA] pb-10">
         <div className="max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 bg-[#547568]/10 text-[#547568] text-xs font-semibold uppercase tracking-wider mb-4 border border-[#547568]/20">
-            Transparent Subscription Model
+          <div className="inline-flex items-center gap-2 mb-3">
+            <span className="w-1.5 h-1.5 bg-[#547568]" />
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#547568] font-bold">
+              Transparent Membership Tiers
+            </span>
           </div>
-          <h1 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-[#202B3C] leading-tight">
+          <h1 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight text-[#202B3C] leading-tight">
             Institutional property intelligence, accessible to everyone.
           </h1>
           <p className="mt-4 text-base md:text-lg text-[#69717B] leading-relaxed">
@@ -112,26 +115,26 @@ export default function PricingPage() {
 
               <div>
                 <div className="space-y-1">
-                  <h3 className="font-display text-xl font-bold text-[#202B3C]">{plan.name}</h3>
+                  <h3 className="font-editorial text-2xl font-bold text-[#202B3C]">{plan.name}</h3>
                   <p className="text-xs text-[#69717B] min-h-[32px]">{plan.tagline}</p>
                 </div>
 
                 <div className="mt-6 border-t border-[#C8C4BA]/50 pt-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="font-mono text-3xl font-bold text-[#202B3C]">
+                    <span className="font-mono text-3xl font-bold text-[#202B3C] tabular-nums">
                       ₹{price.toLocaleString('en-IN')}
                     </span>
                   </div>
                   <p className="text-[11px] text-[#69717B] mt-0.5 font-mono">{billingLabel}</p>
                 </div>
 
-                <div className="mt-4 p-2 bg-[#F5F3ED] border border-[#C8C4BA]/40 text-[11px] text-[#202B3C]">
-                  <span className="font-semibold block text-[#547568]">Target Profile</span>
+                <div className="mt-4 p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40 text-[11px] text-[#202B3C]">
+                  <span className="font-semibold block text-[#547568] uppercase text-[10px] font-mono">Target Profile</span>
                   {plan.targetAudience}
                 </div>
 
                 <div className="mt-6 space-y-3">
-                  <p className="text-xs font-semibold text-[#202B3C] uppercase tracking-wider">Plan Inclusions</p>
+                  <p className="text-xs font-mono font-bold text-[#202B3C] uppercase tracking-wider">Plan Inclusions</p>
                   <ul className="space-y-2.5">
                     {plan.features.map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-2 text-xs text-[#202B3C] leading-snug">
@@ -146,9 +149,9 @@ export default function PricingPage() {
               <div className="mt-8 pt-6 border-t border-[#C8C4BA]/60">
                 <Link
                   href={plan.monthlyPrice === 0 ? '/signup' : `/signup?plan=${plan.id}&billing=${billingCycle}`}
-                  className={`w-full py-2.5 px-4 text-xs font-semibold text-center flex items-center justify-center gap-1.5 transition-colors ${
+                  className={`w-full h-10 px-4 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-colors ${
                     plan.popular
-                      ? 'bg-[#202B3C] text-white hover:bg-[#202B3C]/90'
+                      ? 'bg-[#202B3C] text-white hover:bg-[#151D29]'
                       : 'bg-white border border-[#202B3C] text-[#202B3C] hover:bg-[#F5F3ED]'
                   }`}
                 >

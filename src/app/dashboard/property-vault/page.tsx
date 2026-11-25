@@ -247,7 +247,7 @@ export default function PropertyVaultPage() {
               <span>AES-256 Encrypted</span>
             </span>
           </div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold text-[#202B3C] mt-1">
+          <h1 className="font-editorial text-2xl md:text-3xl font-normal text-[#202B3C] mt-1">
             Personal Property Vault
           </h1>
         </div>
@@ -255,7 +255,7 @@ export default function PropertyVaultPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowAddModal(true)}
-            className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+            className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add Property Asset</span>
@@ -294,7 +294,7 @@ export default function PropertyVaultPage() {
                 <span className="text-[11px] font-mono text-[#547568] font-bold uppercase">
                   {activeProperty.propertyType}
                 </span>
-                <h2 className="font-display text-2xl font-bold text-[#202B3C]">
+                <h2 className="font-editorial text-2xl font-normal text-[#202B3C]">
                   {activeProperty.name}
                 </h2>
                 <p className="text-xs text-[#69717B] flex items-center gap-1 mt-0.5">
@@ -360,7 +360,7 @@ export default function PropertyVaultPage() {
           <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#C8C4BA]/50 pb-3">
               <div>
-                <h3 className="font-display text-lg font-bold text-[#202B3C]">
+                <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
                   Stored Legal & Financial Records
                 </h3>
                 <p className="text-xs text-[#69717B]">
@@ -440,7 +440,7 @@ export default function PropertyVaultPage() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#202B3C] max-w-lg w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-[#C8C4BA] pb-3">
-              <h3 className="font-display text-lg font-bold text-[#202B3C]">
+              <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
                 Add Asset to Personal Property Vault
               </h3>
               <button onClick={() => setShowAddModal(false)} className="text-sm font-bold">
@@ -550,7 +550,7 @@ export default function PropertyVaultPage() {
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#202B3C] max-w-md w-full p-6 space-y-4 shadow-xl">
             <div className="flex justify-between items-center border-b border-[#C8C4BA] pb-3">
-              <h3 className="font-display text-lg font-bold text-[#202B3C]">
+              <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
                 Upload Encrypted Record
               </h3>
               <button onClick={() => setShowUploadModal(false)} className="text-sm font-bold">

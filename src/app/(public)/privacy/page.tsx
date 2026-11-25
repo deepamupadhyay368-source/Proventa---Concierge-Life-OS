@@ -1,11 +1,11 @@
 export default function PrivacyPolicyPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-10 py-10 pb-20">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       <div className="border-b border-[#C8C4BA] pb-6">
-        <span className="text-xs font-mono font-bold text-[#547568] uppercase tracking-wider">
+        <span className="text-[11px] font-mono font-bold text-[#547568] uppercase tracking-wider">
           Regulatory Governance
         </span>
-        <h1 className="font-display text-3xl md:text-4xl font-bold text-[#202B3C] mt-1">
+        <h1 className="font-editorial text-3xl md:text-4xl font-normal text-[#202B3C] mt-2">
           Privacy Policy & Data Protection
         </h1>
         <p className="text-xs text-[#69717B] font-mono mt-2">
@@ -15,14 +15,14 @@ export default function PrivacyPolicyPage() {
 
       <div className="space-y-8 text-xs md:text-sm text-[#202B3C] leading-relaxed">
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">1. Introduction & Scope</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">1. Introduction & Scope</h2>
           <p className="text-[#69717B]">
             PROVENTA Real Estate Intelligence (&quot;PROVENTA&quot;, &quot;we&quot;, &quot;our&quot;) is committed to protecting the privacy and confidentiality of our users. This policy governs how we collect, store, process, and safeguard personal and property data across our platform (`proventa.in`) and associated mobile/API services.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">2. Personal Property Vault Encryption & Privacy</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">2. Personal Property Vault Encryption & Privacy</h2>
           <p className="text-[#69717B]">
             Data uploaded to the <strong>Personal Property Vault</strong>—including sale deeds, tax receipts, loan schedules, and private property addresses—is treated as strictly confidential User-Submitted Data.
           </p>
@@ -34,14 +34,14 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">3. Public Real Estate Data Sources</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">3. Public Real Estate Data Sources</h2>
           <p className="text-[#69717B]">
             All public property intelligence, project profiles, and locality benchmarks published by PROVENTA are derived exclusively from lawful public records, statutory Gujarat RERA regulatory filings, town-planning layouts under AUDA/GUDA, and recorded sub-registrar transaction indices.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">4. User Rights Under DPDPA 2023</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">4. User Rights Under DPDPA 2023</h2>
           <p className="text-[#69717B]">
             As a data principal under Indian data protection law, you retain the right to:
           </p>
@@ -54,7 +54,7 @@ export default function PrivacyPolicyPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="font-display text-lg font-bold text-[#202B3C]">5. Contact Data Protection Officer</h2>
+          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">5. Contact Data Protection Officer</h2>
           <p className="text-[#69717B]">
             For data privacy inquiries or to exercise your rights of erasure or rectification, contact our Data Protection Officer at:
           </p>

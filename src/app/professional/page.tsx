@@ -17,14 +17,14 @@ export default function ProfessionalOverviewPage() {
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
             Institutional Advisory Console
           </span>
-          <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+          <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
             Professional Portfolio Dashboard
           </h1>
         </div>
 
         <Link
           href="/professional/clients?action=new"
-          className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+          className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>Onboard Client</span>
@@ -37,7 +37,7 @@ export default function ProfessionalOverviewPage() {
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Total Monitored AUM
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C]">
+          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
             ₹15.47 Cr
           </div>
           <p className="text-[11px] text-[#547568] font-mono">14 Monitored Properties</p>
@@ -47,7 +47,7 @@ export default function ProfessionalOverviewPage() {
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Active Advisory Clients
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C]">
+          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
             3 Accounts
           </div>
           <p className="text-[11px] text-[#69717B] font-mono">150 Unit Limit</p>
@@ -57,7 +57,7 @@ export default function ProfessionalOverviewPage() {
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Reports Dispatched
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C]">
+          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
             12 / 50
           </div>
           <p className="text-[11px] text-[#547568] font-mono">Current Billing Month</p>
@@ -67,7 +67,7 @@ export default function ProfessionalOverviewPage() {
           <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
             Average Portfolio Yield
           </span>
-          <div className="font-mono text-2xl font-bold text-[#547568]">
+          <div className="font-mono text-2xl font-bold text-[#547568] tabular-nums">
             3.6%
           </div>
           <p className="text-[11px] text-[#69717B] font-mono">Net of AUDA municipal taxes</p>
@@ -77,7 +77,7 @@ export default function ProfessionalOverviewPage() {
       {/* Client Portfolios Table */}
       <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-[#C8C4BA]/50 pb-3">
-          <h2 className="font-display text-base font-bold text-[#202B3C]">
+          <h2 className="font-editorial text-lg font-normal text-[#202B3C]">
             Segregated Client Portfolios
           </h2>
           <Link
@@ -97,10 +97,10 @@ export default function ProfessionalOverviewPage() {
                 <p className="text-[11px] text-[#69717B] font-mono">{cli.city} • {cli.propertiesCount} properties</p>
               </div>
               <div className="flex items-center gap-4">
-                <span className="font-mono font-bold text-[#202B3C]">₹{(cli.aumLakhs / 100).toFixed(2)} Cr</span>
+                <span className="font-mono font-bold text-[#202B3C] tabular-nums">₹{(cli.aumLakhs / 100).toFixed(2)} Cr</span>
                 <Link
                   href={`/professional/clients?id=${cli.id}`}
-                  className="px-2.5 py-1 bg-[#202B3C] text-white text-[11px] font-semibold"
+                  className="h-8 px-3 bg-[#202B3C] text-white text-[11px] font-bold uppercase tracking-wider inline-flex items-center hover:bg-[#202B3C]/90"
                 >
                   Portfolio
                 </Link>

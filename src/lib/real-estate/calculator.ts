@@ -37,6 +37,26 @@ export interface InvestmentScenarioResult {
     base: number;
     optimistic: number;
   };
+  scenarios: {
+    conservative: {
+      appreciationRate: number;
+      estimatedResaleValueLakhs: number;
+      netGainLakhs: number;
+      holdingReturnPercent: number;
+    };
+    base: {
+      appreciationRate: number;
+      estimatedResaleValueLakhs: number;
+      netGainLakhs: number;
+      holdingReturnPercent: number;
+    };
+    optimistic: {
+      appreciationRate: number;
+      estimatedResaleValueLakhs: number;
+      netGainLakhs: number;
+      holdingReturnPercent: number;
+    };
+  };
 }
 
 export function calculatePropertyInvestment(input: InvestmentCalculatorInput): InvestmentScenarioResult {
@@ -135,6 +155,26 @@ export function calculatePropertyInvestment(input: InvestmentCalculatorInput): I
       conservative: Math.round(((conservativeResaleRupees - totalAcquisitionCostRupees) / equityInvestedRupees) * 100),
       base: Math.round(((baseResaleRupees - totalAcquisitionCostRupees) / equityInvestedRupees) * 100),
       optimistic: Math.round(((optimisticResaleRupees - totalAcquisitionCostRupees) / equityInvestedRupees) * 100),
+    },
+    scenarios: {
+      conservative: {
+        appreciationRate: Math.round(conservativeRate * 100 * 10) / 10,
+        estimatedResaleValueLakhs: Math.round((conservativeResaleRupees / 100000) * 10) / 10,
+        netGainLakhs: Math.round(((conservativeResaleRupees - totalAcquisitionCostRupees) / 100000) * 10) / 10,
+        holdingReturnPercent: Math.round(((conservativeResaleRupees - totalAcquisitionCostRupees) / equityInvestedRupees) * 100),
+      },
+      base: {
+        appreciationRate: Math.round(baseRate * 100 * 10) / 10,
+        estimatedResaleValueLakhs: Math.round((baseResaleRupees / 100000) * 10) / 10,
+        netGainLakhs: Math.round(((baseResaleRupees - totalAcquisitionCostRupees) / 100000) * 10) / 10,
+        holdingReturnPercent: Math.round(((baseResaleRupees - totalAcquisitionCostRupees) / equityInvestedRupees) * 100),
+      },
+      optimistic: {
+        appreciationRate: Math.round(optimisticRate * 100 * 10) / 10,
+        estimatedResaleValueLakhs: Math.round((optimisticResaleRupees / 100000) * 10) / 10,
+        netGainLakhs: Math.round(((optimisticResaleRupees - totalAcquisitionCostRupees) / 100000) * 10) / 10,
+        holdingReturnPercent: Math.round(((optimisticResaleRupees - totalAcquisitionCostRupees) / equityInvestedRupees) * 100),
+      },
     },
   };
 }

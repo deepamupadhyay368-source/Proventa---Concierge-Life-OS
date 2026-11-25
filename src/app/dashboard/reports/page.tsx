@@ -35,14 +35,14 @@ export default function SavedReportsPage() {
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
             Research Library
           </span>
-          <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+          <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
             Saved & Generated Intelligence Reports
           </h1>
         </div>
 
         <Link
           href="/reports"
-          className="px-3.5 py-2 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+          className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
         >
           <span>Browse Research Desk</span>
           <ArrowUpRight className="h-3.5 w-3.5" />
@@ -55,18 +55,18 @@ export default function SavedReportsPage() {
             <div className="flex items-start gap-3">
               <FileText className="h-5 w-5 text-[#547568] shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-display text-sm font-bold text-[#202B3C]">{rep.title}</h3>
+                <h3 className="font-editorial text-base font-normal text-[#202B3C]">{rep.title}</h3>
                 <div className="flex items-center gap-3 text-[11px] font-mono text-[#69717B] mt-0.5">
                   <span className="px-1.5 py-0.2 bg-[#F5F3ED] border border-[#C8C4BA]">{rep.category}</span>
-                  <span>{rep.date}</span>
-                  <span>{rep.size}</span>
+                  <span className="tabular-nums">{rep.date}</span>
+                  <span className="tabular-nums">{rep.size}</span>
                 </div>
               </div>
             </div>
 
             <button
               onClick={() => alert(`Downloading verified report copy: ${rep.title}`)}
-              className="px-3 py-1.5 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 self-start sm:self-center"
+              className="h-8 px-3 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 hover:bg-[#202B3C]/90 self-start sm:self-center"
             >
               <Download className="h-3.5 w-3.5" />
               <span>Download PDF</span>

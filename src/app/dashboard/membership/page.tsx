@@ -21,7 +21,7 @@ export default function MembershipBillingPage() {
         <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
           Account Subscription
         </span>
-        <h1 className="font-display text-2xl font-bold text-[#202B3C]">
+        <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
           Membership & Billing Management
         </h1>
         <p className="text-xs text-[#69717B] mt-1">
@@ -30,20 +30,20 @@ export default function MembershipBillingPage() {
       </div>
 
       {/* Active Subscription Summary */}
-      <div className="bg-white border border-[#202B3C] p-6 space-y-4 shadow-xs">
+      <div className="bg-white border border-[#202B3C] p-6 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA]/50 pb-4">
           <div>
             <span className="text-[10px] font-mono font-bold text-[#547568] uppercase">
               Current Active Tier
             </span>
-            <h2 className="font-display text-2xl font-bold text-[#202B3C]">
+            <h2 className="font-editorial text-2xl font-normal text-[#202B3C]">
               {currentPlan.name}
             </h2>
             <p className="text-xs text-[#69717B]">{currentPlan.tagline}</p>
           </div>
 
           <div className="text-right font-mono">
-            <span className="text-2xl font-bold text-[#202B3C]">
+            <span className="text-2xl font-bold text-[#202B3C] tabular-nums">
               ₹{currentPlan.annualPrice.toLocaleString('en-IN')}/yr
             </span>
             <span className="block text-[11px] text-[#547568]">Renews automatically on 01-Oct-2027</span>
@@ -54,11 +54,11 @@ export default function MembershipBillingPage() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
           <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40">
             <span className="text-[#69717B] block text-[10px]">Property Vault Capacity</span>
-            <span className="font-bold text-[#202B3C]">2 / {currentPlan.trackedPropertiesLimit} Units Used</span>
+            <span className="font-bold text-[#202B3C] tabular-nums">2 / {currentPlan.trackedPropertiesLimit} Units Used</span>
           </div>
           <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40">
             <span className="text-[#69717B] block text-[10px]">Monthly Valuation Reports</span>
-            <span className="font-bold text-[#202B3C]">1 / {currentPlan.reportsPerMonth} Downloaded this month</span>
+            <span className="font-bold text-[#202B3C] tabular-nums">1 / {currentPlan.reportsPerMonth} Downloaded this month</span>
           </div>
           <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40">
             <span className="text-[#69717B] block text-[10px]">Billing Status</span>
@@ -69,13 +69,13 @@ export default function MembershipBillingPage() {
         <div className="flex flex-wrap gap-3 pt-2">
           <Link
             href="/pricing"
-            className="px-4 py-2 bg-[#202B3C] text-white text-xs font-semibold hover:bg-[#202B3C]/90 shadow-xs"
+            className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center hover:bg-[#202B3C]/90"
           >
-            Upgrade to Investor Suite (₹499/mo)
+            Upgrade to Investor Suite (₹1,499/mo)
           </Link>
           <button
             onClick={() => alert('Cancellation request recorded. Your plan remains active until the end of the billing period.')}
-            className="px-4 py-2 bg-white border border-[#C8C4BA] text-[#69717B] hover:text-[#202B3C] text-xs font-semibold hover:bg-[#F5F3ED]"
+            className="h-10 px-4 bg-white border border-[#C8C4BA] text-[#69717B] hover:text-[#202B3C] text-xs font-bold uppercase tracking-wider inline-flex items-center hover:bg-[#F5F3ED]"
           >
             Cancel Subscription
           </button>
@@ -84,7 +84,7 @@ export default function MembershipBillingPage() {
 
       {/* Available Plans Selector */}
       <div className="space-y-4">
-        <h3 className="font-display text-lg font-bold text-[#202B3C]">
+        <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
           Available Membership Tiers
         </h3>
 
@@ -98,14 +98,14 @@ export default function MembershipBillingPage() {
             >
               <div className="space-y-3">
                 <div className="flex justify-between items-start">
-                  <h4 className="font-display text-base font-bold text-[#202B3C]">{p.name}</h4>
+                  <h4 className="font-editorial text-lg font-normal text-[#202B3C]">{p.name}</h4>
                   {p.id === activePlanId && (
                     <span className="text-[10px] font-mono px-1.5 py-0.5 bg-[#547568] text-white font-bold uppercase">
                       Current
                     </span>
                   )}
                 </div>
-                <div className="font-mono text-xl font-bold text-[#202B3C]">
+                <div className="font-mono text-xl font-bold text-[#202B3C] tabular-nums">
                   ₹{p.monthlyPrice}/mo
                 </div>
                 <ul className="space-y-1.5 text-xs text-[#202B3C]">
@@ -124,7 +124,7 @@ export default function MembershipBillingPage() {
                     setActivePlanId(p.id);
                     alert(`Switched preview plan to ${p.name}`);
                   }}
-                  className="mt-4 w-full py-2 bg-white border border-[#202B3C] text-[#202B3C] text-xs font-semibold hover:bg-[#F5F3ED]"
+                  className="mt-4 w-full h-10 bg-white border border-[#202B3C] text-[#202B3C] text-xs font-bold uppercase tracking-wider hover:bg-[#F5F3ED]"
                 >
                   Select Plan
                 </button>
@@ -136,7 +136,7 @@ export default function MembershipBillingPage() {
 
       {/* Billing Invoices */}
       <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
-        <h3 className="font-display text-lg font-bold text-[#202B3C]">
+        <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
           Billing History & GST Invoices
         </h3>
 
