@@ -1,7 +1,7 @@
-export type MembershipTierSlug = 'select' | 'private' | 'reserve';
+export type MembershipTierSlug = 'essential' | 'family' | 'premium' | 'select' | 'private' | 'reserve';
 
 export interface MembershipPlan {
-  id: MembershipTierSlug;
+  id: string;
   name: string;
   priceInr: number; // In Rupees
   pricePaise: number; // In Paise for Razorpay
@@ -15,148 +15,161 @@ export interface MembershipPlan {
   badge?: string;
 }
 
-export const CANONICAL_MEMBERSHIP_PLANS: Record<MembershipTierSlug, MembershipPlan> = {
-  select: {
-    id: 'select',
-    name: 'SELECT',
-    priceInr: 2499,
-    pricePaise: 249900,
-    formattedPrice: '₹2,499',
+export const CANONICAL_MEMBERSHIP_PLANS: Record<string, MembershipPlan> = {
+  essential: {
+    id: 'essential',
+    name: 'Essential',
+    priceInr: 349,
+    pricePaise: 34900,
+    formattedPrice: '₹349',
     cadence: '/month',
-    positioning: 'Your everyday Concierge.',
-    description: 'Essential life coordination and intelligent planning for professionals and individuals.',
+    positioning: 'Routine domestic peace of mind.',
+    description: '4 maintenance visits per year (1 visit every 3 months). Max 45 mins per visit.',
     priorityLevel: 'STANDARD',
     benefits: [
-      'AI-powered planning',
-      'Dining & experiences',
-      'Travel planning',
-      'Events & activities',
-      'Gifting',
-      'Appointments',
-      'Weekend planning',
-      'Human Concierge assistance',
-      'Standard priority',
+      '4 maintenance visits per year',
+      '1 visit allocated every 3 months',
+      'Maximum 45 minutes per visit',
+      'Minor plumbing, electrical & carpentry',
+      'Standard booking priority',
+      'Household Maintenance Passport included',
+      'Maintenance reminders included',
+    ],
+  },
+  family: {
+    id: 'family',
+    name: 'Family',
+    priceInr: 699,
+    pricePaise: 69900,
+    formattedPrice: '₹699',
+    cadence: '/month',
+    positioning: 'Complete care for active homes.',
+    description: '12 maintenance visits per year (1 visit per month). Max 45 mins per visit.',
+    recommended: true,
+    badge: 'Popular',
+    priorityLevel: 'PRIORITY',
+    benefits: [
+      '12 maintenance visits per year',
+      '1 visit allocated every month',
+      'Maximum 45 minutes per visit',
+      'Minor plumbing, electrical & carpentry',
+      'Priority booking queue',
+      'Annual household maintenance review included',
+      'Household Maintenance Passport included',
+      'Maintenance reminders included',
+    ],
+  },
+  premium: {
+    id: 'premium',
+    name: 'Premium',
+    priceInr: 1199,
+    pricePaise: 119900,
+    formattedPrice: '₹1,199',
+    cadence: '/month',
+    positioning: 'Comprehensive household maintenance & assurance.',
+    description: '24 maintenance visits per year (2 visits per month). Max 45 mins per visit.',
+    priorityLevel: 'HIGHEST_DEDICATED',
+    badge: 'Comprehensive',
+    benefits: [
+      '24 maintenance visits per year',
+      '2 visits allocated every month',
+      'Maximum 45 minutes per visit',
+      'Minor plumbing, electrical & carpentry',
+      'Highest booking priority',
+      'Quarterly preventive maintenance inspection included',
+      'Household asset register included',
+      'Household Maintenance Passport included',
+      'Maintenance reminders included',
+      'Same-technician preference (subject to availability)',
+    ],
+  },
+  // Compatibility aliases for legacy lookups
+  select: {
+    id: 'essential',
+    name: 'Essential',
+    priceInr: 349,
+    pricePaise: 34900,
+    formattedPrice: '₹349',
+    cadence: '/month',
+    positioning: 'Routine domestic peace of mind.',
+    description: '4 maintenance visits per year (1 visit every 3 months). Max 45 mins per visit.',
+    priorityLevel: 'STANDARD',
+    benefits: [
+      '4 maintenance visits per year',
+      '1 visit allocated every 3 months',
+      'Maximum 45 minutes per visit',
+      'Minor plumbing, electrical & carpentry',
     ],
   },
   private: {
-    id: 'private',
-    name: 'PRIVATE',
-    priceInr: 4999,
-    pricePaise: 499900,
-    formattedPrice: '₹4,999',
+    id: 'family',
+    name: 'Family',
+    priceInr: 699,
+    pricePaise: 69900,
+    formattedPrice: '₹699',
     cadence: '/month',
-    positioning: 'More of your life, handled.',
-    description: 'Elevated, high-touch support and complex coordination for active individuals and families.',
+    positioning: 'Complete care for active homes.',
+    description: '12 maintenance visits per year (1 visit per month). Max 45 mins per visit.',
     recommended: true,
-    badge: 'Recommended',
     priorityLevel: 'PRIORITY',
     benefits: [
-      'AI-powered planning',
-      'Dining & experiences',
-      'Travel planning',
-      'Events & activities',
-      'Gifting',
-      'Appointments',
-      'Weekend planning',
-      'Human Concierge assistance',
-      'Priority Concierge',
-      'Faster response',
-      'Complex requests',
-      'Bespoke planning',
-      'Deeper personalization',
-      'Priority human execution',
-      'Family assistance',
+      '12 maintenance visits per year',
+      '1 visit allocated every month',
+      'Maximum 45 minutes per visit',
+      'Minor plumbing, electrical & carpentry',
     ],
   },
   reserve: {
-    id: 'reserve',
-    name: 'RESERVE',
-    priceInr: 9999,
-    pricePaise: 999900,
-    formattedPrice: '₹9,999',
+    id: 'premium',
+    name: 'Premium',
+    priceInr: 1199,
+    pricePaise: 119900,
+    formattedPrice: '₹1,199',
     cadence: '/month',
-    positioning: 'Your life, personally managed.',
-    description: 'Comprehensive personal management with dedicated concierge desk and proactive planning.',
+    positioning: 'Comprehensive household maintenance & assurance.',
+    description: '24 maintenance visits per year (2 visits per month). Max 45 mins per visit.',
     priorityLevel: 'HIGHEST_DEDICATED',
     benefits: [
-      'AI-powered planning',
-      'Dining & experiences',
-      'Travel planning',
-      'Events & activities',
-      'Gifting',
-      'Appointments',
-      'Weekend planning',
-      'Human Concierge assistance',
-      'Priority Concierge',
-      'Faster response',
-      'Complex requests',
-      'Bespoke planning',
-      'Deeper personalization',
-      'Priority human execution',
-      'Family assistance',
-      'Highest request priority',
-      'Dedicated Concierge',
-      'Bespoke lifestyle management',
-      'Family & household assistance',
-      'Premium travel planning',
-      'High-touch personal assistance',
-      'Proactive planning',
+      '24 maintenance visits per year',
+      '2 visits allocated every month',
+      'Maximum 45 minutes per visit',
+      'Minor plumbing, electrical & carpentry',
     ],
   },
 };
 
 export const MEMBERSHIP_PLANS_LIST: MembershipPlan[] = [
-  CANONICAL_MEMBERSHIP_PLANS.select,
-  CANONICAL_MEMBERSHIP_PLANS.private,
-  CANONICAL_MEMBERSHIP_PLANS.reserve,
+  CANONICAL_MEMBERSHIP_PLANS.essential,
+  CANONICAL_MEMBERSHIP_PLANS.family,
+  CANONICAL_MEMBERSHIP_PLANS.premium,
 ];
 
-export const MEMBERSHIP_COMPARISON_MATRIX = [
-  { feature: 'AI-powered planning', select: true, private: true, reserve: true },
-  { feature: 'Dining & experiences', select: true, private: true, reserve: true },
-  { feature: 'Travel planning', select: true, private: true, reserve: true },
-  { feature: 'Events & activities', select: true, private: true, reserve: true },
-  { feature: 'Gifting', select: true, private: true, reserve: true },
-  { feature: 'Appointments', select: true, private: true, reserve: true },
-  { feature: 'Weekend planning', select: true, private: true, reserve: true },
-  { feature: 'Human Concierge assistance', select: true, private: true, reserve: true },
-  { feature: 'Standard priority', select: true, private: false, reserve: false },
-  { feature: 'Priority Concierge', select: false, private: true, reserve: true },
-  { feature: 'Faster response', select: false, private: true, reserve: true },
-  { feature: 'Complex requests', select: false, private: true, reserve: true },
-  { feature: 'Bespoke planning', select: false, private: true, reserve: true },
-  { feature: 'Deeper personalization', select: false, private: true, reserve: true },
-  { feature: 'Priority human execution', select: false, private: true, reserve: true },
-  { feature: 'Family assistance', select: false, private: true, reserve: true },
-  { feature: 'Highest request priority', select: false, private: false, reserve: true },
-  { feature: 'Dedicated Concierge', select: false, private: false, reserve: true },
-  { feature: 'Bespoke lifestyle management', select: false, private: false, reserve: true },
-  { feature: 'Family & household assistance', select: false, private: false, reserve: true },
-  { feature: 'Premium travel planning', select: false, private: false, reserve: true },
-  { feature: 'High-touch personal assistance', select: false, private: false, reserve: true },
-  { feature: 'Proactive planning', select: false, private: false, reserve: true },
+export const MEMBERSHIP_COMPARISON_ROWS = [
+  { feature: 'Annual Visits', essential: '4 visits', family: '12 visits', premium: '24 visits' },
+  { feature: 'Allocation Frequency', essential: '1 every 3 months', family: '1 every month', premium: '2 every month' },
+  { feature: 'Max Visit Duration', essential: '45 minutes', family: '45 minutes', premium: '45 minutes' },
+  { feature: 'Unused Visit Rollover', essential: 'No rollover', family: 'No rollover', premium: 'No rollover' },
+  { feature: 'Minor Plumbing, Electrical & Carpentry', essential: true, family: true, premium: true },
+  { feature: 'Household Maintenance Passport', essential: true, family: true, premium: true },
+  { feature: 'Maintenance Reminders', essential: true, family: true, premium: true },
+  { feature: 'Annual Maintenance Review', essential: false, family: true, premium: true },
+  { feature: 'Quarterly Preventive Inspection', essential: false, family: false, premium: true },
+  { feature: 'Household Asset Register', essential: false, family: false, premium: true },
 ];
+
+export function getCanonicalPlan(planString?: string | null): MembershipPlan {
+  if (!planString) return CANONICAL_MEMBERSHIP_PLANS.essential;
+  const normalized = planString.toLowerCase().trim();
+  if (normalized.includes('premium') || normalized.includes('reserve')) return CANONICAL_MEMBERSHIP_PLANS.premium;
+  if (normalized.includes('family') || normalized.includes('private')) return CANONICAL_MEMBERSHIP_PLANS.family;
+  return CANONICAL_MEMBERSHIP_PLANS.essential;
+}
+
+import { getCanonicalPlan, MembershipPlan } from './plans';
+
+export const getPlanById = (id?: string | null): MembershipPlan => {
+  return getCanonicalPlan(id);
+};
 
 export const MEMBERSHIP_PAYMENT_DISCLOSURE =
-  "Membership covers Proventa's Concierge service. Purchases and third-party services are charged separately.";
-
-export function getPlanById(planId?: string | null): MembershipPlan | null {
-  if (!planId) return null;
-  const normalized = planId.toLowerCase().trim() as MembershipTierSlug;
-  return CANONICAL_MEMBERSHIP_PLANS[normalized] || null;
-}
-
-export function isValidPlanId(planId?: string | null): planId is MembershipTierSlug {
-  if (!planId) return false;
-  const normalized = planId.toLowerCase().trim();
-  return normalized === 'select' || normalized === 'private' || normalized === 'reserve';
-}
-
-export function normalizeMembershipPlan(planString?: string | null): MembershipPlan {
-  if (!planString) return CANONICAL_MEMBERSHIP_PLANS.select;
-  const normalized = planString.toLowerCase().trim();
-  if (normalized.includes('reserve')) return CANONICAL_MEMBERSHIP_PLANS.reserve;
-  if (normalized.includes('private')) return CANONICAL_MEMBERSHIP_PLANS.private;
-  return CANONICAL_MEMBERSHIP_PLANS.select;
-}
-
+  'PROVENTA Home membership covers minor domestic maintenance visits as specified in the plan. All visits are capped at 45 minutes per visit. Materials and spare parts are charged separately at MRP.';

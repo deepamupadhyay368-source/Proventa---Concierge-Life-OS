@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import { SignUpForm } from '@/components/auth/sign-up-form';
+import { HomeSignUpForm } from '@/components/auth/home-sign-up-form';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Sign Up | PROVENTA — Home Platform',
-  description: 'Create your PROVENTA Home account to manage your residential membership and visits.',
+  title: 'Create Account | PROVENTA HOME',
+  description: 'Register for PROVENTA Home to manage your household maintenance membership.',
 };
 
 export default async function SignUpPage({
@@ -12,51 +12,47 @@ export default async function SignUpPage({
 }: {
   searchParams: Promise<{
     callbackUrl?: string;
-    role?: string;
   }>;
 }) {
   const params = await searchParams;
 
   return (
-    <div className="min-h-screen bg-[#292F3D] text-[#F1F2F4] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#536B88] selection:text-white">
+    <div className="min-h-screen bg-[#F2F0E9] text-[#171A17] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#53634A] selection:text-white">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#536B88] text-[#FFFFFF] flex items-center justify-center font-heading font-black text-lg shadow-sm rounded-sm">
-              P
-            </div>
-            <span className="font-heading text-2xl tracking-[0.14em] uppercase font-black text-[#FFFFFF]">
-              PROVENTA
-            </span>
+          <Link href="/" className="inline-flex items-center gap-2">
+            <span className="font-display text-3xl font-bold tracking-tight text-[#171A17]">PROVENTA</span>
+            <span className="text-xs font-medium uppercase tracking-widest text-[#53634A]">Home</span>
           </Link>
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#A8ADB7] font-semibold">
-            Home Platform
+          <p className="text-xs text-[#6B7280]">
+            Household Maintenance Membership Portal
           </p>
         </div>
 
-        <div className="border border-[#414957] bg-[#303746] p-8 shadow-sm space-y-6 rounded-sm">
-          <div className="border-b border-[#414957] pb-4">
-            <h1 className="font-heading font-black text-2xl uppercase tracking-tight text-[#FFFFFF]">
-              Create Account
+        <div className="border border-[#D5CBB8] bg-white p-8 shadow-xs rounded-xl space-y-6">
+          <div className="border-b border-[#E5E3DB] pb-4">
+            <h1 className="font-display text-2xl font-bold text-[#171A17]">
+              Create Customer Account
             </h1>
-            <p className="text-xs text-[#A8ADB7] mt-1">
-              Join PROVENTA Home to access seamless household maintenance and emergency services.
+            <p className="text-xs text-[#6B7280] mt-1">
+              Join PROVENTA Home for routine maintenance and verified local technicians.
             </p>
           </div>
-          <SignUpForm callbackUrl={params.callbackUrl || '/customer/dashboard'} initialRole="CUSTOMER" />
+
+          <HomeSignUpForm callbackUrl={params.callbackUrl} />
         </div>
 
-        <div className="border border-[#414957] bg-[#303746] p-4 font-mono text-xs text-[#F1F2F4] flex items-center justify-between shadow-sm rounded-sm">
-          <span className="text-[#A8ADB7]">ALREADY REGISTERED?</span>
+        <div className="border border-[#D5CBB8] bg-white p-4 text-xs text-[#171A17] flex items-center justify-between rounded-xl shadow-xs">
+          <span className="text-[#6B7280]">Already have an account?</span>
           <Link
             href={
               params.callbackUrl
                 ? `/login?callbackUrl=${encodeURIComponent(params.callbackUrl)}`
                 : '/login'
             }
-            className="text-[#C66A42] hover:underline font-bold"
+            className="text-[#53634A] hover:underline font-bold"
           >
-            SIGN IN →
+            Sign In →
           </Link>
         </div>
       </div>
