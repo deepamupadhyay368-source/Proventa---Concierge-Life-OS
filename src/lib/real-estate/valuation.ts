@@ -1,4 +1,12 @@
 import { AHMEDABAD_LOCALITIES, CANONICAL_PROJECTS, LocalityIntelligence } from './constants';
+import {
+  evaluateAll12Factors,
+  FactorAnalysisResult,
+  OwnershipCostSummary,
+  ValuationPropertyInput,
+  ValuationContextInput,
+  ProjectIntelligenceData,
+} from '../valuation/factors';
 
 export class UnsupportedAssetClassError extends Error {
   code = 'UNSUPPORTED_ASSET_CLASS';
@@ -90,6 +98,8 @@ export interface ValuationResult {
     differencePercent: number;
     verdict: 'PREMIUM_ASKING' | 'FAIR_MARKET' | 'VALUE_BUY';
   };
+  twelveFactorResults?: FactorAnalysisResult[];
+  ownershipCostSummary?: OwnershipCostSummary;
   valuationAssumptions: string[];
   dataLimitations: string[];
   lastUpdated: string;
@@ -305,6 +315,63 @@ export function calculatePropertyValuation(query: ValuationQuery): ValuationResu
     'Individual society maintenance reserves, bespoke interior improvements, and title encumbrances require an on-site physical appraisal.',
   ];
 
+  // 4. Run 12-Factor Valuation Intelligence Framework
+  const propertyInput: ValuationPropertyInput = {
+    carpetAreaSqFt: query.carpetAreaSqFt,
+    builtUpAreaSqFt: query.builtUpAreaSqFt,
+    superBuiltUpAreaSqFt: query.superBuiltUpAreaSqFt,
+    bhk: query.bedrooms || 3,
+    floor: query.floor,
+    totalFloors: query.totalFloors,
+    propertyAgeYears: query.propertyAgeYears,
+    condition: query.propertyCondition,
+    furnishingStatus: query.furnishingStatus,
+    parkingSpaces: query.parkingSpaces,
+  };
+
+  const contextInput: ValuationContextInput = {
+    propertyType: query.propertyType,
+    localityId: locality.slug,
+    localitySlug: locality.slug,
+    localityName: locality.name,
+    district: query.city || 'Ahmedabad',
+    address: `${locality.name}, Ahmedabad`,
+    pincode: locality.pincode,
+    projectId: matchedProject?.id,
+    projectName: matchedProject?.name || query.projectName,
+    askingPriceLakhs: query.sellerAskingPriceLakhs,
+    verifiedTransactions: query.verifiedTransactions?.map((t) => ({
+      id: t.id,
+      deedId: t.id,
+      date: new Date(t.date),
+      carpetAreaSqFt: t.carpetAreaSqFt,
+      transactedPriceLakhs: t.transactedPriceLakhs,
+      pricePerSqFtCarpet: t.pricePerSqFtCarpet,
+      projectName: t.projectName,
+    })),
+  };
+
+  const projectData: ProjectIntelligenceData | null = matchedProject
+    ? {
+        id: matchedProject.id,
+        name: matchedProject.name,
+        reraNumber: matchedProject.reraRegistrationNumber,
+        developer: matchedProject.developer,
+        publicationStatus: matchedProject.verifiedDataStatus === 'VERIFIED' ? 'PUBLISHED' : 'QUARANTINED',
+        possessionStatus: matchedProject.projectStatus,
+        totalTowers: null,
+        totalUnits: matchedProject.totalUnits,
+        openSpaceRatioPercent: matchedProject.openSpaceRatioPercent,
+      }
+    : null;
+
+  const twelveFactors = evaluateAll12Factors(
+    propertyInput,
+    contextInput,
+    projectData,
+    midpointLakhs
+  );
+
   return {
     estimatedValueRange: { min: minLakhs, max: maxLakhs },
     estimatedMidpointLakhs: midpointLakhs,
@@ -321,6 +388,8 @@ export function calculatePropertyValuation(query: ValuationQuery): ValuationResu
     indicativeRentalRangeMonthly: { min: rentalMin, max: rentalMax },
     indicativeNegotiationRangeLakhs: { min: negotiationMin, max: negotiationMax },
     askingPriceAssessment: askingAssessment,
+    twelveFactorResults: twelveFactors.factors,
+    ownershipCostSummary: twelveFactors.costSummary,
     valuationAssumptions: [
       'Valuation modeled strictly on usable Carpet Area pursuant to Gujarat RERA definitions.',
       'Reflects current unobstructed market transfer values excluding stamp duty, registration & GST.',

@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
             data: {
               status: 'CAPTURED',
               paymentId: paymentId,
-              capturedAt: new Date(),
+              paidAt: new Date(),
             },
           });
           await db.valuationRequest.updateMany({

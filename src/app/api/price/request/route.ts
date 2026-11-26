@@ -67,6 +67,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Locality selection is required.' }, { status: 400 });
     }
 
+    if (propertyType === 'COMMERCIAL') {
+      return NextResponse.json(
+        {
+          success: false,
+          code: 'UNSUPPORTED_ASSET_CLASS',
+          error: 'Commercial property valuation is not supported by the residential valuation engine.',
+        },
+        { status: 422 }
+      );
+    }
+
     const locality = await db.locality.findUnique({ where: { id: localityId } });
     if (!locality || !locality.activeStatus) {
       return NextResponse.json(

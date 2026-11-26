@@ -9,6 +9,14 @@ import {
   ComparableEvidenceType,
   ValuationReportStatus,
 } from '@prisma/client';
+import {
+  evaluateAll12Factors,
+  FactorAnalysisResult,
+  ValuationPropertyInput,
+  ValuationContextInput,
+  OwnershipCostSummary,
+  ProjectIntelligenceData,
+} from './factors';
 
 export interface ComparableAdjustmentLedger {
   carpetAreaDiffPercent: number;
@@ -92,6 +100,32 @@ export interface ValuationEngineResult {
     verdict: 'PREMIUM_ASKING' | 'FAIR_MARKET' | 'VALUE_BUY';
     analysis: string;
   };
+  twelveFactorResults: FactorAnalysisResult[];
+  ownershipCostSummary: OwnershipCostSummary;
+  layeredArchitecture: {
+    layerA_marketBaseline: {
+      baselineRateSqFt: number;
+      compsCount: number;
+      dispersionCoeff: number;
+    };
+    layerB_propertyAdjustments: {
+      netAdjustmentPercent: number;
+    };
+    layerC_locationContext: {
+      locality: string;
+      district: string;
+    };
+    layerD_riskGates: {
+      gateTriggered: boolean;
+      blockingReasons: string[];
+    };
+    layerE_financialContext: OwnershipCostSummary;
+    layerF_confidence: {
+      score: number;
+      level: ValuationConfidenceLevel;
+      rationale: string;
+    };
+  };
   methodologyHighlights: {
     carpetAreaNormalisation: string;
     floorAdjustmentRule: string;
@@ -131,7 +165,7 @@ export async function calculateValuationForRequest(
   }
 
   // 2B. Asset Class Protection: Reject Commercial Properties
-  if (request.propertyType === 'COMMERCIAL') {
+  if ((request.propertyType as string) === 'COMMERCIAL') {
     throw new Error('UNSUPPORTED_ASSET_CLASS: Commercial properties cannot be evaluated using residential valuation engine.');
   }
 
@@ -439,11 +473,106 @@ export async function calculateValuationForRequest(
     };
   }
 
-  // 11. Reference Codes & Report Generation
+  // 11. Run 12-Factor Valuation Intelligence Framework
+  const propertyInput: ValuationPropertyInput = {
+    carpetAreaSqFt: request.carpetAreaSqFt,
+    builtUpAreaSqFt: request.builtUpAreaSqFt,
+    superBuiltUpAreaSqFt: request.superBuiltUpAreaSqFt,
+    bhk: request.bhk,
+    floor: request.floor,
+    totalFloors: request.totalFloors,
+    propertyAgeYears: request.propertyAgeYears,
+    condition: request.condition,
+    furnishingStatus: request.furnishingStatus,
+    parkingSpaces: request.parkingSpaces,
+  };
+
+  const contextInput: ValuationContextInput = {
+    propertyType: request.propertyType,
+    localityId: request.localityId,
+    localitySlug: request.locality.slug,
+    localityName: request.locality.name,
+    district: request.locality.city,
+    address: request.address,
+    pincode: request.pincode,
+    projectId: request.projectId,
+    projectName: request.project?.name,
+    askingPriceLakhs: request.askingPriceLakhs,
+    targetOfferLakhs: request.targetOfferLakhs,
+    verifiedTransactions: eligibleRegistered.map((c) => ({
+      id: c.id,
+      deedId: c.deedOrListingId,
+      date: c.date,
+      carpetAreaSqFt: c.carpetAreaSqFt,
+      transactedPriceLakhs: c.transactedOrAskingPriceLakhs,
+      pricePerSqFtCarpet: c.baselineRateSqFt,
+      projectName: c.projectName,
+    })),
+  };
+
+  const projectData: ProjectIntelligenceData | null = request.project
+    ? {
+        id: request.project.id,
+        name: request.project.name,
+        reraNumber: request.project.reraNumber,
+        developer: request.project.developer,
+        publicationStatus: request.project.publicationStatus,
+        possessionStatus: request.project.possessionStatus,
+        totalTowers: request.project.totalTowers,
+        totalUnits: request.project.totalUnits,
+        openSpaceRatioPercent: request.project.openSpaceRatioPercent,
+      }
+    : null;
+
+  const twelveFactors = evaluateAll12Factors(
+    propertyInput,
+    contextInput,
+    projectData,
+    midpointLakhs
+  );
+
+  if (twelveFactors.riskGateTriggered) {
+    await db.valuationRequest.update({
+      where: { id: requestId },
+      data: {
+        status: 'MANUAL_REVIEW',
+        rejectionReason: `Valuation blocked by risk gate: ${twelveFactors.blockingReasons.join('; ')}`,
+      },
+    });
+
+    throw new Error(`VALUATION_RISK_GATE_BLOCKED: ${twelveFactors.blockingReasons.join('; ')}`);
+  }
+
+  const layeredArchitecture = {
+    layerA_marketBaseline: {
+      baselineRateSqFt: finalRatePerSqFt,
+      compsCount: eligibleRegistered.length,
+      dispersionCoeff,
+    },
+    layerB_propertyAdjustments: {
+      netAdjustmentPercent: twelveFactors.netDirectAdjustmentPercent,
+    },
+    layerC_locationContext: {
+      locality: request.locality.name,
+      district: request.locality.city,
+    },
+    layerD_riskGates: {
+      gateTriggered: twelveFactors.riskGateTriggered,
+      blockingReasons: twelveFactors.blockingReasons,
+    },
+    layerE_financialContext: twelveFactors.costSummary,
+    layerF_confidence: {
+      score: confidenceScore,
+      level: confidenceLevel,
+      rationale: confidenceRationale,
+    },
+  };
+
+  // 12. Reference Codes & Report Generation
   const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
   const reportReference = `PVI-VAL-${new Date().getFullYear()}-${randomSuffix}`;
 
-  // 12. Save Valuation Record to Database
+  // 13. Save Valuation Record to Database
   const valuation = await db.valuation.upsert({
     where: { requestId },
     update: {
@@ -464,7 +593,9 @@ export async function calculateValuationForRequest(
         spreadPercent,
         meanRate,
         weightsUsed: totalWeights,
-      },
+        layeredArchitecture,
+        twelveFactors: twelveFactors.factors,
+      } as any,
     },
     create: {
       requestId,
@@ -484,7 +615,9 @@ export async function calculateValuationForRequest(
         spreadPercent,
         meanRate,
         weightsUsed: totalWeights,
-      },
+        layeredArchitecture,
+        twelveFactors: twelveFactors.factors,
+      } as any,
     },
   });
 
@@ -577,6 +710,9 @@ export async function calculateValuationForRequest(
       registeredTransactions: eligibleRegistered,
       askingListings: matchedListings,
     },
+    twelveFactorResults: twelveFactors.factors,
+    ownershipCostSummary: twelveFactors.costSummary,
+    layeredArchitecture,
     askingPriceAssessment: askingAssessment,
     methodologyHighlights: {
       carpetAreaNormalisation: 'All valuation calculations normalise strictly on verified RERA Carpet Area. Built-up and super built-up loadings are excluded from base rate computation.',

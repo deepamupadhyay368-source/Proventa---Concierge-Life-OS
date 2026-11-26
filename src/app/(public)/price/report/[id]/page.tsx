@@ -106,6 +106,9 @@ export default function ValuationReportViewPage() {
     askingPriceAssessment,
     methodologyHighlights,
     disclaimers,
+    twelveFactorResults,
+    ownershipCostSummary,
+    layeredArchitecture,
   } = reportResult;
 
   return (
@@ -396,12 +399,158 @@ export default function ValuationReportViewPage() {
             </div>
           )}
 
+          {/* 4. 12-Factor Valuation Intelligence Framework Matrix */}
+          {twelveFactorResults && twelveFactorResults.length > 0 && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[#C8C4BA] pb-2">
+                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-[#547568]" />
+                  <span>Section 4 &bull; 12-Factor Valuation Intelligence Framework Matrix</span>
+                </h3>
+                <span className="text-[10px] font-mono text-[#547568] font-bold">
+                  All 12 Institutional Factors Evaluated
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {twelveFactorResults.map((factor, idx) => (
+                  <div
+                    key={factor.factorId || idx}
+                    className="p-4 bg-white border border-[#C8C4BA] space-y-2.5 text-xs font-mono hover:border-[#547568] transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2 border-b border-[#E2DFD8] pb-2">
+                      <div className="space-y-0.5">
+                        <span className="text-[9px] uppercase tracking-wider text-[#69717B] block">
+                          Factor {String(idx + 1).padStart(2, '0')} &bull; {factor.valuationImpactType.replace('_', ' ')}
+                        </span>
+                        <h4 className="font-sans font-bold text-sm text-[#202B3C]">
+                          {factor.factorName}
+                        </h4>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span
+                          className={`inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest ${
+                            factor.assessmentStatus === 'VERIFIED'
+                              ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                              : factor.assessmentStatus === 'PARTIALLY_VERIFIED'
+                              ? 'bg-blue-100 text-blue-800 border border-blue-300'
+                              : factor.assessmentStatus === 'NOT_APPLICABLE'
+                              ? 'bg-slate-100 text-slate-700 border border-slate-300'
+                              : 'bg-amber-100 text-amber-800 border border-amber-300'
+                          }`}
+                        >
+                          {factor.assessmentStatus.replace('_', ' ')}
+                        </span>
+                        {factor.valuationImpact.adjustmentPercent !== undefined && (
+                          <span className="block text-xs font-bold text-[#547568] mt-0.5">
+                            {factor.valuationImpact.adjustmentPercent >= 0 ? '+' : ''}
+                            {factor.valuationImpact.adjustmentPercent.toFixed(2)}%
+                          </span>
+                        )}
+                        {factor.valuationImpact.gateAction && (
+                          <span
+                            className={`block text-[10px] font-bold mt-0.5 ${
+                              factor.valuationImpact.gateAction === 'BLOCK'
+                                ? 'text-red-700'
+                                : factor.valuationImpact.gateAction === 'RESTRICT'
+                                ? 'text-amber-700'
+                                : 'text-emerald-700'
+                            }`}
+                          >
+                            GATE: {factor.valuationImpact.gateAction}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="font-sans text-[11px] text-[#202B3C] leading-relaxed space-y-1">
+                      {factor.findings.map((finding, fIdx) => (
+                        <p key={fIdx}>&bull; {finding}</p>
+                      ))}
+                    </div>
+
+                    {factor.riskFlags.length > 0 && (
+                      <div className="p-2 bg-amber-50 border border-amber-200 text-amber-900 text-[10px] font-sans">
+                        <span className="font-bold font-mono uppercase block">Risk Flags:</span>
+                        {factor.riskFlags.map((risk, rIdx) => (
+                          <p key={rIdx}>&bull; {risk}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="pt-2 border-t border-[#E2DFD8] flex items-center justify-between text-[10px] text-[#69717B]">
+                      <span className="truncate max-w-[200px]" title={factor.sourceReferences.map((s) => s.sourceName).join(', ')}>
+                        Src: {factor.sourceReferences.map((s) => s.sourceName).join(', ') || 'Statutory Benchmarks'}
+                      </span>
+                      <span>Verified: {factor.lastVerifiedAt}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 5. Statutory Acquisition Taxes & Ownership Cost Schedule (Factor 11) */}
+          {ownershipCostSummary && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[#C8C4BA] pb-2">
+                <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] flex items-center gap-2">
+                  <Scale className="w-4 h-4 text-[#547568]" />
+                  <span>Section 5 &bull; Statutory Acquisition Taxes & Ownership Cost Schedule (Factor 11)</span>
+                </h3>
+                <span className="text-[10px] font-mono text-[#69717B]">
+                  Gujarat Revenue Dept / Municipal Act
+                </span>
+              </div>
+
+              <div className="bg-[#F5F3ED] border border-[#C8C4BA] p-5 space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+                  <div className="p-3 bg-white border border-[#C8C4BA]">
+                    <span className="text-[10px] uppercase text-[#69717B] block">Gujarat Stamp Duty (4.9%)</span>
+                    <span className="font-bold text-[#202B3C] text-sm">
+                      ₹{ownershipCostSummary.statutoryCosts.stampDutyRupees.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[9px] text-[#69717B] block mt-0.5">Statutory state duty</span>
+                  </div>
+
+                  <div className="p-3 bg-white border border-[#C8C4BA]">
+                    <span className="text-[10px] uppercase text-[#69717B] block">Registration Fee (1.0%)</span>
+                    <span className="font-bold text-[#202B3C] text-sm">
+                      ₹{ownershipCostSummary.statutoryCosts.registrationFeeRupees.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-[9px] text-[#69717B] block mt-0.5">SRO deed recording</span>
+                  </div>
+
+                  <div className="p-3 bg-white border border-[#C8C4BA]">
+                    <span className="text-[10px] uppercase text-[#69717B] block">AMC Property Tax (Est.)</span>
+                    <span className="font-bold text-[#202B3C] text-sm">
+                      ₹{ownershipCostSummary.annualRecurringCosts.propertyTaxAnnualRupees.toLocaleString('en-IN')}/yr
+                    </span>
+                    <span className="text-[9px] text-[#69717B] block mt-0.5">Municipal annual levy</span>
+                  </div>
+
+                  <div className="p-3 bg-white border border-[#C8C4BA]">
+                    <span className="text-[10px] uppercase text-[#69717B] block">Society Maintenance</span>
+                    <span className="font-bold text-[#547568] text-sm">
+                      ₹{ownershipCostSummary.annualRecurringCosts.societyMaintenanceAnnualRupees.toLocaleString('en-IN')}/yr
+                    </span>
+                    <span className="text-[9px] text-[#69717B] block mt-0.5">Estimated sinking fund</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-white border-l-4 border-l-[#547568] border border-[#C8C4BA] text-xs font-sans text-[#202B3C]">
+                  <strong>Methodological Governance Note:</strong> {ownershipCostSummary.methodologicalDisclaimer}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* 6. Asking Price Assessment (if provided) */}
           {askingPriceAssessment && (
             <div className="space-y-4">
               <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] border-b border-[#C8C4BA] pb-2 flex items-center gap-2">
                 <Percent className="w-4 h-4 text-[#547568]" />
-                <span>Section 4 &bull; Seller Asking Price Assessment</span>
+                <span>Section 6 &bull; Seller Asking Price Assessment</span>
               </h3>
 
               <div className="bg-[#F5F3ED] border border-[#C8C4BA] p-5 space-y-3">
@@ -432,7 +581,7 @@ export default function ValuationReportViewPage() {
           <div className="space-y-4 pt-4 border-t border-[#C8C4BA]">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#547568]" />
-              <span>Section 5 &bull; Methodology Governance & Statutory Disclaimers</span>
+              <span>Section 7 &bull; Methodology Governance & Statutory Disclaimers</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">

@@ -343,7 +343,7 @@ export interface RealEstateProject {
   totalUnits: number;
   openSpaceRatioPercent: number;
   lastVerifiedDate: string;
-  verifiedDataStatus: 'VERIFIED' | 'SOURCE-REPORTED';
+  verifiedDataStatus: 'VERIFIED' | 'SOURCE-REPORTED' | 'QUARANTINED' | 'REJECTED';
 }
 
 export const CANONICAL_PROJECTS: RealEstateProject[] = [

@@ -126,6 +126,8 @@ describe('PROVENTA Phase 5B: Targeted Pre-Deployment Remediation Suite', () => {
               propertyType: 'APARTMENT',
               carpetAreaSqFt: 1100,
               bhk: 3,
+              address: 'Flat 402, Block B, Test Residency, South Bopal',
+              pincode: '380058',
               status: 'PENDING_PAYMENT',
             },
           });
