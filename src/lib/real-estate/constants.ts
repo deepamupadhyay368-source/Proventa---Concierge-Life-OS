@@ -16,7 +16,7 @@ export interface LocalityIntelligence {
   grossRentalYield: number; // Percentage e.g. 3.4%
   historicalGrowth1Yr: number; // Percentage e.g. 8.2%
   historicalGrowth3Yr: number;
-  transactionVolumeQuarter: number;
+  transactionVolumeQuarter: number; // Calibrated quarterly market transaction benchmark
   totalActiveProjects: number;
   reraRegisteredShare: number; // e.g. 96%
   primaryTypology: string;
@@ -25,7 +25,7 @@ export interface LocalityIntelligence {
   connectivityNotes: string;
   topProjects: string[];
   dataFreshness: string;
-  confidenceScore: number; // 0 - 100
+  confidenceScore: number; // Research Calibration Index (0 - 100)
 }
 
 export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
@@ -53,7 +53,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: '15 mins to SG Highway, 35 mins to Ahmedabad International Airport.',
     topProjects: ['Aarohi Elegance', 'Gala Aria', 'Safal Parisar', 'Sun South Park'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 92,
   },
   {
@@ -80,7 +80,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: 'Direct connectivity to Sanand Industrial Corridor and SG Highway.',
     topProjects: ['Goyal Orchid Whitefield', 'Shilp Revanta', 'Samavesh', 'Sun South Winds'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 94,
   },
   {
@@ -107,7 +107,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: '10 mins to Nirma University, 20 mins to Gandhinagar infocity.',
     topProjects: ['Godrej Garden City', 'Shayona Aakash', 'Vandemataram City', 'Silver Pearl'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 91,
   },
   {
@@ -134,7 +134,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: '8 mins to SG Highway commercial district, 25 mins to GIFT City.',
     topProjects: ['Silver Radiance', 'Malabar County', 'The Capital Suites', 'Status Elysium'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 95,
   },
   {
@@ -161,7 +161,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: '5 mins to SG Highway, 20 mins to Kalupur Railway Station.',
     topProjects: ['Shivalik Highstreet', 'Venus Atlantis', 'Aakash Residency'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 96,
   },
   {
@@ -188,7 +188,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: 'Direct gateway to Sindhu Bhavan corporate strip.',
     topProjects: ['Sun Prima', 'Gala Haven', 'The House of Lords', 'Aarya Greens'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 95,
   },
   {
@@ -215,7 +215,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: 'Directly on SG Highway & SBR commercial nexus.',
     topProjects: ['Shivalik Edge', 'Takshashila Air', 'The Sovereign', 'Binori Pristine'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 97,
   },
   {
@@ -242,7 +242,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: 'Immediate connectivity to SG Highway and Makarba.',
     topProjects: ['Safal Profitaire', 'Dev Arc', 'Venus Parkland'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 96,
   },
   {
@@ -269,7 +269,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: 'Seamless north-south transit across the entire metropolitan area.',
     topProjects: ['Titanium Square', 'Mondeal Heights', 'Zircon Heights'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 93,
   },
   {
@@ -296,7 +296,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: '10 mins to GIFT City, 18 mins to Ahmedabad Airport.',
     topProjects: ['Swagat Holiday Greens', 'Pramukh Oasis', 'Radhe Infinity'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 92,
   },
   {
@@ -323,7 +323,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
     ],
     connectivityNotes: '15 mins to Ahmedabad International Airport via SP Ring Road.',
     topProjects: ['Sobha Dream Heights', 'Shivalik Curv', 'Nila Spaces Vida'],
-    dataFreshness: 'Q3 2026 Observed Records',
+    dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 96,
   },
 ];

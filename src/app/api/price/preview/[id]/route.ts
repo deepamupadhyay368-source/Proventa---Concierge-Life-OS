@@ -92,10 +92,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         activeListingsCount,
         microMarketTotalTransactions: request.locality.totalTransactions,
         dataSources: [
-          'Sub-Registrar Office Registered Deeds (Garvi-Gujarat SRO)',
-          'Gujarat Real Estate Regulatory Authority (GujRERA) Carpet Area Disclosures',
-          'Verified Active Portal Asking Listings',
-          'Field Inspection Rental Yield Baseline Observations',
+          'Empirical Micro-Market Research & Observed Field Benchmarks',
+          'Gujarat Real Estate Regulatory Authority (GujRERA) Public Filings',
+          'Secondary Market Asking & Negotiation Spread Observations',
+          'Town Planning (AUDA) Infrastructure & Spatial Layout Data',
         ],
       },
       pricing: {

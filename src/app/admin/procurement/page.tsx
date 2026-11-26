@@ -28,6 +28,11 @@ export default function AdminProcurementControlPage() {
           fetch('/api/procurement/orders?buyerId=all'),
         ]);
 
+        if (resMetrics.status === 401 || resMetrics.status === 403) {
+          window.location.href = '/admin/login?callbackUrl=/admin/procurement';
+          return;
+        }
+
         const jsonMetrics = await resMetrics.json();
         const jsonSuppliers = await resSuppliers.json();
         const jsonRfqs = await resRfqs.json();

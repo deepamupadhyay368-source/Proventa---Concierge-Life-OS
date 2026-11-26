@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Building, MapPin, ArrowUpRight, Plus, ExternalLink } from 'lucide-react';
+import { Building, MapPin, ArrowUpRight, Plus, ExternalLink, AlertCircle } from 'lucide-react';
 
 export default function MyPropertiesPage() {
   const properties = [
@@ -31,6 +31,19 @@ export default function MyPropertiesPage() {
 
   return (
     <div className="space-y-6">
+      {/* Prototype Non-Persistent Banner */}
+      <div className="p-4 bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-3">
+        <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-bold uppercase tracking-wider font-mono text-[11px]">
+            PROTOTYPE INTERFACE — DATA NON-PERSISTENT
+          </p>
+          <p className="text-amber-800 leading-relaxed">
+            Properties and portfolio assets displayed here are stored in temporary browser memory for workflow evaluation. Permanent database storage and encrypted vault synchronization will be activated in upcoming platform phases.
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA] pb-4">
         <div>
           <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">

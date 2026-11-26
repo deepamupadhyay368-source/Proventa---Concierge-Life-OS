@@ -350,24 +350,37 @@ export default function ValuationPreviewPage() {
               <div className="border-b border-[#E2DFD8] pb-3 flex items-center justify-between">
                 <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] flex items-center gap-2">
                   <Database className="w-4 h-4 text-[#547568]" />
-                  <span>Available Evidence Coverage in {coverage.localityName}</span>
+                  <span>Available Calibration Coverage in {coverage.localityName}</span>
                 </h2>
-                <span className="text-[10px] font-mono text-[#547568] font-bold">100% Real Records</span>
+                <span className="text-[10px] font-mono text-[#547568] font-bold">Calibration Benchmark</span>
+              </div>
+
+              {/* Staging Calibration Notice Banner */}
+              <div className="p-3 bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5">
+                <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-mono text-[10px] uppercase font-bold text-amber-900 block">
+                    Calibration Staging Notice &bull; Ahmedabad & Gandhinagar
+                  </span>
+                  <p className="text-[11px] text-amber-800 leading-relaxed">
+                    Automated valuation coverage is currently operating in micro-market calibration staging across South Bopal, Shela, Gota, and Science City. Official Gujarat sub-registrar deed archives are being indexed; records reflect empirical research calibrations.
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-[#F5F3ED] border border-[#C8C4BA]">
                   <span className="text-[10px] font-mono uppercase text-[#69717B] block">
-                    Registered Sale Deeds (Garvi SRO)
+                    Calibrated Benchmark Transactions
                   </span>
                   <div className="flex items-baseline gap-2 mt-1">
                     <span className="font-editorial text-2xl sm:text-3xl font-bold text-[#202B3C]">
                       {coverage.registeredDeedsCount}
                     </span>
-                    <span className="text-[10px] font-mono text-[#547568]">Verified Deeds</span>
+                    <span className="text-[10px] font-mono text-[#547568]">Sample Comps</span>
                   </div>
                   <p className="text-[11px] text-[#69717B] mt-1">
-                    Executed instruments indexed within ±30% carpet area tolerance in this micro-market.
+                    Empirical benchmark records indexed within &plusmn;30% carpet area tolerance in this micro-market.
                   </p>
                 </div>
 
@@ -382,7 +395,7 @@ export default function ValuationPreviewPage() {
                     <span className="text-[10px] font-mono text-[#69717B]">Asking Comps</span>
                   </div>
                   <p className="text-[11px] text-[#69717B] mt-1">
-                    Observed portal listings subjected to statutory empirical negotiation haircuts.
+                    Observed portal listings subjected to empirical negotiation spread haircuts.
                   </p>
                 </div>
               </div>
@@ -472,7 +485,7 @@ export default function ValuationPreviewPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-[#547568] shrink-0" />
-                    <span>Full Registered Deeds Evidence Ledger</span>
+                    <span>Full Calibrated Comps & Benchmark Ledger</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-[#547568] shrink-0" />
@@ -504,7 +517,7 @@ export default function ValuationPreviewPage() {
                 ) : (
                   <>
                     <Lock className="w-4 h-4 text-[#547568]" />
-                    <span>Pay ₹{pricing.priceRupees} & Unlock Report</span>
+                    <span>Unlock Calibration Dossier — ₹{pricing.priceRupees}</span>
                     <ArrowRight className="w-4 h-4 ml-1" />
                   </>
                 )}

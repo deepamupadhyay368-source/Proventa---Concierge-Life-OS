@@ -2,16 +2,57 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { PaymentIntelligenceRepository } from '@/lib/payment-intelligence/repository';
 import { PaymentIntelligenceService } from '@/lib/payment-intelligence/service';
+import { getUserAuthorizedBusinesses } from '@/lib/business/auth-context';
 
 export async function GET(req: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required to list invoices', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
-    const buyerBusinessId = searchParams.get('buyerBusinessId') || undefined;
-    const supplierBusinessId = searchParams.get('supplierBusinessId') || undefined;
+    let buyerBusinessId = searchParams.get('buyerBusinessId') || undefined;
+    let supplierBusinessId = searchParams.get('supplierBusinessId') || undefined;
     const status = searchParams.get('status') || undefined;
     const isDisputed = searchParams.has('isDisputed')
       ? searchParams.get('isDisputed') === 'true'
       : undefined;
+
+    const user = session.user;
+    const userRoles = (user.roles as string[]) || [];
+    const isAdmin = userRoles.some((r: string) => ['SUPER_ADMIN', 'ADMIN', 'FOUNDER', 'FINANCE'].includes(r));
+
+    if (!isAdmin) {
+      const authorized = await getUserAuthorizedBusinesses(user.id);
+      const authorizedIds = new Set([user.id, ...authorized.map((b) => b.id)]);
+
+      if (buyerBusinessId && !authorizedIds.has(buyerBusinessId)) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: You are not authorized to view invoices for this buyer business', code: 'FORBIDDEN' },
+          { status: 403 }
+        );
+      }
+
+      if (supplierBusinessId && !authorizedIds.has(supplierBusinessId)) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: You are not authorized to view invoices for this supplier business', code: 'FORBIDDEN' },
+          { status: 403 }
+        );
+      }
+
+      // If neither is specified, default to user's primary authorized business
+      if (!buyerBusinessId && !supplierBusinessId) {
+        if (authorized.length > 0) {
+          buyerBusinessId = authorized[0].id;
+        } else {
+          buyerBusinessId = user.id;
+        }
+      }
+    }
 
     const invoices = await PaymentIntelligenceRepository.listInvoices({
       buyerBusinessId,

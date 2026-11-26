@@ -176,7 +176,7 @@ export default function ValuationReportViewPage() {
                 Residential Property Valuation Report
               </h1>
               <p className="text-xs text-[#69717B] max-w-xl">
-                Independent empirical market assessment calculated on legal RERA carpet area, registered Sub-Registrar instruments, and hedonic floor/age regression models.
+                Independent empirical market assessment calculated on legal RERA carpet area, micro-market calibration benchmarks, and hedonic floor/age regression models.
               </p>
             </div>
 

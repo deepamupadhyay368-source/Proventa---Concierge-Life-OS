@@ -76,6 +76,24 @@ export async function POST(req: NextRequest) {
           });
         }
 
+        // Handle Real Estate Valuation Payment Isolation
+        if (notes.requestId || notes.valuationRequestId) {
+          const valRequestId = notes.requestId || notes.valuationRequestId;
+          await db.valuationPayment.updateMany({
+            where: { requestId: valRequestId },
+            data: {
+              status: 'CAPTURED',
+              paymentId: paymentId,
+              capturedAt: new Date(),
+            },
+          });
+          await db.valuationRequest.updateMany({
+            where: { id: valRequestId },
+            data: { status: 'COMPLETED' },
+          });
+          return NextResponse.json({ success: true, processed: 'REAL_ESTATE_VALUATION' });
+        }
+
         // Handle Membership Subscription Payment
         if (notes.type === 'MEMBERSHIP_SUBSCRIPTION' || notes.planId) {
           const planName = notes.planName || (notes.planId ? notes.planId.toUpperCase() : 'SELECT');

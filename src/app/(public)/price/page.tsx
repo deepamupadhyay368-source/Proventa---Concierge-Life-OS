@@ -202,7 +202,7 @@ export default function ProventaPricePage() {
             Independent Property Valuation
           </h1>
           <p className="text-sm sm:text-base text-[#69717B] mt-2 max-w-2xl leading-relaxed">
-            Evidence-backed residential market valuation derived from registered Sub-Registrar deeds, GujRERA carpet area filings, and empirical micro-market adjustments.
+            Evidence-backed residential market valuation calibrated on empirical micro-market transaction benchmarks, GujRERA carpet area filings, and deterministic hedonic adjustments.
           </p>
 
           {/* Stepper Progress */}

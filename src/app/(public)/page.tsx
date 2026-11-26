@@ -39,7 +39,7 @@ export default function RealEstateHomePage() {
               </h1>
 
               <p className="text-base sm:text-lg text-[#69717B] max-w-xl leading-relaxed">
-                Independent intelligence for understanding property prices, locations and real estate investments. Grounded strictly in verified RERA filings and observed sub-registrar sales deeds.
+                Independent intelligence for understanding property prices, locations and real estate investments. Grounded strictly in verified RERA filings, town-planning records, and observed micro-market transaction benchmarks.
               </p>
 
               {/* Functional Search Bar */}
@@ -130,10 +130,10 @@ export default function RealEstateHomePage() {
                 <th className="p-3.5 font-bold uppercase tracking-wider">Locality</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider">Zone</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider tabular-nums">Weighted ₹/Sq Ft (Carpet)</th>
-                <th className="p-3.5 font-bold uppercase tracking-wider tabular-nums">Q3 Deeds</th>
+                <th className="p-3.5 font-bold uppercase tracking-wider tabular-nums">Calibrated Volume</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider tabular-nums">Gross Yield</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider tabular-nums">1-Yr Growth</th>
-                <th className="p-3.5 font-bold uppercase tracking-wider">Classification</th>
+                <th className="p-3.5 font-bold uppercase tracking-wider">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E2DFD6] font-mono">
@@ -149,7 +149,7 @@ export default function RealEstateHomePage() {
                     ₹{loc.avgPriceSqFt.toLocaleString('en-IN')}
                   </td>
                   <td className="p-3.5 text-[#69717B] tabular-nums">
-                    {loc.transactionVolumeQuarter} recorded
+                    ~{loc.transactionVolumeQuarter} est.
                   </td>
                   <td className="p-3.5 font-bold text-[#547568] tabular-nums">
                     {loc.grossRentalYield}%
@@ -158,8 +158,8 @@ export default function RealEstateHomePage() {
                     +{loc.historicalGrowth1Yr}%
                   </td>
                   <td className="p-3.5 font-sans">
-                    <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 font-mono text-[10px] font-bold">
-                      VERIFIED
+                    <span className="px-2 py-0.5 bg-stone-100 text-stone-800 border border-stone-300 font-mono text-[10px] font-bold">
+                      CALIBRATED
                     </span>
                   </td>
                 </tr>
@@ -168,8 +168,8 @@ export default function RealEstateHomePage() {
           </table>
         </div>
         <div className="mt-3 flex justify-between items-center text-[10px] font-mono text-[#69717B]">
-          <span>Data Sources: Gujarat Revenue Department Sub-Registrar Indices (Garvi) & AUDA TP Records</span>
-          <span>Observation Period: Q3 2026</span>
+          <span>Data Sources: Empirical Field Research, Secondary Transaction Sampling & AUDA TP Records (SRO Ingestion in Progress)</span>
+          <span>Observation Period: Q3 2026 Calibration</span>
         </div>
       </section>
 

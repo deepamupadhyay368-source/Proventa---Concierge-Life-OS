@@ -10,48 +10,74 @@ import { resolveSupplierContext, getUserAuthorizedBusinesses } from '@/lib/busin
 
 export async function GET(request: Request) {
   try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required to access procurement requirements', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const buyerId = searchParams.get('buyerId');
     const requestedSupplierId = searchParams.get('supplierId');
     const metrics = searchParams.get('metrics');
 
+    const user = session.user;
+    const userRoles = (user.roles as string[]) || [];
+    const isAdmin = userRoles.some((r: string) => ['SUPER_ADMIN', 'ADMIN', 'FOUNDER'].includes(r));
+
     if (metrics === 'true') {
+      if (!isAdmin) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: Administrator privileges required to access platform metrics', code: 'FORBIDDEN' },
+          { status: 403 }
+        );
+      }
       const data = getProcurementMetrics();
       return NextResponse.json({ success: true, data });
     }
 
-    const session = await getSession();
-
     if (requestedSupplierId) {
-      if (session?.user?.id) {
-        const supplierCtx = await resolveSupplierContext({
-          user: session.user,
-          requestedSupplierId,
-        });
+      const supplierCtx = await resolveSupplierContext({
+        user,
+        requestedSupplierId,
+      });
 
-        if (!supplierCtx.isAuthorized) {
-          return NextResponse.json(
-            { success: false, error: 'Forbidden: You are not authorized to view RFQs for this supplier' },
-            { status: 403 }
-          );
-        }
-
-        const rfqs = listSupplierMatchingRfqs(supplierCtx.supplierId);
-        return NextResponse.json({ success: true, data: rfqs });
+      if (!supplierCtx.isAuthorized && !isAdmin) {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: You are not authorized to view RFQs for this supplier', code: 'FORBIDDEN_SUPPLIER_MISMATCH' },
+          { status: 403 }
+        );
       }
 
-      const rfqs = listSupplierMatchingRfqs(requestedSupplierId);
+      const rfqs = listSupplierMatchingRfqs(supplierCtx.supplierId || requestedSupplierId);
       return NextResponse.json({ success: true, data: rfqs });
     }
 
-    // Buyer view
-    let effectiveBuyerId = buyerId || 'all';
-    if (session?.user?.id && !session.user.roles?.some((r: string) => ['SUPER_ADMIN', 'ADMIN'].includes(r))) {
-      effectiveBuyerId = session.user.id;
+    // Buyer view: strictly authorized
+    if (isAdmin) {
+      const rfqs = listBuyerRfqs(buyerId || 'all');
+      return NextResponse.json({ success: true, data: rfqs });
     }
 
-    const rfqs = listBuyerRfqs(effectiveBuyerId);
-    return NextResponse.json({ success: true, data: rfqs });
+    // For non-admin buyers, scope strictly to user ID and their authorized businesses
+    const authorized = await getUserAuthorizedBusinesses(user.id);
+    const userBusinessIds = authorized.map((b) => b.id);
+    const userRfqs = listBuyerRfqs(user.id);
+    const businessRfqs = userBusinessIds.flatMap((bId) => listBuyerRfqs(bId));
+    
+    // Deduplicate by id
+    const seen = new Set<string>();
+    const combined: typeof userRfqs = [];
+    for (const rfq of [...userRfqs, ...businessRfqs]) {
+      if (!seen.has(rfq.id)) {
+        seen.add(rfq.id);
+        combined.push(rfq);
+      }
+    }
+
+    return NextResponse.json({ success: true, data: combined });
   } catch (error) {
     console.error('Error fetching RFQs:', error);
     return NextResponse.json(

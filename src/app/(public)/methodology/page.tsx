@@ -25,8 +25,8 @@ export default function MethodologyPage() {
     },
     {
       num: '05',
-      title: 'Sub-Registrar Transaction Indexing',
-      desc: 'Completed sales deed executions recorded across Gujarat revenue sub-registrar offices provide the empirical backbone of our comp library. We differentiate strictly between "observed registered transaction prices" and "broker asking quotations," filtering out fraudulent stamp evasion outliers and non-arms-length transfers.',
+      title: 'Sub-Registrar Transaction Indexing & Calibration',
+      desc: 'Completed sales deed executions recorded across Gujarat revenue sub-registrar offices are actively being indexed into our micro-market calibration engine. We differentiate strictly between empirical transaction benchmarks and broker asking quotations, filtering out speculative portal listings and non-arms-length transfers as statutory feeds expand.',
     },
     {
       num: '06',

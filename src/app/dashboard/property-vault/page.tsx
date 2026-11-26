@@ -16,7 +16,8 @@ import {
   TrendingUp,
   MapPin,
   CheckCircle2,
-  FolderOpen
+  FolderOpen,
+  AlertCircle
 } from 'lucide-react';
 
 interface VaultDocument {
@@ -235,16 +236,29 @@ export default function PropertyVaultPage() {
 
   return (
     <div className="space-y-8 pb-16">
+      {/* Non-Persistence Warning Banner */}
+      <div className="p-4 bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-3">
+        <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <p className="font-bold uppercase tracking-wider font-mono text-[11px]">
+            PROTOTYPE INTERFACE — DATA NON-PERSISTENT
+          </p>
+          <p className="text-amber-800 leading-relaxed">
+            Properties and documents added in this session are stored temporarily in your local browser session and are not permanently committed to encrypted cloud storage. Backend encrypted vault persistence is under development. Do not upload sensitive confidential documents until production encryption infrastructure is activated.
+          </p>
+        </div>
+      </div>
+
       {/* Page Title & Action Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA] pb-4">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
-              Confidential Digital Locker
+              Personal Property Vault
             </span>
-            <span className="text-[10px] px-2 py-0.5 bg-[#547568]/10 text-[#547568] border border-[#547568]/20 font-bold flex items-center gap-1">
-              <Lock className="h-3 w-3" />
-              <span>AES-256 Encrypted</span>
+            <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-300 font-bold flex items-center gap-1 font-mono">
+              <AlertCircle className="h-3 w-3" />
+              <span>Prototype Session (In-Memory)</span>
             </span>
           </div>
           <h1 className="font-editorial text-2xl md:text-3xl font-normal text-[#202B3C] mt-1">

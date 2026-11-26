@@ -153,7 +153,17 @@ export default function ReportsPage() {
             Independent Market Reports & Research
           </h1>
           <p className="text-base sm:text-lg text-[#69717B] leading-relaxed">
-            Quarterly market digests, micro-market dossiers, and empirical real estate intelligence for Ahmedabad and Gandhinagar. Grounded exclusively in verified RERA filings and observed sub-registrar transaction data.
+            Quarterly market digests, micro-market dossiers, and empirical real estate intelligence for Ahmedabad and Gandhinagar. Grounded in RERA regulatory disclosures, town-planning records, and empirical market sampling.
+          </p>
+        </div>
+
+        {/* Research Calibration Note */}
+        <div className="mt-6 p-4 bg-amber-50 border border-amber-300 text-amber-900 text-xs">
+          <p className="font-bold uppercase tracking-wider font-mono text-[11px]">
+            RESEARCH BENCHMARK NOTE &bull; AHMEDABAD &amp; GANDHINAGAR
+          </p>
+          <p className="text-amber-800 leading-relaxed mt-1">
+            PROVENTA research publications are synthesized from public Gujarat RERA disclosures, town-planning maps, and empirical micro-market transaction sampling. Sub-registrar deed archives are being indexed progressively; figures reflect calibrated empirical research models.
           </p>
         </div>
 

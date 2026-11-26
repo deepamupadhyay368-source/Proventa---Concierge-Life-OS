@@ -60,11 +60,6 @@ const PUBLIC_ROUTES = [
   '/for-suppliers',
   '/supplier/register',
   '/onboarding/business',
-  '/rfq/new',
-  '/buyer/dashboard',
-  '/supplier/dashboard',
-  '/logistics/deliveries',
-  '/admin/procurement',
   '/partner/login',
   '/partner/signup',
   '/partner/dashboard',
@@ -108,14 +103,7 @@ export default auth(async (req) => {
     pathname.startsWith('/api/home') ||
     pathname.startsWith('/partner') ||
     pathname.startsWith('/api/partner') ||
-    pathname.startsWith('/buyer/') ||
-    pathname.startsWith('/supplier/') ||
     pathname.startsWith('/suppliers/') ||
-    pathname.startsWith('/rfq/') ||
-    pathname.startsWith('/api/procurement') ||
-    pathname.startsWith('/api/payment-intelligence') ||
-    pathname.startsWith('/logistics/') ||
-    pathname.startsWith('/admin/procurement') ||
     pathname.startsWith('/business/') ||
     (pathname.startsWith('/business/') && !pathname.startsWith('/business/dashboard')) ||
     pathname.startsWith('/businesses') ||

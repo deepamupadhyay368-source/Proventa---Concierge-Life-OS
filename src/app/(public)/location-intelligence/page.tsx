@@ -129,9 +129,19 @@ function LocationIntelligenceContent() {
               </p>
             </div>
             <div className="px-3 py-1.5 bg-[#F5F3ED] border border-[#C8C4BA] text-[11px] font-mono text-[#202B3C] text-right">
-              <div>Confidence: <strong>{selectedLocality.confidenceScore}%</strong></div>
+              <div>Calibration Coverage: <strong>Active Staging</strong></div>
               <div className="text-[10px] text-[#547568]">{selectedLocality.dataFreshness}</div>
             </div>
+          </div>
+
+          {/* Research Coverage Qualification Notice */}
+          <div className="p-3.5 bg-[#F5F3ED] border-l-4 border-l-[#547568] border border-[#C8C4BA] text-xs text-[#69717B] space-y-1">
+            <span className="font-mono text-[10px] uppercase font-bold text-[#202B3C] block">
+              Micro-Market Calibration Coverage &bull; Ahmedabad & Gandhinagar
+            </span>
+            <p className="leading-relaxed">
+              Initial research coverage established across South Bopal, Shela, Gota, and Science City micro-markets. Transaction density and volume figures reflect calibrated empirical research models. Official Gujarat revenue sub-registrar deed archive indexation is currently in progress.
+            </p>
           </div>
 
           {/* Key Metric Tiles */}
@@ -170,12 +180,12 @@ function LocationIntelligenceContent() {
 
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                Q3 2026 Volume
+                Calibrated Volume
               </span>
               <div className="text-xl font-bold text-[#202B3C] mt-1 tabular-nums">
-                {selectedLocality.transactionVolumeQuarter}
+                ~{selectedLocality.transactionVolumeQuarter}
               </div>
-              <span className="text-[10px] text-[#69717B]">Recorded sub-registrar deeds</span>
+              <span className="text-[10px] text-[#69717B]">Estimated market turnover</span>
             </div>
           </div>
 
