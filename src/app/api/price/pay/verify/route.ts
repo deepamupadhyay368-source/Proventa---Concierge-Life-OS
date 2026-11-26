@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { calculateValuationForRequest } from '@/lib/valuation/engine';
+import { generateReportAccessToken } from '@/lib/valuation/report-token';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -32,61 +33,141 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Valuation request not found.' }, { status: 404 });
     }
 
-    // 1. Idempotency Check: if already completed and report ready, return immediately
+    // 1. Idempotency Check: if already completed and report ready, return immediately with signed access token
     if (request.status === 'COMPLETED' && request.report?.status === 'READY') {
+      const accessToken = generateReportAccessToken(request.id, request.userId);
       return NextResponse.json({
         success: true,
-        reportUrl: `/price/report/${request.id}`,
+        reportUrl: `/price/report/${request.id}?token=${accessToken}`,
+        accessToken,
         reportReference: request.report.reportReference,
         alreadyProcessed: true,
       });
     }
 
+    const isProduction = process.env.NODE_ENV === 'production';
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     const hasLiveKeys = Boolean(keySecret && !keySecret.includes('dev_key'));
 
-    // 2. Server-side Payment Verification
-    if (hasLiveKeys && !isSimulation) {
+    // 2. Strict Security Controls against Simulation Bypass (SEC-01)
+    // Production categorically rejects client simulation mode.
+    if (isProduction && isSimulation) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'SECURITY_VIOLATION: Payment simulation is strictly prohibited in production.',
+        },
+        { status: 403 }
+      );
+    }
+
+    // Determine if simulation is permitted under server-controlled configuration
+    const isSimulationPermitted =
+      !isProduction &&
+      (process.env.ALLOW_PAYMENT_SIMULATION === 'true' ||
+        process.env.NODE_ENV === 'test' ||
+        !hasLiveKeys);
+
+    if (isSimulation && !isSimulationPermitted) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'UNAUTHORIZED: Payment simulation is not permitted on this environment.',
+        },
+        { status: 403 }
+      );
+    }
+
+    const runSimulation = isSimulation && isSimulationPermitted;
+
+    // 3. Cryptographic Payment Signature Verification
+    if (!runSimulation) {
+      // In live verification mode (always required in production):
+      if (isProduction && !keySecret) {
+        console.error('[Payment Verification] RAZORPAY_KEY_SECRET is not configured in production.');
+        return NextResponse.json(
+          { success: false, error: 'Payment gateway configuration error.' },
+          { status: 500 }
+        );
+      }
+
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return NextResponse.json(
-          { success: false, error: 'Missing Razorpay verification parameters.' },
+          {
+            success: false,
+            error: 'Missing required payment verification parameters (order_id, payment_id, signature).',
+          },
           { status: 400 }
         );
       }
 
-      // Compute expected signature: hmac_sha256(order_id + "|" + payment_id, secret)
+      // Verify order ID consistency: payment must match the order stored on the request
+      if (request.payment?.orderId && request.payment.orderId !== razorpay_order_id) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Order ID mismatch: The submitted payment does not match the generated order for this valuation.',
+          },
+          { status: 400 }
+        );
+      }
+
+      // Compute expected HMAC-SHA256 signature
+      const secretToUse = keySecret || 'dev_secret_fallback';
       const expectedSignature = crypto
-        .createHmac('sha256', keySecret!)
+        .createHmac('sha256', secretToUse)
         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
         .digest('hex');
 
-      if (expectedSignature !== razorpay_signature) {
-        // Mark payment as FAILED
+      const sigBuffer = Buffer.from(razorpay_signature);
+      const expBuffer = Buffer.from(expectedSignature);
+
+      const isValidSignature =
+        sigBuffer.length === expBuffer.length &&
+        crypto.timingSafeEqual(sigBuffer, expBuffer);
+
+      if (!isValidSignature) {
+        // Record payment failure in audit trail
         if (request.payment) {
           await db.valuationPayment.update({
             where: { id: request.payment.id },
             data: { status: 'FAILED' },
           });
         }
+
         return NextResponse.json(
-          { success: false, error: 'Invalid payment signature. Payment verification rejected.' },
+          {
+            success: false,
+            error: 'Invalid payment signature: Cryptographic verification failed.',
+          },
           { status: 400 }
         );
       }
     } else {
-      // Sandbox / Simulation Verification Protocol
-      // Must match stored orderId
-      if (request.payment?.orderId && razorpay_order_id && request.payment.orderId !== razorpay_order_id) {
+      // Permitted Simulation Mode (Non-production only):
+      // Still enforce order matching if order ID was supplied
+      if (
+        request.payment?.orderId &&
+        razorpay_order_id &&
+        request.payment.orderId !== razorpay_order_id
+      ) {
         return NextResponse.json(
-          { success: false, error: 'Order ID mismatch during payment verification.' },
+          {
+            success: false,
+            error: 'Order ID mismatch during simulated payment verification.',
+          },
           { status: 400 }
         );
       }
     }
 
-    // 3. Mark ValuationPayment as CAPTURED
-    const paymentId = razorpay_payment_id || `pay_sim_${crypto.randomBytes(8).toString('hex')}`;
-    const signature = razorpay_signature || `sig_sim_${crypto.randomBytes(16).toString('hex')}`;
+    // 4. Mark ValuationPayment as CAPTURED
+    const paymentId =
+      razorpay_payment_id ||
+      `pay_sim_${crypto.randomBytes(8).toString('hex')}`;
+    const signature =
+      razorpay_signature ||
+      `sig_sim_${crypto.randomBytes(16).toString('hex')}`;
 
     if (request.payment) {
       await db.valuationPayment.update({
@@ -100,21 +181,24 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // 4. Mark ValuationRequest as PAID
+    // 5. Mark ValuationRequest as PAID
     await db.valuationRequest.update({
       where: { id: request.id },
       data: { status: 'PAID' },
     });
 
-    // 5. Trigger Valuation Calculation Engine Asynchronously
-    // The engine automatically generates comps, adjustments, confidence score, Valuation, and ValuationReport
+    // 6. Execute Valuation Engine
     const valuationResult = await calculateValuationForRequest(request.id, {
       bypassPaymentCheck: false,
     });
 
+    // 7. Issue Cryptographically Signed Access Token for Report Access (SEC-02)
+    const accessToken = generateReportAccessToken(request.id, request.userId);
+
     return NextResponse.json({
       success: true,
-      reportUrl: `/price/report/${request.id}`,
+      reportUrl: `/price/report/${request.id}?token=${accessToken}`,
+      accessToken,
       reportReference: valuationResult.reportReference,
       estimatedMidpointLakhs: valuationResult.valuation.estimatedMidpointLakhs,
       calculatedAt: valuationResult.valuation.calculatedAt,

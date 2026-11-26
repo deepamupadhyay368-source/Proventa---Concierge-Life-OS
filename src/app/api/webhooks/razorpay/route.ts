@@ -31,11 +31,9 @@ export async function POST(req: NextRequest) {
     const sigBuffer = signature ? Buffer.from(signature) : null;
     const expBuffer = Buffer.from(expectedSignature);
 
-    const isValidSignature =
-      process.env.NODE_ENV !== 'production' ||
-      (sigBuffer &&
-        sigBuffer.length === expBuffer.length &&
-        crypto.timingSafeEqual(sigBuffer, expBuffer));
+    const isValidSignature = sigBuffer
+      ? sigBuffer.length === expBuffer.length && crypto.timingSafeEqual(sigBuffer, expBuffer)
+      : process.env.NODE_ENV !== 'production';
 
     if (!isValidSignature) {
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });

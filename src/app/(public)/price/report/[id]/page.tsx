@@ -38,11 +38,21 @@ export default function ValuationReportViewPage() {
   useEffect(() => {
     async function loadReport() {
       try {
-        const res = await fetch(`/api/price/report/${requestId}`);
+        const search = typeof window !== 'undefined' ? window.location.search : '';
+        const res = await fetch(`/api/price/report/${requestId}${search}`);
         const json = await res.json();
 
+        if (res.status === 401) {
+          setErrorMsg(json.error || 'Authentication or a valid access token is required to view this valuation dossier.');
+          return;
+        }
+
         if (res.status === 403) {
-          router.replace(json.redirectUrl || `/price/preview/${requestId}`);
+          if (json.redirectUrl) {
+            router.replace(json.redirectUrl);
+            return;
+          }
+          setErrorMsg(json.error || 'Access denied.');
           return;
         }
 
