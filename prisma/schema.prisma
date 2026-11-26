@@ -3169,9 +3169,51 @@ enum DataSourceType {
 }
 
 enum EvidenceVerificationStatus {
+  PENDING_VERIFICATION
   VERIFIED
   PROVISIONAL
   DISPUTED
+  REJECTED
+  FLAGGED
+  DUPLICATE
+}
+
+enum ValuationEligibilityStatus {
+  INSUFFICIENT_DATA
+  PRELIMINARY_CALIBRATION
+  VERIFIED_VALUATION_ELIGIBLE
+  RESTRICTED
+}
+
+enum SourceDocumentType {
+  DEED_INDEX2_COPY
+  RERA_APPROVAL_CERTIFICATE
+  JANTRI_GAZETTE_NOTIFICATION
+  BROKER_PRICE_SHEET
+  TP_LAYOUT_MAP
+  SITE_PHOTOGRAPH
+  TAX_ASSESSMENT_NOTICE
+  OTHER
+}
+
+enum EvidenceEntityType {
+  TRANSACTION
+  ASKING_LISTING
+  JANTRI
+  PROJECT
+  LOCALITY
+  DEVELOPER
+}
+
+enum EvidenceAuditAction {
+  IMPORT
+  CREATE
+  UPDATE
+  VERIFY
+  REJECT
+  FLAG
+  CORRECT
+  EXPORT
 }
 
 enum ComparableEvidenceType {
@@ -3201,70 +3243,111 @@ enum ValuationRefundStatus {
   REJECTED
 }
 
-model Locality {
-  id                 String                @id @default(cuid())
-  slug               String                @unique
-  name               String
-  city               String                @default("Ahmedabad")
-  state              String                @default("Gujarat")
-  zone               String?
-  pincode            String
-  activeStatus       Boolean               @default(true)
-  valuationReady     Boolean               @default(false)
-  avgPriceSqFt       Float?
-  priceRangeMinSqFt  Float?
-  priceRangeMaxSqFt  Float?
-  grossRentalYield   Float?
-  jantriRateSqFt     Float?
-  coverageLevel      String                @default("CORE_COVERAGE")
-  totalTransactions  Int                   @default(0)
-  totalProjects      Int                   @default(0)
-  description        String?
-  createdAt          DateTime              @default(now())
-  updatedAt          DateTime              @updatedAt
+model Developer {
+  id                     String                     @id @default(cuid())
+  slug                   String                     @unique
+  name                   String
+  legalEntityName        String?
+  brandName              String?
+  reraPromoterId         String?
+  website                String?
+  corporateOfficeCity    String?                    @default("Ahmedabad")
+  establishedYear        Int?
+  totalCompletedProjects Int                        @default(0)
+  totalOngoingProjects   Int                        @default(0)
+  verificationStatus     EvidenceVerificationStatus @default(VERIFIED)
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
 
-  projects           Project[]
-  properties         Property[]
-  transactions       PropertyTransaction[]
-  listings           PropertyListing[]
-  rentalObservations RentalObservation[]
-  valuationRequests  ValuationRequest[]
+  projects               Project[]
+
+  @@index([slug])
+  @@index([name])
+}
+
+model Locality {
+  id                   String                     @id @default(cuid())
+  slug                 String                     @unique
+  name                 String
+  city                 String                     @default("Ahmedabad")
+  state                String                     @default("Gujarat")
+  zone                 String?
+  pincode              String
+  activeStatus         Boolean                    @default(true)
+  valuationReady       Boolean                    @default(false)
+  valuationEligibility ValuationEligibilityStatus @default(INSUFFICIENT_DATA)
+  evidenceScore        Float?
+  avgPriceSqFt         Float?
+  priceRangeMinSqFt    Float?
+  priceRangeMaxSqFt    Float?
+  grossRentalYield     Float?
+  jantriRateSqFt       Float?
+  coverageLevel        String                     @default("CORE_COVERAGE")
+  totalTransactions    Int                        @default(0)
+  totalProjects        Int                        @default(0)
+  description          String?
+  parentLocalityId     String?
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+
+  parentLocality       Locality?                  @relation("SubLocalities", fields: [parentLocalityId], references: [id])
+  subLocalities        Locality[]                 @relation("SubLocalities")
+  projects             Project[]
+  properties           Property[]
+  transactions         PropertyTransaction[]
+  listings             PropertyListing[]
+  rentalObservations   RentalObservation[]
+  jantriBenchmarks     JantriBenchmark[]
+  sourceDocuments      SourceDocument[]
+  coverageAudits       DataCoverageAudit[]
+  valuationRequests    ValuationRequest[]
 
   @@index([slug])
   @@index([city, activeStatus])
   @@index([valuationReady])
+  @@index([valuationEligibility])
 }
 
 model Project {
-  id                 String                @id @default(cuid())
-  slug               String                @unique
-  name               String
-  developer          String?
-  localityId         String
-  reraNumber         String?
-  completionYear     Int?
-  buildingType       String?
-  totalTowers        Int?
-  totalUnits         Int?
-  carpetAreaRangeMin Float?
-  carpetAreaRangeMax Float?
-  priceRangeMinLakhs Float?
-  priceRangeMaxLakhs Float?
-  possessionStatus   String?
-  latitude           Float?
-  longitude          Float?
-  createdAt          DateTime              @default(now())
-  updatedAt          DateTime              @updatedAt
+  id                   String                     @id @default(cuid())
+  slug                 String                     @unique
+  name                 String
+  developer            String?
+  developerId          String?
+  localityId           String
+  reraNumber           String?
+  gujreraId            String?
+  reraApprovalDate     DateTime?
+  completionYear       Int?
+  buildingType         String?
+  totalTowers          Int?
+  totalUnits           Int?
+  carpetAreaRangeMin   Float?
+  carpetAreaRangeMax   Float?
+  priceRangeMinLakhs   Float?
+  priceRangeMaxLakhs   Float?
+  possessionStatus     String?
+  valuationEligibility ValuationEligibilityStatus @default(INSUFFICIENT_DATA)
+  latitude             Float?
+  longitude            Float?
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
 
-  locality           Locality              @relation(fields: [localityId], references: [id], onDelete: Cascade)
-  properties         Property[]
-  transactions       PropertyTransaction[]
-  listings           PropertyListing[]
-  valuationRequests  ValuationRequest[]
+  developerRelation    Developer?                 @relation(fields: [developerId], references: [id], onDelete: SetNull)
+  locality             Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  properties           Property[]
+  transactions         PropertyTransaction[]
+  listings             PropertyListing[]
+  jantriBenchmarks     JantriBenchmark[]
+  sourceDocuments      SourceDocument[]
+  coverageAudits       DataCoverageAudit[]
+  valuationRequests    ValuationRequest[]
 
   @@index([localityId])
+  @@index([developerId])
   @@index([slug])
   @@index([reraNumber])
+  @@index([valuationEligibility])
 }
 
 model Property {
@@ -3295,6 +3378,7 @@ model Property {
   locality             Locality              @relation(fields: [localityId], references: [id], onDelete: Cascade)
   project              Project?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
   transactions         PropertyTransaction[]
+  jantriBenchmarks     JantriBenchmark[]
 
   @@index([localityId])
   @@index([projectId])
@@ -3316,15 +3400,51 @@ model DataSource {
   transactions         PropertyTransaction[]
   listings             PropertyListing[]
   rentalObservations   RentalObservation[]
+  jantriBenchmarks     JantriBenchmark[]
+  sourceDocuments      SourceDocument[]
 
   @@index([code])
   @@index([sourceType])
+}
+
+model SourceDocument {
+  id                 String                     @id @default(cuid())
+  title              String
+  documentType       SourceDocumentType         @default(OTHER)
+  fileUrl            String
+  fileName           String
+  fileSize           String?
+  mimeType           String?
+  checksumSha256     String?
+  sourceId           String
+  localityId         String?
+  projectId          String?
+  verifiedStatus     EvidenceVerificationStatus @default(PENDING_VERIFICATION)
+  uploadedByUserId   String?
+  verifiedByUserId   String?
+  verifiedAt         DateTime?
+  remarks            String?
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  source             DataSource                 @relation(fields: [sourceId], references: [id])
+  locality           Locality?                  @relation(fields: [localityId], references: [id], onDelete: SetNull)
+  project            Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  transactions       PropertyTransaction[]
+  listings           PropertyListing[]
+  jantriBenchmarks   JantriBenchmark[]
+
+  @@index([sourceId])
+  @@index([localityId])
+  @@index([projectId])
+  @@index([documentType])
 }
 
 model PropertyTransaction {
   id                   String                     @id @default(cuid())
   deedId               String?
   registrationDate     DateTime
+  collectionDate       DateTime                   @default(now())
   localityId           String
   projectId            String?
   propertyId           String?
@@ -3335,12 +3455,22 @@ model PropertyTransaction {
   floor                Int?
   totalFloors          Int?
   transactedPriceLakhs Float
+  totalPriceRupees     Float                      @default(0)
   pricePerSqFtCarpet   Float
+  derivedRateSqFt      Float                      @default(0)
+  areaUnit             String                     @default("SQ_FT")
+  sourceReference      String?
   subRegistrarOffice   String?
   jantriRateLakhs      Float?
   sourceId             String
-  verificationStatus   EvidenceVerificationStatus @default(VERIFIED)
+  sourceDocumentId     String?
+  verificationStatus   EvidenceVerificationStatus @default(PENDING_VERIFICATION)
   confidenceScore      Float                      @default(1.0)
+  reviewedByUserId     String?
+  reviewedAt           DateTime?
+  rejectionReason      String?
+  flagReason           String?
+  duplicateOfId        String?
   remarks              String?
   createdAt            DateTime                   @default(now())
   updatedAt            DateTime                   @updatedAt
@@ -3349,6 +3479,10 @@ model PropertyTransaction {
   project              Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
   property             Property?                  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   source               DataSource                 @relation(fields: [sourceId], references: [id])
+  sourceDocument       SourceDocument?            @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  duplicateOf          PropertyTransaction?       @relation("TransactionDuplicates", fields: [duplicateOfId], references: [id], onDelete: SetNull)
+  duplicates           PropertyTransaction[]      @relation("TransactionDuplicates")
+  auditLogs            EvidenceAuditLog[]
   evidenceMatches      ValuationEvidence[]
   comparableMatches    ComparableMatch[]
 
@@ -3356,36 +3490,153 @@ model PropertyTransaction {
   @@index([projectId])
   @@index([registrationDate])
   @@index([carpetAreaSqFt])
+  @@index([verificationStatus])
+  @@index([duplicateOfId])
 }
 
 model PropertyListing {
-  id                 String                     @id @default(cuid())
-  listingDate        DateTime
-  sourceUrl          String?
-  localityId         String
-  projectId          String?
-  propertyType       RealEstateType             @default(APARTMENT)
-  bhk                Float
-  carpetAreaSqFt     Float
-  askingPriceLakhs   Float
-  pricePerSqFtCarpet Float
-  floor              Int?
-  totalFloors        Int?
-  sourceId           String
-  verificationStatus EvidenceVerificationStatus @default(PROVISIONAL)
-  listingStatus      String                     @default("ACTIVE")
-  createdAt          DateTime                   @default(now())
-  updatedAt          DateTime                   @updatedAt
+  id                        String                     @id @default(cuid())
+  listingDate               DateTime
+  collectionDate            DateTime                   @default(now())
+  sourceUrl                 String?
+  sourceReference           String?
+  localityId                String
+  projectId                 String?
+  propertyType              RealEstateType             @default(APARTMENT)
+  bhk                       Float
+  carpetAreaSqFt            Float
+  askingPriceLakhs          Float
+  totalPriceRupees          Float                      @default(0)
+  pricePerSqFtCarpet        Float
+  derivedRateSqFt           Float                      @default(0)
+  areaUnit                  String                     @default("SQ_FT")
+  sellerType                String?                    @default("OWNER")
+  negotiationSpreadEstimate Float?
+  floor                     Int?
+  totalFloors               Int?
+  sourceId                  String
+  sourceDocumentId          String?
+  verificationStatus        EvidenceVerificationStatus @default(PENDING_VERIFICATION)
+  listingStatus             String                     @default("ACTIVE")
+  reviewedByUserId          String?
+  reviewedAt                DateTime?
+  rejectionReason           String?
+  flagReason                String?
+  duplicateOfId             String?
+  createdAt                 DateTime                   @default(now())
+  updatedAt                 DateTime                   @updatedAt
 
-  locality           Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
-  project            Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  source             DataSource                 @relation(fields: [sourceId], references: [id])
-  evidenceMatches    ValuationEvidence[]
-  comparableMatches  ComparableMatch[]
+  locality                  Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  project                   Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  source                    DataSource                 @relation(fields: [sourceId], references: [id])
+  sourceDocument            SourceDocument?            @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  duplicateOf               PropertyListing?           @relation("ListingDuplicates", fields: [duplicateOfId], references: [id], onDelete: SetNull)
+  duplicates                PropertyListing[]          @relation("ListingDuplicates")
+  auditLogs                 EvidenceAuditLog[]
+  evidenceMatches           ValuationEvidence[]
+  comparableMatches         ComparableMatch[]
 
   @@index([localityId])
   @@index([projectId])
   @@index([listingDate])
+  @@index([verificationStatus])
+  @@index([duplicateOfId])
+}
+
+model JantriBenchmark {
+  id                           String                     @id @default(cuid())
+  jantriEdition                String                     @default("2024_25")
+  effectiveDate                DateTime
+  expiryDate                   DateTime?
+  localityId                   String
+  projectId                    String?
+  propertyId                   String?
+  tpSchemeNo                   String?
+  finalPlotNo                  String?
+  surveyNumber                 String?
+  subDistrict                  String?                    @default("Ahmedabad")
+  villageName                  String?
+  residentialLandRateSqMeter   Float?
+  residentialApartmentRateSqFt Float
+  commercialShopRateSqFt       Float?
+  commercialOfficeRateSqFt     Float?
+  industrialRateSqFt           Float?
+  sourceId                     String
+  sourceDocumentId             String?
+  sourceReference              String?
+  verificationStatus           EvidenceVerificationStatus @default(VERIFIED)
+  reviewedByUserId             String?
+  reviewedAt                   DateTime?
+  remarks                      String?
+  createdAt                    DateTime                   @default(now())
+  updatedAt                    DateTime                   @updatedAt
+
+  locality                     Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  project                      Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  property                     Property?                  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  source                       DataSource                 @relation(fields: [sourceId], references: [id])
+  sourceDocument               SourceDocument?            @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+  auditLogs                    EvidenceAuditLog[]
+
+  @@index([localityId, jantriEdition])
+  @@index([tpSchemeNo, finalPlotNo])
+  @@index([verificationStatus])
+}
+
+model EvidenceAuditLog {
+  id                String               @id @default(cuid())
+  entityType        EvidenceEntityType
+  entityId          String
+  action            EvidenceAuditAction
+  previousStateJson Json?
+  newStateJson      Json?
+  changeSummary     String?
+  reason            String?
+  performedByUserId String
+  performedByEmail  String?
+  ipAddress         String?
+  createdAt         DateTime             @default(now())
+
+  transactionId     String?
+  transaction       PropertyTransaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  listingId         String?
+  listing           PropertyListing?     @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  jantriId          String?
+  jantri            JantriBenchmark?     @relation(fields: [jantriId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([performedByUserId])
+  @@index([createdAt])
+}
+
+model DataCoverageAudit {
+  id                            String                     @id @default(cuid())
+  localityId                    String
+  projectId                     String?
+  assessmentDate                DateTime                   @default(now())
+  totalRecordsCount             Int                        @default(0)
+  verifiedTransactionsCount     Int                        @default(0)
+  pendingTransactionsCount      Int                        @default(0)
+  verifiedListingsCount         Int                        @default(0)
+  pendingListingsCount          Int                        @default(0)
+  verifiedJantriBenchmarksCount Int                        @default(0)
+  sourceQualityScore            Float                      @default(0.0)
+  earliestEvidenceDate          DateTime?
+  latestEvidenceDate            DateTime?
+  evidenceGaps                  Json
+  valuationEligibility          ValuationEligibilityStatus @default(INSUFFICIENT_DATA)
+  eligibilityReason             String
+  assessedByUserId              String?
+  createdAt                     DateTime                   @default(now())
+
+  locality                      Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  project                       Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([localityId])
+  @@index([projectId])
+  @@index([valuationEligibility])
+  @@index([assessmentDate])
 }
 
 model RentalObservation {

@@ -7,7 +7,7 @@ node_modules/
 .pnp.js
 
 # Testing
-coverage/
+/coverage/
 playwright-report/
 test-results/
 
