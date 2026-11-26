@@ -234,7 +234,7 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
       const res = await verifyPaymentHandler(req);
       expect(res.status).toBe(400);
       expect(updateSpy).toHaveBeenCalledWith({
-        where: { id: 'pay-01', status: { not: 'CAPTURED' } },
+        where: { id: 'pay-01', status: { in: ['PENDING', 'INITIATED'] } },
         data: { status: 'FAILED' },
       });
     });
@@ -270,9 +270,9 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toContain('Invalid payment signature');
-      // Verify atomic update was attempted with status: { not: 'CAPTURED' } which returns count 0
+      // Verify atomic update was attempted with status: { in: ['PENDING', 'INITIATED'] } which returns count 0
       expect(updateSpy).toHaveBeenCalledWith({
-        where: { id: 'pay-01', status: { not: 'CAPTURED' } },
+        where: { id: 'pay-01', status: { in: ['PENDING', 'INITIATED'] } },
         data: { status: 'FAILED' },
       });
     });
@@ -463,13 +463,16 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
       expect(json.reportGenerated).toBe(true);
       expect(paymentUpdateSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: { requestId: mockRequestId },
+          where: expect.objectContaining({ requestId: mockRequestId }),
           data: expect.objectContaining({ status: 'CAPTURED', paymentId: mockPaymentId }),
         })
       );
-      expect(calculateValuationForRequest).toHaveBeenCalledWith(mockRequestId, {
-        bypassPaymentCheck: false,
-      });
+      expect(calculateValuationForRequest).toHaveBeenCalledWith(
+        mockRequestId,
+        expect.objectContaining({
+          bypassPaymentCheck: false,
+        })
+      );
     });
 
     it('idempotently skips valuation calculation if report is ALREADY generated and READY', async () => {

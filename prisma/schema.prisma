@@ -3959,6 +3959,7 @@ model ValuationRequest {
   contactPhone         String?
   notes                String?
   rejectionReason      String?
+  processingLockToken  String?
   createdAt            DateTime               @default(now())
   updatedAt            DateTime               @updatedAt
 
@@ -3973,6 +3974,7 @@ model ValuationRequest {
   @@index([status])
   @@index([referenceNo])
   @@index([localityId])
+  @@index([processingLockToken])
 }
 
 model ValuationMethodologyVersion {
@@ -4107,7 +4109,7 @@ model ValuationRefund {
   amountPaise     Int
   reason          String
   status          ValuationRefundStatus @default(INITIATED)
-  refundReference String?
+  refundReference String?               @unique
   processedBy     String?
   processedAt     DateTime?
   createdAt       DateTime              @default(now())

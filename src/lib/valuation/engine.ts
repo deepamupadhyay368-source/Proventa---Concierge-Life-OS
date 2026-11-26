@@ -141,7 +141,7 @@ export interface ValuationEngineResult {
  */
 export async function calculateValuationForRequest(
   requestId: string,
-  options: { bypassPaymentCheck?: boolean } = {}
+  options: { bypassPaymentCheck?: boolean; lockToken?: string } = {}
 ): Promise<ValuationEngineResult> {
   // 1. Fetch Request with Locality and Project
   const request = await db.valuationRequest.findUnique({
@@ -728,30 +728,51 @@ export async function calculateValuationForRequest(
     ],
   };
 
-  // 13. Create or Update ValuationReport
-  await db.valuationReport.upsert({
-    where: { requestId },
-    update: {
-      valuationId: valuation.id,
-      reportReference,
-      status: 'READY',
-      reportDataJson: resultPayload as any,
-      generatedAt: new Date(),
-    },
-    create: {
-      requestId,
-      valuationId: valuation.id,
-      reportReference,
-      status: 'READY',
-      reportDataJson: resultPayload as any,
-      generatedAt: new Date(),
-    },
-  });
+  // 13. Create or Update ValuationReport & 14. Mark Request as COMPLETED atomically
+  // Finding 06 (Phase 6.8.3): Distributed lease fencing token validation at write boundary
+  await db.$transaction(async (tx) => {
+    if (options.lockToken) {
+      const lockCheck = await tx.valuationRequest.updateMany({
+        where: {
+          id: requestId,
+          processingLockToken: options.lockToken,
+        },
+        data: {
+          status: 'COMPLETED',
+          processingLockToken: null,
+        },
+      });
 
-  // 14. Mark Request as COMPLETED
-  await db.valuationRequest.update({
-    where: { id: requestId },
-    data: { status: 'COMPLETED' },
+      if (lockCheck.count === 0) {
+        throw new Error(
+          `STALE_PROCESSING_LEASE: Failed to commit completion; lock token was revoked, expired or stolen for request: ${requestId}`
+        );
+      }
+    } else {
+      await tx.valuationRequest.update({
+        where: { id: requestId },
+        data: { status: 'COMPLETED' },
+      });
+    }
+
+    await tx.valuationReport.upsert({
+      where: { requestId },
+      update: {
+        valuationId: valuation.id,
+        reportReference,
+        status: 'READY',
+        reportDataJson: resultPayload as any,
+        generatedAt: new Date(),
+      },
+      create: {
+        requestId,
+        valuationId: valuation.id,
+        reportReference,
+        status: 'READY',
+        reportDataJson: resultPayload as any,
+        generatedAt: new Date(),
+      },
+    });
   });
 
   return resultPayload;

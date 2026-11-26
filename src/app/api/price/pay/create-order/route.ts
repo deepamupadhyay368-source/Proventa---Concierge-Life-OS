@@ -27,13 +27,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Valuation request not found.' }, { status: 404 });
     }
 
-    // 1. If already paid, return immediately
-    if (request.payment?.status === 'CAPTURED' || request.status === 'COMPLETED') {
+    // 1. Check current payment entitlement (Finding 08)
+    // Only a currently entitled CAPTURED payment returns alreadyPaid: true
+    if (request.payment?.status === 'CAPTURED') {
       return NextResponse.json({
         success: true,
         alreadyPaid: true,
         reportUrl: `/price/report/${request.id}`,
       });
+    }
+
+    // 1B. If previously refunded, this dossier is closed to preserve audit integrity (Finding 08)
+    if (request.payment?.status === 'REFUNDED') {
+      return NextResponse.json(
+        {
+          success: false,
+          code: 'PAYMENT_REFUNDED_REQUEST_CLOSED',
+          error:
+            'This valuation request was previously refunded and closed. To order a new valuation report for this property with fresh market evidence, please initiate a new valuation request.',
+          canReorderWithNewRequest: true,
+        },
+        { status: 409 }
+      );
     }
 
     // 1B. Institutional Evidence Eligibility Gate:

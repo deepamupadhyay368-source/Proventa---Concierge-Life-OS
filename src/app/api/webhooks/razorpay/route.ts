@@ -87,15 +87,34 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
           }
 
-          // Update ValuationPayment to CAPTURED
-          await db.valuationPayment.updateMany({
-            where: { requestId: valRequestId },
+          // Update ValuationPayment to CAPTURED only if not REFUNDED (Finding 02)
+          const captureUpdate = await db.valuationPayment.updateMany({
+            where: {
+              requestId: valRequestId,
+              status: { not: 'REFUNDED' },
+            },
             data: {
               status: 'CAPTURED',
               paymentId: paymentId,
               paidAt: new Date(),
             },
           });
+
+          if (captureUpdate.count === 0) {
+            const checkPayment = await db.valuationPayment.findUnique({
+              where: { requestId: valRequestId },
+            });
+            if (checkPayment?.status === 'REFUNDED') {
+              console.warn(
+                `[Razorpay Webhook] Received payment.captured for already REFUNDED valuation payment: ${valRequestId}`
+              );
+              return NextResponse.json({
+                success: true,
+                processed: 'REAL_ESTATE_VALUATION',
+                refundPreserved: true,
+              });
+            }
+          }
 
           // Idempotency: if report is already generated and ready or request completed, do not duplicate calculation
           if (valRequest.status === 'COMPLETED' || (valRequest.report && valRequest.report.status === 'READY')) {
@@ -106,8 +125,8 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          // AUDIT-DEFECT-02: Atomic lease claim of calculation execution
-          // Prevent concurrent duplicate webhooks from executing competing valuation calculations.
+          // AUDIT-DEFECT-02 & Finding 06 (Phase 6.8.3): Atomic lease claim with distributed fencing token
+          const lockToken = crypto.randomUUID();
           const staleThreshold = new Date(Date.now() - 5 * 60 * 1000); // 5-minute lease expiry
           const claimResult = await db.valuationRequest.updateMany({
             where: {
@@ -118,7 +137,10 @@ export async function POST(req: NextRequest) {
                 { status: 'PROCESSING', updatedAt: { lt: staleThreshold } },
               ],
             },
-            data: { status: 'PROCESSING' },
+            data: {
+              status: 'PROCESSING',
+              processingLockToken: lockToken,
+            },
           });
 
           if (claimResult.count === 0) {
@@ -130,10 +152,11 @@ export async function POST(req: NextRequest) {
             });
           }
 
-          // Trigger Headless Valuation Report Generation
+          // Trigger Headless Valuation Report Generation with fencing lock token
           try {
             await calculateValuationForRequest(valRequestId, {
               bypassPaymentCheck: false,
+              lockToken,
             });
 
             return NextResponse.json({
@@ -143,10 +166,17 @@ export async function POST(req: NextRequest) {
             });
           } catch (calcErr: any) {
             console.error('[Razorpay Webhook] Headless valuation calculation failed:', calcErr);
-            // Revert request status to PAID so webhook retries or recovery workers can reclaim
+            // Revert request status to PAID ONLY IF lock token still matches (Finding 06)
             await db.valuationRequest.updateMany({
-              where: { id: valRequestId, status: 'PROCESSING' },
-              data: { status: 'PAID' },
+              where: {
+                id: valRequestId,
+                status: 'PROCESSING',
+                processingLockToken: lockToken,
+              },
+              data: {
+                status: 'PAID',
+                processingLockToken: null,
+              },
             });
 
             // Return HTTP 500 so Razorpay exponential-backoff retry safely re-executes generation without re-charging.
@@ -248,7 +278,41 @@ export async function POST(req: NextRequest) {
         const orderId = paymentEntity.order_id;
         const notes = paymentEntity.notes || {};
         const taskId = notes.taskId;
+        const valRequestId = notes.requestId || notes.valuationRequestId;
         const failureReason = paymentEntity.error_description || 'Payment gateway failed';
+
+        // Handle Real Estate Valuation Payment Failure (Finding 07)
+        if (valRequestId || orderId) {
+          const valPayment = await db.valuationPayment.findFirst({
+            where: {
+              OR: [
+                ...(valRequestId ? [{ requestId: valRequestId }] : []),
+                ...(orderId ? [{ orderId: orderId }] : []),
+              ],
+            },
+          });
+
+          if (valPayment) {
+            // Only update permitted non-terminal states; NEVER downgrade CAPTURED or REFUNDED
+            if (['PENDING', 'INITIATED'].includes(valPayment.status)) {
+              await db.valuationPayment.update({
+                where: { id: valPayment.id },
+                data: {
+                  status: 'FAILED',
+                  rawResponseJson: {
+                    gatewayError: failureReason,
+                    failedAt: new Date().toISOString(),
+                  },
+                },
+              });
+            }
+            return NextResponse.json({
+              success: true,
+              processed: 'REAL_ESTATE_PAYMENT_FAILED',
+              failureReason,
+            });
+          }
+        }
 
         const payment = await db.payment.findFirst({
           where: {
@@ -296,7 +360,7 @@ export async function POST(req: NextRequest) {
         const notes = refundEntity.notes || {};
         const valRequestId = notes.requestId || notes.valuationRequestId;
 
-        // Handle Real Estate Valuation Refund Isolation (AUDIT-DEFECT-03)
+        // Handle Real Estate Valuation Refund Isolation (Findings 03, 04, 05)
         const valPayment = await db.valuationPayment.findFirst({
           where: {
             OR: [
@@ -308,36 +372,87 @@ export async function POST(req: NextRequest) {
         });
 
         if (valPayment) {
-          // Record ValuationRefund
-          await db.valuationRefund.create({
-            data: {
-              paymentId: valPayment.id,
-              amountPaise: refundAmount,
-              reason: notes.reason || 'Gateway refund processed',
-              status: 'PROCESSED',
-              refundReference: refundRef,
-              processedAt: new Date(),
-            },
-          });
-
-          // Check if full refund (or covers payment)
-          if (refundAmount >= valPayment.amountPaise) {
-            await db.valuationPayment.update({
-              where: { id: valPayment.id },
-              data: { status: 'REFUNDED' },
+          // Idempotency Pre-Check (Finding 04):
+          if (refundRef) {
+            const existingRefund = await db.valuationRefund.findFirst({
+              where: { refundReference: refundRef },
             });
-
-            // Archive the valuation report to revoke access
-            await db.valuationReport.updateMany({
-              where: { requestId: valPayment.requestId },
-              data: { status: 'ARCHIVED' },
-            });
+            if (existingRefund) {
+              return NextResponse.json({
+                success: true,
+                processed: 'REAL_ESTATE_REFUND',
+                alreadyProcessed: true,
+                refundRef,
+              });
+            }
           }
+
+          // Atomic Database Transaction (Finding 05) & Cumulative Accounting (Finding 03)
+          const refundTxResult = await db.$transaction(async (tx) => {
+            // Secondary idempotency check within transaction
+            if (refundRef) {
+              const txExisting = await tx.valuationRefund.findFirst({
+                where: { refundReference: refundRef },
+              });
+              if (txExisting) {
+                return { alreadyProcessed: true, isFullRefund: false, cumulativeRefundedPaise: 0 };
+              }
+            }
+
+            // 1. Record new ValuationRefund row
+            await tx.valuationRefund.create({
+              data: {
+                paymentId: valPayment.id,
+                amountPaise: refundAmount,
+                reason: notes.reason || refundEntity.notes?.reason || 'Gateway refund processed',
+                status: 'PROCESSED',
+                refundReference: refundRef,
+                processedAt: new Date(),
+              },
+            });
+
+            // 2. Compute cumulative refunded amount in integer paise across all successfully processed refunds
+            const agg = await tx.valuationRefund.aggregate({
+              where: { paymentId: valPayment.id, status: 'PROCESSED' },
+              _sum: { amountPaise: true },
+            });
+            const cumulativeRefundedPaise = agg._sum.amountPaise || 0;
+
+            if (cumulativeRefundedPaise > valPayment.amountPaise) {
+              console.error(
+                `[Refund Ledger Alert] Cumulative refund (${cumulativeRefundedPaise} paise) exceeds captured amount (${valPayment.amountPaise} paise) for payment ${valPayment.id}`
+              );
+            }
+
+            const isFullRefund = cumulativeRefundedPaise >= valPayment.amountPaise;
+
+            // 3. If cumulative refunds reach or exceed the original captured payment, transition to REFUNDED and ARCHIVED
+            if (isFullRefund) {
+              await tx.valuationPayment.update({
+                where: { id: valPayment.id },
+                data: { status: 'REFUNDED' },
+              });
+
+              await tx.valuationReport.updateMany({
+                where: { requestId: valPayment.requestId },
+                data: { status: 'ARCHIVED' },
+              });
+            }
+
+            return {
+              alreadyProcessed: false,
+              cumulativeRefundedPaise,
+              isFullRefund,
+            };
+          });
 
           return NextResponse.json({
             success: true,
             processed: 'REAL_ESTATE_REFUND',
             refundRef,
+            cumulativeRefundedPaise: refundTxResult.cumulativeRefundedPaise,
+            fullRefund: refundTxResult.isFullRefund,
+            alreadyProcessed: refundTxResult.alreadyProcessed,
           });
         }
 

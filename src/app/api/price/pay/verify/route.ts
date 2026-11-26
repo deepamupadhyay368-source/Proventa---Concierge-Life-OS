@@ -153,20 +153,20 @@ export async function POST(req: NextRequest) {
         crypto.timingSafeEqual(sigBuffer, expBuffer);
 
       if (!isValidSignature) {
-        // AUDIT-DEFECT-01 & SEC-FINDING-02: Protect CAPTURED as a terminal successful payment state!
-        // Atomically ensure that an invalid signature retry cannot downgrade an already captured payment.
+        // Finding 01 (Phase 6.8.3): Protect terminal payment states (CAPTURED and REFUNDED)!
+        // Only payments in non-terminal initiating states (PENDING, INITIATED) can transition to FAILED.
         if (request.payment) {
           const updateResult = await db.valuationPayment.updateMany({
             where: {
               id: request.payment.id,
-              status: { not: 'CAPTURED' },
+              status: { in: ['PENDING', 'INITIATED'] },
             },
             data: { status: 'FAILED' },
           });
 
           if (updateResult.count === 0) {
             console.warn(
-              `[Payment Verification] Atomic update: payment ${request.payment.id} was already CAPTURED or not found; not downgrading to FAILED.`
+              `[Payment Verification] Atomic update: payment ${request.payment.id} is in terminal or non-initiating state (${request.payment.status}); not updating to FAILED.`
             );
           }
         }
@@ -273,10 +273,10 @@ export async function POST(req: NextRequest) {
       `sig_sim_${crypto.randomBytes(16).toString('hex')}`;
 
     if (request.payment) {
-      await db.valuationPayment.updateMany({
+      const captureResult = await db.valuationPayment.updateMany({
         where: {
           id: request.payment.id,
-          status: { not: 'REFUNDED' },
+          status: { in: ['PENDING', 'INITIATED', 'FAILED'] },
         },
         data: {
           status: 'CAPTURED',
@@ -285,6 +285,23 @@ export async function POST(req: NextRequest) {
           paidAt: new Date(),
         },
       });
+
+      if (captureResult.count === 0) {
+        // Payment was already in a terminal state (CAPTURED or REFUNDED)
+        const currentPayment = await db.valuationPayment.findUnique({
+          where: { id: request.payment.id },
+        });
+
+        if (currentPayment?.status === 'REFUNDED') {
+          return NextResponse.json(
+            {
+              success: false,
+              error: 'ACCESS_REVOKED: This valuation payment was previously refunded and cannot be recaptured.',
+            },
+            { status: 403 }
+          );
+        }
+      }
     }
 
     // 5. Mark ValuationRequest as PAID

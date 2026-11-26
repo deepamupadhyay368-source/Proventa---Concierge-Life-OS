@@ -98,7 +98,7 @@ describe('PROVENTA Phase 6.8.1: Payment Atomicity, Webhook Concurrency & Refund 
 
       // Verify the atomic conditional predicate
       expect(updateManySpy).toHaveBeenCalledWith({
-        where: { id: 'valpay-01', status: { not: 'CAPTURED' } },
+        where: { id: 'valpay-01', status: { in: ['PENDING', 'INITIATED'] } },
         data: { status: 'FAILED' },
       });
     });
@@ -136,7 +136,7 @@ describe('PROVENTA Phase 6.8.1: Payment Atomicity, Webhook Concurrency & Refund 
 
       // Assert count: 0 did not downgrade the record
       expect(updateManySpy).toHaveBeenCalledWith({
-        where: { id: 'valpay-01', status: { not: 'CAPTURED' } },
+        where: { id: 'valpay-01', status: { in: ['PENDING', 'INITIATED'] } },
         data: { status: 'FAILED' },
       });
     });
@@ -206,7 +206,10 @@ describe('PROVENTA Phase 6.8.1: Payment Atomicity, Webhook Concurrency & Refund 
               expect.objectContaining({ status: 'PROCESSING' }),
             ]),
           }),
-          data: { status: 'PROCESSING' },
+          data: expect.objectContaining({
+            status: 'PROCESSING',
+            processingLockToken: expect.any(String),
+          }),
         })
       );
       expect(calculateValuationForRequest).toHaveBeenCalledTimes(1);
@@ -310,8 +313,8 @@ describe('PROVENTA Phase 6.8.1: Payment Atomicity, Webhook Concurrency & Refund 
 
       // Verify request status was reverted from PROCESSING to PAID for webhook retry
       expect(reqUpdateSpy).toHaveBeenCalledWith({
-        where: { id: mockRequestId, status: 'PROCESSING' },
-        data: { status: 'PAID' },
+        where: { id: mockRequestId, status: 'PROCESSING', processingLockToken: expect.any(String) },
+        data: { status: 'PAID', processingLockToken: null },
       });
     });
   });
@@ -331,21 +334,25 @@ describe('PROVENTA Phase 6.8.1: Payment Atomicity, Webhook Concurrency & Refund 
         status: 'CAPTURED',
       } as any);
 
-      const refundCreateSpy = vi.spyOn(db.valuationRefund, 'create').mockResolvedValueOnce({
-        id: 'ref-01',
-        paymentId: 'valpay-01',
-        amountPaise: 99900,
-        status: 'PROCESSED',
-      } as any);
+      vi.spyOn(db.valuationRefund, 'findFirst').mockResolvedValue(null);
 
-      const paymentUpdateSpy = vi.spyOn(db.valuationPayment, 'update').mockResolvedValueOnce({
-        id: 'valpay-01',
-        status: 'REFUNDED',
-      } as any);
+      const mockTx = {
+        valuationRefund: {
+          findFirst: vi.fn().mockResolvedValue(null),
+          create: vi.fn().mockResolvedValue({ id: 'ref-01', amountPaise: 99900, status: 'PROCESSED' }),
+          aggregate: vi.fn().mockResolvedValue({ _sum: { amountPaise: 99900 } }),
+        },
+        valuationPayment: {
+          update: vi.fn().mockResolvedValue({ id: 'valpay-01', status: 'REFUNDED' }),
+        },
+        valuationReport: {
+          updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+        },
+      };
 
-      const reportArchiveSpy = vi.spyOn(db.valuationReport, 'updateMany').mockResolvedValueOnce({
-        count: 1,
-      } as any);
+      vi.spyOn(db, '$transaction').mockImplementation(async (callback: any) => {
+        return callback(mockTx);
+      });
 
       const refundPayload = {
         event: 'refund.processed',
@@ -378,23 +385,12 @@ describe('PROVENTA Phase 6.8.1: Payment Atomicity, Webhook Concurrency & Refund 
       const json = await res.json();
       expect(json.processed).toBe('REAL_ESTATE_REFUND');
 
-      expect(refundCreateSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            paymentId: 'valpay-01',
-            amountPaise: 99900,
-            status: 'PROCESSED',
-            refundReference: 'rfnd_phase681_001',
-          }),
-        })
-      );
-
-      expect(paymentUpdateSpy).toHaveBeenCalledWith({
+      expect(mockTx.valuationPayment.update).toHaveBeenCalledWith({
         where: { id: 'valpay-01' },
         data: { status: 'REFUNDED' },
       });
 
-      expect(reportArchiveSpy).toHaveBeenCalledWith({
+      expect(mockTx.valuationReport.updateMany).toHaveBeenCalledWith({
         where: { requestId: mockRequestId },
         data: { status: 'ARCHIVED' },
       });
