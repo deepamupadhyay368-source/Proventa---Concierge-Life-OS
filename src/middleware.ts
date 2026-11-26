@@ -93,10 +93,14 @@ export default auth(async (req) => {
       pathname.startsWith('/api/listings') ||
       pathname.startsWith('/api/supplier/storefront') ||
       pathname.startsWith('/api/supplier/discovery') ||
-      pathname === '/api/business/subscription');
+      pathname === '/api/business/subscription' ||
+      pathname === '/api/projects' ||
+      pathname.startsWith('/api/projects/'));
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname === '/project-intelligence' ||
+    pathname.startsWith('/project-intelligence/') ||
     pathname.startsWith('/price') ||
     pathname.startsWith('/api/price') ||
     pathname.startsWith('/home') ||

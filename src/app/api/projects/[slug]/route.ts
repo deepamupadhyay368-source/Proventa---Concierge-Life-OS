@@ -55,10 +55,29 @@ export async function GET(
       );
     }
 
+    // Handle consolidated duplicate entities (redirect to canonical project)
+    if (project.canonicalProjectId) {
+      const canonical = await db.project.findUnique({
+        where: { id: project.canonicalProjectId },
+        select: { slug: true }
+      });
+      if (canonical) {
+        return NextResponse.redirect(new URL(`/api/projects/${canonical.slug}`, req.url), 307);
+      }
+    }
+
+    // Publication Gate: Exclude quarantined, rejected, or unverified draft projects from public detail API
+    if (!project.isPubliclyVisible || project.publicationStatus !== 'PUBLISHED') {
+      return NextResponse.json(
+        { success: false, error: `Project "${slug}" not found` },
+        { status: 404 }
+      );
+    }
+
     // Lookup applicable statutory Jantri benchmark for this locality
     const jantri = await db.jantriBenchmark.findFirst({
       where: { localityId: project.localityId },
-      orderBy: { effectiveFrom: 'desc' },
+      orderBy: { effectiveDate: 'desc' },
     });
 
     return NextResponse.json({

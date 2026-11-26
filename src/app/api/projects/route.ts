@@ -13,11 +13,11 @@ export async function GET(req: NextRequest) {
 
     const where: any = {};
 
-    // Publication Governance: Only return publicly approved and visible projects by default
-    if (!includeQuarantined) {
-      where.isPubliclyVisible = true;
-      where.publicationStatus = 'PUBLISHED';
-    }
+    // Publication Governance: Strictly enforce publication gates for public directory queries.
+    // Exclude QUARANTINED, UNVERIFIED_DRAFT, and MERGED_ALIAS records.
+    where.isPubliclyVisible = true;
+    where.publicationStatus = 'PUBLISHED';
+    where.canonicalProjectId = null;
 
     if (search) {
       where.OR = [

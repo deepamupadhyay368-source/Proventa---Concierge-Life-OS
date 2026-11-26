@@ -130,6 +130,11 @@ export async function calculateValuationForRequest(
     }
   }
 
+  // 2B. Asset Class Protection: Reject Commercial Properties
+  if (request.propertyType === 'COMMERCIAL') {
+    throw new Error('UNSUPPORTED_ASSET_CLASS: Commercial properties cannot be evaluated using residential valuation engine.');
+  }
+
   // 3. Methodology Parameters
   const activeMethodology = await db.valuationMethodologyVersion.findFirst({
     where: { active: true },
@@ -144,19 +149,41 @@ export async function calculateValuationForRequest(
     maxFloorAdjustmentPerFloorPercent: 0.35,
     maxAgeDepreciationPerYearPercent: 0.75,
     askingPriceNegotiationDiscountPercent: 6.5,
-    minEligibleCompsForValuation: 2,
+    minEligibleCompsForValuation: 3,
   };
+
+  // Ensure minimum eligible comps is at least 3
+  if (!params.minEligibleCompsForValuation || params.minEligibleCompsForValuation < 3) {
+    params.minEligibleCompsForValuation = 3;
+  }
 
   const subjectCarpet = request.carpetAreaSqFt;
   const minCarpet = subjectCarpet * (1 - params.carpetAreaTolerancePercent / 100);
   const maxCarpet = subjectCarpet * (1 + params.carpetAreaTolerancePercent / 100);
 
   // 4. Retrieve Registered Transactions from Database
+  // Exclude test artifacts, duplicate transactions, and quarantined/unverified projects
   const registeredCandidates = await db.propertyTransaction.findMany({
     where: {
       localityId: request.localityId,
       carpetAreaSqFt: { gte: minCarpet, lte: maxCarpet },
       verificationStatus: 'VERIFIED',
+      flagReason: null,
+      duplicateOfId: null,
+      NOT: {
+        deedId: { startsWith: 'DEED-ACTION-TEST' },
+      },
+      OR: [
+        {
+          project: {
+            publicationStatus: 'PUBLISHED',
+            isPubliclyVisible: true,
+          },
+        },
+        {
+          projectId: null,
+        },
+      ],
     },
     include: {
       source: true,

@@ -322,7 +322,7 @@ export const AHMEDABAD_LOCALITIES: LocalityIntelligence[] = [
       'Dedicated international exchange and multi-tier regulatory ecosystem'
     ],
     connectivityNotes: '15 mins to Ahmedabad International Airport via SP Ring Road.',
-    topProjects: ['Sobha Dream Heights', 'Shivalik Curv', 'Nila Spaces Vida'],
+    topProjects: ['Sobha Dream Heights', 'Nila Spaces Vida'],
     dataFreshness: 'Q3 2026 Calibration Benchmark',
     confidenceScore: 96,
   },

@@ -65,7 +65,7 @@ export default async function ProjectProfilePage({ params }: ProjectProfilePageP
   // Get official statutory Jantri circle rate for this locality
   const jantri = await db.jantriBenchmark.findFirst({
     where: { localityId: project.localityId },
-    orderBy: { effectiveFrom: 'desc' },
+    orderBy: { effectiveDate: 'desc' },
   });
 
   const latestProgress = project.constructionProgress[0];

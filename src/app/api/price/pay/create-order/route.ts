@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { razorpayClient } from '@/lib/payments/razorpay';
+import { checkEvidenceEligibility } from '@/lib/real-estate/eligibility';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +34,21 @@ export async function POST(req: NextRequest) {
         alreadyPaid: true,
         reportUrl: `/price/report/${request.id}`,
       });
+    }
+
+    // 1B. Institutional Evidence Eligibility Gate:
+    // Prohibit paid valuation order creation unless the locality has at least 3 independently verified registered transactions
+    const eligibility = await checkEvidenceEligibility(request.localityId, request.propertyType);
+    if (!eligibility.eligible) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: eligibility.code || 'INSUFFICIENT_LOCALITY_EVIDENCE',
+          error:
+            'Paid valuation reports for this locality are temporarily disabled until sufficient verified registered transaction evidence is established.',
+        },
+        { status: 422 }
+      );
     }
 
     // 2. Authoritative Database Pricing Lookup
