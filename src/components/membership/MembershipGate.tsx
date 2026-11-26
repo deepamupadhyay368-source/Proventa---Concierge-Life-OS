@@ -64,7 +64,7 @@ export function MembershipGate({
           return (
             <div
               key={p.id}
-              onClick={() => setSelectedPlan(p.id)}
+              onClick={() => setSelectedPlan(p.id as any)}
               className={`p-5 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between ${
                 isSelected
                   ? 'bg-white border-[#111820] ring-1 ring-[#111820] shadow-sm'

@@ -33,8 +33,8 @@ export function RealEstateFooter() {
             </h4>
             <ul className="space-y-2 text-xs text-[#C8C4BA]">
               <li>
-                <Link href="/property-intelligence" className="hover:text-white transition-colors">
-                  Property Price Intelligence
+                <Link href="/price" className="hover:text-white transition-colors">
+                  PROVENTA PRICE (Valuations)
                 </Link>
               </li>
               <li>

@@ -165,7 +165,10 @@ export function getCanonicalPlan(planString?: string | null): MembershipPlan {
   return CANONICAL_MEMBERSHIP_PLANS.essential;
 }
 
-import { getCanonicalPlan, MembershipPlan } from './plans';
+export const isValidPlanId = (id?: string | null): boolean => {
+  if (!id) return false;
+  return ['essential', 'family', 'premium', 'select', 'private', 'reserve'].includes(id.toLowerCase());
+};
 
 export const getPlanById = (id?: string | null): MembershipPlan => {
   return getCanonicalPlan(id);

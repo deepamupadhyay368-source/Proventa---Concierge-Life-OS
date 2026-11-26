@@ -26,11 +26,6 @@ import {
 } from '@/lib/membership/plans';
 import { toast } from 'sonner';
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
 
 function MembershipCheckoutContent() {
   const router = useRouter();
@@ -169,8 +164,8 @@ function MembershipCheckoutContent() {
         },
       };
 
-      if (typeof window !== 'undefined' && window.Razorpay) {
-        const rzp = new window.Razorpay(options);
+      if (typeof window !== 'undefined' && (window as any).Razorpay) {
+        const rzp = new (window as any).Razorpay(options);
         rzp.on('payment.failed', function (resp: any) {
           setCheckoutState('FAILED');
           setErrorMessage(resp?.error?.description || 'Payment was declined by payment gateway.');
@@ -302,7 +297,7 @@ function MembershipCheckoutContent() {
               key={p.id}
               type="button"
               onClick={() => {
-                setSelectedPlanSlug(p.id);
+                setSelectedPlanSlug(p.id as any);
                 setErrorMessage(null);
                 if (checkoutState === 'FAILED') setCheckoutState('REVIEW');
               }}

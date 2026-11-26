@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
 const NAV_LINKS = [
-  { label: 'Property Prices', href: '/property-intelligence' },
+  { label: 'PROVENTA PRICE', href: '/price' },
   { label: 'Locations', href: '/location-intelligence' },
   { label: 'Projects', href: '/project-intelligence' },
   { label: 'Investment', href: '/investment-intelligence' },

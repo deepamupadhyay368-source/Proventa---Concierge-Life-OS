@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { OFFICIAL_PLANS, getPlan, calculateTax, getCheckoutAmount } from '@/lib/pricing';
 
 describe('Authoritative Pricing Service', () => {

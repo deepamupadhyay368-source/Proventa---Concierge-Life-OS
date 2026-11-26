@@ -44,7 +44,7 @@ export default function RealEstateHomePage() {
 
               {/* Functional Search Bar */}
               <div className="pt-2 max-w-xl">
-                <form action="/property-intelligence" method="GET" className="flex flex-col sm:flex-row gap-2">
+                <form action="/price" method="GET" className="flex flex-col sm:flex-row gap-2">
                   <div className="relative flex-1">
                     <Search className="absolute left-3.5 top-3 h-4 w-4 text-[#69717B]" />
                     <input
@@ -216,10 +216,10 @@ export default function RealEstateHomePage() {
 
             <div className="pt-6 border-t border-[#C8C4BA]/50">
               <Link
-                href="/property-intelligence"
+                href="/price"
                 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#202B3C] hover:text-[#547568]"
               >
-                <span>Launch Valuation Engine</span>
+                <span>Launch PROVENTA PRICE</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>

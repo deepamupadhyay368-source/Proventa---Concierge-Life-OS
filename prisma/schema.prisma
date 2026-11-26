@@ -393,6 +393,10 @@ model User {
   moderationReports      ModerationReport[]    @relation("ModerationReporter")
   invoicesIssued         CommercialInvoice[]   @relation("InvoicesIssued")
 
+  // Real Estate & PROVENTA PRICE Relations
+  valuationRequests    ValuationRequest[]
+  valuationPayments    ValuationPayment[]
+
   @@index([email])
   @@index([status])
   @@index([deletedAt])
@@ -3103,4 +3107,538 @@ model EntitlementLedger {
   @@index([subscriptionId])
   @@index([userId])
   @@index([status])
+}
+
+
+// ============================================================================
+// PROVENTA PRICE & REAL ESTATE INTELLIGENCE MODELS (PHASE 4)
+// ============================================================================
+
+enum RealEstateType {
+  APARTMENT
+  VILLA
+  INDEPENDENT_HOUSE
+  ROW_HOUSE
+  PLOT
+}
+
+enum PropertyCondition {
+  NEW_CONSTRUCTION
+  EXCELLENT
+  GOOD
+  FAIR
+  NEEDS_RENOVATION
+}
+
+enum FurnishingStatus {
+  UNFURNISHED
+  SEMI_FURNISHED
+  FULLY_FURNISHED
+}
+
+enum TransactionContext {
+  BUYING
+  SELLING
+  EXISTING_OWNERSHIP
+  INVESTMENT_RESEARCH
+}
+
+enum ValuationRequestStatus {
+  DRAFT
+  SUBMITTED
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  COMPLETED
+  MANUAL_REVIEW
+  REJECTED
+}
+
+enum ValuationConfidenceLevel {
+  HIGH
+  MODERATE
+  LIMITED
+}
+
+enum DataSourceType {
+  STATUTORY_REGISTRY
+  RERA_FILING
+  LISTING_AGGREGATION
+  USER_SUBMITTED
+  DIRECT_SURVEY
+}
+
+enum EvidenceVerificationStatus {
+  VERIFIED
+  PROVISIONAL
+  DISPUTED
+}
+
+enum ComparableEvidenceType {
+  REGISTERED_TRANSACTION
+  ASKING_LISTING
+  JANTRI_BENCHMARK
+  RENTAL_YIELD
+}
+
+enum ValuationReportStatus {
+  GENERATING
+  READY
+  ARCHIVED
+}
+
+enum ValuationPaymentStatus {
+  PENDING
+  INITIATED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum ValuationRefundStatus {
+  INITIATED
+  PROCESSED
+  REJECTED
+}
+
+model Locality {
+  id                 String                @id @default(cuid())
+  slug               String                @unique
+  name               String
+  city               String                @default("Ahmedabad")
+  state              String                @default("Gujarat")
+  zone               String?
+  pincode            String
+  activeStatus       Boolean               @default(true)
+  valuationReady     Boolean               @default(false)
+  avgPriceSqFt       Float?
+  priceRangeMinSqFt  Float?
+  priceRangeMaxSqFt  Float?
+  grossRentalYield   Float?
+  jantriRateSqFt     Float?
+  coverageLevel      String                @default("CORE_COVERAGE")
+  totalTransactions  Int                   @default(0)
+  totalProjects      Int                   @default(0)
+  description        String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  projects           Project[]
+  properties         Property[]
+  transactions       PropertyTransaction[]
+  listings           PropertyListing[]
+  rentalObservations RentalObservation[]
+  valuationRequests  ValuationRequest[]
+
+  @@index([slug])
+  @@index([city, activeStatus])
+  @@index([valuationReady])
+}
+
+model Project {
+  id                 String                @id @default(cuid())
+  slug               String                @unique
+  name               String
+  developer          String?
+  localityId         String
+  reraNumber         String?
+  completionYear     Int?
+  buildingType       String?
+  totalTowers        Int?
+  totalUnits         Int?
+  carpetAreaRangeMin Float?
+  carpetAreaRangeMax Float?
+  priceRangeMinLakhs Float?
+  priceRangeMaxLakhs Float?
+  possessionStatus   String?
+  latitude           Float?
+  longitude          Float?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+
+  locality           Locality              @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  properties         Property[]
+  transactions       PropertyTransaction[]
+  listings           PropertyListing[]
+  valuationRequests  ValuationRequest[]
+
+  @@index([localityId])
+  @@index([slug])
+  @@index([reraNumber])
+}
+
+model Property {
+  id                   String                @id @default(cuid())
+  propertyType         RealEstateType        @default(APARTMENT)
+  subType              String?
+  localityId           String
+  projectId            String?
+  address              String
+  buildingName         String?
+  unitNumber           String?
+  floor                Int?
+  totalFloors          Int?
+  bhk                  Float
+  carpetAreaSqFt       Float
+  builtUpAreaSqFt      Float?
+  superBuiltUpAreaSqFt Float?
+  buildingAgeYears     Int?
+  condition            PropertyCondition?
+  furnishingStatus     FurnishingStatus?
+  parkingSpaces        Int                   @default(0)
+  amenitiesJson        Json?
+  latitude             Float?
+  longitude            Float?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  locality             Locality              @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  project              Project?              @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  transactions         PropertyTransaction[]
+
+  @@index([localityId])
+  @@index([projectId])
+}
+
+model DataSource {
+  id                   String                @id @default(cuid())
+  code                 String                @unique
+  name                 String
+  sourceType           DataSourceType
+  provenanceUrl        String?
+  verificationProtocol String?
+  reliabilityScore     Float                 @default(1.0)
+  usagePermissions     String?
+  lastVerifiedDate     DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  transactions         PropertyTransaction[]
+  listings             PropertyListing[]
+  rentalObservations   RentalObservation[]
+
+  @@index([code])
+  @@index([sourceType])
+}
+
+model PropertyTransaction {
+  id                   String                     @id @default(cuid())
+  deedId               String?
+  registrationDate     DateTime
+  localityId           String
+  projectId            String?
+  propertyId           String?
+  propertyType         RealEstateType             @default(APARTMENT)
+  bhk                  Float
+  carpetAreaSqFt       Float
+  builtUpAreaSqFt      Float?
+  floor                Int?
+  totalFloors          Int?
+  transactedPriceLakhs Float
+  pricePerSqFtCarpet   Float
+  subRegistrarOffice   String?
+  jantriRateLakhs      Float?
+  sourceId             String
+  verificationStatus   EvidenceVerificationStatus @default(VERIFIED)
+  confidenceScore      Float                      @default(1.0)
+  remarks              String?
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+
+  locality             Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  project              Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  property             Property?                  @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  source               DataSource                 @relation(fields: [sourceId], references: [id])
+  evidenceMatches      ValuationEvidence[]
+  comparableMatches    ComparableMatch[]
+
+  @@index([localityId])
+  @@index([projectId])
+  @@index([registrationDate])
+  @@index([carpetAreaSqFt])
+}
+
+model PropertyListing {
+  id                 String                     @id @default(cuid())
+  listingDate        DateTime
+  sourceUrl          String?
+  localityId         String
+  projectId          String?
+  propertyType       RealEstateType             @default(APARTMENT)
+  bhk                Float
+  carpetAreaSqFt     Float
+  askingPriceLakhs   Float
+  pricePerSqFtCarpet Float
+  floor              Int?
+  totalFloors        Int?
+  sourceId           String
+  verificationStatus EvidenceVerificationStatus @default(PROVISIONAL)
+  listingStatus      String                     @default("ACTIVE")
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  locality           Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  project            Project?                   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  source             DataSource                 @relation(fields: [sourceId], references: [id])
+  evidenceMatches    ValuationEvidence[]
+  comparableMatches  ComparableMatch[]
+
+  @@index([localityId])
+  @@index([projectId])
+  @@index([listingDate])
+}
+
+model RentalObservation {
+  id                 String                     @id @default(cuid())
+  observationDate    DateTime
+  localityId         String
+  projectId          String?
+  propertyType       RealEstateType             @default(APARTMENT)
+  bhk                Float
+  carpetAreaSqFt     Float
+  monthlyRentRupees  Float
+  grossYieldPercent  Float
+  sourceId           String
+  verificationStatus EvidenceVerificationStatus @default(VERIFIED)
+  createdAt          DateTime                   @default(now())
+  updatedAt          DateTime                   @updatedAt
+
+  locality           Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
+  source             DataSource                 @relation(fields: [sourceId], references: [id])
+  evidenceMatches    ValuationEvidence[]
+
+  @@index([localityId])
+  @@index([observationDate])
+}
+
+model ValuationPricingConfig {
+  id                   String   @id @default(cuid())
+  reportType           String   @unique @default("RESIDENTIAL_STANDARD")
+  name                 String
+  description          String?
+  priceRupees          Int
+  discountedPriceRupees Int?
+  currency             String   @default("INR")
+  gstPercent           Float    @default(18.0)
+  active               Boolean  @default(true)
+  featuresJson         Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([reportType, active])
+}
+
+model ValuationRequest {
+  id                   String                 @id @default(cuid())
+  referenceNo          String                 @unique
+  userId               String
+  status               ValuationRequestStatus @default(PENDING_PAYMENT)
+  propertyType         RealEstateType         @default(APARTMENT)
+  state                String                 @default("Gujarat")
+  city                 String                 @default("Ahmedabad")
+  localityId           String
+  microLocation        String?
+  projectId            String?
+  buildingName         String?
+  address              String
+  pincode              String
+  bhk                  Float
+  carpetAreaSqFt       Float
+  builtUpAreaSqFt      Float?
+  superBuiltUpAreaSqFt Float?
+  areaUnit             String                 @default("sqft")
+  floor                Int?
+  totalFloors          Int?
+  propertyAgeYears     Int?
+  condition            PropertyCondition?
+  furnishingStatus     FurnishingStatus?
+  parkingSpaces        Int                    @default(0)
+  amenitiesJson        Json?
+  possessionStatus     String?
+  transactionContext   TransactionContext     @default(BUYING)
+  askingPriceLakhs     Float?
+  targetOfferLakhs     Float?
+  ownerName            String?
+  contactPhone         String?
+  notes                String?
+  rejectionReason      String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  locality             Locality               @relation(fields: [localityId], references: [id])
+  project              Project?               @relation(fields: [projectId], references: [id])
+  valuation            Valuation?
+  payment              ValuationPayment?
+  report               ValuationReport?
+
+  @@index([userId])
+  @@index([status])
+  @@index([referenceNo])
+  @@index([localityId])
+}
+
+model ValuationMethodologyVersion {
+  id              String      @id @default(cuid())
+  versionNumber   String      @unique
+  title           String
+  description     String?
+  parametersJson  Json
+  effectiveFrom   DateTime    @default(now())
+  effectiveTo     DateTime?
+  active          Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+
+  valuations      Valuation[]
+
+  @@index([versionNumber])
+  @@index([active])
+}
+
+model Valuation {
+  id                      String                   @id @default(cuid())
+  requestId               String                   @unique
+  methodologyVersionId    String?
+  methodologyVersion      String                   @default("v1.0.0")
+  estimatedValueMinLakhs  Float
+  estimatedValueMaxLakhs  Float
+  estimatedMidpointLakhs  Float
+  pricePerSqFtCarpet      Float
+  jantriBenchmarkLakhs    Float?
+  marketTrendPercent      Float?
+  confidenceScore         Float
+  confidenceLevel         ValuationConfidenceLevel @default(HIGH)
+  confidenceRationale     String?
+  eligibleCompsCount      Int                      @default(0)
+  calculationDetailsJson  Json?
+  calculatedAt            DateTime                 @default(now())
+  reviewedBy              String?
+  reviewedAt              DateTime?
+  isManualReviewApproved  Boolean                  @default(false)
+
+  request                 ValuationRequest         @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  methodology             ValuationMethodologyVersion? @relation(fields: [methodologyVersionId], references: [id])
+  evidenceMatches         ValuationEvidence[]
+  comparableMatches       ComparableMatch[]
+  report                  ValuationReport?
+
+  @@index([requestId])
+  @@index([calculatedAt])
+}
+
+model ValuationEvidence {
+  id                    String                 @id @default(cuid())
+  valuationId           String
+  evidenceType          ComparableEvidenceType
+  transactionId         String?
+  listingId             String?
+  rentalId              String?
+  weight                Float                  @default(1.0)
+  baselineRateSqFt      Float
+  adjustedRateSqFt      Float
+  adjustmentDetailsJson Json?
+  notes                 String?
+  createdAt             DateTime               @default(now())
+
+  valuation             Valuation              @relation(fields: [valuationId], references: [id], onDelete: Cascade)
+  transaction           PropertyTransaction?   @relation(fields: [transactionId], references: [id])
+  listing               PropertyListing?       @relation(fields: [listingId], references: [id])
+  rental                RentalObservation?     @relation(fields: [rentalId], references: [id])
+
+  @@index([valuationId])
+  @@index([evidenceType])
+}
+
+model ComparableMatch {
+  id                       String               @id @default(cuid())
+  valuationId              String
+  transactionId            String?
+  listingId                String?
+  matchScore               Float
+  matchType                String
+  selectionRationale       String
+  distanceMeters           Float?
+  carpetAreaDiffPercent    Float?
+  floorAdjustmentPercent   Float?
+  ageAdjustmentPercent     Float?
+  conditionAdjustmentPercent Float?
+  netAdjustmentPercent     Float?
+  excluded                 Boolean              @default(false)
+  exclusionReason          String?
+  createdAt                DateTime             @default(now())
+
+  valuation                Valuation            @relation(fields: [valuationId], references: [id], onDelete: Cascade)
+  transaction              PropertyTransaction? @relation(fields: [transactionId], references: [id])
+  listing                  PropertyListing?     @relation(fields: [listingId], references: [id])
+
+  @@index([valuationId])
+  @@index([matchScore])
+}
+
+model ValuationPayment {
+  id              String                 @id @default(cuid())
+  requestId       String                 @unique
+  userId          String
+  amountPaise     Int
+  currency        String                 @default("INR")
+  status          ValuationPaymentStatus @default(PENDING)
+  provider        String                 @default("RAZORPAY")
+  orderId         String?
+  paymentId       String?
+  signature       String?
+  idempotencyKey  String                 @unique
+  receiptNumber   String?
+  rawResponseJson Json?
+  paidAt          DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  request         ValuationRequest       @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user            User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refunds         ValuationRefund[]
+
+  @@index([requestId])
+  @@index([userId])
+  @@index([orderId])
+  @@index([status])
+  @@index([idempotencyKey])
+}
+
+model ValuationRefund {
+  id              String                @id @default(cuid())
+  paymentId       String
+  amountPaise     Int
+  reason          String
+  status          ValuationRefundStatus @default(INITIATED)
+  refundReference String?
+  processedBy     String?
+  processedAt     DateTime?
+  createdAt       DateTime              @default(now())
+
+  payment         ValuationPayment      @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@index([paymentId])
+  @@index([status])
+}
+
+model ValuationReport {
+  id              String                @id @default(cuid())
+  valuationId     String                @unique
+  requestId       String                @unique
+  reportReference String                @unique
+  pdfUrl          String?
+  pdfStorageKey   String?
+  status          ValuationReportStatus @default(READY)
+  checksum        String?
+  reportDataJson  Json?
+  downloadedCount Int                   @default(0)
+  generatedAt     DateTime              @default(now())
+  expiresAt       DateTime?
+
+  valuation       Valuation             @relation(fields: [valuationId], references: [id], onDelete: Cascade)
+  request         ValuationRequest      @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([valuationId])
+  @@index([requestId])
+  @@index([reportReference])
 }

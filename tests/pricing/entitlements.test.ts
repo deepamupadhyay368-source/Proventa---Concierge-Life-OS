@@ -1,3 +1,4 @@
+import { describe, test, expect } from 'vitest';
 import { OFFICIAL_PLANS } from '@/lib/pricing';
 
 describe('Entitlement Rules & Boundaries', () => {

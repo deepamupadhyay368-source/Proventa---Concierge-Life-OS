@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth/config';
 // Public routes — no auth needed
 const PUBLIC_ROUTES = [
   '/',
+  '/price',
   '/property-intelligence',
   '/location-intelligence',
   '/project-intelligence',
@@ -101,6 +102,8 @@ export default auth(async (req) => {
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
+    pathname.startsWith('/price') ||
+    pathname.startsWith('/api/price') ||
     pathname.startsWith('/home') ||
     pathname.startsWith('/api/home') ||
     pathname.startsWith('/partner') ||

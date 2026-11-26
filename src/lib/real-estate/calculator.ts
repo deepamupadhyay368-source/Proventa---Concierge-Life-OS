@@ -19,6 +19,7 @@ export interface InvestmentScenarioResult {
   totalAcquisitionCostLakhs: number;
   loanAmountLakhs: number;
   equityInvestedLakhs: number;
+  initialCashOutlayLakhs: number;
   monthlyEmiRupees: number;
   grossAnnualRentalIncomeRupees: number;
   netAnnualRentalIncomeRupees: number;
@@ -138,6 +139,7 @@ export function calculatePropertyInvestment(input: InvestmentCalculatorInput): I
     totalAcquisitionCostLakhs,
     loanAmountLakhs,
     equityInvestedLakhs,
+    initialCashOutlayLakhs: equityInvestedLakhs,
     monthlyEmiRupees,
     grossAnnualRentalIncomeRupees: grossAnnualRentalRupees,
     netAnnualRentalIncomeRupees,
