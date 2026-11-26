@@ -10,11 +10,11 @@ const ADMIN_REAL_ESTATE_LINKS = [
   { code: '02', label: 'Data Coverage & Eligibility', href: '/admin/coverage' },
   { code: '03', label: 'Transaction Evidence', href: '/admin/transactions' },
   { code: '04', label: 'RERA Projects & Devs', href: '/admin/projects' },
-  { code: '05', label: 'Property Records', href: '/admin/properties' },
+  { code: '05', label: 'Discovery Candidates', href: '/admin/research/candidates' },
   { code: '06', label: 'Data Sources & Feeds', href: '/admin/data-sources' },
   { code: '07', label: 'Hedonic Valuations', href: '/admin/valuations' },
-  { code: '08', label: 'User Directory', href: '/admin/users' },
-  { code: '09', label: 'Memberships & Billing', href: '/admin/memberships' },
+  { code: '08', label: 'Property Records', href: '/admin/properties' },
+  { code: '09', label: 'User Directory', href: '/admin/users' },
   { code: '10', label: 'Evidence Audit Logs', href: '/admin/audit' },
 ];
 

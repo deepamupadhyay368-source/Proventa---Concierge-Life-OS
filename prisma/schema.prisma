@@ -3315,21 +3315,32 @@ model Project {
   developer            String?
   developerId          String?
   localityId           String
+  registeredAddress    String?
+  district             String?                    @default("Ahmedabad")
+  pincode              String?
   reraNumber           String?
   gujreraId            String?
   reraApprovalDate     DateTime?
+  registrationValidityDate DateTime?
   completionYear       Int?
   buildingType         String?
+  projectType          String?                    @default("RESIDENTIAL_APARTMENT")
   totalTowers          Int?
   totalUnits           Int?
   carpetAreaRangeMin   Float?
   carpetAreaRangeMax   Float?
   priceRangeMinLakhs   Float?
   priceRangeMaxLakhs   Float?
+  openSpaceRatioPercent Float?
   possessionStatus     String?
+  brochureUrl          String?
+  officialWebsiteUrl   String?
+  verificationBadge    String                     @default("OFFICIALLY_VERIFIED")
   valuationEligibility ValuationEligibilityStatus @default(INSUFFICIENT_DATA)
   latitude             Float?
   longitude            Float?
+  lastCheckedDate      DateTime?
+  lastVerifiedDate     DateTime?
   createdAt            DateTime                   @default(now())
   updatedAt            DateTime                   @updatedAt
 
@@ -3342,11 +3353,19 @@ model Project {
   sourceDocuments      SourceDocument[]
   coverageAudits       DataCoverageAudit[]
   valuationRequests    ValuationRequest[]
+  configurations       ProjectConfiguration[]
+  specifications       ProjectSpecification[]
+  amenities            ProjectAmenity[]
+  constructionProgress ProjectConstructionProgress[]
+  regulatoryEvents     ProjectRegulatoryEvent[]
+  historicalSnapshots  ProjectHistoricalSnapshot[]
+  candidates           ProjectCandidate[]
 
   @@index([localityId])
   @@index([developerId])
   @@index([slug])
   @@index([reraNumber])
+  @@index([district])
   @@index([valuationEligibility])
 }
 
@@ -3393,6 +3412,17 @@ model DataSource {
   verificationProtocol String?
   reliabilityScore     Float                 @default(1.0)
   usagePermissions     String?
+  officialDomain       String?
+  sourceCategory       String?
+  dataCategories       String[]              @default([])
+  accessMethod         String?
+  permissionStatus     String?
+  isApproved           Boolean               @default(true)
+  collectionFrequency  String?
+  lastCheckedAt        DateTime?
+  lastSuccessfulCollection DateTime?
+  healthStatus         String                @default("HEALTHY")
+  collectionErrors     String?
   lastVerifiedDate     DateTime?
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
@@ -3402,6 +3432,7 @@ model DataSource {
   rentalObservations   RentalObservation[]
   jantriBenchmarks     JantriBenchmark[]
   sourceDocuments      SourceDocument[]
+  candidates           ProjectCandidate[]
 
   @@index([code])
   @@index([sourceType])
@@ -3433,6 +3464,7 @@ model SourceDocument {
   transactions       PropertyTransaction[]
   listings           PropertyListing[]
   jantriBenchmarks   JantriBenchmark[]
+  constructionProgress ProjectConstructionProgress[]
 
   @@index([sourceId])
   @@index([localityId])
@@ -3637,6 +3669,178 @@ model DataCoverageAudit {
   @@index([projectId])
   @@index([valuationEligibility])
   @@index([assessmentDate])
+}
+
+// ============================================================
+// PHASE 2 — OFFICIAL RESIDENTIAL PROJECT INTELLIGENCE MODELS
+// ============================================================
+
+model ProjectConfiguration {
+  id                      String    @id @default(cuid())
+  projectId               String
+  bhk                     Float
+  typology                String
+  carpetAreaSqFt          Float
+  carpetAreaMinSqFt       Float?
+  carpetAreaMaxSqFt       Float?
+  superBuiltUpAreaSqFt    Float?
+  totalUnitsInConfig      Int?
+  bathroomsCount          Int?
+  balconyCount            Int?
+  indicativePriceMinLakhs Float?
+  indicativePriceMaxLakhs Float?
+  provenanceDocId         String?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
+
+  project                 Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([bhk])
+  @@map("project_configurations")
+}
+
+model ProjectSpecification {
+  id                   String   @id @default(cuid())
+  projectId            String
+  category             String   // STRUCTURE, FLOORING, DOORS_WINDOWS, ELECTRICAL, PLUMBING, KITCHEN, SECURITY
+  featureName          String
+  specificationDetails String
+  sourceType           String   @default("OFFICIAL_RERA_FILING")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  project              Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@map("project_specifications")
+}
+
+model ProjectAmenity {
+  id               String   @id @default(cuid())
+  projectId        String
+  category         String   // LEISURE, FITNESS, CONVENIENCE, ECO_FRIENDLY, SAFETY
+  amenityName      String
+  isVerifiedInRera Boolean  @default(false)
+  createdAt        DateTime @default(now())
+
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@map("project_amenities")
+}
+
+model ProjectConstructionProgress {
+  id                         String          @id @default(cuid())
+  projectId                  String
+  reportingQuarter           String          // e.g. "Q1 2026", "Q2 2026"
+  asOfDate                   DateTime
+  overallPercentage          Float
+  structuralCompletionPct    Float?
+  brickworkCompletionPct     Float?
+  internalFinishingPct       Float?
+  externalFinishingPct       Float?
+  mepCompletionPct           Float?
+  occupancyCertificateStatus String?         // "NOT_APPLIED", "IN_PROGRESS", "OBTAINED"
+  sourceDocumentId           String?
+  inspectorNotes             String?
+  createdAt                  DateTime        @default(now())
+
+  project                    Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  sourceDocument             SourceDocument? @relation(fields: [sourceDocumentId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([asOfDate])
+  @@map("project_construction_progress")
+}
+
+model ProjectRegulatoryEvent {
+  id                  String   @id @default(cuid())
+  projectId           String
+  eventType           String   // REGISTRATION_GRANTED, EXTENSION_APPROVED, ALTERATION_RECORDED, COMPLAINT_DISPOSED, COMPLETION_CERTIFIED, PENALTY_NOTICE
+  eventDate           DateTime
+  regulatoryAuthority String   @default("GUJRERA")
+  orderNumber         String?
+  description         String
+  orderDocumentUrl    String?
+  impactAssessment    String?
+  createdAt           DateTime @default(now())
+
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([eventDate])
+  @@map("project_regulatory_events")
+}
+
+model ProjectHistoricalSnapshot {
+  id               String   @id @default(cuid())
+  projectId        String
+  snapshotDate     DateTime @default(now())
+  sourceId         String?
+  changeType       String   // NEW_DISCOVERY, PROGRESS_UPDATE, RERA_EXTENSION, CONFIGURATION_CHANGE, SPEC_UPDATE
+  changedFields    String[]
+  previousDataJson Json?
+  newDataJson      Json
+  reason           String?
+
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([snapshotDate])
+  @@map("project_historical_snapshots")
+}
+
+model ProjectCandidate {
+  id                   String    @id @default(cuid())
+  sourceId             String
+  externalReferenceId  String?
+  rawProjectName       String
+  rawDeveloperName     String?
+  rawLocalityName      String?
+  rawDistrictName      String?
+  rawReraNumber        String?
+  rawDataJson          Json
+  duplicateOfProjectId String?
+  matchConfidence      Float     @default(0)
+  reviewStatus         String    @default("PENDING_REVIEW") // PENDING_REVIEW, APPROVED_NEW, MERGED_EXISTING, REJECTED
+  reviewerNotes        String?
+  reviewedByUserId     String?
+  reviewedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  source               DataSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  matchedProject       Project?   @relation(fields: [duplicateOfProjectId], references: [id], onDelete: SetNull)
+
+  @@index([sourceId])
+  @@index([rawReraNumber])
+  @@index([reviewStatus])
+  @@index([duplicateOfProjectId])
+  @@map("project_candidates")
+}
+
+model CollectionJob {
+  id                      String    @id @default(cuid())
+  jobType                 String    // SOURCE_DISCOVERY, PROJECT_DISCOVERY, DOCUMENT_EXTRACTION, MONITORING_SWEEP, LOCALITY_REFRESH
+  sourceCode              String?
+  localitySlug            String?
+  status                  String    @default("QUEUED") // QUEUED, RUNNING, COMPLETED, FAILED, PAUSED
+  totalItemsDiscovered    Int       @default(0)
+  totalItemsIngested      Int       @default(0)
+  totalDuplicatesDetected Int       @default(0)
+  totalErrors             Int       @default(0)
+  logs                    Json?
+  errorMessage            String?
+  startedAt               DateTime?
+  completedAt             DateTime?
+  createdAt               DateTime  @default(now())
+
+  @@index([jobType])
+  @@index([status])
+  @@index([createdAt])
+  @@map("collection_jobs")
 }
 
 model RentalObservation {
