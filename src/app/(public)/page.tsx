@@ -277,7 +277,7 @@ export default function RealEstateHomePage() {
               </p>
               <div className="pt-2 text-[11px] font-mono text-[#202B3C] space-y-1">
                 <div>&bull; Registry: Gujarat RERA QPR audits & occupancy clearances</div>
-                <div>&bull; Verification: 100% verified regulatory filings without broker bias</div>
+                <div>&bull; Verification: Document-verified statutory filings without broker bias</div>
               </div>
             </div>
             <div className="pt-4 border-t border-[#C8C4BA]/50">

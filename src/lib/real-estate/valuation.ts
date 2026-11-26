@@ -67,17 +67,18 @@ export function calculatePropertyValuation(query: ValuationQuery): ValuationResu
   // Base rate per sq ft (using carpet area)
   let baseRateSqFt = locality.avgPriceSqFt;
 
-  // Project adjustment if matched in verified projects
-  if (query.projectName) {
-    const matchedProject = CANONICAL_PROJECTS.find(
-      (p) => p.name.toLowerCase().includes(query.projectName!.toLowerCase())
-    );
-    if (matchedProject) {
-      const projMidpoint = (matchedProject.priceRangeLakhs.min + matchedProject.priceRangeLakhs.max) / 2;
-      const projAvgSize = (matchedProject.carpetAreaRange.min + matchedProject.carpetAreaRange.max) / 2;
-      const projRate = (projMidpoint * 100000) / projAvgSize;
-      baseRateSqFt = Math.round((baseRateSqFt + projRate) / 2);
-    }
+  // Project adjustment if matched in verified projects (excluding quarantined/rejected)
+  const matchedProject = query.projectName
+    ? CANONICAL_PROJECTS.find(
+        (p) => p.name.toLowerCase().includes(query.projectName!.toLowerCase()) && p.verifiedDataStatus === 'VERIFIED'
+      )
+    : null;
+
+  if (matchedProject) {
+    const projMidpoint = (matchedProject.priceRangeLakhs.min + matchedProject.priceRangeLakhs.max) / 2;
+    const projAvgSize = (matchedProject.carpetAreaRange.min + matchedProject.carpetAreaRange.max) / 2;
+    const projRate = (projMidpoint * 100000) / projAvgSize;
+    baseRateSqFt = Math.round((baseRateSqFt + projRate) / 2);
   }
 
   // Multipliers based on condition, furnishing, floor, and age
@@ -183,7 +184,7 @@ export function calculatePropertyValuation(query: ValuationQuery): ValuationResu
       {
         id: 'BENCHMARK-SMPL-01',
         date: '14-Aug-2026',
-        projectName: query.projectName || `${locality.name} Sector Scheme`,
+        projectName: matchedProject ? matchedProject.name : `${locality.name} Sector Scheme`,
         carpetAreaSqFt: Math.round(query.carpetAreaSqFt * 0.95),
         transactedPriceLakhs: Math.round(midpointLakhs * 0.96 * 10) / 10,
         pricePerSqFtCarpet: Math.round(finalRateSqFt * 0.98),
@@ -191,7 +192,7 @@ export function calculatePropertyValuation(query: ValuationQuery): ValuationResu
       {
         id: 'BENCHMARK-SMPL-02',
         date: '22-Jul-2026',
-        projectName: query.projectName || `${locality.name} High-Rise Scheme`,
+        projectName: matchedProject ? matchedProject.name : `${locality.name} High-Rise Scheme`,
         carpetAreaSqFt: Math.round(query.carpetAreaSqFt * 1.02),
         transactedPriceLakhs: Math.round(midpointLakhs * 1.03 * 10) / 10,
         pricePerSqFtCarpet: Math.round(finalRateSqFt * 1.01),
@@ -199,7 +200,7 @@ export function calculatePropertyValuation(query: ValuationQuery): ValuationResu
       {
         id: 'BENCHMARK-SMPL-03',
         date: '05-Jun-2026',
-        projectName: query.projectName || `${locality.name} Tower Scheme`,
+        projectName: matchedProject ? matchedProject.name : `${locality.name} Tower Scheme`,
         carpetAreaSqFt: Math.round(query.carpetAreaSqFt * 0.98),
         transactedPriceLakhs: Math.round(midpointLakhs * 0.99 * 10) / 10,
         pricePerSqFtCarpet: Math.round(finalRateSqFt * 1.0),

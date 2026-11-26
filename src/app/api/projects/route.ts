@@ -9,8 +9,15 @@ export async function GET(req: NextRequest) {
     const locality = searchParams.get('locality')?.trim() || '';
     const bhk = searchParams.get('bhk')?.trim() || '';
     const possession = searchParams.get('possession')?.trim() || '';
+    const includeQuarantined = searchParams.get('includeQuarantined') === 'true';
 
     const where: any = {};
+
+    // Publication Governance: Only return publicly approved and visible projects by default
+    if (!includeQuarantined) {
+      where.isPubliclyVisible = true;
+      where.publicationStatus = 'PUBLISHED';
+    }
 
     if (search) {
       where.OR = [

@@ -3341,9 +3341,29 @@ model Project {
   longitude            Float?
   lastCheckedDate      DateTime?
   lastVerifiedDate     DateTime?
+  
+  // Phase 3.1 Controlled Remediation & Governance Fields
+  assetClassification  String?                    @default("RESIDENTIAL") // RESIDENTIAL, COMMERCIAL, MIXED_USE, PRE_RERA_COMPLETED, UNCLASSIFIED
+  publicationStatus    String                     @default("PUBLISHED") // PUBLISHED, QUARANTINED, REJECTED_PENDING_REVIEW, UNVERIFIED_DRAFT, MERGED_ALIAS
+  quarantineReason     String?
+  rejectionAuditRef    String?
+  isPubliclyVisible    Boolean                    @default(true)
+  canonicalProjectId   String?
+  mergedAt             DateTime?
+  mergeAuditLog        String?
+  originalReraNumber   String?
+  promoterLegalEntity  String?
+  statutoryDocRef      String?
+  reconciliationNotes  String?
+  adminApprovalStatus  String                     @default("PENDING_APPROVAL") // APPROVED, PENDING_APPROVAL, REJECTED
+  adminApprovedAt      DateTime?
+  adminApprovedBy      String?
+
   createdAt            DateTime                   @default(now())
   updatedAt            DateTime                   @updatedAt
 
+  canonicalProject     Project?                   @relation("ProjectMerges", fields: [canonicalProjectId], references: [id])
+  mergedProjects       Project[]                  @relation("ProjectMerges")
   developerRelation    Developer?                 @relation(fields: [developerId], references: [id], onDelete: SetNull)
   locality             Locality                   @relation(fields: [localityId], references: [id], onDelete: Cascade)
   properties           Property[]
@@ -3367,6 +3387,28 @@ model Project {
   @@index([reraNumber])
   @@index([district])
   @@index([valuationEligibility])
+  @@index([publicationStatus])
+  @@index([isPubliclyVisible])
+  @@index([assetClassification])
+  @@index([canonicalProjectId])
+}
+
+model EntityMergeLog {
+  id              String   @id @default(cuid())
+  sourceProjectId String
+  targetProjectId String
+  reason          String
+  promoterMatch   String?
+  reraMatch       String?
+  approvedBy      String
+  approvedAt      DateTime @default(now())
+  metadataJson    Json?
+
+  createdAt       DateTime @default(now())
+
+  @@index([sourceProjectId])
+  @@index([targetProjectId])
+  @@map("entity_merge_logs")
 }
 
 model Property {

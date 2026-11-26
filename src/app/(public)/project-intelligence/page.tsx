@@ -144,7 +144,7 @@ export default function ProjectIntelligenceDirectory() {
           <div className="bg-[#F5F3ED] border border-[#C8C4BA] p-3">
             <span className="text-[10px] uppercase text-[#69717B] block font-sans">Data Authenticity</span>
             <span className="text-sm font-bold text-[#547568] flex items-center gap-1 mt-1">
-              <CheckCircle2 className="w-4 h-4" /> 100% Sourced
+              <CheckCircle2 className="w-4 h-4" /> Officially Verified
             </span>
           </div>
         </div>

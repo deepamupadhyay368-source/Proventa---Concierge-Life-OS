@@ -9,10 +9,11 @@ export interface OfficialSourceDescriptor {
   sourceCategory: string;
   dataCategories: string[];
   accessMethod: string;
+  collectionMethod: 'MANUAL_STATUTORY_RESEARCH' | 'GAZETTE_EXTRACTION' | 'ON_DEMAND_ADMIN_TRIGGERED';
+  statutoryEvidenceTier: 'PRIMARY_REGULATORY' | 'GOVERNMENT_GAZETTE' | 'MUNICIPAL_RECORD' | 'DEVELOPER_COLLATERAL';
   permissionStatus: string;
   provenanceUrl: string;
   verificationProtocol: string;
-  reliabilityScore: number;
   collectionFrequency: string;
 }
 
@@ -24,12 +25,13 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     officialDomain: 'gujrera.gujarat.gov.in',
     sourceCategory: 'RERA_REGULATORY',
     dataCategories: ['PROJECT_REGISTRATION', 'FORM_B_CARPET_AREA', 'QPR_PROGRESS', 'SANCTIONED_PLANS', 'REGULATORY_ORDERS'],
-    accessMethod: 'STATUTORY_PUBLIC_PORTAL_EXTRACTION',
+    accessMethod: 'MANUAL_PUBLIC_PORTAL_RESEARCH',
+    collectionMethod: 'MANUAL_STATUTORY_RESEARCH',
+    statutoryEvidenceTier: 'PRIMARY_REGULATORY',
     permissionStatus: 'PUBLIC_STATUTORY_DISCLOSURE_RERA_ACT_2016',
     provenanceUrl: 'https://gujrera.gujarat.gov.in',
-    verificationProtocol: 'GujRERA Project Registration Certificate & Quarterly Progress Report Audit',
-    reliabilityScore: 0.98,
-    collectionFrequency: 'WEEKLY',
+    verificationProtocol: 'Manual inspection of GujRERA Project Registration Certificate & Quarterly Progress Report Audit. (No automated crawler or CAPTCHA bypass).',
+    collectionFrequency: 'PERIODIC_AUDIT',
   },
   {
     code: 'GARVI_REVENUE_DEPT',
@@ -38,12 +40,13 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     officialDomain: 'garvi.gujarat.gov.in',
     sourceCategory: 'REVENUE_SRO_DEED',
     dataCategories: ['REGISTERED_SALE_DEEDS', 'INDEX_II_EXTRACTS', 'STAMP_DUTY_RECORD'],
-    accessMethod: 'SUB_REGISTRAR_PUBLIC_INSPECTION_PORTAL',
+    accessMethod: 'SUB_REGISTRAR_INSPECTION_RECORDS',
+    collectionMethod: 'MANUAL_STATUTORY_RESEARCH',
+    statutoryEvidenceTier: 'PRIMARY_REGULATORY',
     permissionStatus: 'STATUTORY_PUBLIC_INSPECTION_INDIAN_REGISTRATION_ACT',
     provenanceUrl: 'https://garvi.gujarat.gov.in',
-    verificationProtocol: 'Indexed Deed Document & Stamp Duty Verification via SRO Jurisdiction',
-    reliabilityScore: 1.0,
-    collectionFrequency: 'MONTHLY',
+    verificationProtocol: 'Indexed Deed Document & Stamp Duty Verification via SRO Jurisdiction upon lawful procurement.',
+    collectionFrequency: 'MONTHLY_INDEXING',
   },
   {
     code: 'AUDA_PLANNING_AUTHORITY',
@@ -53,11 +56,12 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     sourceCategory: 'PLANNING_AUTHORITY_AUDA',
     dataCategories: ['DEVELOPMENT_PLAN', 'TP_SCHEME_MAPS', 'ZONING_REGULATIONS', 'INFRASTRUCTURE_RESERVATIONS'],
     accessMethod: 'SANCTIONED_DEVELOPMENT_PLAN_GAZETTE',
+    collectionMethod: 'GAZETTE_EXTRACTION',
+    statutoryEvidenceTier: 'GOVERNMENT_GAZETTE',
     permissionStatus: 'GOVERNMENT_OPEN_TOWN_PLANNING_RECORDS',
     provenanceUrl: 'https://auda.org.in',
     verificationProtocol: 'Sanctioned Comprehensive Development Plan 2021/2031 & TP Scheme Gazette',
-    reliabilityScore: 0.95,
-    collectionFrequency: 'MONTHLY',
+    collectionFrequency: 'ON_REVISION',
   },
   {
     code: 'GUDA_PLANNING_AUTHORITY',
@@ -67,11 +71,12 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     sourceCategory: 'PLANNING_AUTHORITY_GUDA',
     dataCategories: ['DEVELOPMENT_PLAN_GANDHINAGAR', 'TP_SCHEMES_KUDASAN_RAYSAN', 'SECTOR_PLANNING'],
     accessMethod: 'GUDA_DEVELOPMENT_PLAN_DISCLOSURE',
+    collectionMethod: 'GAZETTE_EXTRACTION',
+    statutoryEvidenceTier: 'GOVERNMENT_GAZETTE',
     permissionStatus: 'GOVERNMENT_STATUTORY_PLANNING_RECORDS',
     provenanceUrl: 'https://guda.gujarat.gov.in',
     verificationProtocol: 'Official Gandhinagar Urban Development Scheme and TP Verification',
-    reliabilityScore: 0.95,
-    collectionFrequency: 'MONTHLY',
+    collectionFrequency: 'ON_REVISION',
   },
   {
     code: 'JANTRI_OFFICIAL_GAZETTE',
@@ -81,10 +86,11 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     sourceCategory: 'STATUTORY_JANTRI',
     dataCategories: ['JANTRI_CIRCLE_RATES', 'TP_SCHEME_RATES', 'SURVEY_NUMBER_VALUATIONS'],
     accessMethod: 'OFFICIAL_STATE_GAZETTE_RATE_SCHEDULE',
+    collectionMethod: 'GAZETTE_EXTRACTION',
+    statutoryEvidenceTier: 'GOVERNMENT_GAZETTE',
     permissionStatus: 'STATUTORY_MINIMUM_GUIDELINE_BENCHMARK',
     provenanceUrl: 'https://revenuedepartment.gujarat.gov.in',
     verificationProtocol: 'Superintendent of Stamps Circle Rate Schedule Notification',
-    reliabilityScore: 1.0,
     collectionFrequency: 'ON_REVISION',
   },
   {
@@ -95,10 +101,11 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     sourceCategory: 'MUNICIPAL_AMC',
     dataCategories: ['BUILDING_PERMIT_SANCTIONS', 'COMMENCEMENT_CERTIFICATES', 'FIRE_SAFETY_NOC'],
     accessMethod: 'MUNICIPAL_TOWN_DEVELOPMENT_REGISTER',
+    collectionMethod: 'GAZETTE_EXTRACTION',
+    statutoryEvidenceTier: 'MUNICIPAL_RECORD',
     permissionStatus: 'PUBLIC_MUNICIPAL_RECORD',
     provenanceUrl: 'https://ahmedabadcity.gov.in',
     verificationProtocol: 'AMC Urban Development Sanction Order Inspection',
-    reliabilityScore: 0.92,
     collectionFrequency: 'BI_MONTHLY',
   },
   {
@@ -109,10 +116,11 @@ export const CANONICAL_OFFICIAL_SOURCES: OfficialSourceDescriptor[] = [
     sourceCategory: 'DEVELOPER_OFFICIAL',
     dataCategories: ['FLOOR_PLANS', 'SPECIFICATIONS_SHEETS', 'AMENITIES_DISCLOSURES'],
     accessMethod: 'AUTHORIZED_PROMOTER_COLLATERAL_VERIFICATION',
+    collectionMethod: 'MANUAL_STATUTORY_RESEARCH',
+    statutoryEvidenceTier: 'DEVELOPER_COLLATERAL',
     permissionStatus: 'PROMOTER_PUBLIC_MARKETING_COLLATERAL',
     provenanceUrl: 'https://proventa.in',
     verificationProtocol: 'Promoter-published architectural specifications cross-referenced with RERA Form B',
-    reliabilityScore: 0.85,
     collectionFrequency: 'ON_DEMAND',
   },
 ];
@@ -135,7 +143,7 @@ export async function initializeOfficialSources() {
         permissionStatus: src.permissionStatus,
         provenanceUrl: src.provenanceUrl,
         verificationProtocol: src.verificationProtocol,
-        reliabilityScore: src.reliabilityScore,
+        reliabilityScore: 1.0,
         collectionFrequency: src.collectionFrequency,
         isApproved: true,
         healthStatus: 'HEALTHY',
@@ -152,7 +160,7 @@ export async function initializeOfficialSources() {
         permissionStatus: src.permissionStatus,
         provenanceUrl: src.provenanceUrl,
         verificationProtocol: src.verificationProtocol,
-        reliabilityScore: src.reliabilityScore,
+        reliabilityScore: 1.0,
         collectionFrequency: src.collectionFrequency,
         isApproved: true,
         healthStatus: 'HEALTHY',

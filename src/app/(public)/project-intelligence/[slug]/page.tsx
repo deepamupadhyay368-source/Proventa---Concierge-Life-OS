@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { db } from '@/lib/db';
 import {
@@ -49,6 +49,19 @@ export default async function ProjectProfilePage({ params }: ProjectProfilePageP
     notFound();
   }
 
+  // Handle consolidated duplicate entities (redirect to canonical project)
+  if (project.canonicalProjectId) {
+    const canonical = await db.project.findUnique({ where: { id: project.canonicalProjectId } });
+    if (canonical) {
+      redirect(`/project-intelligence/${canonical.slug}`);
+    }
+  }
+
+  // Publication Gate: Exclude quarantined, rejected, or unverified draft projects from public dossiers
+  if (!project.isPubliclyVisible || project.publicationStatus !== 'PUBLISHED') {
+    notFound();
+  }
+
   // Get official statutory Jantri circle rate for this locality
   const jantri = await db.jantriBenchmark.findFirst({
     where: { localityId: project.localityId },
@@ -85,23 +98,33 @@ export default async function ProjectProfilePage({ params }: ProjectProfilePageP
               <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold">
                 {project.verificationBadge}
               </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 bg-slate-100 border border-slate-300 text-slate-700 font-semibold">
+                {project.assetClassification || 'RESIDENTIAL'}
+              </span>
             </div>
 
             <h1 className="font-editorial text-3xl sm:text-5xl font-bold text-[#202B3C] tracking-tight">
               {project.name}
             </h1>
 
-            <p className="text-sm sm:text-base text-[#69717B] font-sans flex items-center gap-2">
-              <span>Developed by</span>
-              <span className="font-bold text-[#202B3C] underline decoration-[#C8C4BA] underline-offset-4">
-                {project.developer || 'Independent'}
-              </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-[#547568]" />
-                {project.locality?.name}, {project.district}
-              </span>
-            </p>
+            <div className="text-sm sm:text-base text-[#69717B] font-sans space-y-1">
+              <p className="flex items-center gap-2">
+                <span>Developed by</span>
+                <span className="font-bold text-[#202B3C] underline decoration-[#C8C4BA] underline-offset-4">
+                  {project.developer || 'Independent'}
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-[#547568]" />
+                  {project.locality?.name}, {project.district}
+                </span>
+              </p>
+              {project.promoterLegalEntity && (
+                <p className="text-xs font-mono text-[#547568]">
+                  Registered Promoter: <span className="font-bold text-[#202B3C]">{project.promoterLegalEntity}</span>
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Statutory Registration Box */}
@@ -110,14 +133,25 @@ export default async function ProjectProfilePage({ params }: ProjectProfilePageP
               Gujarat RERA Registration Number
             </span>
             <span className="text-sm font-bold text-[#202B3C] break-all select-all block">
-              {project.reraNumber}
+              {project.reraNumber || 'PRE-RERA COMPLETED (EXEMPT)'}
             </span>
+            {project.statutoryDocRef && (
+              <span className="text-[10px] text-[#547568] block">
+                Evidence Ref: {project.statutoryDocRef}
+              </span>
+            )}
             <div className="pt-2 border-t border-[#C8C4BA]/50 flex justify-between text-[10px] text-[#69717B]">
               <span>Sanction Authority</span>
               <span className="font-bold text-[#202B3C]">
                 {project.district === 'Gandhinagar' ? 'GUDA / GujRERA' : 'AUDA / GujRERA'}
               </span>
             </div>
+            {project.lastVerifiedDate && (
+              <div className="text-[10px] text-[#69717B] flex justify-between">
+                <span>Verified Date</span>
+                <span className="font-semibold text-[#202B3C]">{new Date(project.lastVerifiedDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+              </div>
+            )}
           </div>
         </div>
 
