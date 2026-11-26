@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { appendTaskEvent } from '@/lib/orchestration/timeline';
 import { PaymentAutomationEngine } from '@/lib/payments/engine';
 import { RequestOrchestrator } from '@/lib/orchestration/orchestrator';
+import { calculateValuationForRequest } from '@/lib/valuation/engine';
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,7 +54,93 @@ export async function POST(req: NextRequest) {
         const taskId = notes.taskId;
         const approvedOptionId = notes.approvedOptionId;
 
-        // Update payment table record
+        // Handle Real Estate Valuation Payment Isolation & Headless Generation (SEC-FINDING-03)
+        // Process Real Estate valuation payments first without touching the Concierge Payment table
+        if (notes.requestId || notes.valuationRequestId) {
+          const valRequestId = notes.requestId || notes.valuationRequestId;
+
+          const valRequest = await db.valuationRequest.findUnique({
+            where: { id: valRequestId },
+            include: { payment: true, report: true },
+          });
+
+          if (!valRequest) {
+            console.error('[Razorpay Webhook] Valuation request not found for ID:', valRequestId);
+            return NextResponse.json({ error: 'Valuation request not found' }, { status: 404 });
+          }
+
+          // Confirm order ID binding if recorded
+          if (valRequest.payment?.orderId && orderId && valRequest.payment.orderId !== orderId) {
+            console.error('[Razorpay Webhook] Order ID mismatch:', {
+              recorded: valRequest.payment.orderId,
+              received: orderId,
+            });
+            return NextResponse.json({ error: 'Order ID mismatch' }, { status: 400 });
+          }
+
+          // Confirm payment amount & currency
+          if (valRequest.payment?.amountPaise && amountPaise !== valRequest.payment.amountPaise) {
+            console.error('[Razorpay Webhook] Amount mismatch:', {
+              expected: valRequest.payment.amountPaise,
+              received: amountPaise,
+            });
+            return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
+          }
+
+          // Update ValuationPayment to CAPTURED
+          await db.valuationPayment.updateMany({
+            where: { requestId: valRequestId },
+            data: {
+              status: 'CAPTURED',
+              paymentId: paymentId,
+              paidAt: new Date(),
+            },
+          });
+
+          // Mark ValuationRequest as PAID (will be marked COMPLETED by calculateValuationForRequest upon report readiness)
+          if (valRequest.status !== 'COMPLETED') {
+            await db.valuationRequest.updateMany({
+              where: { id: valRequestId },
+              data: { status: 'PAID' },
+            });
+          }
+
+          // Idempotency: if report is already generated and ready, do not duplicate calculation
+          if (valRequest.report && valRequest.report.status === 'READY') {
+            return NextResponse.json({
+              success: true,
+              processed: 'REAL_ESTATE_VALUATION',
+              alreadyGenerated: true,
+            });
+          }
+
+          // Trigger Headless Valuation Report Generation
+          try {
+            await calculateValuationForRequest(valRequestId, {
+              bypassPaymentCheck: false,
+            });
+
+            return NextResponse.json({
+              success: true,
+              processed: 'REAL_ESTATE_VALUATION',
+              reportGenerated: true,
+            });
+          } catch (calcErr: any) {
+            console.error('[Razorpay Webhook] Headless valuation calculation failed:', calcErr);
+            // Retain CAPTURED payment state, do NOT mark report READY.
+            // Return HTTP 500 so Razorpay exponential-backoff retry safely re-executes generation without re-charging.
+            return NextResponse.json(
+              {
+                success: false,
+                error: 'Valuation report calculation failed, retry scheduled via webhook.',
+                retryable: true,
+              },
+              { status: 500 }
+            );
+          }
+        }
+
+        // Otherwise, update Concierge payment table record
         const payment = await db.payment.findFirst({
           where: {
             OR: [
@@ -72,24 +159,6 @@ export async function POST(req: NextRequest) {
               providerRef: paymentId,
             },
           });
-        }
-
-        // Handle Real Estate Valuation Payment Isolation
-        if (notes.requestId || notes.valuationRequestId) {
-          const valRequestId = notes.requestId || notes.valuationRequestId;
-          await db.valuationPayment.updateMany({
-            where: { requestId: valRequestId },
-            data: {
-              status: 'CAPTURED',
-              paymentId: paymentId,
-              paidAt: new Date(),
-            },
-          });
-          await db.valuationRequest.updateMany({
-            where: { id: valRequestId },
-            data: { status: 'COMPLETED' },
-          });
-          return NextResponse.json({ success: true, processed: 'REAL_ESTATE_VALUATION' });
         }
 
         // Handle Membership Subscription Payment

@@ -67,6 +67,15 @@ export default function ValuationReportViewPage() {
           month: 'long',
           day: 'numeric',
         }));
+
+        // SEC-FINDING-04: Remove access token from visible browser URL after successful authentication
+        if (typeof window !== 'undefined' && window.location.search.includes('token=')) {
+          const currentUrl = new URL(window.location.href);
+          currentUrl.searchParams.delete('token');
+          const cleanQuery = currentUrl.searchParams.toString();
+          const cleanUrl = currentUrl.pathname + (cleanQuery ? `?${cleanQuery}` : '');
+          window.history.replaceState({}, document.title, cleanUrl);
+        }
       } catch (err: any) {
         setErrorMsg(err.message || 'Unable to render report.');
       } finally {

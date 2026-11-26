@@ -40,7 +40,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     const testSecret = 'test_razorpay_secret_key_12345';
 
     it('categorically rejects isSimulation: true when NODE_ENV === "production" (HTTP 403)', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.RAZORPAY_KEY_SECRET = testSecret;
 
       // Mock DB lookup
@@ -69,7 +69,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     });
 
     it('rejects live payment verification when required parameters are missing in production (HTTP 400)', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.RAZORPAY_KEY_SECRET = testSecret;
 
       vi.spyOn(db.valuationRequest, 'findUnique').mockResolvedValueOnce({
@@ -96,7 +96,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     });
 
     it('rejects payment verification when submitted order ID does not match stored request order (HTTP 400)', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.RAZORPAY_KEY_SECRET = testSecret;
 
       vi.spyOn(db.valuationRequest, 'findUnique').mockResolvedValueOnce({
@@ -124,7 +124,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     });
 
     it('rejects payment verification when cryptographic HMAC signature is invalid (HTTP 400)', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.RAZORPAY_KEY_SECRET = testSecret;
 
       vi.spyOn(db.valuationRequest, 'findUnique').mockResolvedValueOnce({
@@ -159,7 +159,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     });
 
     it('accepts valid cryptographic HMAC signature, marks payment CAPTURED, and returns signed access token', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.RAZORPAY_KEY_SECRET = testSecret;
       process.env.AUTH_SECRET = 'proventa-test-auth-secret-32-chars-long!';
 
@@ -218,7 +218,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     });
 
     it('rejects simulation in non-production when ALLOW_PAYMENT_SIMULATION is not explicitly enabled', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV = 'development';
       process.env.RAZORPAY_KEY_SECRET = testSecret; // Live keys simulated in dev
       delete process.env.ALLOW_PAYMENT_SIMULATION;
 
@@ -246,7 +246,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
     });
 
     it('verifies webhook HMAC-SHA256 signature verification rejects invalid signatures', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.RAZORPAY_WEBHOOK_SECRET = 'webhook_secret_prod_12345';
 
       const webhookBody = JSON.stringify({ event: 'payment.captured', payload: {} });

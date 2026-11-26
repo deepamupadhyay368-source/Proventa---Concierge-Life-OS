@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { calculateValuationForRequest } from '@/lib/valuation/engine';
 import { generateReportAccessToken } from '@/lib/valuation/report-token';
+import { getSession } from '@/lib/auth/session';
+import { razorpayClient } from '@/lib/payments/razorpay';
 import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
@@ -33,16 +35,40 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: 'Valuation request not found.' }, { status: 404 });
     }
 
-    // 1. Idempotency Check: if already completed and report ready, return immediately with signed access token
+    // Authenticate caller session if available
+    const session = await getSession();
+    const isOwner = Boolean(session?.user?.id && session.user.id === request.userId);
+    const isAdmin = Boolean(
+      session?.user?.roles?.some((r: any) => ['SUPER_ADMIN', 'CONCIERGE'].includes(r))
+    );
+
+    // 1. Strict Idempotency & Authorization Guard for Already Completed Requests (SEC-FINDING-01)
+    // Never hand out access tokens to unauthenticated callers based solely on request status.
     if (request.status === 'COMPLETED' && request.report?.status === 'READY') {
-      const accessToken = generateReportAccessToken(request.id, request.userId);
-      return NextResponse.json({
-        success: true,
-        reportUrl: `/price/report/${request.id}?token=${accessToken}`,
-        accessToken,
-        reportReference: request.report.reportReference,
-        alreadyProcessed: true,
-      });
+      if (isOwner || isAdmin) {
+        const accessToken = generateReportAccessToken(request.id, request.userId);
+        return NextResponse.json({
+          success: true,
+          reportUrl: `/price/report/${request.id}?token=${accessToken}`,
+          accessToken,
+          reportReference: request.report.reportReference,
+          alreadyProcessed: true,
+        });
+      }
+
+      // If an authenticated user is trying to access another customer's completed request, explicitly forbid
+      if (session?.user?.id && !isOwner && !isAdmin) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'UNAUTHORIZED: You do not have permission to access another customer’s valuation report.',
+          },
+          { status: 403 }
+        );
+      }
+
+      // Anonymous callers MUST prove payment possession via valid signature parameters below.
+      // Do not return early here for anonymous callers!
     }
 
     const isProduction = process.env.NODE_ENV === 'production';
@@ -80,7 +106,7 @@ export async function POST(req: NextRequest) {
 
     const runSimulation = isSimulation && isSimulationPermitted;
 
-    // 3. Cryptographic Payment Signature Verification
+    // 3. Cryptographic Payment Signature Verification & Provider State Confirmation
     if (!runSimulation) {
       // In live verification mode (always required in production):
       if (isProduction && !keySecret) {
@@ -127,8 +153,9 @@ export async function POST(req: NextRequest) {
         crypto.timingSafeEqual(sigBuffer, expBuffer);
 
       if (!isValidSignature) {
-        // Record payment failure in audit trail
-        if (request.payment) {
+        // SEC-FINDING-02: Protect CAPTURED as a terminal successful payment state!
+        // Never downgrade an already captured payment to FAILED on an invalid signature retry.
+        if (request.payment && request.payment.status !== 'CAPTURED') {
           await db.valuationPayment.update({
             where: { id: request.payment.id },
             data: { status: 'FAILED' },
@@ -142,6 +169,61 @@ export async function POST(req: NextRequest) {
           },
           { status: 400 }
         );
+      }
+
+      // SEC-FINDING-05: Server-Side Payment Provider Confirmation
+      // When live keys exist and provider fetch is enabled, verify payment status directly with Razorpay API
+      if (hasLiveKeys && process.env.ENABLE_PROVIDER_PAYMENT_FETCH === 'true') {
+        try {
+          const providerPayment: any = await razorpayClient.payments.fetch(razorpay_payment_id);
+          if (providerPayment && providerPayment.status !== 'captured') {
+            return NextResponse.json(
+              {
+                success: false,
+                error: `Payment verification failed: Provider payment status is '${providerPayment.status}', expected 'captured'.`,
+              },
+              { status: 400 }
+            );
+          }
+          if (request.payment?.orderId && providerPayment?.order_id && providerPayment.order_id !== request.payment.orderId) {
+            return NextResponse.json(
+              {
+                success: false,
+                error: 'Payment verification failed: Provider order ID does not match recorded order.',
+              },
+              { status: 400 }
+            );
+          }
+          if (request.payment?.amountPaise && providerPayment?.amount && providerPayment.amount !== request.payment.amountPaise) {
+            return NextResponse.json(
+              {
+                success: false,
+                error: 'Payment verification failed: Provider amount does not match expected amount.',
+              },
+              { status: 400 }
+            );
+          }
+          if (providerPayment?.currency && providerPayment.currency !== 'INR') {
+            return NextResponse.json(
+              {
+                success: false,
+                error: 'Payment verification failed: Currency mismatch.',
+              },
+              { status: 400 }
+            );
+          }
+        } catch (providerErr: any) {
+          console.error('[Razorpay Server-Side Fetch Error]:', providerErr);
+          if (isProduction) {
+            return NextResponse.json(
+              {
+                success: false,
+                error: 'Unable to verify payment with payment gateway provider.',
+              },
+              { status: 502 }
+            );
+          }
+        }
       }
     } else {
       // Permitted Simulation Mode (Non-production only):
@@ -159,6 +241,18 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
+    }
+
+    // If request was ALREADY completed and report is ready, but guest caller proved payment via valid signature:
+    if (request.status === 'COMPLETED' && request.report?.status === 'READY') {
+      const accessToken = generateReportAccessToken(request.id, request.userId);
+      return NextResponse.json({
+        success: true,
+        reportUrl: `/price/report/${request.id}?token=${accessToken}`,
+        accessToken,
+        reportReference: request.report.reportReference,
+        alreadyProcessed: true,
+      });
     }
 
     // 4. Mark ValuationPayment as CAPTURED
