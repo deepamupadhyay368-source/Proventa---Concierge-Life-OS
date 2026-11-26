@@ -219,7 +219,7 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
         report: null,
       } as any);
 
-      const updateSpy = vi.spyOn(db.valuationPayment, 'update').mockResolvedValueOnce({ id: 'pay-01', status: 'FAILED' } as any);
+      const updateSpy = vi.spyOn(db.valuationPayment, 'updateMany').mockResolvedValueOnce({ count: 1 } as any);
 
       const req = new NextRequest('https://proventa.in/api/price/pay/verify', {
         method: 'POST',
@@ -234,7 +234,7 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
       const res = await verifyPaymentHandler(req);
       expect(res.status).toBe(400);
       expect(updateSpy).toHaveBeenCalledWith({
-        where: { id: 'pay-01' },
+        where: { id: 'pay-01', status: { not: 'CAPTURED' } },
         data: { status: 'FAILED' },
       });
     });
@@ -254,7 +254,7 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
         report: null,
       } as any);
 
-      const updateSpy = vi.spyOn(db.valuationPayment, 'update');
+      const updateSpy = vi.spyOn(db.valuationPayment, 'updateMany').mockResolvedValueOnce({ count: 0 } as any);
 
       const req = new NextRequest('https://proventa.in/api/price/pay/verify', {
         method: 'POST',
@@ -270,8 +270,11 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
       expect(res.status).toBe(400);
       const json = await res.json();
       expect(json.error).toContain('Invalid payment signature');
-      // Verify update was NOT called because status === 'CAPTURED'
-      expect(updateSpy).not.toHaveBeenCalled();
+      // Verify atomic update was attempted with status: { not: 'CAPTURED' } which returns count 0
+      expect(updateSpy).toHaveBeenCalledWith({
+        where: { id: 'pay-01', status: { not: 'CAPTURED' } },
+        data: { status: 'FAILED' },
+      });
     });
   });
 
@@ -527,8 +530,8 @@ describe('PROVENTA Phase 6.7.1: Targeted Security & Payment Workflow Remediation
         report: null,
       } as any);
 
-      vi.spyOn(db.valuationPayment, 'updateMany').mockResolvedValueOnce({ count: 1 } as any);
-      vi.spyOn(db.valuationRequest, 'updateMany').mockResolvedValueOnce({ count: 1 } as any);
+      vi.spyOn(db.valuationPayment, 'updateMany').mockResolvedValue({ count: 1 } as any);
+      vi.spyOn(db.valuationRequest, 'updateMany').mockResolvedValue({ count: 1 } as any);
 
       // Simulate transient DB lock or engine failure
       vi.mocked(calculateValuationForRequest).mockRejectedValueOnce(

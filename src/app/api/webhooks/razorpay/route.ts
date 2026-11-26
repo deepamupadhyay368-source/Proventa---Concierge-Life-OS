@@ -97,20 +97,36 @@ export async function POST(req: NextRequest) {
             },
           });
 
-          // Mark ValuationRequest as PAID (will be marked COMPLETED by calculateValuationForRequest upon report readiness)
-          if (valRequest.status !== 'COMPLETED') {
-            await db.valuationRequest.updateMany({
-              where: { id: valRequestId },
-              data: { status: 'PAID' },
-            });
-          }
-
-          // Idempotency: if report is already generated and ready, do not duplicate calculation
-          if (valRequest.report && valRequest.report.status === 'READY') {
+          // Idempotency: if report is already generated and ready or request completed, do not duplicate calculation
+          if (valRequest.status === 'COMPLETED' || (valRequest.report && valRequest.report.status === 'READY')) {
             return NextResponse.json({
               success: true,
               processed: 'REAL_ESTATE_VALUATION',
               alreadyGenerated: true,
+            });
+          }
+
+          // AUDIT-DEFECT-02: Atomic lease claim of calculation execution
+          // Prevent concurrent duplicate webhooks from executing competing valuation calculations.
+          const staleThreshold = new Date(Date.now() - 5 * 60 * 1000); // 5-minute lease expiry
+          const claimResult = await db.valuationRequest.updateMany({
+            where: {
+              id: valRequestId,
+              OR: [
+                { status: 'PAID' },
+                { status: 'PENDING_PAYMENT' },
+                { status: 'PROCESSING', updatedAt: { lt: staleThreshold } },
+              ],
+            },
+            data: { status: 'PROCESSING' },
+          });
+
+          if (claimResult.count === 0) {
+            // Already COMPLETED, or held by an active processing lease
+            return NextResponse.json({
+              success: true,
+              processed: 'REAL_ESTATE_VALUATION',
+              processingClaimActive: true,
             });
           }
 
@@ -127,7 +143,12 @@ export async function POST(req: NextRequest) {
             });
           } catch (calcErr: any) {
             console.error('[Razorpay Webhook] Headless valuation calculation failed:', calcErr);
-            // Retain CAPTURED payment state, do NOT mark report READY.
+            // Revert request status to PAID so webhook retries or recovery workers can reclaim
+            await db.valuationRequest.updateMany({
+              where: { id: valRequestId, status: 'PROCESSING' },
+              data: { status: 'PAID' },
+            });
+
             // Return HTTP 500 so Razorpay exponential-backoff retry safely re-executes generation without re-charging.
             return NextResponse.json(
               {
@@ -272,6 +293,53 @@ export async function POST(req: NextRequest) {
         const paymentId = refundEntity.payment_id;
         const refundAmount = refundEntity.amount;
         const refundRef = refundEntity.id;
+        const notes = refundEntity.notes || {};
+        const valRequestId = notes.requestId || notes.valuationRequestId;
+
+        // Handle Real Estate Valuation Refund Isolation (AUDIT-DEFECT-03)
+        const valPayment = await db.valuationPayment.findFirst({
+          where: {
+            OR: [
+              ...(paymentId ? [{ paymentId: paymentId }] : []),
+              ...(valRequestId ? [{ requestId: valRequestId }] : []),
+            ],
+          },
+          include: { request: true },
+        });
+
+        if (valPayment) {
+          // Record ValuationRefund
+          await db.valuationRefund.create({
+            data: {
+              paymentId: valPayment.id,
+              amountPaise: refundAmount,
+              reason: notes.reason || 'Gateway refund processed',
+              status: 'PROCESSED',
+              refundReference: refundRef,
+              processedAt: new Date(),
+            },
+          });
+
+          // Check if full refund (or covers payment)
+          if (refundAmount >= valPayment.amountPaise) {
+            await db.valuationPayment.update({
+              where: { id: valPayment.id },
+              data: { status: 'REFUNDED' },
+            });
+
+            // Archive the valuation report to revoke access
+            await db.valuationReport.updateMany({
+              where: { requestId: valPayment.requestId },
+              data: { status: 'ARCHIVED' },
+            });
+          }
+
+          return NextResponse.json({
+            success: true,
+            processed: 'REAL_ESTATE_REFUND',
+            refundRef,
+          });
+        }
 
         const payment = await db.payment.findFirst({
           where: {

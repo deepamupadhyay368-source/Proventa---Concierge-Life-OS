@@ -5,12 +5,29 @@ import { verifyReportAccessToken } from '@/lib/valuation/report-token';
 
 export const dynamic = 'force-dynamic';
 
+// AUDIT-DEFECT-04: Strict Cache-Control headers for sensitive asset valuation dossiers
+const sensitiveCacheHeaders = {
+  'Cache-Control': 'private, no-store, no-cache, must-revalidate',
+  'Pragma': 'no-cache',
+  'Expires': '0',
+};
+
+function jsonResponse(data: any, init?: { status?: number; headers?: HeadersInit }) {
+  return NextResponse.json(data, {
+    status: init?.status ?? 200,
+    headers: {
+      ...sensitiveCacheHeaders,
+      ...(init?.headers || {}),
+    },
+  });
+}
+
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id: requestId } = await params;
 
     if (!requestId) {
-      return NextResponse.json({ success: false, error: 'Missing report identifier.' }, { status: 400 });
+      return jsonResponse({ success: false, error: 'Missing report identifier.' }, { status: 400 });
     }
 
     const request = await db.valuationRequest.findUnique({
@@ -25,7 +42,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!request) {
       // Prevent user enumeration and information leakage
-      return NextResponse.json({ success: false, error: 'Valuation report not found.' }, { status: 404 });
+      return jsonResponse({ success: false, error: 'Valuation report not found.' }, { status: 404 });
     }
 
     // 1. Strict Authentication & Authorization Guard (SEC-02)
@@ -47,7 +64,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         authorizationType = 'ADMIN';
       } else {
         // Authenticated user attempting to access another user's report (IDOR protection)
-        return NextResponse.json(
+        return jsonResponse(
           {
             success: false,
             error: 'UNAUTHORIZED: You do not have permission to view another customer’s private valuation report.',
@@ -70,7 +87,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
           isAuthorized = true;
           authorizationType = 'SIGNED_TOKEN';
         } else if (tokenResult.error === 'TOKEN_EXPIRED') {
-          return NextResponse.json(
+          return jsonResponse(
             {
               success: false,
               error: 'EXPIRED_TOKEN: The report access link has expired. Please sign in or request a renewed access link.',
@@ -78,7 +95,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             { status: 401 }
           );
         } else if (tokenResult.error === 'TOKEN_REQUEST_MISMATCH') {
-          return NextResponse.json(
+          return jsonResponse(
             {
               success: false,
               error: 'INVALID_TOKEN: This access token is not authorized for this specific valuation dossier.',
@@ -86,7 +103,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             { status: 401 }
           );
         } else {
-          return NextResponse.json(
+          return jsonResponse(
             {
               success: false,
               error: 'INVALID_TOKEN: Invalid, malformed, or tampered report access token.',
@@ -99,7 +116,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // C. Rejection if neither session nor valid signed token is present
     if (!isAuthorized) {
-      return NextResponse.json(
+      return jsonResponse(
         {
           success: false,
           error: 'AUTHENTICATION_REQUIRED: An active authenticated session or a valid signed email access token is required to view this valuation dossier.',
@@ -108,10 +125,20 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       );
     }
 
-    // 2. Strict Paywall Enforcement
-    const isPaid = request.payment?.status === 'CAPTURED' || request.status === 'COMPLETED';
+    // 2. Strict Paywall & Refund Revocation Enforcement (AUDIT-DEFECT-03)
+    if (request.payment?.status === 'REFUNDED' || request.report?.status === 'ARCHIVED') {
+      return jsonResponse(
+        {
+          success: false,
+          error: 'ACCESS_REVOKED: This valuation dossier has been revoked due to a processed refund or archive.',
+        },
+        { status: 403 }
+      );
+    }
+
+    const isPaid = request.payment?.status === 'CAPTURED';
     if (!isPaid) {
-      return NextResponse.json(
+      return jsonResponse(
         {
           success: false,
           error: 'ACCESS_RESTRICTED: Valuation report is inaccessible until payment has been successfully captured.',
@@ -123,7 +150,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // 3. Report Generation Status Verification
     if (!request.report || request.report.status !== 'READY') {
-      return NextResponse.json(
+      return jsonResponse(
         { success: false, error: 'Report is currently processing. Please refresh in a moment.' },
         { status: 202 }
       );
@@ -135,7 +162,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       data: { downloadedCount: { increment: 1 } },
     });
 
-    return NextResponse.json({
+    return jsonResponse({
       success: true,
       reportReference: request.report.reportReference,
       status: request.report.status,
@@ -145,7 +172,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     });
   } catch (error: any) {
     console.error('Error fetching report:', error);
-    return NextResponse.json(
+    return jsonResponse(
       { success: false, error: 'Failed to retrieve valuation report.' },
       { status: 500 }
     );

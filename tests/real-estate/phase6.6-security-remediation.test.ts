@@ -135,7 +135,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
         report: null,
       } as any);
 
-      const updatePaymentSpy = vi.spyOn(db.valuationPayment, 'update').mockResolvedValueOnce({} as any);
+      const updatePaymentSpy = vi.spyOn(db.valuationPayment, 'updateMany').mockResolvedValueOnce({ count: 1 } as any);
 
       const req = new NextRequest('https://proventa.in/api/price/pay/verify', {
         method: 'POST',
@@ -177,7 +177,7 @@ describe('PROVENTA Phase 6.6: Targeted Security Remediation Suite', () => {
         report: null,
       } as any);
 
-      const paymentUpdateSpy = vi.spyOn(db.valuationPayment, 'update').mockResolvedValueOnce({} as any);
+      const paymentUpdateSpy = vi.spyOn(db.valuationPayment, 'updateMany').mockResolvedValueOnce({ count: 1 } as any);
       const requestUpdateSpy = vi.spyOn(db.valuationRequest, 'update').mockResolvedValueOnce({} as any);
 
       // Mock calculation engine to prevent full DB compilation during unit test

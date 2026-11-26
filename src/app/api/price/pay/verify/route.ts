@@ -153,13 +153,22 @@ export async function POST(req: NextRequest) {
         crypto.timingSafeEqual(sigBuffer, expBuffer);
 
       if (!isValidSignature) {
-        // SEC-FINDING-02: Protect CAPTURED as a terminal successful payment state!
-        // Never downgrade an already captured payment to FAILED on an invalid signature retry.
-        if (request.payment && request.payment.status !== 'CAPTURED') {
-          await db.valuationPayment.update({
-            where: { id: request.payment.id },
+        // AUDIT-DEFECT-01 & SEC-FINDING-02: Protect CAPTURED as a terminal successful payment state!
+        // Atomically ensure that an invalid signature retry cannot downgrade an already captured payment.
+        if (request.payment) {
+          const updateResult = await db.valuationPayment.updateMany({
+            where: {
+              id: request.payment.id,
+              status: { not: 'CAPTURED' },
+            },
             data: { status: 'FAILED' },
           });
+
+          if (updateResult.count === 0) {
+            console.warn(
+              `[Payment Verification] Atomic update: payment ${request.payment.id} was already CAPTURED or not found; not downgrading to FAILED.`
+            );
+          }
         }
 
         return NextResponse.json(
@@ -264,8 +273,11 @@ export async function POST(req: NextRequest) {
       `sig_sim_${crypto.randomBytes(16).toString('hex')}`;
 
     if (request.payment) {
-      await db.valuationPayment.update({
-        where: { id: request.payment.id },
+      await db.valuationPayment.updateMany({
+        where: {
+          id: request.payment.id,
+          status: { not: 'REFUNDED' },
+        },
         data: {
           status: 'CAPTURED',
           paymentId,
