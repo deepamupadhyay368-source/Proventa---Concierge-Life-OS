@@ -356,11 +356,34 @@ export async function POST(req: NextRequest) {
       if (refundEntity) {
         const paymentId = refundEntity.payment_id;
         const refundAmount = refundEntity.amount;
-        const refundRef = refundEntity.id;
+        const refundRef = refundEntity.id || eventPayload?.id || eventPayload?.event_id;
         const notes = refundEntity.notes || {};
         const valRequestId = notes.requestId || notes.valuationRequestId;
+        const currency = refundEntity.currency || 'INR';
 
-        // Handle Real Estate Valuation Refund Isolation (Findings 03, 04, 05)
+        // 1. Strict Input Validation (Phase 6.8.5)
+        if (!refundRef) {
+          return NextResponse.json(
+            { success: false, error: 'Missing required provider refund reference or event ID for idempotency' },
+            { status: 400 }
+          );
+        }
+
+        if (typeof refundAmount !== 'number' || !Number.isInteger(refundAmount) || refundAmount <= 0) {
+          return NextResponse.json(
+            { success: false, error: 'Invalid refund amount: must be a positive integer in paise' },
+            { status: 400 }
+          );
+        }
+
+        if (currency !== 'INR') {
+          return NextResponse.json(
+            { success: false, error: `Invalid refund currency '${currency}': only INR is supported` },
+            { status: 400 }
+          );
+        }
+
+        // Handle Real Estate Valuation Refund Isolation (Findings 03, 04, 05 & Phase 6.8.5)
         const valPayment = await db.valuationPayment.findFirst({
           where: {
             OR: [
@@ -373,68 +396,121 @@ export async function POST(req: NextRequest) {
 
         if (valPayment) {
           // Idempotency Pre-Check (Finding 04):
-          if (refundRef) {
-            const existingRefund = await db.valuationRefund.findFirst({
-              where: { refundReference: refundRef },
+          const existingRefund = await db.valuationRefund.findFirst({
+            where: { refundReference: refundRef },
+          });
+          if (existingRefund) {
+            return NextResponse.json({
+              success: true,
+              processed: 'REAL_ESTATE_REFUND',
+              alreadyProcessed: true,
+              refundRef,
             });
-            if (existingRefund) {
-              return NextResponse.json({
-                success: true,
-                processed: 'REAL_ESTATE_REFUND',
-                alreadyProcessed: true,
-                refundRef,
-              });
-            }
           }
 
-          // Atomic Database Transaction (Finding 05) & Cumulative Accounting (Finding 03)
+          // Atomic Database Transaction with PostgreSQL Row-Level Lock (Phase 6.8.5 Critical Defect A)
           const refundTxResult = await db.$transaction(async (tx) => {
-            // Secondary idempotency check within transaction
-            if (refundRef) {
-              const txExisting = await tx.valuationRefund.findFirst({
-                where: { refundReference: refundRef },
-              });
-              if (txExisting) {
-                return { alreadyProcessed: true, isFullRefund: false, cumulativeRefundedPaise: 0 };
+            // A. Acquire exclusive row lock on the parent ValuationPayment
+            let lockedPayment = valPayment;
+            if (typeof (tx as any).$queryRaw === 'function') {
+              const rows = await (tx as any).$queryRaw<Array<{
+                id: string;
+                requestId: string;
+                status: string;
+                amountPaise: number;
+                currency: string | null;
+              }>>`SELECT id, "requestId", status, "amountPaise", currency FROM "ValuationPayment" WHERE id = ${valPayment.id} FOR UPDATE`;
+              if (rows && rows.length > 0) {
+                lockedPayment = { ...valPayment, ...rows[0] };
               }
             }
 
-            // 1. Record new ValuationRefund row
-            await tx.valuationRefund.create({
-              data: {
-                paymentId: valPayment.id,
-                amountPaise: refundAmount,
-                reason: notes.reason || refundEntity.notes?.reason || 'Gateway refund processed',
-                status: 'PROCESSED',
-                refundReference: refundRef,
-                processedAt: new Date(),
-              },
-            });
+            // B. Validate payment state under lock: must be CAPTURED
+            if (lockedPayment.status !== 'CAPTURED') {
+              if (lockedPayment.status === 'REFUNDED') {
+                const existing = await tx.valuationRefund.findFirst({
+                  where: { refundReference: refundRef },
+                });
+                if (existing) {
+                  return { alreadyProcessed: true, isFullRefund: true, cumulativeRefundedPaise: lockedPayment.amountPaise };
+                }
+                return {
+                  error: 'PAYMENT_ALREADY_REFUNDED: Cannot process refund against an already refunded payment.',
+                  status: 409,
+                };
+              }
+              return {
+                error: `INVALID_PAYMENT_STATE: Cannot process refund against payment in '${lockedPayment.status}' state. Only CAPTURED payments can be refunded.`,
+                status: 409,
+              };
+            }
 
-            // 2. Compute cumulative refunded amount in integer paise across all successfully processed refunds
+            // C. Secondary Idempotency check inside transaction holding the row lock
+            const txExisting = await tx.valuationRefund.findFirst({
+              where: { refundReference: refundRef },
+            });
+            if (txExisting) {
+              const agg = await tx.valuationRefund.aggregate({
+                where: { paymentId: lockedPayment.id, status: 'PROCESSED' },
+                _sum: { amountPaise: true },
+              });
+              const currentTotal = agg._sum.amountPaise || 0;
+              return {
+                alreadyProcessed: true,
+                isFullRefund: currentTotal >= lockedPayment.amountPaise,
+                cumulativeRefundedPaise: currentTotal,
+              };
+            }
+
+            // D. Insert ValuationRefund row (handle duplicate race gracefully)
+            try {
+              await tx.valuationRefund.create({
+                data: {
+                  paymentId: lockedPayment.id,
+                  amountPaise: refundAmount,
+                  reason: notes.reason || refundEntity.notes?.reason || 'Gateway refund processed',
+                  status: 'PROCESSED',
+                  refundReference: refundRef,
+                  processedAt: new Date(),
+                },
+              });
+            } catch (err: any) {
+              if (err.code === 'P2002' || err.message?.includes('unique constraint') || err.message?.includes('Unique constraint failed')) {
+                return { alreadyProcessed: true, isFullRefund: false, cumulativeRefundedPaise: lockedPayment.amountPaise };
+              }
+              throw err;
+            }
+
+            // E. Compute cumulative refunded amount in integer paise across all successfully processed refunds while holding lock
             const agg = await tx.valuationRefund.aggregate({
-              where: { paymentId: valPayment.id, status: 'PROCESSED' },
+              where: { paymentId: lockedPayment.id, status: 'PROCESSED' },
               _sum: { amountPaise: true },
             });
             const cumulativeRefundedPaise = agg._sum.amountPaise || 0;
 
-            if (cumulativeRefundedPaise > valPayment.amountPaise) {
+            // F. Over-Refund Protection: prevent cumulative refunds exceeding original captured amount
+            if (cumulativeRefundedPaise > lockedPayment.amountPaise) {
               console.error(
-                `[Refund Ledger Alert] Cumulative refund (${cumulativeRefundedPaise} paise) exceeds captured amount (${valPayment.amountPaise} paise) for payment ${valPayment.id}`
+                `[Refund Over-Allocation Blocked] Cumulative refunds (${cumulativeRefundedPaise} paise) exceed captured amount (${lockedPayment.amountPaise} paise) for payment ${lockedPayment.id}`
               );
+              return {
+                error: `EXCESSIVE_REFUND_AMOUNT: Cumulative refunds (${cumulativeRefundedPaise} paise) exceed original captured amount (${lockedPayment.amountPaise} paise).`,
+                status: 422,
+                quarantined: true,
+              };
             }
 
-            const isFullRefund = cumulativeRefundedPaise >= valPayment.amountPaise;
+            // G. If cumulative refunds reach or exceed original captured payment, transition to REFUNDED and ARCHIVED
+            const isFullRefund = cumulativeRefundedPaise >= lockedPayment.amountPaise;
 
-            // 3. If cumulative refunds reach or exceed the original captured payment, transition to REFUNDED and ARCHIVED
             if (isFullRefund) {
               await tx.valuationPayment.update({
-                where: { id: valPayment.id },
+                where: { id: lockedPayment.id },
                 data: { status: 'REFUNDED' },
               });
 
               await tx.valuationReport.updateMany({
-                where: { requestId: valPayment.requestId },
+                where: { requestId: lockedPayment.requestId },
                 data: { status: 'ARCHIVED' },
               });
             }
@@ -445,6 +521,17 @@ export async function POST(req: NextRequest) {
               isFullRefund,
             };
           });
+
+          if ((refundTxResult as any).error) {
+            return NextResponse.json(
+              {
+                success: false,
+                error: (refundTxResult as any).error,
+                quarantined: (refundTxResult as any).quarantined || false,
+              },
+              { status: (refundTxResult as any).status || 400 }
+            );
+          }
 
           return NextResponse.json({
             success: true,

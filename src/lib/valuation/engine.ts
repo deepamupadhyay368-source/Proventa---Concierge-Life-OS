@@ -374,14 +374,30 @@ export async function calculateValuationForRequest(
   // 6. Insufficient Evidence Check
   const eligibleRegistered = matchedRegistered.filter((m) => !m.excluded);
   if (eligibleRegistered.length < params.minEligibleCompsForValuation) {
-    // Transition request to MANUAL_REVIEW
-    await db.valuationRequest.update({
-      where: { id: requestId },
-      data: {
-        status: 'MANUAL_REVIEW',
-        rejectionReason: `Insufficient verified registered deeds (${eligibleRegistered.length} found, minimum required: ${params.minEligibleCompsForValuation}). Case assigned to senior research analyst.`,
-      },
-    });
+    // Transition request to MANUAL_REVIEW only if lock token still valid (Phase 6.8.5)
+    if (options.lockToken) {
+      const updateRes = await db.valuationRequest.updateMany({
+        where: { id: requestId, processingLockToken: options.lockToken },
+        data: {
+          status: 'MANUAL_REVIEW',
+          processingLockToken: null,
+          rejectionReason: `Insufficient verified registered deeds (${eligibleRegistered.length} found, minimum required: ${params.minEligibleCompsForValuation}). Case assigned to senior research analyst.`,
+        },
+      });
+      if (updateRes.count === 0) {
+        throw new Error(
+          `STALE_PROCESSING_LEASE: Failed to transition to MANUAL_REVIEW; lock token was revoked or expired for request: ${requestId}`
+        );
+      }
+    } else {
+      await db.valuationRequest.update({
+        where: { id: requestId },
+        data: {
+          status: 'MANUAL_REVIEW',
+          rejectionReason: `Insufficient verified registered deeds (${eligibleRegistered.length} found, minimum required: ${params.minEligibleCompsForValuation}). Case assigned to senior research analyst.`,
+        },
+      });
+    }
 
     throw new Error(
       `INSUFFICIENT_EVIDENCE: Only ${eligibleRegistered.length} verified comparable transactions found in ${request.locality.name} within carpet area limits. Minimum 2 required for defensible automated valuation.`
@@ -532,13 +548,29 @@ export async function calculateValuationForRequest(
   );
 
   if (twelveFactors.riskGateTriggered) {
-    await db.valuationRequest.update({
-      where: { id: requestId },
-      data: {
-        status: 'MANUAL_REVIEW',
-        rejectionReason: `Valuation blocked by risk gate: ${twelveFactors.blockingReasons.join('; ')}`,
-      },
-    });
+    if (options.lockToken) {
+      const updateRes = await db.valuationRequest.updateMany({
+        where: { id: requestId, processingLockToken: options.lockToken },
+        data: {
+          status: 'MANUAL_REVIEW',
+          processingLockToken: null,
+          rejectionReason: `Valuation blocked by risk gate: ${twelveFactors.blockingReasons.join('; ')}`,
+        },
+      });
+      if (updateRes.count === 0) {
+        throw new Error(
+          `STALE_PROCESSING_LEASE: Failed to transition to MANUAL_REVIEW; lock token was revoked or expired for request: ${requestId}`
+        );
+      }
+    } else {
+      await db.valuationRequest.update({
+        where: { id: requestId },
+        data: {
+          status: 'MANUAL_REVIEW',
+          rejectionReason: `Valuation blocked by risk gate: ${twelveFactors.blockingReasons.join('; ')}`,
+        },
+      });
+    }
 
     throw new Error(`VALUATION_RISK_GATE_BLOCKED: ${twelveFactors.blockingReasons.join('; ')}`);
   }
@@ -568,112 +600,14 @@ export async function calculateValuationForRequest(
     },
   };
 
-  // 12. Reference Codes & Report Generation
+  // 12. Reference Codes & Result Payload Assembly (In-Memory, Zero DB Mutations)
   const randomSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
   const reportReference = `PVI-VAL-${new Date().getFullYear()}-${randomSuffix}`;
-
-  // 13. Save Valuation Record to Database
-  const valuation = await db.valuation.upsert({
-    where: { requestId },
-    update: {
-      methodologyVersion,
-      estimatedValueMinLakhs: minLakhs,
-      estimatedValueMaxLakhs: maxLakhs,
-      estimatedMidpointLakhs: midpointLakhs,
-      pricePerSqFtCarpet: finalRatePerSqFt,
-      jantriBenchmarkLakhs: jantriLakhs,
-      confidenceScore,
-      confidenceLevel,
-      confidenceRationale,
-      eligibleCompsCount: eligibleRegistered.length + matchedListings.length,
-      calculatedAt: new Date(),
-      calculationDetailsJson: {
-        ratesForDispersion,
-        dispersionCoeff,
-        spreadPercent,
-        meanRate,
-        weightsUsed: totalWeights,
-        layeredArchitecture,
-        twelveFactors: twelveFactors.factors,
-      } as any,
-    },
-    create: {
-      requestId,
-      methodologyVersion,
-      estimatedValueMinLakhs: minLakhs,
-      estimatedValueMaxLakhs: maxLakhs,
-      estimatedMidpointLakhs: midpointLakhs,
-      pricePerSqFtCarpet: finalRatePerSqFt,
-      jantriBenchmarkLakhs: jantriLakhs,
-      confidenceScore,
-      confidenceLevel,
-      confidenceRationale,
-      eligibleCompsCount: eligibleRegistered.length + matchedListings.length,
-      calculationDetailsJson: {
-        ratesForDispersion,
-        dispersionCoeff,
-        spreadPercent,
-        meanRate,
-        weightsUsed: totalWeights,
-        layeredArchitecture,
-        twelveFactors: twelveFactors.factors,
-      } as any,
-    },
-  });
-
-  // Save ValuationEvidence entries
-  await db.valuationEvidence.deleteMany({ where: { valuationId: valuation.id } });
-  for (const comp of eligibleRegistered) {
-    await db.valuationEvidence.create({
-      data: {
-        valuationId: valuation.id,
-        evidenceType: 'REGISTERED_TRANSACTION',
-        transactionId: comp.id,
-        weight: comp.weight,
-        baselineRateSqFt: comp.baselineRateSqFt,
-        adjustedRateSqFt: comp.adjustedRateSqFt,
-        adjustmentDetailsJson: comp.adjustments as any,
-        notes: comp.selectionRationale,
-      },
-    });
-  }
-
-  for (const list of matchedListings) {
-    await db.valuationEvidence.create({
-      data: {
-        valuationId: valuation.id,
-        evidenceType: 'ASKING_LISTING',
-        listingId: list.id,
-        weight: list.weight,
-        baselineRateSqFt: list.baselineRateSqFt,
-        adjustedRateSqFt: list.adjustedRateSqFt,
-        adjustmentDetailsJson: list.adjustments as any,
-        notes: list.selectionRationale,
-      },
-    });
-  }
-
-  // Save ComparableMatch entries
-  await db.comparableMatch.deleteMany({ where: { valuationId: valuation.id } });
-  for (const comp of eligibleRegistered) {
-    await db.comparableMatch.create({
-      data: {
-        valuationId: valuation.id,
-        transactionId: comp.id,
-        matchScore: comp.matchScore,
-        matchType: comp.matchTier,
-        selectionRationale: comp.selectionRationale,
-        carpetAreaDiffPercent: comp.adjustments.carpetAreaDiffPercent,
-        floorAdjustmentPercent: comp.adjustments.floorAdjustmentPercent,
-        ageAdjustmentPercent: comp.adjustments.ageAdjustmentPercent,
-        netAdjustmentPercent: comp.adjustments.netAdjustmentPercent,
-      },
-    });
-  }
+  const now = new Date();
 
   const resultPayload: ValuationEngineResult = {
     requestId: request.id,
-    valuationId: valuation.id,
+    valuationId: '', // Populated inside transaction
     reportReference,
     methodologyVersion,
     propertySummary: {
@@ -704,7 +638,7 @@ export async function calculateValuationForRequest(
       confidenceRationale,
       eligibleCompsCount: eligibleRegistered.length + matchedListings.length,
       dispersionCoefficientPercent: dispersionCoeff,
-      calculatedAt: valuation.calculatedAt,
+      calculatedAt: now,
     },
     comparableEvidence: {
       registeredTransactions: eligibleRegistered,
@@ -728,9 +662,27 @@ export async function calculateValuationForRequest(
     ],
   };
 
-  // 13. Create or Update ValuationReport & 14. Mark Request as COMPLETED atomically
-  // Finding 06 (Phase 6.8.3): Distributed lease fencing token validation at write boundary
+  // 13. Fully Fenced Atomic Persistence Transaction (Phase 6.8.5 Critical Defect B)
+  // Zero database mutations occur unless processingLockToken ownership is verified under row-level lock
   await db.$transaction(async (tx) => {
+    // A. Acquire row lock on ValuationRequest using FOR UPDATE and validate lock token
+    if (typeof (tx as any).$queryRaw === 'function') {
+      const lockedRequests = await (tx as any).$queryRaw<Array<{
+        id: string;
+        status: string;
+        processingLockToken: string | null;
+      }>>`SELECT id, status, "processingLockToken" FROM "ValuationRequest" WHERE id = ${requestId} FOR UPDATE`;
+
+      if (options.lockToken && lockedRequests && lockedRequests.length > 0) {
+        if (lockedRequests[0].processingLockToken !== options.lockToken) {
+          throw new Error(
+            `STALE_PROCESSING_LEASE: Failed to commit completion; lock token was revoked, expired or stolen for request: ${requestId}`
+          );
+        }
+      }
+    }
+
+    // B. Fencing Token Check & Transition to COMPLETED
     if (options.lockToken) {
       const lockCheck = await tx.valuationRequest.updateMany({
         where: {
@@ -755,6 +707,109 @@ export async function calculateValuationForRequest(
       });
     }
 
+    // C. Persist Valuation Record within the same fenced transaction
+    const valuation = await tx.valuation.upsert({
+      where: { requestId },
+      update: {
+        methodologyVersion,
+        estimatedValueMinLakhs: minLakhs,
+        estimatedValueMaxLakhs: maxLakhs,
+        estimatedMidpointLakhs: midpointLakhs,
+        pricePerSqFtCarpet: finalRatePerSqFt,
+        jantriBenchmarkLakhs: jantriLakhs,
+        confidenceScore,
+        confidenceLevel,
+        confidenceRationale,
+        eligibleCompsCount: eligibleRegistered.length + matchedListings.length,
+        calculatedAt: now,
+        calculationDetailsJson: {
+          ratesForDispersion,
+          dispersionCoeff,
+          spreadPercent,
+          meanRate,
+          weightsUsed: totalWeights,
+          layeredArchitecture,
+          twelveFactors: twelveFactors.factors,
+        } as any,
+      },
+      create: {
+        requestId,
+        methodologyVersion,
+        estimatedValueMinLakhs: minLakhs,
+        estimatedValueMaxLakhs: maxLakhs,
+        estimatedMidpointLakhs: midpointLakhs,
+        pricePerSqFtCarpet: finalRatePerSqFt,
+        jantriBenchmarkLakhs: jantriLakhs,
+        confidenceScore,
+        confidenceLevel,
+        confidenceRationale,
+        eligibleCompsCount: eligibleRegistered.length + matchedListings.length,
+        calculationDetailsJson: {
+          ratesForDispersion,
+          dispersionCoeff,
+          spreadPercent,
+          meanRate,
+          weightsUsed: totalWeights,
+          layeredArchitecture,
+          twelveFactors: twelveFactors.factors,
+        } as any,
+      },
+    });
+
+    // D. Persist ValuationEvidence entries within the same fenced transaction
+    await tx.valuationEvidence.deleteMany({ where: { valuationId: valuation.id } });
+    for (const comp of eligibleRegistered) {
+      await tx.valuationEvidence.create({
+        data: {
+          valuationId: valuation.id,
+          evidenceType: 'REGISTERED_TRANSACTION',
+          transactionId: comp.id,
+          weight: comp.weight,
+          baselineRateSqFt: comp.baselineRateSqFt,
+          adjustedRateSqFt: comp.adjustedRateSqFt,
+          adjustmentDetailsJson: comp.adjustments as any,
+          notes: comp.selectionRationale,
+        },
+      });
+    }
+
+    for (const list of matchedListings) {
+      await tx.valuationEvidence.create({
+        data: {
+          valuationId: valuation.id,
+          evidenceType: 'ASKING_LISTING',
+          listingId: list.id,
+          weight: list.weight,
+          baselineRateSqFt: list.baselineRateSqFt,
+          adjustedRateSqFt: list.adjustedRateSqFt,
+          adjustmentDetailsJson: list.adjustments as any,
+          notes: list.selectionRationale,
+        },
+      });
+    }
+
+    // E. Persist ComparableMatch entries within the same fenced transaction
+    await tx.comparableMatch.deleteMany({ where: { valuationId: valuation.id } });
+    for (const comp of eligibleRegistered) {
+      await tx.comparableMatch.create({
+        data: {
+          valuationId: valuation.id,
+          transactionId: comp.id,
+          matchScore: comp.matchScore,
+          matchType: comp.matchTier,
+          selectionRationale: comp.selectionRationale,
+          carpetAreaDiffPercent: comp.adjustments.carpetAreaDiffPercent,
+          floorAdjustmentPercent: comp.adjustments.floorAdjustmentPercent,
+          ageAdjustmentPercent: comp.adjustments.ageAdjustmentPercent,
+          netAdjustmentPercent: comp.adjustments.netAdjustmentPercent,
+        },
+      });
+    }
+
+    // F. Construct final report reference and persist ValuationReport within the same transaction
+    resultPayload.valuationId = valuation.id;
+    resultPayload.valuation.calculatedAt = valuation.calculatedAt;
+
     await tx.valuationReport.upsert({
       where: { requestId },
       update: {
@@ -762,7 +817,7 @@ export async function calculateValuationForRequest(
         reportReference,
         status: 'READY',
         reportDataJson: resultPayload as any,
-        generatedAt: new Date(),
+        generatedAt: now,
       },
       create: {
         requestId,
@@ -770,7 +825,7 @@ export async function calculateValuationForRequest(
         reportReference,
         status: 'READY',
         reportDataJson: resultPayload as any,
-        generatedAt: new Date(),
+        generatedAt: now,
       },
     });
   });
