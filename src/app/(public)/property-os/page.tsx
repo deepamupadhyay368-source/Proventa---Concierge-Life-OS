@@ -69,6 +69,44 @@ export default function PropertyOsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [activeActionPassportId, setActiveActionPassportId] = useState<string | null>(null);
+  const [actionTab, setActionTab] = useState<'EXPENSE' | 'LEASE' | 'MAINTENANCE' | 'DOCUMENT' | 'TIMELINE'>('EXPENSE');
+  const [expForm, setExpForm] = useState({ category: 'PROPERTY_TAX', amountRupees: '', expenseDate: new Date().toISOString().split('T')[0], description: '' });
+  const [leaseForm, setLeaseForm] = useState({ tenantName: '', monthlyRentRupees: '', leaseStartDate: new Date().toISOString().split('T')[0], leaseEndDate: '' });
+  const [maintForm, setMaintForm] = useState({ title: '', costRupees: '0', scheduledDate: '' });
+  const [docKeyInput, setDocKeyInput] = useState('');
+  const [timelineForm, setTimelineForm] = useState({ eventType: 'RENOVATION', eventDate: new Date().toISOString().split('T')[0], title: '' });
+
+  async function submitChildAction(e: React.FormEvent, passportId: string) {
+    e.preventDefault();
+    setFeedback(null);
+    let payload: Record<string, unknown> = { passportId };
+    if (actionTab === 'EXPENSE') {
+      payload = { action: 'ADD_EXPENSE', passportId, category: expForm.category, amountRupees: Number(expForm.amountRupees), expenseDate: expForm.expenseDate, description: expForm.description };
+    } else if (actionTab === 'LEASE') {
+      payload = { action: 'ADD_LEASE', passportId, tenantName: leaseForm.tenantName, monthlyRentRupees: Number(leaseForm.monthlyRentRupees), leaseStartDate: leaseForm.leaseStartDate, leaseEndDate: leaseForm.leaseEndDate };
+    } else if (actionTab === 'MAINTENANCE') {
+      payload = { action: 'ADD_MAINTENANCE', passportId, title: maintForm.title, costRupees: Number(maintForm.costRupees || 0), scheduledDate: maintForm.scheduledDate || null };
+    } else if (actionTab === 'DOCUMENT') {
+      payload = { action: 'ADD_DOCUMENT', passportId, documentKey: docKeyInput };
+    } else {
+      payload = { action: 'ADD_TIMELINE', passportId, eventType: timelineForm.eventType, eventDate: timelineForm.eventDate, title: timelineForm.title };
+    }
+    const res = await fetch('/api/real-estate/property-os', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setFeedback(data.error || 'Action failed.');
+      return;
+    }
+    setFeedback(`Saved ${actionTab.toLowerCase()} record to private Property Passport.`);
+    setActiveActionPassportId(null);
+    setDocKeyInput('');
+    loadPortfolio();
+  }
 
   const [newPassport, setNewPassport] = useState({
     nickname: '',
@@ -372,10 +410,96 @@ export default function PropertyOsPage() {
                           {p.address} &middot; {p.locality}, {p.city}
                         </p>
                       </div>
-                      <span className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1 font-mono text-xs text-slate-200">
-                        {p.occupancyStatus}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActiveActionPassportId(activeActionPassportId === p.id ? null : p.id)
+                          }
+                          className="rounded border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20"
+                        >
+                          {activeActionPassportId === p.id ? 'Close Records' : '+ Add Record'}
+                        </button>
+                        <span className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1 font-mono text-xs text-slate-200">
+                          {p.occupancyStatus}
+                        </span>
+                      </div>
                     </div>
+
+                    {activeActionPassportId === p.id && (
+                      <form
+                        onSubmit={(e) => submitChildAction(e, p.id)}
+                        className="mt-4 rounded-lg border border-slate-700 bg-slate-950 p-4 space-y-3 text-xs"
+                      >
+                        <div className="flex flex-wrap gap-1.5">
+                          {(['EXPENSE', 'LEASE', 'MAINTENANCE', 'DOCUMENT', 'TIMELINE'] as const).map((tab) => (
+                            <button
+                              key={tab}
+                              type="button"
+                              onClick={() => setActionTab(tab)}
+                              className={`rounded px-2.5 py-1 font-mono text-[11px] ${
+                                actionTab === tab ? 'bg-emerald-500 text-slate-950 font-semibold' : 'bg-slate-900 text-slate-400'
+                              }`}
+                            >
+                              {tab}
+                            </button>
+                          ))}
+                        </div>
+
+                        {actionTab === 'EXPENSE' && (
+                          <div className="grid gap-2 sm:grid-cols-4">
+                            <select value={expForm.category} onChange={(e) => setExpForm({ ...expForm, category: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white">
+                              <option value="PROPERTY_TAX">Property Tax</option>
+                              <option value="MAINTENANCE">Maintenance</option>
+                              <option value="RENOVATION">Renovation</option>
+                              <option value="STAMP_DUTY_REGISTRATION">Stamp Duty</option>
+                              <option value="INSURANCE">Insurance</option>
+                            </select>
+                            <input required type="number" placeholder="Amount (INR)" value={expForm.amountRupees} onChange={(e) => setExpForm({ ...expForm, amountRupees: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input required type="date" value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input required placeholder="Description" value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                          </div>
+                        )}
+
+                        {actionTab === 'LEASE' && (
+                          <div className="grid gap-2 sm:grid-cols-4">
+                            <input required placeholder="Tenant Name" value={leaseForm.tenantName} onChange={(e) => setLeaseForm({ ...leaseForm, tenantName: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input required type="number" placeholder="Monthly Rent (INR)" value={leaseForm.monthlyRentRupees} onChange={(e) => setLeaseForm({ ...leaseForm, monthlyRentRupees: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input required type="date" value={leaseForm.leaseStartDate} onChange={(e) => setLeaseForm({ ...leaseForm, leaseStartDate: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input required type="date" value={leaseForm.leaseEndDate} onChange={(e) => setLeaseForm({ ...leaseForm, leaseEndDate: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                          </div>
+                        )}
+
+                        {actionTab === 'MAINTENANCE' && (
+                          <div className="grid gap-2 sm:grid-cols-3">
+                            <input required placeholder="Task Title" value={maintForm.title} onChange={(e) => setMaintForm({ ...maintForm, title: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input type="number" placeholder="Est. Cost (INR)" value={maintForm.costRupees} onChange={(e) => setMaintForm({ ...maintForm, costRupees: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input type="date" value={maintForm.scheduledDate} onChange={(e) => setMaintForm({ ...maintForm, scheduledDate: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                          </div>
+                        )}
+
+                        {actionTab === 'DOCUMENT' && (
+                          <input required placeholder="Private Document Key / Vault Ref (e.g. deed-2026-bopal.pdf)" value={docKeyInput} onChange={(e) => setDocKeyInput(e.target.value)} className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                        )}
+
+                        {actionTab === 'TIMELINE' && (
+                          <div className="grid gap-2 sm:grid-cols-3">
+                            <select value={timelineForm.eventType} onChange={(e) => setTimelineForm({ ...timelineForm, eventType: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white">
+                              <option value="RENOVATION">Renovation</option>
+                              <option value="REGISTRATION">Registration</option>
+                              <option value="REPAIR">Repair</option>
+                              <option value="VALUATION_UPDATE">Valuation Update</option>
+                            </select>
+                            <input required type="date" value={timelineForm.eventDate} onChange={(e) => setTimelineForm({ ...timelineForm, eventDate: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                            <input required placeholder="Event Summary" value={timelineForm.title} onChange={(e) => setTimelineForm({ ...timelineForm, title: e.target.value })} className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white" />
+                          </div>
+                        )}
+
+                        <button type="submit" className="rounded bg-emerald-500 px-3.5 py-1.5 font-semibold text-slate-950 hover:bg-emerald-400">
+                          Save {actionTab}
+                        </button>
+                      </form>
+                    )}
 
                     <div className="mt-4 grid gap-3 sm:grid-cols-4 text-xs">
                       <div className="rounded bg-slate-950 p-3">

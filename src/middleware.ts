@@ -87,7 +87,7 @@ export default auth(async (req) => {
 
   if (pathname === '/register') {
     const search = nextUrl.search;
-    return NextResponse.redirect(new URL(`/sign-up${search}`, nextUrl));
+    return NextResponse.redirect(new URL(`/signup${search}`, nextUrl));
   }
 
   const isPublicGetApi =
@@ -102,8 +102,14 @@ export default auth(async (req) => {
       pathname === '/api/procurement/catalogue' ||
       pathname === '/api/real-estate/registry' ||
       pathname === '/api/real-estate/market' ||
+      pathname === '/api/real-estate/projects/compare' ||
       pathname === '/api/projects' ||
       pathname.startsWith('/api/projects/'));
+
+  const isPublicRealEstateComputeApi =
+    req.method === 'POST' &&
+    (pathname === '/api/real-estate/investment/analyze' ||
+      pathname === '/api/real-estate/projects/compare');
 
   const isPublic =
     PUBLIC_ROUTES.some((r) => pathname === r) ||
@@ -116,13 +122,13 @@ export default auth(async (req) => {
     pathname.startsWith('/partner') ||
     pathname.startsWith('/api/partner') ||
     pathname.startsWith('/suppliers/') ||
-    pathname.startsWith('/business/') ||
     (pathname.startsWith('/business/') && !pathname.startsWith('/business/dashboard')) ||
     pathname.startsWith('/businesses') ||
     pathname.startsWith('/listings') ||
     pathname.startsWith('/for-businesses') ||
     pathname.startsWith('/guidelines') ||
     isPublicGetApi ||
+    isPublicRealEstateComputeApi ||
     pathname.startsWith('/legal') ||
     pathname.startsWith('/api/legal') ||
     pathname.startsWith('/membership') ||

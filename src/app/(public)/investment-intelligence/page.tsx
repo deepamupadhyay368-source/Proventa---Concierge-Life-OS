@@ -75,39 +75,23 @@ export default function InvestmentIntelligencePage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         reportType: 'INVESTMENT_FEASIBILITY',
-        subjectTitle: `Investment Feasibility (${formatInr(inputs.purchasePriceRupees)}, ${inputs.holdingPeriodYears}Y Hold)`,
-        geography: 'Ahmedabad & Gandhinagar, Gujarat',
-        metrics: {
-          baseIrrPercent: analysis.base.irrPercent,
-          baseRoiPercent: analysis.base.roiPercent,
-          equityMultiple: analysis.base.equityMultiple,
-          netRentalYieldPercent: analysis.base.netRentalYieldPercent,
-          totalAcquisitionCostRupees: analysis.base.totalAcquisitionCostRupees,
-        },
-        methodology:
-          'Deterministic discounted cash-flow (Newton-Raphson IRR + bisection fallback) across Conservative, Base, and Optimistic scenarios with 6-parameter sensitivity stress testing.',
-        dataSources: ['User-supplied financial underwriting assumptions', 'Gujarat Stamp Duty Schedule'],
-        confidenceLevel: 'MODERATE',
+        investmentInput: inputs,
       }),
     });
 
     if (res.status === 401) {
-      setReportNotice('Sign in (/login) to generate and archive an institutional report reference.');
+      setReportNotice('Sign in (/login) to generate and download a server-verified PDF report.');
       return;
     }
     const data = await res.json();
     if (!res.ok) {
-      setReportNotice(data.error || 'Report export failed.');
+      setReportNotice(data.error || 'PDF report generation failed.');
       return;
     }
-    const blob = new Blob([JSON.stringify(data.report, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${data.report.reportReference}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setReportNotice(`Generated report ${data.report.reportReference} with non-certified disclaimer.`);
+    window.open(data.downloadUrl, '_blank', 'noopener,noreferrer');
+    setReportNotice(
+      `Generated ${data.pageCount}-page PDF ${data.reportReference} (SHA-256: ${String(data.sha256Checksum).slice(0, 12)}...).`
+    );
   }
 
   return (
@@ -320,9 +304,13 @@ export default function InvestmentIntelligencePage() {
                   <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
                     <span className="font-mono text-[11px] text-slate-400">BASE IRR</span>
                     <p className="mt-1 font-mono text-2xl font-bold text-emerald-400">
-                      {analysis.base.irrPercent}%
+                      {analysis.base.irrPercent !== null ? `${analysis.base.irrPercent}%` : 'N/A'}
                     </p>
-                    <span className="text-[11px] text-slate-500">Exact Newton-Raphson</span>
+                    <span className="text-[11px] text-slate-500">
+                      {analysis.base.irrStatus === 'CONVERGED'
+                        ? `MIRR: ${analysis.base.mirrPercent ?? '—'}%`
+                        : analysis.base.irrStatus}
+                    </span>
                   </div>
                   <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
                     <span className="font-mono text-[11px] text-slate-400">EQUITY MULTIPLE</span>
@@ -434,12 +422,14 @@ export default function InvestmentIntelligencePage() {
                         <div key={String(label)}>
                           <div className="flex justify-between">
                             <span className="text-slate-300">{label}</span>
-                            <span className="font-mono text-white">{score}/100</span>
+                            <span className="font-mono text-white">
+                              {score !== null ? `${score}/100` : 'INSUFFICIENT_DATA'}
+                            </span>
                           </div>
                           <div className="mt-1 h-1.5 w-full rounded-full bg-slate-800">
                             <div
                               className="h-1.5 rounded-full bg-emerald-500"
-                              style={{ width: `${Math.min(100, Math.max(0, Number(score)))}%` }}
+                              style={{ width: `${score !== null ? Math.min(100, Math.max(0, Number(score))) : 0}%` }}
                             />
                           </div>
                         </div>
@@ -447,9 +437,12 @@ export default function InvestmentIntelligencePage() {
                       <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
                         <span className="font-semibold text-white">Composite Indicative Score</span>
                         <span className="font-mono text-lg font-bold text-emerald-400">
-                          {analysis.scorecard.compositeIndicativeScore}/100
+                          {analysis.scorecard.compositeIndicativeScore !== null
+                            ? `${analysis.scorecard.compositeIndicativeScore}/100`
+                            : 'INSUFFICIENT_DATA'}
                         </span>
                       </div>
+                      <p className="text-[11px] text-slate-500">{analysis.scorecard.note}</p>
                     </div>
                   </div>
                 </div>

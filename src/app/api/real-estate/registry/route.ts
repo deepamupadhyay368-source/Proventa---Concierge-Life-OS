@@ -261,6 +261,13 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err) {
+    const prismaCode = (err as { code?: string })?.code;
+    if (prismaCode === 'P2002') {
+      return NextResponse.json(
+        { error: 'Duplicate property detected in Living Property Registry (database unique constraint).' },
+        { status: 409 }
+      );
+    }
     console.error('[POST /api/real-estate/registry]', err);
     return NextResponse.json({ error: 'Failed to register property.' }, { status: 500 });
   }

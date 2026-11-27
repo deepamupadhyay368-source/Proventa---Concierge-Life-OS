@@ -198,11 +198,19 @@ describe('PROVENTA Real Estate Intelligence Platform — Core Engines', () => {
       loanTenureYears: 20,
       holdingPeriodYears: 7,
       annualAppreciationPercent: 8,
+      scorecardInputs: {
+        locationScore: 80,
+        liquidityScore: 75,
+        rentalPotentialScore: 65,
+        priceCompetitivenessScore: 78,
+        developerRiskScore: 82,
+        dataConfidenceScore: 70,
+      },
     });
 
     expect(res.base.totalAcquisitionCostRupees).toBe(10_990_000);
-    expect(res.scenarios.conservative.irrPercent).toBeLessThan(res.scenarios.base.irrPercent);
-    expect(res.scenarios.base.irrPercent).toBeLessThan(res.scenarios.optimistic.irrPercent);
+    expect(res.scenarios.conservative.irrPercent!).toBeLessThan(res.scenarios.base.irrPercent!);
+    expect(res.scenarios.base.irrPercent!).toBeLessThan(res.scenarios.optimistic.irrPercent!);
     expect(res.sensitivity.length).toBe(6);
     expect(res.scorecard.compositeIndicativeScore).toBeGreaterThan(0);
     expect(res.disclaimer).toMatch(/NOT constitute/i);

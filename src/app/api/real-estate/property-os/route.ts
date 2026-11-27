@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/auth/session';
 import { computeOwnerPortfolioSummary } from '@/lib/real-estate-intelligence/property-os-service';
+import { checkPassportCreationEntitlement } from '@/lib/real-estate-intelligence/entitlements';
 
 const createPassportSchema = z.object({
   action: z.literal('CREATE_PASSPORT'),
@@ -219,6 +220,17 @@ export async function POST(req: NextRequest) {
     const action = body?.action;
 
     if (action === 'CREATE_PASSPORT') {
+      const userRoles = (session.user as { roles?: string[] }).roles ?? [];
+      const entitlement = await checkPassportCreationEntitlement(userId, userRoles);
+      if (!entitlement.allowed) {
+        return NextResponse.json(
+          {
+            error: `Property Passport limit reached (${entitlement.used}/${entitlement.limit} on ${entitlement.tier} plan).`,
+            entitlement,
+          },
+          { status: 403 }
+        );
+      }
       const parsed = createPassportSchema.safeParse(body);
       if (!parsed.success) {
         return NextResponse.json(
@@ -395,6 +407,25 @@ export async function POST(req: NextRequest) {
         },
       });
       return NextResponse.json({ timelineEvent: evt }, { status: 201 });
+    }
+
+    if (action === 'ADD_DOCUMENT') {
+      const docKey = typeof body?.documentKey === 'string' ? body.documentKey.trim() : '';
+      if (!docKey || docKey.length > 240) {
+        return NextResponse.json({ error: 'Valid documentKey (1-240 chars) is required.' }, { status: 400 });
+      }
+      const current = await db.propertyPassport.findUnique({
+        where: { id: targetPassportId },
+        select: { documentKeys: true },
+      });
+      const updated = await db.propertyPassport.update({
+        where: { id: targetPassportId },
+        data: {
+          documentKeys: Array.from(new Set([...(current?.documentKeys ?? []), docKey])),
+        },
+        select: { id: true, documentKeys: true },
+      });
+      return NextResponse.json({ passport: updated }, { status: 201 });
     }
 
     return NextResponse.json({ error: 'Unsupported Property OS action.' }, { status: 400 });

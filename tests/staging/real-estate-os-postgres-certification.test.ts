@@ -18,6 +18,8 @@ import {
 } from '@/lib/real-estate-intelligence/registry-service';
 import { computeLocalityMarketBenchmark } from '@/lib/real-estate-intelligence/market-engine';
 import { computeOwnerPortfolioSummary } from '@/lib/real-estate-intelligence/property-os-service';
+import { buildRealEstateReport } from '@/lib/real-estate-intelligence/report-generator';
+import { renderIntelligenceReportPdf } from '@/lib/real-estate-intelligence/pdf-builder';
 
 function loadStagingDatabaseUrl(): string {
   const envPath = path.resolve(
@@ -52,16 +54,33 @@ const createdObservationIds: string[] = [];
 const createdInfraIds: string[] = [];
 const createdPassportIds: string[] = [];
 const createdWatchlistIds: string[] = [];
+const createdReportIds: string[] = [];
+const createdNotificationIds: string[] = [];
 
 describe('PROVENTA Real Estate Intelligence — Live proventa-staging PostgreSQL 18.7 Certification', () => {
   beforeAll(async () => {
     const stagingUrl = loadStagingDatabaseUrl();
     prisma = new PrismaClient({ datasourceUrl: stagingUrl });
     await prisma.$connect();
+
+    // Create real User rows to satisfy live PostgreSQL FOREIGN KEY constraints
+    await prisma.user.createMany({
+      data: [
+        { id: userA, email: `${userA}@staging.proventa.in`, name: 'Staging Owner A' },
+        { id: userB, email: `${userB}@staging.proventa.in`, name: 'Staging Owner B' },
+      ],
+      skipDuplicates: true,
+    });
   });
 
   afterAll(async () => {
     if (!prisma) return;
+    if (createdNotificationIds.length) {
+      await prisma.realEstateNotification.deleteMany({ where: { id: { in: createdNotificationIds } } });
+    }
+    if (createdReportIds.length) {
+      await prisma.realEstateReport.deleteMany({ where: { id: { in: createdReportIds } } });
+    }
     if (createdWatchlistIds.length) {
       await prisma.realEstateWatchlist.deleteMany({ where: { id: { in: createdWatchlistIds } } });
     }
@@ -77,6 +96,7 @@ describe('PROVENTA Real Estate Intelligence — Live proventa-staging PostgreSQL
     if (createdRegistryIds.length) {
       await prisma.registryProperty.deleteMany({ where: { id: { in: createdRegistryIds } } });
     }
+    await prisma.user.deleteMany({ where: { id: { in: [userA, userB] } } });
     await prisma.$disconnect();
   });
 
@@ -276,5 +296,66 @@ describe('PROVENTA Real Estate Intelligence — Live proventa-staging PostgreSQL
       },
     });
     expect(leakedInPublicRegistry).toHaveLength(0);
+  });
+
+  it('persists genuine %PDF-1.4 RealEstateReport + RealEstateNotification and enforces 2-user IDOR isolation', async () => {
+    const structured = buildRealEstateReport({
+      reportType: 'LOCALITY_INTELLIGENCE',
+      subjectTitle: `Staging PDF Cert (${runTag})`,
+      metrics: { medianRateInrSqFt: 6500, observations: 3 },
+      methodology: 'PostgreSQL verified median benchmark',
+      dataSources: ['Gujarat Sub-Registrar (Staging Test)'],
+      confidenceLevel: 'MODERATE',
+    });
+    const { pdfBuffer, sha256, pageCount } = renderIntelligenceReportPdf(structured);
+
+    const reportA = await prisma.realEstateReport.create({
+      data: {
+        reportReference: structured.reportReference,
+        ownerUserId: userA,
+        reportType: structured.reportType,
+        subjectTitle: structured.subjectTitle,
+        geography: structured.geography,
+        metricsJson: structured.metrics as object,
+        methodology: structured.methodology,
+        dataSources: structured.dataSources,
+        confidenceLevel: structured.confidenceLevel,
+        assumptions: structured.assumptions,
+        limitations: structured.limitations,
+        nonCertifiedDisclaimer: structured.nonCertifiedDisclaimer,
+        pdfBase64: pdfBuffer.toString('base64'),
+        sha256Checksum: sha256,
+        pageCount,
+      },
+    });
+    createdReportIds.push(reportA.id);
+
+    const notifA = await prisma.realEstateNotification.create({
+      data: {
+        userId: userA,
+        category: 'REPORT_READY',
+        title: `PDF Ready: ${structured.reportReference}`,
+        message: 'Generated in staging certification.',
+        targetUrl: `/api/real-estate/reports/${reportA.id}/download`,
+      },
+    });
+    createdNotificationIds.push(notifA.id);
+
+    // Verify User A's PDF binary round-trips cleanly
+    const fetchedA = await prisma.realEstateReport.findFirst({
+      where: { id: reportA.id, ownerUserId: userA },
+    });
+    expect(fetchedA).not.toBeNull();
+    const decoded = Buffer.from(fetchedA!.pdfBase64, 'base64').toString('latin1');
+    expect(decoded.startsWith('%PDF-1.4')).toBe(true);
+    expect(decoded.trimEnd().endsWith('%%EOF')).toBe(true);
+
+    // STRICT IDOR CHECK: User B sees 0 reports and 0 notifications of User A
+    const [userBReports, userBNotifs] = await Promise.all([
+      prisma.realEstateReport.findMany({ where: { ownerUserId: userB } }),
+      prisma.realEstateNotification.findMany({ where: { userId: userB } }),
+    ]);
+    expect(userBReports).toHaveLength(0);
+    expect(userBNotifs).toHaveLength(0);
   });
 });

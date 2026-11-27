@@ -65,7 +65,9 @@ export function computeLocalityMarketBenchmark(
     (o) =>
       o.locality.trim().toLowerCase() === normLoc &&
       o.segment.trim().toUpperCase() === normSeg &&
-      (o.verificationStatus === 'VERIFIED' || o.verificationStatus === 'EXTERNALLY_SOURCED')
+      (o.verificationStatus === 'VERIFIED' ||
+        o.verificationStatus === 'EXTERNALLY_SOURCED' ||
+        o.verificationStatus === 'ADMIN_SUBMITTED')
   );
 
   if (eligible.length < 3) {

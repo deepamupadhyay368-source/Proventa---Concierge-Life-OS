@@ -77,6 +77,37 @@ export default function PropertyIntelligencePage() {
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [watchNotice, setWatchNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search);
+      const initialQ = sp.get('q');
+      const initialLoc = sp.get('locality');
+      if (initialQ) setQuery(initialQ);
+      if (initialLoc) setLocality(initialLoc);
+    }
+  }, []);
+
+  async function handleWatchProperty(prop: RegistryPropertyRecord) {
+    setWatchNotice(null);
+    const res = await fetch('/api/real-estate/watchlists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        targetType: 'PROPERTY',
+        targetIdOrSlug: prop.proventaPropertyId,
+        targetLabel: `${prop.title} (${prop.locality})`,
+      }),
+    });
+    if (res.status === 401) {
+      setWatchNotice('Sign in (/login) to add properties to your Watchlist.');
+      return;
+    }
+    if (res.ok) {
+      setWatchNotice(`Added ${prop.proventaPropertyId} to your Watchlist.`);
+    }
+  }
 
   const [showSubmit, setShowSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -451,6 +482,12 @@ export default function PropertyIntelligencePage() {
             <span>Private Property OS assets are never indexed here.</span>
           </div>
 
+          {watchNotice && (
+            <div className="mb-3 rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-xs text-sky-200">
+              {watchNotice}
+            </div>
+          )}
+
           {error && (
             <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
               {error}
@@ -531,9 +568,18 @@ export default function PropertyIntelligencePage() {
                       <FileCheck2 className="h-3.5 w-3.5 text-slate-500" />
                       Source: {prop.sourceProvenance}
                     </span>
-                    <span className="flex items-center gap-1 font-mono">
-                      <Clock className="h-3 w-3" />
-                      {prop.lifecycleEvents.length} event(s)
+                    <span className="flex items-center gap-2 font-mono">
+                      <button
+                        type="button"
+                        onClick={() => handleWatchProperty(prop)}
+                        className="rounded border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-300 hover:bg-emerald-500/20"
+                      >
+                        + Watch
+                      </button>
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {prop.lifecycleEvents.length} event(s)
+                      </span>
                     </span>
                   </div>
                 </div>

@@ -4817,9 +4817,11 @@ model AutomationExecution {
 
 enum RegistryVerificationStatus {
   VERIFIED
+  ADMIN_SUBMITTED
   UNVERIFIED
   USER_SUBMITTED
   EXTERNALLY_SOURCED
+  SYNTHETIC_TEST_DATA
   REJECTED
 }
 
@@ -5070,4 +5072,42 @@ model RealEstateWatchlist {
   @@unique([userId, targetType, targetIdOrSlug])
   @@index([userId])
   @@map("real_estate_watchlists")
+}
+
+model RealEstateReport {
+  id                     String   @id @default(cuid())
+  reportReference        String   @unique
+  ownerUserId            String
+  reportType             String   // PROPERTY_INTELLIGENCE, PROJECT_INTELLIGENCE, LOCALITY_INTELLIGENCE, INVESTMENT_FEASIBILITY, PROPERTY_VALUATION, PORTFOLIO_PERFORMANCE, MARKET_COMPARISON
+  subjectTitle           String
+  geography              String
+  metricsJson            Json
+  methodology            String
+  dataSources            String[]
+  confidenceLevel        String
+  assumptions            String[]
+  limitations            String[]
+  nonCertifiedDisclaimer String
+  pdfBase64              String   @db.Text
+  sha256Checksum         String
+  pageCount              Int      @default(1)
+  createdAt              DateTime @default(now())
+
+  @@index([ownerUserId, createdAt])
+  @@index([reportType])
+  @@map("real_estate_reports")
+}
+
+model RealEstateNotification {
+  id        String   @id @default(cuid())
+  userId    String
+  category  String   // WATCHLIST_UPDATE, LEASE_EXPIRY, MAINTENANCE_DUE, REGISTRY_VERIFICATION, REPORT_READY
+  title     String
+  message   String
+  targetUrl String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId, isRead, createdAt])
+  @@map("real_estate_notifications")
 }

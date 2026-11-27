@@ -21,7 +21,9 @@ const createObservationSchema = z.object({
   dataSource: z.string().trim().min(3).max(200),
   sourceUrl: z.string().url().optional().nullable(),
   methodology: z.string().trim().min(5).max(500),
-  verificationStatus: z.enum(['VERIFIED', 'EXTERNALLY_SOURCED', 'UNVERIFIED']).default('EXTERNALLY_SOURCED'),
+  verificationStatus: z
+    .enum(['VERIFIED', 'ADMIN_SUBMITTED', 'EXTERNALLY_SOURCED', 'UNVERIFIED'])
+    .default('ADMIN_SUBMITTED'),
 });
 
 const createInfrastructureSchema = z.object({

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { runFullInvestmentAnalysis } from '@/lib/real-estate-intelligence/investment-engine';
+import { checkRateLimit, getClientIpFromHeaders } from '@/lib/real-estate-intelligence/rate-limit';
 
 const investmentAnalyzeSchema = z.object({
   purchasePriceRupees: z.number().positive(),
@@ -10,6 +11,7 @@ const investmentAnalyzeSchema = z.object({
   renovationCostRupees: z.number().min(0).default(0),
   monthlyRentRupees: z.number().min(0),
   annualMaintenanceRupees: z.number().min(0).default(0),
+  annualPropertyTaxRupees: z.number().min(0).optional(),
   vacancyRatePercent: z.number().min(0).max(100).default(8),
   loanToValuePercent: z.number().min(0).max(95).default(70),
   interestRatePercent: z.number().min(0).max(30).default(8.75),
@@ -31,12 +33,19 @@ const investmentAnalyzeSchema = z.object({
 
 /**
  * POST /api/real-estate/investment/analyze
- * Deterministic Institutional Investment Intelligence Calculator.
- * Computes Base/Conservative/Optimistic IRR, ROI, Equity Multiple, Break-even,
- * 6-parameter Sensitivity Matrix, and 6-Factor Transparent Scorecard.
+ * Public rate-limited deterministic Institutional Investment Intelligence Calculator.
  */
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIpFromHeaders(req.headers);
+    const rl = checkRateLimit(`invest:${ip}`, 60, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please wait before running another analysis.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const parsed = investmentAnalyzeSchema.safeParse(body);
     if (!parsed.success) {

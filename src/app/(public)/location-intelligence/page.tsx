@@ -1,287 +1,197 @@
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
-import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
-import { AHMEDABAD_LOCALITIES, LocalityIntelligence } from '@/lib/real-estate/constants';
-import { 
-  MapPin, 
-  TrendingUp, 
-  Building2, 
-  ShieldCheck, 
-  CheckCircle2, 
-  ArrowRight,
-  Filter
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { AlertCircle, CheckCircle2, Compass, MapPin, Train } from 'lucide-react';
 
-function LocationIntelligenceContent() {
-  const searchParams = useSearchParams();
-  const initialLocalityParam = searchParams?.get('locality') || 'south-bopal';
+interface CorridorData {
+  slug: string;
+  name: string;
+  zone: string;
+  city: string;
+  benchmark: {
+    status: 'RELIABLE' | 'INSUFFICIENT_DATA';
+    formattedMedianPriceSqFt: string | null;
+    observationCount: number;
+    confidenceLevel: string;
+    message: string;
+  };
+  infrastructureSummary: {
+    total: number;
+    operational: number;
+    underConstruction: number;
+    proposed: number;
+    unverified: number;
+  };
+}
 
-  const [selectedLocalitySlug, setSelectedLocalitySlug] = useState<string>(initialLocalityParam);
-  const [zoneFilter, setZoneFilter] = useState<string>('ALL');
-
-  const selectedLocality: LocalityIntelligence = useMemo(() => {
-    return (
-      AHMEDABAD_LOCALITIES.find((l) => l.slug === selectedLocalitySlug) ||
-      AHMEDABAD_LOCALITIES[0]
-    );
-  }, [selectedLocalitySlug]);
-
-  const filteredLocalities = useMemo(() => {
-    if (zoneFilter === 'ALL') return AHMEDABAD_LOCALITIES;
-    return AHMEDABAD_LOCALITIES.filter((l) => l.zone.toUpperCase().includes(zoneFilter));
-  }, [zoneFilter]);
-
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 font-sans">
-      
-      {/* Header */}
-      <div className="border-b border-[#C8C4BA] pb-6">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#547568]">
-          Micro-Market Research &bull; Ahmedabad & Gandhinagar
-        </span>
-        <h1 className="font-editorial text-3xl sm:text-5xl font-bold text-[#202B3C] tracking-tight mt-1">
-          Location Intelligence
-        </h1>
-        <p className="text-xs sm:text-sm text-[#69717B] mt-2 max-w-3xl leading-relaxed">
-          Comprehensive market research on Ahmedabad residential corridors: capital appreciation trajectories, rental yields, town-planning infrastructure, and verified transaction density.
-        </p>
-      </div>
-
-      {/* Micromarket Selector & Zone Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-4 bg-white border border-[#C8C4BA] p-4">
-        <div className="flex items-center gap-2 text-xs">
-          <Filter className="w-4 h-4 text-[#547568]" />
-          <span className="font-bold text-[#202B3C] uppercase text-[11px] tracking-wider font-mono">Zone:</span>
-          {['ALL', 'WEST', 'SOUTH-WEST', 'NORTH', 'SEZ'].map((z) => (
-            <button
-              key={z}
-              onClick={() => setZoneFilter(z)}
-              className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
-                zoneFilter === z
-                  ? 'bg-[#202B3C] text-white shadow-xs'
-                  : 'bg-[#F5F3ED] text-[#69717B] hover:text-[#202B3C]'
-              }`}
-            >
-              {z === 'SEZ' ? 'GIFT City / SEZ' : z}
-            </button>
-          ))}
-        </div>
-
-        <div className="text-xs text-[#69717B] font-mono">
-          Displaying {filteredLocalities.length} of {AHMEDABAD_LOCALITIES.length} Analyzed Micro-Markets
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left: Locality Roster List (4 cols) */}
-        <div className="lg:col-span-4 bg-white border border-[#C8C4BA] divide-y divide-[#E2DFD6] overflow-hidden shadow-xs">
-          <div className="p-3.5 bg-[#F5F3ED] border-b border-[#C8C4BA] text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C]">
-            Select Analyzed Locality
-          </div>
-          <div className="max-h-[640px] overflow-y-auto divide-y divide-[#E2DFD6]">
-            {filteredLocalities.map((loc) => {
-              const isSelected = loc.slug === selectedLocality.slug;
-              return (
-                <button
-                  key={loc.slug}
-                  onClick={() => setSelectedLocalitySlug(loc.slug)}
-                  className={`w-full text-left p-4 transition-all cursor-pointer flex flex-col gap-1.5 ${
-                    isSelected
-                      ? 'bg-[#F5F3ED] border-l-4 border-l-[#202B3C]'
-                      : 'hover:bg-[#F5F3ED]/40'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-[#202B3C]">{loc.name}</span>
-                    <span className="text-[10px] font-mono text-[#69717B] bg-[#E2DFD6] px-1.5 py-0.5 uppercase">
-                      {loc.zone}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-[#69717B] font-mono">
-                    <span className="tabular-nums">Avg: ₹{loc.avgPriceSqFt.toLocaleString('en-IN')}/sq ft</span>
-                    <span className="text-[#547568] font-bold tabular-nums">+{loc.historicalGrowth1Yr}% (1y)</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right: Selected Locality Detailed Brief (8 cols) */}
-        <div className="lg:col-span-8 bg-white border border-[#C8C4BA] p-6 sm:p-8 shadow-xs space-y-8">
-          
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-[#C8C4BA] pb-5">
-            <div>
-              <div className="inline-flex items-center gap-1.5 text-xs text-[#547568] font-semibold">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{selectedLocality.city}, {selectedLocality.state} &bull; PIN {selectedLocality.pincode}</span>
-              </div>
-              <h2 className="font-editorial text-3xl font-bold text-[#202B3C] tracking-tight mt-1">
-                {selectedLocality.name} Locality Intelligence
-              </h2>
-              <p className="text-xs text-[#69717B] mt-1 font-mono">
-                Primary Typology: {selectedLocality.primaryTypology}
-              </p>
-            </div>
-            <div className="px-3 py-1.5 bg-[#F5F3ED] border border-[#C8C4BA] text-[11px] font-mono text-[#202B3C] text-right">
-              <div>Calibration Coverage: <strong>Active Staging</strong></div>
-              <div className="text-[10px] text-[#547568]">{selectedLocality.dataFreshness}</div>
-            </div>
-          </div>
-
-          {/* Research Coverage Qualification Notice */}
-          <div className="p-3.5 bg-[#F5F3ED] border-l-4 border-l-[#547568] border border-[#C8C4BA] text-xs text-[#69717B] space-y-1">
-            <span className="font-mono text-[10px] uppercase font-bold text-[#202B3C] block">
-              Micro-Market Calibration Coverage &bull; Ahmedabad & Gandhinagar
-            </span>
-            <p className="leading-relaxed">
-              Initial research coverage established across South Bopal, Shela, Gota, and Science City micro-markets. Transaction density and volume figures reflect calibrated empirical research models. Official Gujarat revenue sub-registrar deed archive indexation is currently in progress.
-            </p>
-          </div>
-
-          {/* Key Metric Tiles */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-[#F5F3ED] border border-[#C8C4BA] font-mono">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                Avg Price / Sq.Ft
-              </span>
-              <div className="text-xl font-bold text-[#202B3C] mt-1 tabular-nums">
-                ₹{selectedLocality.avgPriceSqFt.toLocaleString('en-IN')}
-              </div>
-              <span className="text-[10px] text-[#69717B] tabular-nums">
-                Range: ₹{selectedLocality.priceRangeSqFt.min} – ₹{selectedLocality.priceRangeSqFt.max}
-              </span>
-            </div>
-
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                Gross Rental Yield
-              </span>
-              <div className="text-xl font-bold text-[#547568] mt-1 tabular-nums">
-                {selectedLocality.grossRentalYield}%
-              </div>
-              <span className="text-[10px] text-[#69717B]">Residential benchmark</span>
-            </div>
-
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                Historical Growth
-              </span>
-              <div className="text-xl font-bold text-[#547568] mt-1 tabular-nums">
-                +{selectedLocality.historicalGrowth1Yr}%
-              </div>
-              <span className="text-[10px] text-[#69717B] tabular-nums">3-Yr: +{selectedLocality.historicalGrowth3Yr}%</span>
-            </div>
-
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                Calibrated Volume
-              </span>
-              <div className="text-xl font-bold text-[#202B3C] mt-1 tabular-nums">
-                ~{selectedLocality.transactionVolumeQuarter}
-              </div>
-              <span className="text-[10px] text-[#69717B]">Estimated market turnover</span>
-            </div>
-          </div>
-
-          {/* Architectural Photography Banner */}
-          <div className="relative h-48 w-full border border-[#C8C4BA] overflow-hidden bg-[#202B3C]">
-            <Image
-              src="https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1000&q=80"
-              alt={`${selectedLocality.name} Urban Corridor`}
-              fill
-              sizes="(max-width: 1024px) 100vw, 55vw"
-              className="object-cover opacity-85"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#202B3C]/80 via-transparent to-transparent" />
-            <div className="absolute bottom-3 left-4 text-white font-mono text-xs">
-              <span className="font-bold">{selectedLocality.name} Micro-Market</span> &bull; {selectedLocality.totalActiveProjects} Active RERA Registered Projects
-            </div>
-          </div>
-
-          {/* Locality Market Narrative */}
-          <div className="space-y-3">
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#202B3C]">
-              Economic & Locality Assessment
-            </h3>
-            <p className="text-xs sm:text-sm text-[#69717B] leading-relaxed">
-              {selectedLocality.description}
-            </p>
-          </div>
-
-          {/* Town Planning & Infrastructure Highlights */}
-          <div className="space-y-3">
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#202B3C]">
-              AUDA Town Planning & Infrastructure Highlights
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {selectedLocality.infrastructureHighlights.map((point, i) => (
-                <div key={i} className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/50 flex items-start gap-2.5 text-xs text-[#202B3C]">
-                  <CheckCircle2 className="w-4 h-4 text-[#547568] shrink-0 mt-0.5" />
-                  <span className="leading-snug">{point}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Connectivity Notes */}
-          <div className="p-4 bg-[#F5F3ED] border border-[#C8C4BA] space-y-1 text-xs">
-            <span className="font-bold text-[#202B3C] font-mono uppercase text-[10px] block">
-              Transit & Transit Nodes:
-            </span>
-            <p className="text-[#69717B] leading-relaxed font-mono">
-              {selectedLocality.connectivityNotes}
-            </p>
-          </div>
-
-          {/* Prominent Projects in Locality */}
-          <div className="space-y-3">
-            <h3 className="font-mono text-xs font-bold uppercase tracking-wider text-[#202B3C]">
-              Canonical RERA Projects in this Micro-Market
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {selectedLocality.topProjects.map((proj) => (
-                <span
-                  key={proj}
-                  className="px-3 py-1.5 bg-white border border-[#C8C4BA] text-[#202B3C] text-xs font-semibold"
-                >
-                  {proj}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* CTA */}
-          <div className="pt-4 border-t border-[#C8C4BA] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <span className="text-xs text-[#69717B]">
-              Have a property in {selectedLocality.name}?
-            </span>
-            <Link
-              href={`/property-intelligence?locality=${selectedLocality.slug}`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#151D29] shadow-xs"
-            >
-              <span>Evaluate Property in {selectedLocality.name}</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-  );
+interface InfraAsset {
+  id: string;
+  name: string;
+  locality: string;
+  corridor: string;
+  category: string;
+  status: string;
+  expectedCompletionYear: number | null;
+  sourceReference: string;
 }
 
 export default function LocationIntelligencePage() {
+  const [corridors, setCorridors] = useState<CorridorData[]>([]);
+  const [infra, setInfra] = useState<InfraAsset[]>([]);
+  const [selected, setSelected] = useState<string>('Bopal');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/real-estate/market?segment=RESIDENTIAL')
+      .then((r) => r.json())
+      .then((data) => {
+        setCorridors(data.corridors || []);
+        setInfra(data.infrastructureAssets || []);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const activeCorridor = corridors.find((c) => c.name === selected) || corridors[0];
+  const activeInfra = infra.filter(
+    (a) => activeCorridor && a.locality.toLowerCase() === activeCorridor.name.toLowerCase()
+  );
+
   return (
-    <Suspense fallback={<div className="p-12 text-center font-mono text-xs text-[#69717B]">Loading Locality Intelligence...</div>}>
-      <LocationIntelligenceContent />
-    </Suspense>
+    <div className="min-h-screen bg-[#070B12] text-slate-100">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-end">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+              MODULE 05 // LOCATION &amp; INFRASTRUCTURE INTELLIGENCE
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+              Ahmedabad &amp; Gandhinagar Locality Dossiers
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm text-slate-400">
+              Live database-backed locality profiles and infrastructure lifecycle tracking. Zero hardcoded prices or
+              fabricated transaction volumes.
+            </p>
+          </div>
+          <Link
+            href="/market-intelligence"
+            className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20"
+          >
+            Open Corridor Comparison &rarr;
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="mt-8 h-56 animate-pulse rounded-xl border border-slate-800 bg-slate-900/40" />
+        ) : (
+          <div className="mt-8 grid gap-6 lg:grid-cols-12">
+            <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4 lg:col-span-4">
+              <p className="flex items-center gap-2 font-mono text-xs text-slate-400">
+                <Compass className="h-4 w-4 text-emerald-400" /> 13 MONITORED CORRIDORS
+              </p>
+              <div className="mt-3 space-y-1.5">
+                {corridors.map((c) => (
+                  <button
+                    key={c.slug}
+                    type="button"
+                    onClick={() => setSelected(c.name)}
+                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs transition ${
+                      activeCorridor?.slug === c.slug
+                        ? 'bg-emerald-500/15 text-emerald-200 border border-emerald-500/40'
+                        : 'bg-slate-950/60 text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    <div>
+                      <p className="font-semibold">{c.name}</p>
+                      <p className="text-[11px] text-slate-500">{c.zone}</p>
+                    </div>
+                    <span className="font-mono text-[10px] text-slate-400">{c.benchmark.confidenceLevel}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-6 lg:col-span-8">
+              {activeCorridor && (
+                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h2 className="text-2xl font-semibold text-white">{activeCorridor.name}</h2>
+                      <p className="mt-1 flex items-center gap-1 text-xs text-slate-400">
+                        <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+                        {activeCorridor.zone} &middot; {activeCorridor.city}, Gujarat
+                      </p>
+                    </div>
+                    {activeCorridor.benchmark.status === 'RELIABLE' ? (
+                      <span className="inline-flex items-center gap-1 rounded border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs text-emerald-300">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> RELIABLE
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 font-mono text-xs text-amber-300">
+                        <AlertCircle className="h-3.5 w-3.5" /> INSUFFICIENT_DATA
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-6 grid gap-4 sm:grid-cols-3 text-xs">
+                    <div className="rounded-lg bg-slate-950 p-4">
+                      <span className="text-slate-500">Median Residential Rate</span>
+                      <p className="mt-1 font-mono text-lg font-bold text-white">
+                        {activeCorridor.benchmark.formattedMedianPriceSqFt || 'INSUFFICIENT_DATA'}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-950 p-4">
+                      <span className="text-slate-500">Sourced Observations</span>
+                      <p className="mt-1 font-mono text-lg font-bold text-white">
+                        {activeCorridor.benchmark.observationCount}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-950 p-4">
+                      <span className="text-slate-500">Tracked Infrastructure</span>
+                      <p className="mt-1 font-mono text-lg font-bold text-emerald-300">
+                        {activeCorridor.infrastructureSummary.total}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p className="mt-4 text-xs text-slate-400">{activeCorridor.benchmark.message}</p>
+
+                  <div className="mt-6 border-t border-slate-800 pt-5">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                      <Train className="h-4 w-4 text-emerald-400" />
+                      Infrastructure Assets in {activeCorridor.name}
+                    </h3>
+                    {activeInfra.length === 0 ? (
+                      <p className="mt-3 text-xs text-slate-500">
+                        No verified infrastructure assets recorded for {activeCorridor.name} yet.
+                      </p>
+                    ) : (
+                      <div className="mt-3 space-y-2">
+                        {activeInfra.map((a) => (
+                          <div
+                            key={a.id}
+                            className="flex items-center justify-between rounded bg-slate-950 px-3 py-2 text-xs"
+                          >
+                            <div>
+                              <p className="font-medium text-white">{a.name}</p>
+                              <p className="text-[11px] text-slate-500">
+                                {a.category} &middot; Source: {a.sourceReference}
+                              </p>
+                            </div>
+                            <span className="rounded border border-slate-700 px-2 py-0.5 font-mono text-[10px] text-emerald-300">
+                              {a.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
