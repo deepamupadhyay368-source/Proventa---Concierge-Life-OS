@@ -1,12 +1,12 @@
-import { ProcurementNav } from '@/components/procurement/ProcurementNav';
-import { ProcurementFooter } from '@/components/procurement/ProcurementFooter';
+import { RealEstateTerminalNav } from '@/components/real-estate/RealEstateTerminalNav';
+import { RealEstateTerminalFooter } from '@/components/real-estate/RealEstateTerminalFooter';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F3F5F7] text-[#172B3A] selection:bg-[#172B3A] selection:text-white font-sans antialiased">
-      <ProcurementNav />
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0F172A] selection:bg-[#0F172A] selection:text-white font-sans antialiased">
+      <RealEstateTerminalNav />
       <main className="flex-1">{children}</main>
-      <ProcurementFooter />
+      <RealEstateTerminalFooter />
     </div>
   );
 }

@@ -62,6 +62,8 @@ const PUBLIC_ROUTES = [
   '/onboarding/business',
   '/showcase',
   '/pilot/pacifica',
+  '/market-intelligence',
+  '/property-os',
   '/partner/login',
   '/partner/signup',
   '/partner/dashboard',
@@ -98,6 +100,8 @@ export default auth(async (req) => {
       pathname === '/api/business/subscription' ||
       pathname === '/api/procurement/pilot/pacifica' ||
       pathname === '/api/procurement/catalogue' ||
+      pathname === '/api/real-estate/registry' ||
+      pathname === '/api/real-estate/market' ||
       pathname === '/api/projects' ||
       pathname.startsWith('/api/projects/'));
 
@@ -230,8 +234,7 @@ export default auth(async (req) => {
         { status: 401 },
       );
     }
-    const loginTarget = (pathname.startsWith('/buyer') || pathname.startsWith('/supplier') || pathname.startsWith('/procurement')) ? '/sign-in' : '/login';
-    const signInUrl = new URL(loginTarget, nextUrl);
+    const signInUrl = new URL('/login', nextUrl);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
   }

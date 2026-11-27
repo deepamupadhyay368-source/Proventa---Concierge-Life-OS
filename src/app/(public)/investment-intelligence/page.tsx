@@ -1,393 +1,469 @@
 'use client';
 
-import React, { useState } from 'react';
-import { 
-  InvestmentCalculatorInput, 
-  InvestmentScenarioResult, 
-  calculatePropertyInvestment 
-} from '@/lib/real-estate/calculator';
-import { 
-  Calculator, 
-  TrendingUp, 
-  Percent, 
-  ShieldAlert, 
-  ArrowRight,
-  Info
+import React, { useEffect, useState } from 'react';
+import {
+  AlertTriangle,
+  BarChart3,
+  Calculator,
+  Download,
+  Gauge,
+  Sliders,
+  TrendingUp,
 } from 'lucide-react';
-import Link from 'next/link';
+import type { InvestmentAnalysisResult } from '@/lib/real-estate-intelligence/investment-engine';
+
+function formatInr(val: number): string {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(val);
+}
 
 export default function InvestmentIntelligencePage() {
-  const [inputs, setInputs] = useState<InvestmentCalculatorInput>({
-    purchasePriceLakhs: 85,
+  const [inputs, setInputs] = useState({
+    purchasePriceRupees: 12_500_000, // 1.25 Cr
     stampDutyPercent: 4.9,
-    registrationChargesPercent: 1.0,
+    registrationPercent: 1.0,
     brokeragePercent: 1.0,
-    renovationLakhs: 4.0,
-    loanPercentage: 75,
-    interestRateAnnual: 8.5,
+    renovationCostRupees: 400_000,
+    monthlyRentRupees: 42_000,
+    annualMaintenanceRupees: 48_000,
+    vacancyRatePercent: 8,
+    loanToValuePercent: 70,
+    interestRatePercent: 8.75,
     loanTenureYears: 20,
-    expectedMonthlyRentRupees: 28000,
-    monthlyMaintenanceRupees: 3500,
-    annualPropertyTaxRupees: 6500,
-    vacancyWeeksPerYear: 3,
     holdingPeriodYears: 7,
-    expectedAnnualAppreciationPercent: 8.0,
+    annualAppreciationPercent: 8,
+    annualRentEscalationPercent: 5,
   });
 
-  const [result, setResult] = useState<InvestmentScenarioResult>(() =>
-    calculatePropertyInvestment(inputs)
-  );
+  const [analysis, setAnalysis] = useState<InvestmentAnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reportNotice, setReportNotice] = useState<string | null>(null);
 
-  const handleRecalculate = (e: React.FormEvent) => {
-    e.preventDefault();
-    setResult(calculatePropertyInvestment(inputs));
-  };
+  async function runModel(payload = inputs) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/real-estate/investment/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Investment calculation failed.');
+      setAnalysis(data.analysis);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Unable to run investment analysis.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    runModel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleExportFeasibilityReport() {
+    if (!analysis) return;
+    setReportNotice(null);
+    const res = await fetch('/api/real-estate/reports/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        reportType: 'INVESTMENT_FEASIBILITY',
+        subjectTitle: `Investment Feasibility (${formatInr(inputs.purchasePriceRupees)}, ${inputs.holdingPeriodYears}Y Hold)`,
+        geography: 'Ahmedabad & Gandhinagar, Gujarat',
+        metrics: {
+          baseIrrPercent: analysis.base.irrPercent,
+          baseRoiPercent: analysis.base.roiPercent,
+          equityMultiple: analysis.base.equityMultiple,
+          netRentalYieldPercent: analysis.base.netRentalYieldPercent,
+          totalAcquisitionCostRupees: analysis.base.totalAcquisitionCostRupees,
+        },
+        methodology:
+          'Deterministic discounted cash-flow (Newton-Raphson IRR + bisection fallback) across Conservative, Base, and Optimistic scenarios with 6-parameter sensitivity stress testing.',
+        dataSources: ['User-supplied financial underwriting assumptions', 'Gujarat Stamp Duty Schedule'],
+        confidenceLevel: 'MODERATE',
+      }),
+    });
+
+    if (res.status === 401) {
+      setReportNotice('Sign in (/login) to generate and archive an institutional report reference.');
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+      setReportNotice(data.error || 'Report export failed.');
+      return;
+    }
+    const blob = new Blob([JSON.stringify(data.report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${data.report.reportReference}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setReportNotice(`Generated report ${data.report.reportReference} with non-certified disclaimer.`);
+  }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 font-sans">
-      
-      {/* Header */}
-      <div className="border-b border-[#C8C4BA] pb-6">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-[#547568]">
-          Institutional Real Estate Analytics &bull; Gujarat Market
-        </span>
-        <h1 className="font-editorial text-3xl sm:text-5xl font-bold text-[#202B3C] tracking-tight mt-1">
-          Property Investment Calculator
-        </h1>
-        <p className="text-xs sm:text-sm text-[#69717B] mt-2 max-w-3xl leading-relaxed">
-          Comprehensive cashflow and holding-period model incorporating Gujarat statutory stamp duty, loan amortization schedules, recurring society maintenance, and conservative, base, and optimistic capital appreciation scenarios.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left: Input Parameters Form (5 cols) */}
-        <div className="lg:col-span-5 bg-white border border-[#C8C4BA] p-6 space-y-5 shadow-xs">
-          <div className="border-b border-[#C8C4BA] pb-3 flex items-center justify-between">
-            <h2 className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] flex items-center gap-2">
-              <Calculator className="w-4 h-4 text-[#547568]" />
-              <span>Investment Assumptions</span>
-            </h2>
-            <span className="text-[10px] font-mono text-[#69717B]">Inputs</span>
+    <div className="min-h-screen bg-[#070B12] text-slate-100">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-end">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+              MODULE 04 // INSTITUTIONAL INVESTMENT INTELLIGENCE
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+              Real Estate Underwriting &amp; IRR Engine
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm text-slate-400">
+              Deterministic cash-flow underwriting calibrated for Gujarat acquisition costs (stamp duty, registration,
+              brokerage), debt service, rental yield, exact IRR, equity multiple, 3-scenario stress tests, and
+              6-parameter sensitivity matrices.
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={handleExportFeasibilityReport}
+            disabled={!analysis}
+            className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/50 bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-300 transition hover:bg-emerald-500/20 disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            Export Feasibility Report
+          </button>
+        </div>
 
-          <form onSubmit={handleRecalculate} className="space-y-4 text-xs">
-            
-            {/* Purchase Price */}
-            <div>
-              <label className="block font-semibold text-[#202B3C] mb-1">
-                Property Purchase Price (₹ Lakhs) *
-              </label>
-              <input
-                type="number"
-                required
-                value={inputs.purchasePriceLakhs}
-                onChange={(e) => setInputs({ ...inputs, purchasePriceLakhs: Number(e.target.value) })}
-                className="w-full h-10 bg-white border border-[#C8C4BA] px-3 text-[#202B3C] font-mono focus:outline-hidden focus:border-[#202B3C]"
-              />
+        {reportNotice && (
+          <div className="mt-4 rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2.5 text-xs text-sky-200">
+            {reportNotice}
+          </div>
+        )}
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-12">
+          {/* Left Inputs Panel */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              runModel();
+            }}
+            className="rounded-xl border border-slate-800 bg-slate-900/60 p-5 lg:col-span-4"
+          >
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+              <Sliders className="h-4 w-4 text-emerald-400" />
+              <h2 className="text-sm font-semibold text-white">Underwriting Assumptions</h2>
             </div>
 
-            {/* Acquisition Fees */}
-            <div className="grid grid-cols-3 gap-2">
+            <div className="mt-4 space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-[#69717B] mb-1">Stamp Duty (%)</label>
+                <label className="text-slate-400">Purchase Price (INR)</label>
                 <input
                   type="number"
-                  step="0.1"
-                  value={inputs.stampDutyPercent}
-                  onChange={(e) => setInputs({ ...inputs, stampDutyPercent: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-2.5 text-[#202B3C] font-mono focus:outline-hidden"
+                  value={inputs.purchasePriceRupees}
+                  onChange={(e) => setInputs({ ...inputs, purchasePriceRupees: Number(e.target.value) })}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
                 />
               </div>
-
-              <div>
-                <label className="block font-semibold text-[#69717B] mb-1">Registration (%)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={inputs.registrationChargesPercent}
-                  onChange={(e) => setInputs({ ...inputs, registrationChargesPercent: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-2.5 text-[#202B3C] font-mono focus:outline-hidden"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#69717B] mb-1">Brokerage (%)</label>
-                <input
-                  type="number"
-                  step="0.1"
-                  value={inputs.brokeragePercent}
-                  onChange={(e) => setInputs({ ...inputs, brokeragePercent: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-2.5 text-[#202B3C] font-mono focus:outline-hidden"
-                />
-              </div>
-            </div>
-
-            {/* Renovation Expenses */}
-            <div>
-              <label className="block font-semibold text-[#202B3C] mb-1">
-                Immediate Renovation / Interior Fit-out (₹ Lakhs)
-              </label>
-              <input
-                type="number"
-                step="0.5"
-                value={inputs.renovationLakhs}
-                onChange={(e) => setInputs({ ...inputs, renovationLakhs: Number(e.target.value) })}
-                className="w-full h-10 bg-white border border-[#C8C4BA] px-3 text-[#202B3C] font-mono focus:outline-hidden"
-              />
-            </div>
-
-            {/* Loan Details */}
-            <div className="p-3.5 bg-[#F5F3ED] border border-[#C8C4BA]/50 space-y-3">
-              <span className="font-bold text-[#202B3C] uppercase text-[10px] font-mono block">
-                Financing & Mortgage Details
-              </span>
-              
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[11px] text-[#69717B] mb-1">Loan LTV (%)</label>
-                  <input
-                    type="number"
-                    value={inputs.loanPercentage}
-                    onChange={(e) => setInputs({ ...inputs, loanPercentage: Number(e.target.value) })}
-                    className="w-full h-9 bg-white border border-[#C8C4BA] px-2 text-[#202B3C] font-mono"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] text-[#69717B] mb-1">Interest Rate (%)</label>
+                  <label className="text-slate-400">Stamp Duty %</label>
                   <input
                     type="number"
                     step="0.1"
-                    value={inputs.interestRateAnnual}
-                    onChange={(e) => setInputs({ ...inputs, interestRateAnnual: Number(e.target.value) })}
-                    className="w-full h-9 bg-white border border-[#C8C4BA] px-2 text-[#202B3C] font-mono"
+                    value={inputs.stampDutyPercent}
+                    onChange={(e) => setInputs({ ...inputs, stampDutyPercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 font-mono text-white"
                   />
                 </div>
-
                 <div>
-                  <label className="block text-[11px] text-[#69717B] mb-1">Tenure (Years)</label>
+                  <label className="text-slate-400">Reg. %</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={inputs.registrationPercent}
+                    onChange={(e) => setInputs({ ...inputs, registrationPercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 font-mono text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Brokerage %</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={inputs.brokeragePercent}
+                    onChange={(e) => setInputs({ ...inputs, brokeragePercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 font-mono text-white"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-slate-400">Monthly Rent (INR)</label>
+                  <input
+                    type="number"
+                    value={inputs.monthlyRentRupees}
+                    onChange={(e) => setInputs({ ...inputs, monthlyRentRupees: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Vacancy %</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={inputs.vacancyRatePercent}
+                    onChange={(e) => setInputs({ ...inputs, vacancyRatePercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-slate-400">Annual Maint. (INR)</label>
+                  <input
+                    type="number"
+                    value={inputs.annualMaintenanceRupees}
+                    onChange={(e) => setInputs({ ...inputs, annualMaintenanceRupees: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Renovation (INR)</label>
+                  <input
+                    type="number"
+                    value={inputs.renovationCostRupees}
+                    onChange={(e) => setInputs({ ...inputs, renovationCostRupees: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <div>
+                  <label className="text-slate-400">LTV %</label>
+                  <input
+                    type="number"
+                    value={inputs.loanToValuePercent}
+                    onChange={(e) => setInputs({ ...inputs, loanToValuePercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 font-mono text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Interest %</label>
+                  <input
+                    type="number"
+                    step="0.05"
+                    value={inputs.interestRatePercent}
+                    onChange={(e) => setInputs({ ...inputs, interestRatePercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 font-mono text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Tenure (Y)</label>
                   <input
                     type="number"
                     value={inputs.loanTenureYears}
                     onChange={(e) => setInputs({ ...inputs, loanTenureYears: Number(e.target.value) })}
-                    className="w-full h-9 bg-white border border-[#C8C4BA] px-2 text-[#202B3C] font-mono"
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 font-mono text-white"
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-slate-400">Hold Period (Years)</label>
+                  <input
+                    type="number"
+                    value={inputs.holdingPeriodYears}
+                    onChange={(e) => setInputs({ ...inputs, holdingPeriodYears: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
+                  />
+                </div>
+                <div>
+                  <label className="text-slate-400">Appreciation %/yr</label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={inputs.annualAppreciationPercent}
+                    onChange={(e) => setInputs({ ...inputs, annualAppreciationPercent: Number(e.target.value) })}
+                    className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-white"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-50"
+              >
+                <Calculator className="h-4 w-4" />
+                {loading ? 'Computing IRR...' : 'Run Deterministic Model'}
+              </button>
             </div>
-
-            {/* Rental Income & Expenses */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">Expected Rent (₹/mo)</label>
-                <input
-                  type="number"
-                  step="500"
-                  value={inputs.expectedMonthlyRentRupees}
-                  onChange={(e) => setInputs({ ...inputs, expectedMonthlyRentRupees: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-3 text-[#202B3C] font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">Society Maintenance (₹/mo)</label>
-                <input
-                  type="number"
-                  step="100"
-                  value={inputs.monthlyMaintenanceRupees}
-                  onChange={(e) => setInputs({ ...inputs, monthlyMaintenanceRupees: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-3 text-[#202B3C] font-mono"
-                />
-              </div>
-            </div>
-
-            {/* Holding Period & Expected Appreciation */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">Holding Period (Years)</label>
-                <input
-                  type="number"
-                  value={inputs.holdingPeriodYears}
-                  onChange={(e) => setInputs({ ...inputs, holdingPeriodYears: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-3 text-[#202B3C] font-mono"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">Expected Growth (%/yr)</label>
-                <input
-                  type="number"
-                  step="0.5"
-                  value={inputs.expectedAnnualAppreciationPercent}
-                  onChange={(e) => setInputs({ ...inputs, expectedAnnualAppreciationPercent: Number(e.target.value) })}
-                  className="w-full h-10 bg-white border border-[#C8C4BA] px-3 text-[#202B3C] font-mono"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              className="w-full h-11 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-[0.1em] hover:bg-[#151D29] transition-all flex items-center justify-center gap-2 shadow-xs"
-            >
-              <span>Recalculate Investment Scenarios</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
           </form>
-        </div>
 
-        {/* Right: Results Dossier (7 cols) */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="bg-white border border-[#C8C4BA] p-6 sm:p-8 space-y-8 shadow-xs">
-            
-            {/* Header */}
-            <div className="border-b border-[#C8C4BA] pb-4 flex justify-between items-start">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#547568] font-bold">
-                  Cashflow & Appreciation Analysis
-                </span>
-                <h3 className="font-editorial text-2xl font-bold text-[#202B3C] mt-1">
-                  Acquisition & Yield Performance
-                </h3>
+          {/* Right Output Panel */}
+          <div className="space-y-6 lg:col-span-8">
+            {error && (
+              <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-4 text-sm text-rose-200">
+                {error}
               </div>
-              <span className="text-xs font-mono px-2.5 py-1 bg-[#F5F3ED] border border-[#C8C4BA] font-bold text-[#202B3C]">
-                {inputs.holdingPeriodYears}-Year Horizon
-              </span>
-            </div>
+            )}
 
-            {/* Core Metrics Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 bg-[#F5F3ED] border border-[#C8C4BA] font-mono">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                  Total Acquisition Cost
-                </span>
-                <div className="text-xl font-bold text-[#202B3C] mt-1 tabular-nums">
-                  ₹{result.totalAcquisitionCostLakhs} L
+            {analysis && (
+              <>
+                {/* Top KPI Strip */}
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                    <span className="font-mono text-[11px] text-slate-400">BASE IRR</span>
+                    <p className="mt-1 font-mono text-2xl font-bold text-emerald-400">
+                      {analysis.base.irrPercent}%
+                    </p>
+                    <span className="text-[11px] text-slate-500">Exact Newton-Raphson</span>
+                  </div>
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                    <span className="font-mono text-[11px] text-slate-400">EQUITY MULTIPLE</span>
+                    <p className="mt-1 font-mono text-2xl font-bold text-white">
+                      {analysis.base.equityMultiple}x
+                    </p>
+                    <span className="text-[11px] text-slate-500">ROI: {analysis.base.roiPercent}%</span>
+                  </div>
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                    <span className="font-mono text-[11px] text-slate-400">NET / GROSS YIELD</span>
+                    <p className="mt-1 font-mono text-2xl font-bold text-sky-300">
+                      {analysis.base.netRentalYieldPercent}%
+                    </p>
+                    <span className="text-[11px] text-slate-500">
+                      Gross: {analysis.base.grossRentalYieldPercent}%
+                    </span>
+                  </div>
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                    <span className="font-mono text-[11px] text-slate-400">TOTAL ACQUISITION</span>
+                    <p className="mt-1 font-mono text-xl font-bold text-white">
+                      {formatInr(analysis.base.totalAcquisitionCostRupees)}
+                    </p>
+                    <span className="text-[11px] text-slate-500">
+                      Equity: {formatInr(analysis.base.equityInvestedRupees)}
+                    </span>
+                  </div>
                 </div>
-                <span className="text-[10px] text-[#69717B]">Includes stamp duty & fitout</span>
-              </div>
 
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                  Monthly Home Loan EMI
-                </span>
-                <div className="text-xl font-bold text-[#202B3C] mt-1 tabular-nums">
-                  ₹{result.monthlyEmiRupees.toLocaleString('en-IN')}
+                {/* 3-Scenario Matrix */}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                    <TrendingUp className="h-4 w-4 text-emerald-400" />
+                    Conservative / Base / Optimistic Scenarios
+                  </h3>
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="w-full text-left font-mono text-xs">
+                      <thead className="border-b border-slate-800 text-slate-400">
+                        <tr>
+                          <th className="py-2 pr-4">Scenario</th>
+                          <th className="py-2 pr-4">IRR</th>
+                          <th className="py-2 pr-4">ROI</th>
+                          <th className="py-2 pr-4">Equity Mult.</th>
+                          <th className="py-2 pr-4">Exit Value</th>
+                          <th className="py-2">Net Profit</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800/70">
+                        {(
+                          [
+                            ['Conservative', analysis.scenarios.conservative, 'text-amber-300'],
+                            ['Base Case', analysis.scenarios.base, 'text-emerald-300'],
+                            ['Optimistic', analysis.scenarios.optimistic, 'text-sky-300'],
+                          ] as const
+                        ).map(([label, m, color]) => (
+                          <tr key={label}>
+                            <td className={`py-2.5 pr-4 font-sans font-semibold ${color}`}>{label}</td>
+                            <td className="py-2.5 pr-4 text-white">{m.irrPercent}%</td>
+                            <td className="py-2.5 pr-4 text-slate-300">{m.roiPercent}%</td>
+                            <td className="py-2.5 pr-4 text-slate-300">{m.equityMultiple}x</td>
+                            <td className="py-2.5 pr-4 text-slate-300">{formatInr(m.projectedExitValueRupees)}</td>
+                            <td className="py-2.5 text-white">{formatInr(m.netProfitRupees)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <span className="text-[10px] text-[#69717B]">75% LTV @ {inputs.interestRateAnnual}%</span>
-              </div>
 
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                  Gross / Net Yield
-                </span>
-                <div className="text-xl font-bold text-[#547568] mt-1 tabular-nums">
-                  {result.grossRentalYieldPercent}% / {result.netRentalYieldPercent}%
+                {/* Sensitivity Matrix + 6-Factor Scorecard */}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                      <BarChart3 className="h-4 w-4 text-emerald-400" />
+                      6-Parameter Sensitivity Matrix
+                    </h3>
+                    <div className="mt-3 space-y-2 text-xs">
+                      {analysis.sensitivity.map((row, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between rounded bg-slate-950/70 px-3 py-2"
+                        >
+                          <div>
+                            <p className="font-medium text-slate-200">{row.parameter}</p>
+                            <p className="font-mono text-[11px] text-slate-500">{row.deltaLabel}</p>
+                          </div>
+                          <div className="text-right font-mono">
+                            <p className="text-emerald-300">IRR {row.irrPercent}%</p>
+                            <p className="text-[11px] text-slate-400">Yield {row.netYieldPercent}%</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+                    <h3 className="flex items-center gap-2 text-sm font-semibold text-white">
+                      <Gauge className="h-4 w-4 text-emerald-400" />
+                      6-Factor Transparent Scorecard
+                    </h3>
+                    <div className="mt-3 space-y-2.5 text-xs">
+                      {[
+                        ['Location', analysis.scorecard.location],
+                        ['Market Liquidity', analysis.scorecard.marketLiquidity],
+                        ['Rental Potential', analysis.scorecard.rentalPotential],
+                        ['Price Competitiveness', analysis.scorecard.priceCompetitiveness],
+                        ['Developer / Project Risk', analysis.scorecard.developerProjectRisk],
+                        ['Data Confidence', analysis.scorecard.dataConfidence],
+                      ].map(([label, score]) => (
+                        <div key={String(label)}>
+                          <div className="flex justify-between">
+                            <span className="text-slate-300">{label}</span>
+                            <span className="font-mono text-white">{score}/100</span>
+                          </div>
+                          <div className="mt-1 h-1.5 w-full rounded-full bg-slate-800">
+                            <div
+                              className="h-1.5 rounded-full bg-emerald-500"
+                              style={{ width: `${Math.min(100, Math.max(0, Number(score)))}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                      <div className="mt-4 flex items-center justify-between border-t border-slate-800 pt-3">
+                        <span className="font-semibold text-white">Composite Indicative Score</span>
+                        <span className="font-mono text-lg font-bold text-emerald-400">
+                          {analysis.scorecard.compositeIndicativeScore}/100
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-[10px] text-[#69717B]">Net of society tax & maint.</span>
-              </div>
 
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#69717B] block font-sans">
-                  Initial Equity Outlay
-                </span>
-                <div className="text-xl font-bold text-[#202B3C] mt-1 tabular-nums">
-                  ₹{result.initialCashOutlayLakhs} L
+                {/* Mandatory Non-Advice Disclaimer */}
+                <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-xs text-amber-200/90">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                  <p>{analysis.disclaimer}</p>
                 </div>
-                <span className="text-[10px] text-[#69717B]">Down payment + stamp duty</span>
-              </div>
-            </div>
-
-            {/* Cashflow Breakdown Table */}
-            <div className="space-y-3">
-              <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C] block border-b border-[#C8C4BA] pb-2">
-                Annual Operating Cashflow Ledger
-              </span>
-              <div className="border border-[#C8C4BA] overflow-hidden text-xs font-mono">
-                <div className="p-3 flex justify-between border-b border-[#E2DFD6] hover:bg-[#F5F3ED]/30">
-                  <span className="text-[#69717B]">Gross Annual Rental Income:</span>
-                  <span className="font-bold text-[#202B3C] tabular-nums">₹{(inputs.expectedMonthlyRentRupees * 12).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="p-3 flex justify-between border-b border-[#E2DFD6] hover:bg-[#F5F3ED]/30">
-                  <span className="text-[#69717B]">Annual Operating Expenses (Maint. + AUDA Tax + Vacancy):</span>
-                  <span className="text-amber-800 font-bold tabular-nums">-₹{result.annualOwnershipExpensesRupees.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="p-3 flex justify-between border-b border-[#E2DFD6] hover:bg-[#F5F3ED]/30">
-                  <span className="text-[#69717B]">Annual Debt Servicing (Mortgage EMI &times; 12):</span>
-                  <span className="text-amber-800 font-bold tabular-nums">-₹{(result.monthlyEmiRupees * 12).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="p-3.5 bg-[#F5F3ED] flex justify-between items-center text-sm font-bold">
-                  <span className="text-[#202B3C]">Net Pre-Tax Cash Flow (Annual):</span>
-                  <span className={result.annualNetCashFlowRupees >= 0 ? 'text-[#547568]' : 'text-amber-800'}>
-                    {result.annualNetCashFlowRupees >= 0 ? '+' : ''}₹{result.annualNetCashFlowRupees.toLocaleString('en-IN')}/year
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Three Scenario Analysis */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between border-b border-[#C8C4BA] pb-2">
-                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#202B3C]">
-                  Capital Appreciation & Resale Scenarios ({inputs.holdingPeriodYears} Years)
-                </span>
-                <span className="text-[10px] font-mono text-[#69717B]">Base Rate: {inputs.expectedAnnualAppreciationPercent}%/yr</span>
-              </div>
-
-              <div className="border border-[#C8C4BA] overflow-x-auto text-xs font-mono">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#F5F3ED] border-b border-[#C8C4BA] text-[#202B3C] text-[11px]">
-                      <th className="p-3 font-bold uppercase">Scenario</th>
-                      <th className="p-3 font-bold uppercase tabular-nums">Apprec. Rate</th>
-                      <th className="p-3 font-bold uppercase tabular-nums">Estimated Resale</th>
-                      <th className="p-3 font-bold uppercase tabular-nums">Net Profit</th>
-                      <th className="p-3 font-bold uppercase tabular-nums">Total ROI</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2DFD6]">
-                    <tr className="hover:bg-[#F5F3ED]/40 transition-colors">
-                      <td className="p-3 font-sans font-bold text-[#69717B]">Conservative</td>
-                      <td className="p-3 tabular-nums">{result.scenarios.conservative.appreciationRate}% / yr</td>
-                      <td className="p-3 font-bold text-[#202B3C] tabular-nums">₹{result.scenarios.conservative.estimatedResaleValueLakhs} L</td>
-                      <td className="p-3 text-[#547568] tabular-nums">+₹{result.scenarios.conservative.netGainLakhs} L</td>
-                      <td className="p-3 font-bold text-[#547568] tabular-nums">+{result.scenarios.conservative.holdingReturnPercent}%</td>
-                    </tr>
-                    <tr className="bg-[#547568]/5 font-bold hover:bg-[#547568]/10 transition-colors">
-                      <td className="p-3 font-sans text-[#547568]">Base Model</td>
-                      <td className="p-3 tabular-nums">{result.scenarios.base.appreciationRate}% / yr</td>
-                      <td className="p-3 text-[#202B3C] tabular-nums">₹{result.scenarios.base.estimatedResaleValueLakhs} L</td>
-                      <td className="p-3 text-[#547568] tabular-nums">+₹{result.scenarios.base.netGainLakhs} L</td>
-                      <td className="p-3 text-[#547568] tabular-nums">+{result.scenarios.base.holdingReturnPercent}%</td>
-                    </tr>
-                    <tr className="hover:bg-[#F5F3ED]/40 transition-colors">
-                      <td className="p-3 font-sans font-bold text-[#202B3C]">Optimistic</td>
-                      <td className="p-3 tabular-nums">{result.scenarios.optimistic.appreciationRate}% / yr</td>
-                      <td className="p-3 font-bold text-[#202B3C] tabular-nums">₹{result.scenarios.optimistic.estimatedResaleValueLakhs} L</td>
-                      <td className="p-3 text-[#547568] tabular-nums">+₹{result.scenarios.optimistic.netGainLakhs} L</td>
-                      <td className="p-3 font-bold text-[#547568] tabular-nums">+{result.scenarios.optimistic.holdingReturnPercent}%</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* Disclaimer */}
-            <div className="p-4 bg-[#F5F3ED] border border-[#C8C4BA] space-y-1.5 text-[11px] text-[#69717B] leading-relaxed">
-              <div className="flex items-center gap-1.5 font-bold text-[#202B3C] font-mono text-[10px] uppercase">
-                <ShieldAlert className="w-3.5 h-3.5 text-[#547568]" />
-                <span>Investment Risk & Statutory Notice:</span>
-              </div>
-              <p>
-                Calculations represent mathematical models based on user-supplied inputs and historical Gujarat market indicators. Past appreciation is not guaranteed. Does not account for capital gains taxes or individual loan prepayment charges.
-              </p>
-            </div>
-
+              </>
+            )}
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }

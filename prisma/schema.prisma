@@ -4808,3 +4808,266 @@ model AutomationExecution {
   @@index([organisationId, workflowType, status])
   @@map("procurement_automation_executions")
 }
+
+
+// ============================================================
+// PROVENTA REAL ESTATE INTELLIGENCE & PROPERTY OS MODELS
+// Strictly additive schema expansion (monetary values in BigInt paise)
+// ============================================================
+
+enum RegistryVerificationStatus {
+  VERIFIED
+  UNVERIFIED
+  USER_SUBMITTED
+  EXTERNALLY_SOURCED
+  REJECTED
+}
+
+enum InfrastructureLifecycleStatus {
+  OPERATIONAL
+  UNDER_CONSTRUCTION
+  PROPOSED
+  UNVERIFIED
+}
+
+enum PropertyExpenseCategory {
+  ACQUISITION
+  STAMP_DUTY_REGISTRATION
+  PROPERTY_TAX
+  MAINTENANCE
+  RENOVATION
+  UTILITIES
+  INSURANCE
+  BROKERAGE
+  OTHER
+}
+
+enum WatchlistTargetType {
+  PROPERTY
+  PROJECT
+  LOCALITY
+  SEGMENT
+}
+
+model RegistryProperty {
+  id                   String                     @id @default(cuid())
+  proventaPropertyId   String                     @unique // e.g. PV-PROP-AHM-2026-XXXXXX
+  landParcelCode       String?                    // Level 1: Land / Survey / FP No
+  projectSlug          String?                    // Level 2: Development Project
+  buildingName         String?                    // Level 3: Building / Tower
+  unitNumber           String?                    // Level 4: Unit / Flat
+  propertyCategory     String                     // RESIDENTIAL, COMMERCIAL, LAND, INDUSTRIAL
+  propertyType         String                     // APARTMENT, VILLA, OFFICE, PLOT, RETAIL
+  title                String
+  address              String
+  normalizedAddressKey String                     // For deterministic duplicate detection
+  locality             String
+  city                 String                     @default("Ahmedabad")
+  state                String                     @default("Gujarat")
+  pincode              String?
+  latitude             Float?
+  longitude            Float?
+  plotAreaSqFt         Float?
+  carpetAreaSqFt       Float?
+  builtUpAreaSqFt      Float?
+  constructionStatus   String                     @default("READY_TO_MOVE")
+  buildingAgeYears     Int?
+  floorInfo            String?
+  configuration        String?                    // e.g. 3 BHK, 4 BHK, Grade-A Office
+  developerName        String?
+  reraNumber           String?
+  registrationRef      String?
+  verificationStatus   RegistryVerificationStatus @default(USER_SUBMITTED)
+  sourceProvenance     String
+  isPublicRegistry     Boolean                    @default(true)
+  submittedByUserId    String?
+  verifiedByAdminId    String?
+  verifiedAt           DateTime?
+  deletedAt            DateTime?
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
+
+  lifecycleEvents      PropertyLifecycleEvent[]
+
+  @@index([locality, city])
+  @@index([normalizedAddressKey])
+  @@index([reraNumber])
+  @@index([verificationStatus, isPublicRegistry])
+  @@map("registry_properties")
+}
+
+model PropertyLifecycleEvent {
+  id                 String           @id @default(cuid())
+  registryPropertyId String
+  registryProperty   RegistryProperty @relation(fields: [registryPropertyId], references: [id], onDelete: Cascade)
+  eventType          String           // REGISTERED, RERA_FILED, VALUATION_UPDATED, VERIFIED, TRANSACTION_RECORDED
+  eventDate          DateTime
+  summary            String
+  sourceProvenance   String
+  createdAt          DateTime         @default(now())
+
+  @@index([registryPropertyId, eventDate])
+  @@map("property_lifecycle_events")
+}
+
+model MarketObservation {
+  id                   String                     @id @default(cuid())
+  locality             String
+  city                 String                     @default("Ahmedabad")
+  segment              String                     // RESIDENTIAL, COMMERCIAL, LAND
+  propertyType         String                     // APARTMENT, VILLA, OFFICE, PLOT
+  pricePerSqFtPaise    BigInt
+  rentalYieldPct       Float?
+  transactionCount     Int                        @default(1)
+  reportingPeriod      String                     // e.g. 2026-Q4
+  observationDate      DateTime
+  dataSource           String
+  sourceUrl            String?
+  methodology          String
+  confidenceLevel      String                     @default("MODERATE") // HIGH, MODERATE, LOW, INSUFFICIENT_DATA
+  verificationStatus   RegistryVerificationStatus @default(EXTERNALLY_SOURCED)
+  createdAt            DateTime                   @default(now())
+
+  @@index([locality, segment, observationDate])
+  @@index([city, verificationStatus])
+  @@map("real_estate_market_observations")
+}
+
+model InfrastructureAsset {
+  id                     String                        @id @default(cuid())
+  name                   String
+  locality               String
+  corridor               String
+  city                   String                        @default("Ahmedabad")
+  category               String                        // METRO, EXPRESSWAY, COMMERCIAL_HUB, EDUCATION, HEALTHCARE, AIRPORT
+  status                 InfrastructureLifecycleStatus @default(PROPOSED)
+  expectedCompletionYear Int?
+  sourceReference        String
+  lastVerifiedAt         DateTime                      @default(now())
+  createdAt              DateTime                      @default(now())
+
+  @@index([locality, status])
+  @@index([corridor])
+  @@map("real_estate_infrastructure_assets")
+}
+
+model PropertyPassport {
+  id                       String                  @id @default(cuid())
+  ownerUserId              String                  // Strictly private to owner; never exposed publicly
+  passportCode             String                  @unique // e.g. PV-OS-2026-XXXXXX
+  linkedRegistryPropertyId String?
+  nickname                 String
+  propertyCategory         String
+  propertyType             String
+  address                  String
+  locality                 String
+  city                     String                  @default("Ahmedabad")
+  carpetAreaSqFt           Float?
+  acquisitionDate          DateTime?
+  purchasePricePaise       BigInt                  @default(0)
+  currentEstimatedPaise    BigInt                  @default(0)
+  ownershipNotes           String?
+  occupancyStatus          String                  @default("OWNER_OCCUPIED") // OWNER_OCCUPIED, RENTED, VACANT
+  isPrivate                Boolean                 @default(true)
+  documentKeys             String[]
+  deletedAt                DateTime?
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @updatedAt
+
+  expenses                 PropertyExpense[]
+  leases                   PropertyLease[]
+  maintenanceRecords       PropertyMaintenance[]
+  timelineEvents           PropertyTimelineEvent[]
+
+  @@index([ownerUserId, deletedAt])
+  @@map("property_os_passports")
+}
+
+model PropertyExpense {
+  id             String                  @id @default(cuid())
+  passportId     String
+  passport       PropertyPassport        @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  ownerUserId    String
+  category       PropertyExpenseCategory
+  amountPaise    BigInt
+  expenseDate    DateTime
+  description    String
+  receiptDocKey  String?
+  createdAt      DateTime                @default(now())
+
+  @@index([passportId, expenseDate])
+  @@index([ownerUserId])
+  @@map("property_os_expenses")
+}
+
+model PropertyLease {
+  id                   String           @id @default(cuid())
+  passportId           String
+  passport             PropertyPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  ownerUserId          String
+  tenantName           String
+  tenantContact        String?
+  monthlyRentPaise     BigInt
+  securityDepositPaise BigInt           @default(0)
+  leaseStartDate       DateTime
+  leaseEndDate         DateTime
+  status               String           @default("ACTIVE") // ACTIVE, EXPIRING_SOON, ENDED
+  agreementDocKey      String?
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  @@index([passportId, status])
+  @@index([ownerUserId, leaseEndDate])
+  @@map("property_os_leases")
+}
+
+model PropertyMaintenance {
+  id             String           @id @default(cuid())
+  passportId     String
+  passport       PropertyPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  ownerUserId    String
+  title          String
+  contractorName String?
+  costPaise      BigInt           @default(0)
+  scheduledDate  DateTime?
+  completedDate  DateTime?
+  status         String           @default("OPEN") // OPEN, SCHEDULED, COMPLETED
+  notes          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([passportId, status])
+  @@index([ownerUserId])
+  @@map("property_os_maintenance")
+}
+
+model PropertyTimelineEvent {
+  id          String           @id @default(cuid())
+  passportId  String
+  passport    PropertyPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  ownerUserId String
+  eventType   String           // ACQUISITION, REGISTRATION, RENOVATION, REPAIR, LEASE_SIGNED, VALUATION_UPDATE, EXPENSE
+  eventDate   DateTime
+  title       String
+  details     String?
+  createdAt   DateTime         @default(now())
+
+  @@index([passportId, eventDate])
+  @@map("property_os_timeline_events")
+}
+
+model RealEstateWatchlist {
+  id              String              @id @default(cuid())
+  userId          String
+  targetType      WatchlistTargetType
+  targetIdOrSlug  String
+  targetLabel     String
+  alertFrequency  String              @default("WEEKLY") // IMMEDIATE, DAILY, WEEKLY
+  emailEnabled    Boolean             @default(true)
+  inAppEnabled    Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+
+  @@unique([userId, targetType, targetIdOrSlug])
+  @@index([userId])
+  @@map("real_estate_watchlists")
+}
