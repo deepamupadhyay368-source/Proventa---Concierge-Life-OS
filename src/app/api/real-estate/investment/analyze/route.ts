@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { runFullInvestmentAnalysis } from '@/lib/real-estate-intelligence/investment-engine';
-import { checkRateLimit, getClientIpFromHeaders } from '@/lib/real-estate-intelligence/rate-limit';
+import {
+  buildRateLimitHeaders,
+  checkRateLimitAsync,
+  getClientIpFromHeaders,
+} from '@/lib/real-estate-intelligence/rate-limit';
 
 const investmentAnalyzeSchema = z.object({
   purchasePriceRupees: z.number().positive(),
@@ -38,11 +42,11 @@ const investmentAnalyzeSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const ip = getClientIpFromHeaders(req.headers);
-    const rl = checkRateLimit(`invest:${ip}`, 60, 60_000);
+    const rl = await checkRateLimitAsync(`invest:${ip}`, 60, 60_000);
     if (!rl.allowed) {
       return NextResponse.json(
         { error: 'Rate limit exceeded. Please wait before running another analysis.' },
-        { status: 429 }
+        { status: 429, headers: buildRateLimitHeaders(rl) }
       );
     }
 

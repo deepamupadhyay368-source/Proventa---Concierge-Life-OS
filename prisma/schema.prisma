@@ -4980,9 +4980,29 @@ model PropertyPassport {
   leases                   PropertyLease[]
   maintenanceRecords       PropertyMaintenance[]
   timelineEvents           PropertyTimelineEvent[]
+  documents                PropertyDocument[]
 
   @@index([ownerUserId, deletedAt])
   @@map("property_os_passports")
+}
+
+model PropertyDocument {
+  id              String           @id @default(cuid())
+  passportId      String
+  passport        PropertyPassport @relation(fields: [passportId], references: [id], onDelete: Cascade)
+  ownerUserId     String
+  fileName        String
+  mimeType        String
+  sizeBytes       Int
+  storageKey      String           @unique
+  storageProvider String           @default("DATABASE_PRIVATE") // S3 or DATABASE_PRIVATE
+  sha256Checksum  String
+  contentBase64   String?          @db.Text
+  createdAt       DateTime         @default(now())
+
+  @@index([passportId, createdAt])
+  @@index([ownerUserId])
+  @@map("property_os_documents")
 }
 
 model PropertyExpense {

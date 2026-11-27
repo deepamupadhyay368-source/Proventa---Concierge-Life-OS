@@ -148,6 +148,14 @@ function serializePassport(p: {
     title: string;
     details: string | null;
   }>;
+  documents?: Array<{
+    id: string;
+    fileName: string;
+    mimeType: string;
+    sizeBytes: number;
+    sha256Checksum: string;
+    createdAt: Date;
+  }>;
 }) {
   return {
     ...p,
@@ -162,6 +170,10 @@ function serializePassport(p: {
     maintenanceRecords: p.maintenanceRecords.map((m) => ({
       ...m,
       costPaise: m.costPaise.toString(),
+    })),
+    documents: (p.documents ?? []).map((doc) => ({
+      ...doc,
+      downloadUrl: `/api/real-estate/property-os/documents/${doc.id}`,
     })),
   };
 }
@@ -188,6 +200,17 @@ export async function GET() {
         leases: { orderBy: { leaseEndDate: 'asc' } },
         maintenanceRecords: { orderBy: { createdAt: 'desc' } },
         timelineEvents: { orderBy: { eventDate: 'desc' } },
+        documents: {
+          select: {
+            id: true,
+            fileName: true,
+            mimeType: true,
+            sizeBytes: true,
+            sha256Checksum: true,
+            createdAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -432,5 +455,142 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[POST /api/real-estate/property-os]', err);
     return NextResponse.json({ error: 'Failed to update Property OS record.' }, { status: 500 });
+  }
+}
+
+/**
+ * PATCH /api/real-estate/property-os
+ * Owner-isolated edit for PropertyExpense and PropertyLease records (403 on IDOR).
+ */
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+    }
+    const userId = session.user.id;
+    const body = await req.json();
+    const action = body?.action;
+
+    if (action === 'UPDATE_EXPENSE') {
+      const id = String(body?.id || '').trim();
+      if (!id) return NextResponse.json({ error: 'Expense id is required.' }, { status: 400 });
+      const existing = await db.propertyExpense.findUnique({
+        where: { id },
+        select: { id: true, ownerUserId: true },
+      });
+      if (!existing) return NextResponse.json({ error: 'Expense not found.' }, { status: 404 });
+      if (existing.ownerUserId !== userId) {
+        return NextResponse.json({ error: 'Forbidden: You do not own this expense.' }, { status: 403 });
+      }
+      const updated = await db.propertyExpense.update({
+        where: { id },
+        data: {
+          ...(body.category ? { category: body.category } : {}),
+          ...(typeof body.amountRupees === 'number' && body.amountRupees > 0
+            ? { amountPaise: BigInt(Math.round(body.amountRupees * 100)) }
+            : {}),
+          ...(body.expenseDate ? { expenseDate: new Date(body.expenseDate) } : {}),
+          ...(typeof body.description === 'string' && body.description.trim()
+            ? { description: body.description.trim() }
+            : {}),
+        },
+      });
+      return NextResponse.json({
+        expense: { ...updated, amountPaise: updated.amountPaise.toString() },
+      });
+    }
+
+    if (action === 'UPDATE_LEASE') {
+      const id = String(body?.id || '').trim();
+      if (!id) return NextResponse.json({ error: 'Lease id is required.' }, { status: 400 });
+      const existing = await db.propertyLease.findUnique({
+        where: { id },
+        select: { id: true, ownerUserId: true },
+      });
+      if (!existing) return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
+      if (existing.ownerUserId !== userId) {
+        return NextResponse.json({ error: 'Forbidden: You do not own this lease.' }, { status: 403 });
+      }
+      const updated = await db.propertyLease.update({
+        where: { id },
+        data: {
+          ...(typeof body.tenantName === 'string' && body.tenantName.trim()
+            ? { tenantName: body.tenantName.trim() }
+            : {}),
+          ...(typeof body.monthlyRentRupees === 'number' && body.monthlyRentRupees > 0
+            ? { monthlyRentPaise: BigInt(Math.round(body.monthlyRentRupees * 100)) }
+            : {}),
+          ...(body.leaseEndDate ? { leaseEndDate: new Date(body.leaseEndDate) } : {}),
+          ...(body.status && ['ACTIVE', 'EXPIRING_SOON', 'ENDED'].includes(body.status)
+            ? { status: body.status }
+            : {}),
+        },
+      });
+      return NextResponse.json({
+        lease: {
+          ...updated,
+          monthlyRentPaise: updated.monthlyRentPaise.toString(),
+          securityDepositPaise: updated.securityDepositPaise.toString(),
+        },
+      });
+    }
+
+    return NextResponse.json({ error: 'Unsupported PATCH action.' }, { status: 400 });
+  } catch (err) {
+    console.error('[PATCH /api/real-estate/property-os]', err);
+    return NextResponse.json({ error: 'Failed to update record.' }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/real-estate/property-os?type=EXPENSE|LEASE&id=...
+ * Owner-isolated deletion for PropertyExpense and PropertyLease records (403 on IDOR).
+ */
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+    }
+    const userId = session.user.id;
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get('type')?.toUpperCase();
+    const id = searchParams.get('id')?.trim();
+
+    if (!id || !type) {
+      return NextResponse.json({ error: 'type and id query parameters are required.' }, { status: 400 });
+    }
+
+    if (type === 'EXPENSE') {
+      const existing = await db.propertyExpense.findUnique({
+        where: { id },
+        select: { id: true, ownerUserId: true },
+      });
+      if (!existing) return NextResponse.json({ error: 'Expense not found.' }, { status: 404 });
+      if (existing.ownerUserId !== userId) {
+        return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
+      }
+      await db.propertyExpense.delete({ where: { id } });
+      return NextResponse.json({ deleted: true, type, id });
+    }
+
+    if (type === 'LEASE') {
+      const existing = await db.propertyLease.findUnique({
+        where: { id },
+        select: { id: true, ownerUserId: true },
+      });
+      if (!existing) return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
+      if (existing.ownerUserId !== userId) {
+        return NextResponse.json({ error: 'Forbidden.' }, { status: 403 });
+      }
+      await db.propertyLease.delete({ where: { id } });
+      return NextResponse.json({ deleted: true, type, id });
+    }
+
+    return NextResponse.json({ error: 'Unsupported delete type.' }, { status: 400 });
+  } catch (err) {
+    console.error('[DELETE /api/real-estate/property-os]', err);
+    return NextResponse.json({ error: 'Failed to delete record.' }, { status: 500 });
   }
 }

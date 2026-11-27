@@ -5,6 +5,11 @@ import {
   compareProjectsSideBySide,
   type ProjectComparisonItem,
 } from '@/lib/real-estate-intelligence/market-engine';
+import {
+  buildRateLimitHeaders,
+  checkRateLimitAsync,
+  getClientIpFromHeaders,
+} from '@/lib/real-estate-intelligence/rate-limit';
 
 const compareProjectsSchema = z.object({
   slugs: z.array(z.string().trim().min(1)).min(2).max(6),
@@ -75,6 +80,14 @@ async function runProjectComparison(slugs: string[]) {
 
 export async function GET(req: NextRequest) {
   try {
+    const ip = getClientIpFromHeaders(req.headers);
+    const rl = await checkRateLimitAsync(`projects-compare:${ip}`, 45, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded for project comparison.' },
+        { status: 429, headers: buildRateLimitHeaders(rl) }
+      );
+    }
     const { searchParams } = new URL(req.url);
     const rawSlugs = searchParams.get('slugs')?.trim() || '';
     const slugs = rawSlugs
@@ -103,6 +116,14 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIpFromHeaders(req.headers);
+    const rl = await checkRateLimitAsync(`projects-compare:${ip}`, 45, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded for project comparison.' },
+        { status: 429, headers: buildRateLimitHeaders(rl) }
+      );
+    }
     const body = await req.json();
     const parsed = compareProjectsSchema.safeParse(body);
     if (!parsed.success) {

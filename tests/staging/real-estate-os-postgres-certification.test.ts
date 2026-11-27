@@ -358,4 +358,82 @@ describe('PROVENTA Real Estate Intelligence — Live proventa-staging PostgreSQL
     expect(userBReports).toHaveLength(0);
     expect(userBNotifs).toHaveLength(0);
   });
+
+  it('verifies Property OS Expense/Lease Edit+Delete and Private Binary PropertyDocument with 2-user IDOR isolation', async () => {
+    const passport = await prisma.propertyPassport.create({
+      data: {
+        ownerUserId: userA,
+        passportCode: `PV-OS-DOC-${runTag.slice(-6).toUpperCase()}`,
+        nickname: `Doc Vault ${runTag}`,
+        propertyCategory: 'RESIDENTIAL',
+        propertyType: 'APARTMENT',
+        address: `Suite 402, Science City ${runTag}`,
+        locality: 'Science City',
+        city: 'Ahmedabad',
+        purchasePricePaise: BigInt(90_000_0000),
+        currentEstimatedPaise: BigInt(100_000_0000),
+      },
+    });
+    createdPassportIds.push(passport.id);
+
+    // Expense Create -> Edit -> Delete
+    const exp = await prisma.propertyExpense.create({
+      data: {
+        passportId: passport.id,
+        ownerUserId: userA,
+        category: 'PROPERTY_TAX',
+        amountPaise: BigInt(10_000_00),
+        expenseDate: new Date(),
+        description: 'Initial AMC Tax',
+      },
+    });
+    const expUpdated = await prisma.propertyExpense.update({
+      where: { id: exp.id },
+      data: { amountPaise: BigInt(12_500_00), description: 'Revised AMC Tax' },
+    });
+    expect(expUpdated.amountPaise).toBe(BigInt(12_500_00));
+    await prisma.propertyExpense.delete({ where: { id: exp.id } });
+
+    // Lease Create -> Edit -> Delete
+    const lease = await prisma.propertyLease.create({
+      data: {
+        passportId: passport.id,
+        ownerUserId: userA,
+        tenantName: 'Tenant Beta',
+        monthlyRentPaise: BigInt(35_000_00),
+        leaseStartDate: new Date(),
+        leaseEndDate: new Date(Date.now() + 180 * 24 * 3600 * 1000),
+      },
+    });
+    const leaseUpdated = await prisma.propertyLease.update({
+      where: { id: lease.id },
+      data: { monthlyRentPaise: BigInt(38_000_00) },
+    });
+    expect(leaseUpdated.monthlyRentPaise).toBe(BigInt(38_000_00));
+    await prisma.propertyLease.delete({ where: { id: lease.id } });
+
+    // Private Binary Document Create -> Round-Trip -> 2-User IDOR Check -> Delete
+    const samplePdf = Buffer.from('%PDF-1.4\nPrivate Deed Binary\n%%EOF', 'latin1');
+    const doc = await prisma.propertyDocument.create({
+      data: {
+        passportId: passport.id,
+        ownerUserId: userA,
+        fileName: 'sale_deed_private.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: samplePdf.length,
+        storageKey: `private/test/${runTag}/sale_deed_private.pdf`,
+        storageProvider: 'DATABASE_PRIVATE',
+        sha256Checksum: 'a'.repeat(64),
+        contentBase64: samplePdf.toString('base64'),
+      },
+    });
+
+    const userADocs = await prisma.propertyDocument.findMany({ where: { ownerUserId: userA, id: doc.id } });
+    const userBDocs = await prisma.propertyDocument.findMany({ where: { ownerUserId: userB, id: doc.id } });
+    expect(userADocs).toHaveLength(1);
+    expect(Buffer.from(userADocs[0].contentBase64!, 'base64').toString('latin1')).toContain('Private Deed Binary');
+    expect(userBDocs).toHaveLength(0);
+
+    await prisma.propertyDocument.delete({ where: { id: doc.id } });
+  });
 });

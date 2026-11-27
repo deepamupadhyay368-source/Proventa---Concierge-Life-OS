@@ -8,6 +8,11 @@ import {
   generateProventaPropertyId,
   normalizePropertyAddressKey,
 } from '@/lib/real-estate-intelligence/registry-service';
+import {
+  buildRateLimitHeaders,
+  checkRateLimitAsync,
+  getClientIpFromHeaders,
+} from '@/lib/real-estate-intelligence/rate-limit';
 
 const createRegistryPropertySchema = z.object({
   title: z.string().trim().min(3).max(160),
@@ -43,6 +48,15 @@ const createRegistryPropertySchema = z.object({
  */
 export async function GET(req: NextRequest) {
   try {
+    const ip = getClientIpFromHeaders(req.headers);
+    const rl = await checkRateLimitAsync(`registry-get:${ip}`, 90, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded for Property Registry search.' },
+        { status: 429, headers: buildRateLimitHeaders(rl) }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const q = searchParams.get('q')?.trim() || '';
     const locality = searchParams.get('locality')?.trim() || '';

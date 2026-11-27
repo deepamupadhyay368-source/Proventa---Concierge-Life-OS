@@ -76,6 +76,50 @@ export default function MarketIntelligencePage() {
   const [loading, setLoading] = useState(true);
   const [compareA, setCompareA] = useState('Bopal');
   const [compareB, setCompareB] = useState('GIFT City');
+  const [availableProjects, setAvailableProjects] = useState<Array<{ slug: string; name: string; developer: string | null }>>([]);
+  const [selectedProjectSlugs, setSelectedProjectSlugs] = useState<string[]>([]);
+  const [projectComparison, setProjectComparison] = useState<{
+    lowestPricePerSqFtSlug: string | null;
+    projects: Array<{
+      slug: string;
+      name: string;
+      developerName: string;
+      locality: string;
+      reraNumber?: string | null;
+      constructionStatus: string;
+      pricePerSqFtRupees: number | null;
+      verificationStatus: string;
+      riskIndicators: string[];
+    }>;
+    disclosure: string;
+  } | null>(null);
+  const [projectCompareError, setProjectCompareError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/real-estate/projects/compare')
+      .then((r) => r.json())
+      .then((d) => setAvailableProjects(d.availableProjects || []))
+      .catch(() => {});
+  }, []);
+
+  async function runProjectCompare() {
+    setProjectCompareError(null);
+    if (selectedProjectSlugs.length < 2) {
+      setProjectCompareError('Select at least 2 RERA projects to compare.');
+      return;
+    }
+    const res = await fetch('/api/real-estate/projects/compare', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slugs: selectedProjectSlugs }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setProjectCompareError(data.error || 'Comparison failed.');
+      return;
+    }
+    setProjectComparison(data);
+  }
 
   const fetchMarket = useCallback(async () => {
     setLoading(true);
@@ -355,6 +399,95 @@ export default function MarketIntelligencePage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </section>
+
+        {/* Multi-Project Side-by-Side Comparison */}
+        <section className="mt-10 rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Multi-Project RERA Side-by-Side Comparison</h2>
+              <p className="mt-1 text-xs text-slate-400">
+                Select 2 to 6 projects from the live PROVENTA RERA database to compare pricing, RERA status, and risk flags.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={runProjectCompare}
+              className="rounded-lg bg-emerald-500 px-4 py-2 text-xs font-semibold text-slate-950 hover:bg-emerald-400"
+            >
+              Compare Selected ({selectedProjectSlugs.length})
+            </button>
+          </div>
+
+          {projectCompareError && (
+            <p className="mt-3 text-xs text-rose-300">{projectCompareError}</p>
+          )}
+
+          {availableProjects.length === 0 ? (
+            <p className="mt-4 text-xs text-slate-500">
+              No RERA projects recorded in this environment yet.
+            </p>
+          ) : (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {availableProjects.map((p) => {
+                const active = selectedProjectSlugs.includes(p.slug);
+                return (
+                  <button
+                    key={p.slug}
+                    type="button"
+                    onClick={() =>
+                      setSelectedProjectSlugs((prev) =>
+                        active ? prev.filter((s) => s !== p.slug) : prev.length < 6 ? [...prev, p.slug] : prev
+                      )
+                    }
+                    className={`rounded-lg border px-3 py-1.5 text-xs transition ${
+                      active
+                        ? 'border-emerald-500 bg-emerald-500/15 text-emerald-200'
+                        : 'border-slate-700 bg-slate-950 text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    {p.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {projectComparison && (
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-800 font-mono text-slate-400">
+                  <tr>
+                    <th className="py-2 pr-4">Project</th>
+                    <th className="py-2 pr-4">Developer</th>
+                    <th className="py-2 pr-4">Locality</th>
+                    <th className="py-2 pr-4">RERA</th>
+                    <th className="py-2 pr-4">Status</th>
+                    <th className="py-2 pr-4">Est. INR/sq ft</th>
+                    <th className="py-2">Risk Indicators</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/70">
+                  {projectComparison.projects.map((p) => (
+                    <tr key={p.slug}>
+                      <td className="py-2.5 pr-4 font-semibold text-white">{p.name}</td>
+                      <td className="py-2.5 pr-4 text-slate-300">{p.developerName}</td>
+                      <td className="py-2.5 pr-4 text-slate-300">{p.locality}</td>
+                      <td className="py-2.5 pr-4 font-mono text-slate-300">{p.reraNumber || 'Unverified'}</td>
+                      <td className="py-2.5 pr-4 font-mono text-slate-400">{p.constructionStatus}</td>
+                      <td className="py-2.5 pr-4 font-mono text-emerald-300">
+                        {p.pricePerSqFtRupees ? `INR ${p.pricePerSqFtRupees.toLocaleString('en-IN')}` : 'N/A'}
+                      </td>
+                      <td className="py-2.5 text-amber-300">
+                        {p.riskIndicators.length ? p.riskIndicators.join('; ') : 'None flagged'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="mt-2 text-[11px] text-slate-500">{projectComparison.disclosure}</p>
             </div>
           )}
         </section>

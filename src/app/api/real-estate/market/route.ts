@@ -6,6 +6,11 @@ import {
   AHMEDABAD_GANDHINAGAR_LOCALITIES,
   computeLocalityMarketBenchmark,
 } from '@/lib/real-estate-intelligence/market-engine';
+import {
+  buildRateLimitHeaders,
+  checkRateLimitAsync,
+  getClientIpFromHeaders,
+} from '@/lib/real-estate-intelligence/rate-limit';
 
 const createObservationSchema = z.object({
   recordType: z.literal('OBSERVATION'),
@@ -55,6 +60,15 @@ function serializeBenchmark(b: ReturnType<typeof computeLocalityMarketBenchmark>
  */
 export async function GET(req: NextRequest) {
   try {
+    const ip = getClientIpFromHeaders(req.headers);
+    const rl = await checkRateLimitAsync(`market-get:${ip}`, 90, 60_000);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded for Market Intelligence.' },
+        { status: 429, headers: buildRateLimitHeaders(rl) }
+      );
+    }
+
     const { searchParams } = new URL(req.url);
     const segment = (searchParams.get('segment') || 'RESIDENTIAL').trim().toUpperCase();
     const localityFilter = searchParams.get('locality')?.trim() || '';
