@@ -4141,3 +4141,670 @@ model ValuationReport {
   @@index([requestId])
   @@index([reportReference])
 }
+
+
+// ============================================================
+// PROVENTA CONSTRUCTION PROCUREMENT & INTELLIGENCE MODELS
+// Additive schema expansion (all monetary ledger values in integer paise)
+// ============================================================
+
+enum ConstructionProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
+}
+
+enum ProcurementRequirementStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  PUBLISHED
+  CLOSED
+  CANCELLED
+}
+
+enum ApprovalDecisionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RETURNED_FOR_REVISION
+}
+
+enum ProcurementAwardStatus {
+  ACTIVE
+  AMENDED
+  CANCELLED
+}
+
+enum DeliveryFulfilmentStatus {
+  AWAITING_SUPPLIER_CONFIRMATION
+  CONFIRMED
+  PROCESSING
+  READY_FOR_DISPATCH
+  DISPATCHED
+  IN_TRANSIT
+  PARTIALLY_DELIVERED
+  DELIVERED
+  DELIVERY_DISCREPANCY
+  REJECTED
+  CANCELLED
+}
+
+enum ThreeWayMatchStatus {
+  MATCHED
+  QUANTITY_DISCREPANCY
+  RATE_DISCREPANCY
+  TAX_DISCREPANCY
+  MISSING_GRN
+  ON_HOLD
+}
+
+enum ProcurementDisputeType {
+  QUALITY_MISMATCH
+  QUANTITY_SHORTAGE
+  LATE_DELIVERY
+  INCORRECT_INVOICE
+  DAMAGED_MATERIAL
+  PAYMENT_DISPUTE
+  SUPPLIER_MISREPRESENTATION
+}
+
+enum ProcurementDisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  AWAITING_EVIDENCE
+  RESOLVED
+  CLOSED
+}
+
+enum SavingsClassification {
+  POTENTIAL
+  REALISED
+}
+
+model ConstructionProject {
+  id                     String                    @id @default(cuid())
+  organisationId         String
+  projectCode            String
+  name                   String
+  location               String
+  address                String
+  city                   String                    @default("Ahmedabad")
+  state                  String                    @default("Gujarat")
+  projectType            String                    // RESIDENTIAL_TOWER, COMMERCIAL, INDUSTRIAL, INFRASTRUCTURE
+  developerOrContractor  String
+  projectManagerUserId   String?
+  projectManagerName     String?
+  startDate              DateTime?
+  expectedCompletionDate DateTime?
+  status                 ConstructionProjectStatus @default(ACTIVE)
+  approvedBudgetPaise    BigInt                    @default(0)
+  materialBudgetPaise    BigInt                    @default(0)
+  createdByUserId        String
+  deletedAt              DateTime?
+  createdAt              DateTime                  @default(now())
+  updatedAt              DateTime                  @updatedAt
+
+  requirements           ProcurementRequirement[]
+  savingsRecords         ProcurementSavingsRecord[]
+
+  @@unique([organisationId, projectCode])
+  @@index([organisationId])
+  @@index([status])
+  @@map("construction_projects")
+}
+
+model MaterialCategory {
+  id                     String            @id @default(cuid())
+  slug                   String            @unique
+  name                   String
+  division               String            // CIVIL_STRUCTURAL, ELECTRICAL, PLUMBING, FINISHING, SITE_EQUIPMENT
+  description            String?
+  requiredSpecSchemaJson Json              // Required technical attributes for like-for-like comparison
+  isActive               Boolean           @default(true)
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  products               MaterialProduct[]
+  requirements           ProcurementRequirement[]
+
+  @@index([division])
+  @@map("material_categories")
+}
+
+model MaterialProduct {
+  id                     String           @id @default(cuid())
+  categoryId             String
+  category               MaterialCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  skuCode                String           @unique
+  name                   String
+  standardCode           String?          // e.g. IS 1786:2008, IS 269:2015
+  defaultUnit            String           // MT, BAG, CUM, SQFT, MTR, NOS
+  specificationsJson     Json             // Brand, grade, diameter, packaging, etc.
+  gstRatePercent         Int              @default(18)
+  isActive               Boolean          @default(true)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  @@index([categoryId])
+  @@map("material_products")
+}
+
+model ProcurementRequirement {
+  id                     String                       @id @default(cuid())
+  organisationId         String
+  projectId              String
+  project                ConstructionProject          @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  categoryId             String?
+  category               MaterialCategory?            @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  requirementCode        String
+  title                  String
+  materialName           String
+  specificationsJson     Json
+  quantity               Float
+  unit                   String
+  preferredBrands        String[]
+  acceptableAlternatives String[]
+  deliveryLocation       String
+  requiredDeliveryDate   DateTime
+  deliveryScheduleNotes  String?
+  budgetPaise            BigInt?
+  budgetDisclosed        Boolean                      @default(false)
+  paymentTerms           String?
+  specialInstructions    String?
+  boqDocumentKey         String?
+  status                 ProcurementRequirementStatus @default(DRAFT)
+  linkedRfqId            String?
+  createdByUserId        String
+  approvedByUserId       String?
+  approvedAt             DateTime?
+  deletedAt              DateTime?
+  createdAt              DateTime                     @default(now())
+  updatedAt              DateTime                     @updatedAt
+
+  @@unique([organisationId, requirementCode])
+  @@index([organisationId, status])
+  @@index([projectId])
+  @@map("procurement_requirements")
+}
+
+model ProcurementApprovalWorkflow {
+  id                     String                      @id @default(cuid())
+  organisationId         String
+  name                   String
+  minAmountPaise         BigInt                      @default(0)
+  maxAmountPaise         BigInt?
+  requiredRoles          String[]                    // e.g. ["PROCUREMENT_MANAGER", "PROJECT_MANAGER", "FINANCE_MANAGER"]
+  enforceSeparation      Boolean                     @default(true)
+  isActive               Boolean                     @default(true)
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
+
+  records                ProcurementApprovalRecord[]
+
+  @@index([organisationId, isActive])
+  @@map("procurement_approval_workflows")
+}
+
+model ProcurementApprovalRecord {
+  id                     String                      @id @default(cuid())
+  organisationId         String
+  workflowId             String?
+  workflow               ProcurementApprovalWorkflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  rfqId                  String
+  quotationId            String
+  recommendedAmountPaise BigInt
+  requestedByUserId      String
+  approverUserId         String?
+  approverRole           String
+  levelOrder             Int                         @default(1)
+  status                 ApprovalDecisionStatus      @default(PENDING)
+  decisionReason         String?
+  decidedAt              DateTime?
+  createdAt              DateTime                    @default(now())
+  updatedAt              DateTime                    @updatedAt
+
+  @@index([organisationId, status])
+  @@index([rfqId, quotationId])
+  @@map("procurement_approval_records")
+}
+
+model ProcurementAward {
+  id                     String                 @id @default(cuid())
+  organisationId         String
+  rfqId                  String                 @unique
+  quotationId            String
+  supplierBusinessId     String
+  purchaseOrderId        String                 @unique
+  idempotencyKey         String                 @unique
+  awardedAmountPaise     BigInt
+  currency               String                 @default("INR")
+  awardedByUserId        String
+  approvedByUserId       String?
+  technicalEvalPassed    Boolean                @default(true)
+  status                 ProcurementAwardStatus @default(ACTIVE)
+  immutableSnapshotJson  Json
+  amendmentsJson         Json?
+  createdAt              DateTime               @default(now())
+
+  @@index([organisationId])
+  @@index([supplierBusinessId])
+  @@map("procurement_awards")
+}
+
+model ProcurementDelivery {
+  id                     String                   @id @default(cuid())
+  organisationId         String
+  purchaseOrderId        String
+  supplierBusinessId     String
+  deliveryCode           String                   @unique
+  status                 DeliveryFulfilmentStatus @default(AWAITING_SUPPLIER_CONFIRMATION)
+  dispatchDate           DateTime?
+  expectedDeliveryDate   DateTime?
+  actualDeliveryDate     DateTime?
+  vehicleNumber          String?
+  transporterName        String?
+  ewayBillRef            String?
+  deliveryChallanRef     String?
+  orderedQuantity        Float
+  dispatchedQuantity     Float                    @default(0)
+  receivedQuantity       Float                    @default(0)
+  unit                   String
+  receivingEmployeeName  String?
+  discrepancyNotes       String?
+  supportingDocumentKeys String[]
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+
+  goodsReceipts          GoodsReceipt[]
+
+  @@index([organisationId, purchaseOrderId])
+  @@index([supplierBusinessId])
+  @@map("procurement_deliveries")
+}
+
+model GoodsReceipt {
+  id                     String              @id @default(cuid())
+  organisationId         String
+  deliveryId             String
+  delivery               ProcurementDelivery @relation(fields: [deliveryId], references: [id], onDelete: Restrict)
+  purchaseOrderId        String
+  grnNumber              String              @unique
+  receivedQuantity       Float
+  acceptedQuantity       Float
+  rejectedQuantity       Float               @default(0)
+  unit                   String
+  qualityStatus          String              @default("PASSED") // PASSED, CONDITIONAL, REJECTED
+  inspectionNotes        String?
+  receivedByUserId       String
+  receivedAt             DateTime            @default(now())
+  createdAt              DateTime            @default(now())
+
+  @@index([organisationId, purchaseOrderId])
+  @@map("goods_receipts")
+}
+
+model ThreeWayMatchRecord {
+  id                     String              @id @default(cuid())
+  organisationId         String
+  purchaseOrderId        String
+  goodsReceiptId         String?
+  invoiceNumber          String
+  supplierGstin          String
+  poTotalPaise           BigInt
+  grnValuePaise          BigInt
+  invoiceTotalPaise      BigInt
+  taxAmountPaise         BigInt              @default(0)
+  variancePaise          BigInt              @default(0)
+  status                 ThreeWayMatchStatus
+  discrepancyReasons     String[]
+  paymentStatus          String              @default("PENDING_VERIFICATION")
+  verifiedByUserId       String?
+  verifiedAt             DateTime?
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  @@unique([organisationId, purchaseOrderId, invoiceNumber])
+  @@index([organisationId, status])
+  @@map("three_way_match_records")
+}
+
+model ProcurementDispute {
+  id                     String                   @id @default(cuid())
+  organisationId         String
+  purchaseOrderId        String
+  deliveryId             String?
+  invoiceNumber          String?
+  disputeCode            String                   @unique
+  disputeType            ProcurementDisputeType
+  status                 ProcurementDisputeStatus @default(OPEN)
+  summary                String
+  description            String
+  evidenceDocumentKeys   String[]
+  raisedByUserId         String
+  assignedReviewerUserId String?
+  resolutionNotes        String?
+  closureReason          String?
+  immutableHistoryJson   Json                     // Append-only audit log of all dispute actions
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+
+  @@index([organisationId, status])
+  @@index([purchaseOrderId])
+  @@map("procurement_disputes")
+}
+
+model ProcurementBenchmark {
+  id                     String   @id @default(cuid())
+  organisationId         String?  // Null for platform-level anonymized benchmarks
+  materialCategorySlug   String
+  productSpecification   String
+  geography              String   @default("Ahmedabad & Gandhinagar")
+  unit                   String
+  benchmarkRatePaise     BigInt
+  dataSource             String
+  observationDate        DateTime
+  sampleSize             Int
+  limitationsDisclosure  String
+  createdAt              DateTime @default(now())
+
+  @@index([materialCategorySlug, geography])
+  @@map("procurement_benchmarks")
+}
+
+model ProcurementSavingsRecord {
+  id                     String                @id @default(cuid())
+  organisationId         String
+  projectId              String?
+  project                ConstructionProject?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  rfqId                  String
+  purchaseOrderId        String?               // Mandatory when classification === REALISED
+  goodsReceiptId         String?               // Evidence linkage for REALISED savings
+  invoiceNumber          String?               // Evidence linkage for REALISED savings
+  classification         SavingsClassification
+  materialName           String
+  specificationSummary   String
+  quantity               Float
+  unit                   String
+  baselineUnitPaise      BigInt
+  comparedUnitPaise      BigInt
+  savingsTotalPaise      BigInt
+  benchmarkSource        String
+  limitationsNote        String
+  createdAt              DateTime              @default(now())
+
+  @@index([organisationId, classification])
+  @@index([projectId])
+  @@map("procurement_savings_records")
+}
+
+
+// ============================================================
+// PROVENTA SEVEN CORE INTELLIGENCE FEATURES — PERSISTENT MODELS
+// Additive schema expansion reusing ConstructionProject, Business,
+// ProcurementRfq, ProcurementQuotation, ProcurementOrder, GoodsReceipt
+// ============================================================
+
+enum LeakageAlertCategory {
+  POTENTIAL_COST_LEAKAGE
+  DUPLICATE_TRANSACTION_RISK
+  QUANTITY_DISCREPANCY
+  PRICE_ANOMALY
+  APPROVAL_POLICY_VIOLATION
+  MISSING_DOCUMENTATION
+  REQUIRES_HUMAN_REVIEW
+}
+
+enum LeakageAlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum LeakageInvestigationStatus {
+  OPEN
+  UNDER_INVESTIGATION
+  CONFIRMED_LEAKAGE
+  RESOLVED
+  DISMISSED
+}
+
+enum PriceObservationSource {
+  SUPPLIER_QUOTATION
+  VERIFIED_PO
+  VERIFIED_INVOICE
+  PUBLIC_MARKET_REF
+  MANUAL_OBSERVATION
+  IMPORTED_DATASET
+}
+
+enum TimingConfidenceLevel {
+  HIGH
+  MODERATE
+  LOW
+  INSUFFICIENT_DATA
+}
+
+enum AutomationExecutionStatus {
+  DRAFT_AWAITING_CONFIRMATION
+  CONFIRMED_QUEUED
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+model LeakageAlert {
+  id                       String                     @id @default(cuid())
+  organisationId           String
+  alertCode                String                     @unique
+  category                 LeakageAlertCategory
+  severity                 LeakageAlertSeverity
+  projectId                String?
+  materialName             String
+  supplierBusinessId       String?
+  supplierName             String?
+  transactionType          String                     // RFQ, QUOTATION, PO, GRN, INVOICE
+  transactionRef           String
+  detectedAmountPaise      BigInt
+  baselineAmountPaise      BigInt?
+  potentialExposurePaise   BigInt                     @default(0)
+  confirmedLeakagePaise    BigInt                     @default(0)
+  recoveredSavingsPaise    BigInt                     @default(0)
+  percentageDeviation      Float?
+  explanation              String
+  supportingEvidenceJson   Json
+  status                   LeakageInvestigationStatus @default(OPEN)
+  assignedReviewerUserId   String?
+  resolutionNotes          String?
+  correctiveAction         String?
+  dismissalReason          String?
+  auditTrailJson           Json                       // Append-only investigation audit log
+  detectedAt               DateTime                   @default(now())
+  resolvedAt               DateTime?
+  createdAt                DateTime                   @default(now())
+  updatedAt                DateTime                   @updatedAt
+
+  @@index([organisationId, status])
+  @@index([organisationId, category])
+  @@index([projectId])
+  @@map("procurement_leakage_alerts")
+}
+
+model PriceObservation {
+  id                       String                 @id @default(cuid())
+  organisationId           String?                // Null for verified shared/public reference observations
+  materialCategorySlug     String
+  materialName             String
+  brand                    String
+  grade                    String
+  specificationsJson       Json
+  unit                     String
+  quantity                 Float
+  supplierBusinessId       String?
+  supplierName             String?
+  city                     String                 @default("Ahmedabad")
+  locality                 String?
+  basePriceUnitPaise       BigInt
+  gstRatePercent           Int                    @default(18)
+  gstUnitPaise             BigInt                 @default(0)
+  freightUnitPaise         BigInt                 @default(0)
+  loadingUnloadingPaise    BigInt                 @default(0)
+  otherChargesUnitPaise    BigInt                 @default(0)
+  landedPriceUnitPaise     BigInt
+  currency                 String                 @default("INR")
+  observationDate          DateTime
+  validUntil               DateTime?
+  sourceType               PriceObservationSource
+  verificationStatus       String                 @default("VERIFIED") // VERIFIED, UNVERIFIED, PENDING
+  supportingDocumentRef    String?
+  createdByUserId          String?
+  createdAt                DateTime               @default(now())
+
+  @@index([materialCategorySlug, grade, unit])
+  @@index([organisationId, observationDate])
+  @@index([city])
+  @@map("material_price_observations")
+}
+
+model ProjectMilestone {
+  id                       String   @id @default(cuid())
+  organisationId           String
+  projectId                String
+  name                     String
+  phaseCode                String?
+  plannedStartDate         DateTime
+  plannedEndDate           DateTime
+  materialCategorySlug     String
+  materialName             String
+  boqPlannedQuantity       Float
+  unit                     String
+  leadTimeDays             Int      @default(14)
+  safetyStockQuantity      Float    @default(0)
+  status                   String   @default("PLANNED") // PLANNED, IN_PROGRESS, AT_RISK, COMPLETED
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([organisationId, projectId])
+  @@map("project_milestones")
+}
+
+model InventoryRecord {
+  id                       String   @id @default(cuid())
+  organisationId           String
+  projectId                String
+  materialCategorySlug     String
+  materialName             String
+  specificationSummary     String
+  unit                     String
+  availableQuantity        Float    @default(0)
+  reservedQuantity         Float    @default(0)
+  reorderThresholdQuantity Float    @default(0)
+  lastCountedAt            DateTime @default(now())
+  updatedByUserId          String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@unique([organisationId, projectId, materialCategorySlug, materialName])
+  @@index([organisationId, projectId])
+  @@map("project_inventory_records")
+}
+
+model SupplierReliabilityConfig {
+  id                       String   @id @default(cuid())
+  configKey                String   @unique @default("DEFAULT")
+  deliveryReliabilityPct   Int      @default(25)
+  qualityPerformancePct    Int      @default(25)
+  quantityFulfilmentPct    Int      @default(15)
+  quotationResponsePct     Int      @default(10)
+  commercialAccuracyPct    Int      @default(10)
+  disputePerformancePct    Int      @default(10)
+  documentationPct         Int      @default(5)
+  minSampleTransactions    Int      @default(3)
+  updatedByUserId          String?
+  updatedAt                DateTime @updatedAt
+
+  @@map("supplier_reliability_configs")
+}
+
+model SupplierReliabilitySnapshot {
+  id                       String   @id @default(cuid())
+  organisationId           String?  // Scoped per buyer org for confidential performance or null for platform aggregate
+  supplierBusinessId       String
+  supplierName             String
+  periodStart              DateTime
+  periodEnd                DateTime
+  completedTransactions    Int      @default(0)
+  hasSufficientData        Boolean  @default(false)
+  compositeScore           Float?   // Null when hasSufficientData === false
+  dimensionScoresJson      Json
+  methodologyVersion       String   @default("PROVENTA-REL-V1")
+  calculatedAt             DateTime @default(now())
+
+  @@index([supplierBusinessId])
+  @@index([organisationId, supplierBusinessId])
+  @@map("supplier_reliability_snapshots")
+}
+
+model SupplierScoreDispute {
+  id                       String   @id @default(cuid())
+  supplierBusinessId       String
+  submittedByUserId        String
+  reason                   String
+  supportingEvidenceRef    String?
+  status                   String   @default("OPEN") // OPEN, UNDER_ADMIN_REVIEW, RESOLVED, REJECTED
+  adminReviewNotes         String?
+  reviewedByAdminId        String?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([supplierBusinessId, status])
+  @@map("supplier_score_disputes")
+}
+
+model ConsolidationOpportunity {
+  id                       String   @id @default(cuid())
+  organisationId           String
+  opportunityCode          String   @unique
+  materialCategorySlug     String
+  materialName             String
+  specificationSignature   String
+  projectIds               String[]
+  combinedQuantity         Float
+  unit                     String
+  supplierOverlapIds       String[]
+  compatibilityVerified    Boolean  @default(false)
+  incompatibilityReasons   String[]
+  status                   String   @default("IDENTIFIED") // IDENTIFIED, DRAFT_RFQ_CREATED, AWARDED, DISMISSED
+  linkedRfqId              String?
+  createdByUserId          String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@index([organisationId, status])
+  @@map("consolidation_opportunities")
+}
+
+model AutomationExecution {
+  id                       String                    @id @default(cuid())
+  organisationId           String
+  workflowType             String                    // RFQ_DRAFT, SUPPLIER_MATCH, QUOTE_FOLLOWUP, QUOTE_ANALYSIS, DELIVERY_MONITOR
+  idempotencyKey           String                    @unique
+  initiatedByUserId        String
+  requiresConfirmation     Boolean                   @default(true)
+  confirmedByUserId        String?
+  confirmedAt              DateTime?
+  status                   AutomationExecutionStatus @default(DRAFT_AWAITING_CONFIRMATION)
+  inputPayloadJson         Json
+  outputSummaryJson        Json?
+  errorMessage             String?
+  retryCount               Int                       @default(0)
+  auditTrailJson           Json
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+
+  @@index([organisationId, workflowType, status])
+  @@map("procurement_automation_executions")
+}

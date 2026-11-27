@@ -25,8 +25,15 @@ export async function POST(
       );
     }
 
-    // 1. Authentication & Organization Authorization Check
+    // 1. Mandatory Authentication & Organization Authorization Check
     const session = await getSession();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, error: 'Authentication required to execute a purchase award', code: 'UNAUTHORIZED' },
+        { status: 401 }
+      );
+    }
+
     const rfq = getConstructionRfqById(body.rfqId);
 
     if (!rfq) {
@@ -36,22 +43,20 @@ export async function POST(
       );
     }
 
-    if (session?.user?.id) {
-      const user = session.user;
-      const isAdmin = user.roles?.some((r: string) => ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE'].includes(r));
+    const user = session.user;
+    const isAdmin = user.roles?.some((r: string) => ['SUPER_ADMIN', 'ADMIN', 'CONCIERGE'].includes(r));
 
-      if (!isAdmin) {
-        const authorizedBusinesses = await getUserAuthorizedBusinesses(user.id);
-        const isRfqOwner =
-          rfq.buyerId === user.id ||
-          (rfq.buyerBusinessId && authorizedBusinesses.some((b) => b.id === rfq.buyerBusinessId));
+    if (!isAdmin) {
+      const authorizedBusinesses = await getUserAuthorizedBusinesses(user.id);
+      const isRfqOwner =
+        rfq.buyerId === user.id ||
+        (rfq.buyerBusinessId && authorizedBusinesses.some((b) => b.id === rfq.buyerBusinessId));
 
-        if (!isRfqOwner && rfq.buyerId !== 'user-guest-buyer' && rfq.buyerId !== 'cli-operator-id') {
-          return NextResponse.json(
-            { success: false, error: 'Forbidden: You are not authorized to award this RFQ' },
-            { status: 403 }
-          );
-        }
+      if (!isRfqOwner && rfq.buyerId !== 'user-guest-buyer' && rfq.buyerId !== 'cli-operator-id') {
+        return NextResponse.json(
+          { success: false, error: 'Forbidden: You are not authorized to award this RFQ' },
+          { status: 403 }
+        );
       }
     }
 

@@ -2,387 +2,238 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { BuyerWorkspaceShell } from '@/components/procurement/BuyerWorkspaceShell';
 import {
-  FileSpreadsheet,
-  Scale,
-  Truck,
-  CheckCircle2,
   PlusCircle,
   ArrowRight,
-  Building2,
-  Clock,
-  Layers,
-  Store,
-  Search,
-  CreditCard,
+  FileSpreadsheet,
   Package,
+  Scale,
+  CheckSquare,
+  Truck,
+  Receipt,
+  BarChart3,
 } from 'lucide-react';
 import type { ConstructionRfq, PurchaseOrder } from '@/lib/procurement/types';
-import type { LedgerFinancialSummary } from '@/lib/payment-intelligence/types';
 
 export default function BuyerDashboardPage() {
+  const [analytics, setAnalytics] = useState<any>(null);
   const [rfqs, setRfqs] = useState<ConstructionRfq[]>([]);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
-  const [financialSummary, setFinancialSummary] = useState<LedgerFinancialSummary | null>(null);
+  const [businessName, setBusinessName] = useState('Buyer Procurement Command Desk');
   const [loading, setLoading] = useState(true);
-  const [businessProfile, setBusinessProfile] = useState<any>(null);
 
   useEffect(() => {
-    async function loadData() {
+    async function load() {
       try {
-        const [resRfqs, resOrders, resProfile] = await Promise.all([
-          fetch('/api/procurement/rfqs?buyerId=all'),
-          fetch('/api/procurement/orders?buyerId=all'),
+        const [resAnalytics, resRfqs, resOrders, resProfile] = await Promise.all([
+          fetch('/api/procurement/analytics').catch(() => null),
+          fetch('/api/procurement/rfqs?buyerId=all').catch(() => null),
+          fetch('/api/procurement/orders?buyerId=all').catch(() => null),
           fetch('/api/business/profile').catch(() => null),
         ]);
-        const jsonRfqs = await resRfqs.json();
-        const jsonOrders = await resOrders.json();
 
-        if (jsonRfqs.success) setRfqs(jsonRfqs.data || []);
-        if (jsonOrders.success) setOrders(jsonOrders.data || []);
-
-        if (resProfile && resProfile.ok) {
-          const jsonProf = await resProfile.json();
-          if (jsonProf.success && jsonProf.data?.business) {
-            const biz = jsonProf.data.business;
-            setBusinessProfile(biz);
-            if (biz.id) {
-              const resSum = await fetch(`/api/payment-intelligence/summary?buyerBusinessId=${encodeURIComponent(biz.id)}`).catch(() => null);
-              if (resSum && resSum.ok) {
-                const jsonSum = await resSum.json();
-                if (jsonSum.success) setFinancialSummary(jsonSum.data);
-              }
-            }
+        if (resAnalytics?.ok) {
+          const json = await resAnalytics.json();
+          if (json.success) setAnalytics(json.data);
+        }
+        if (resRfqs?.ok) {
+          const json = await resRfqs.json();
+          if (json.success) setRfqs(json.data || []);
+        }
+        if (resOrders?.ok) {
+          const json = await resOrders.json();
+          if (json.success) setOrders(json.data || []);
+        }
+        if (resProfile?.ok) {
+          const json = await resProfile.json();
+          if (json.success && json.data?.business?.name) {
+            setBusinessName(json.data.business.name);
           }
         }
-      } catch (err) {
-        console.error('Error loading dashboard data:', err);
       } finally {
         setLoading(false);
       }
     }
-    loadData();
+    load();
   }, []);
 
-  const totalQuotesReceived = rfqs.reduce((acc, r) => acc + (r.quotationIds?.length || 0), 0);
-  const activeOrdersCount = orders.filter((o) =>
-    ['ORDER_CONFIRMED', 'PROCESSING', 'READY_FOR_DISPATCH', 'DISPATCHED', 'IN_TRANSIT'].includes(o.deliveryStatus)
-  ).length;
-  const completedOrdersCount = orders.filter((o) => o.deliveryStatus === 'COMPLETED').length;
-
-  const role = businessProfile?.platformRole || 'BUYER';
-  const businessName = businessProfile?.name || 'Buyer Enterprise';
-
   return (
-    <div className="min-h-screen bg-[#F4F7FA] text-[#243447] font-sans py-10">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 space-y-8">
-        {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border border-[#E2E8EF] pb-6 bg-[#FFFFFF] p-6 sm:p-8 shadow-xs rounded-xs">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#315F91] font-bold uppercase tracking-wider">
-              <Building2 className="w-3.5 h-3.5" />
-              <span>BUYER PROCUREMENT COMMAND DESK</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#243447] font-heading">
-              {businessName}
-            </h1>
-            <p className="text-xs text-[#6B7785]">
-              Manage project requirements, compare incoming quotations, and track active site deliveries in Gujarat and PAN India.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/buyer/discovery"
-              className="px-4 py-2.5 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] text-[#243447] font-bold text-xs font-mono uppercase tracking-wider transition-colors flex items-center gap-2 shadow-xs rounded-xs"
-            >
-              <Search className="w-4 h-4 text-[#315F91]" />
-              <span>Discover Suppliers</span>
-            </Link>
-            {role === 'BOTH' && (
-              <Link
-                href="/supplier/dashboard"
-                className="px-3.5 py-2.5 bg-white hover:bg-[#F4F7FA] border border-[#315F91] text-xs font-mono uppercase tracking-wider text-[#315F91] font-bold rounded-xs transition-colors flex items-center gap-1.5 shadow-xs"
-              >
-                <Store className="w-3.5 h-3.5 text-[#315F91]" />
-                <span>Switch to Supplier Portal</span>
-              </Link>
-            )}
-            <Link
-              href="/settings/business-profile"
-              className="px-4 py-2.5 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] text-xs font-mono uppercase tracking-wider text-[#6B7785] hover:text-[#243447] font-bold rounded-xs transition-colors"
-            >
-              Business Settings
-            </Link>
-            <Link
-              href="/rfq/new"
-              className="px-5 py-2.5 bg-[#315F91] hover:bg-[#264B74] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-2 shadow-xs rounded-xs"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>Create New RFQ</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* 4 Clean Metric Panels */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
-            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
-              <span>ACTIVE RFQS</span>
-              <FileSpreadsheet className="w-4 h-4 text-[#315F91]" />
-            </div>
-            <div className="font-mono text-3xl font-black text-[#243447]">{rfqs.length}</div>
-            <div className="text-[11px] text-[#6B7785]">Open for supplier quotations</div>
-          </div>
-
-          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
-            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
-              <span>QUOTES RECEIVED</span>
-              <Scale className="w-4 h-4 text-[#315F91]" />
-            </div>
-            <div className="font-mono text-3xl font-black text-[#315F91]">{totalQuotesReceived}</div>
-            <div className="text-[11px] text-[#6B7785]">Ready for side-by-side comparison</div>
-          </div>
-
-          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
-            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
-              <span>IN-TRANSIT DISPATCHES</span>
-              <Truck className="w-4 h-4 text-[#315F91]" />
-            </div>
-            <div className="font-mono text-3xl font-black text-[#243447]">{activeOrdersCount}</div>
-            <div className="text-[11px] text-[#6B7785]">Active shipments in transit</div>
-          </div>
-
-          <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 space-y-2 shadow-xs rounded-xs">
-            <div className="flex items-center justify-between text-xs font-mono text-[#6B7785] uppercase">
-              <span>FULFILLED DELIVERIES</span>
-              <CheckCircle2 className="w-4 h-4 text-[#2E7D32]" />
-            </div>
-            <div className="font-mono text-3xl font-black text-[#243447]">{completedOrdersCount}</div>
-            <div className="text-[11px] text-[#6B7785]">Weighbridge verified site deliveries</div>
-          </div>
-        </div>
-
-        {/* Quick Portal Shortcuts */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <BuyerWorkspaceShell
+      title={businessName}
+      subtitle="Live construction procurement command desk across projects, RFQs, quotations, approvals, purchase orders, deliveries, and savings reconciliation."
+      actions={
+        <>
           <Link
-            href="/buyer/rfqs"
-            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
+            href="/buyer/projects"
+            className="px-3.5 py-2 bg-[#E9ECEF] hover:bg-[#DCE2E8] text-[#172B3A] text-xs font-semibold rounded-xs"
           >
-            <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#6B7785]">Schedule</div>
-              <div className="text-xs font-bold uppercase text-[#243447]">All Requirements</div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
+            Manage Projects
           </Link>
-
           <Link
-            href="/buyer/orders"
-            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
+            href="/rfq/new"
+            className="px-4 py-2 bg-[#0F6B50] hover:bg-[#0C5842] text-white text-xs font-semibold rounded-xs inline-flex items-center gap-1.5"
           >
-            <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#6B7785]">Orders</div>
-              <div className="text-xs font-bold uppercase text-[#243447]">Purchase Orders</div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
+            <PlusCircle className="w-4 h-4" />
+            <span>Create RFQ</span>
           </Link>
-
-          <Link
-            href="/buyer/discovery"
-            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
-          >
-            <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#6B7785]">Vendors</div>
-              <div className="text-xs font-bold uppercase text-[#243447]">Supplier Network</div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
-          </Link>
-
-          <Link
-            href="/buyer/payments"
-            className="p-4 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#315F91] rounded-xs transition-colors flex items-center justify-between group shadow-2xs"
-          >
-            <div className="space-y-0.5">
-              <div className="text-[10px] font-mono uppercase text-[#315F91]">Ledger</div>
-              <div className="text-xs font-bold uppercase text-[#243447]">Payment Intelligence</div>
-            </div>
-            <ArrowRight className="w-4 h-4 text-[#315F91] group-hover:translate-x-0.5 transition-transform" />
+        </>
+      }
+    >
+      {/* Live DB-Computed KPI Strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="bg-white border border-[#D5DCE2] p-4 rounded-xs">
+          <div className="text-[10px] font-mono uppercase text-[#4A5568]">Active RFQs</div>
+          <div className="text-2xl font-bold font-mono text-[#172B3A] mt-1 tabular-nums">
+            {loading ? '—' : analytics?.activeRfqsCount ?? rfqs.length}
+          </div>
+          <Link href="/buyer/rfqs" className="text-[11px] text-[#0F6B50] font-semibold mt-1 inline-block">
+            View RFQs &rarr;
           </Link>
         </div>
 
-        {/* Section 1: Active Material Requirements (RFQs) */}
-        <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-6 sm:p-8 space-y-5 shadow-xs rounded-xs">
-          <div className="flex items-center justify-between border-b border-[#E2E8EF] pb-4">
-            <div>
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#243447]">
-                Active Material Requirements (RFQs)
-              </h2>
-              <p className="text-xs text-[#6B7785]">
-                Live procurement requests sent to verified building material suppliers.
-              </p>
-            </div>
-            <Link
-              href="/buyer/rfqs"
-              className="text-xs font-mono font-bold text-[#315F91] hover:text-[#264B74] uppercase tracking-wider flex items-center gap-1 transition-colors"
-            >
-              <span>View All ({rfqs.length})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+        <div className="bg-white border border-[#D5DCE2] p-4 rounded-xs">
+          <div className="text-[10px] font-mono uppercase text-[#4A5568]">Pending Approvals</div>
+          <div className="text-2xl font-bold font-mono text-[#172B3A] mt-1 tabular-nums">
+            {loading ? '—' : analytics?.pendingApprovalsCount ?? 0}
           </div>
-
-          {loading ? (
-            <div className="py-12 text-center text-xs font-mono text-[#6B7785]">Loading procurement data...</div>
-          ) : rfqs.length === 0 ? (
-            <div className="py-8 text-center text-xs font-mono text-[#6B7785]">No active RFQs created yet.</div>
-          ) : (
-            <div className="space-y-4">
-              {rfqs.slice(0, 5).map((rfq) => {
-                const quoteCount = rfq.quotationIds?.length || 0;
-                return (
-                  <div
-                    key={rfq.id}
-                    className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 hover:border-[#315F91] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xs shadow-2xs"
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs font-bold text-[#315F91] px-2 py-0.5 bg-[#F4F7FA] border border-[#E2E8EF] rounded-xs">
-                          {rfq.referenceCode}
-                        </span>
-                        <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#F4F7FA] text-[#243447] rounded-xs">
-                          {rfq.status.replace(/_/g, ' ')}
-                        </span>
-                        <span className="text-xs text-[#6B7785]">
-                          Site: <strong className="text-[#243447]">{rfq.delivery?.siteName || rfq.delivery?.addressLine}</strong>
-                        </span>
-                      </div>
-
-                      <h3 className="font-heading font-black text-base text-[#243447]">
-                        {rfq.title}
-                      </h3>
-
-                      <div className="flex flex-wrap gap-2 text-xs text-[#243447]">
-                        {rfq.items.map((it, idx) => (
-                          <span key={idx} className="px-2 py-0.5 bg-[#F4F7FA] border border-[#E2E8EF] font-mono text-[11px] text-[#6B7785] rounded-xs">
-                            {it.materialName} ({it.quantity} {it.unit})
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-[#E2E8EF]">
-                      <div className="text-right font-mono">
-                        <div className="text-xs font-bold text-[#243447]">
-                          {quoteCount} {quoteCount === 1 ? 'Quotation' : 'Quotations'}
-                        </div>
-                        <div className="text-[10px] text-[#315F91] uppercase">
-                          {quoteCount > 0 ? 'Ready to compare' : 'Awaiting bids'}
-                        </div>
-                      </div>
-
-                      {rfq.status === 'CANCELLED' ? (
-                        <span className="px-3 py-1.5 bg-[#F4F7FA] border border-[#D9534F]/40 text-[#D9534F] text-xs font-mono uppercase rounded-xs font-bold">
-                          Withdrawn
-                        </span>
-                      ) : quoteCount > 0 ? (
-                        <Link
-                          href={`/buyer/rfqs/${rfq.id}/compare`}
-                          className="px-4 py-2 bg-[#315F91] hover:bg-[#264B74] text-[#FFFFFF] font-bold text-xs uppercase tracking-wider transition-colors flex items-center gap-1.5 shadow-xs rounded-xs"
-                        >
-                          <span>Compare Quotes</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      ) : (
-                        <Link
-                          href={`/buyer/rfqs/${rfq.id}/compare`}
-                          className="px-3.5 py-1.5 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] text-[#6B7785] hover:text-[#243447] text-xs font-mono uppercase rounded-xs transition-colors flex items-center gap-1.5"
-                        >
-                          <span>View RFQ</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <Link href="/buyer/approvals" className="text-[11px] text-[#0F6B50] font-semibold mt-1 inline-block">
+            Review Queue &rarr;
+          </Link>
         </div>
 
-        {/* Section 2: Active Orders & Live Logistics Tracking */}
-        <div className="bg-[#FFFFFF] border border-[#E2E8EF] p-6 sm:p-8 space-y-5 shadow-xs rounded-xs">
-          <div className="flex items-center justify-between border-b border-[#E2E8EF] pb-4">
-            <div>
-              <h2 className="font-heading font-black text-lg uppercase tracking-tight text-[#243447]">
-                Active Purchase Orders &amp; Site Logistics
-              </h2>
-              <p className="text-xs text-[#6B7785]">
-                Track dispatches, verify driver details, and confirm delivery weighbridge receipts.
-              </p>
-            </div>
-            <Link
-              href="/buyer/orders"
-              className="text-xs font-mono font-bold text-[#315F91] hover:text-[#264B74] uppercase tracking-wider flex items-center gap-1 transition-colors"
-            >
-              <span>View All Orders ({orders.length})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+        <div className="bg-white border border-[#D5DCE2] p-4 rounded-xs">
+          <div className="text-[10px] font-mono uppercase text-[#4A5568]">Purchase Orders</div>
+          <div className="text-2xl font-bold font-mono text-[#172B3A] mt-1 tabular-nums">
+            {loading ? '—' : analytics?.activePurchaseOrdersCount ?? orders.length}
           </div>
+          <Link href="/buyer/orders" className="text-[11px] text-[#0F6B50] font-semibold mt-1 inline-block">
+            Track Orders &rarr;
+          </Link>
+        </div>
 
-          {loading ? (
-            <div className="py-12 text-center text-xs font-mono text-[#6B7785]">Loading active deliveries...</div>
-          ) : orders.length === 0 ? (
-            <div className="py-8 text-center text-xs font-mono text-[#6B7785]">No purchase orders issued yet.</div>
-          ) : (
-            <div className="space-y-4">
-              {orders.slice(0, 5).map((po) => (
-                <div
-                  key={po.id}
-                  className="bg-[#FFFFFF] border border-[#E2E8EF] p-5 hover:border-[#315F91] transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-xs shadow-2xs"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs font-bold text-[#243447] px-2 py-0.5 bg-[#F4F7FA] border border-[#E2E8EF] rounded-xs">
-                        {po.referenceCode}
-                      </span>
-                      <span className="font-mono text-[11px] uppercase tracking-wider px-2 py-0.5 bg-[#315F91]/10 text-[#315F91] border border-[#315F91]/20 rounded-xs font-bold">
-                        {po.deliveryStatus.replace(/_/g, ' ')}
-                      </span>
-                      <span className="text-xs text-[#6B7785]">
-                        Supplier: <strong className="text-[#243447]">{po.supplierName}</strong>
-                      </span>
-                    </div>
+        <div className="bg-white border border-[#D5DCE2] p-4 rounded-xs">
+          <div className="text-[10px] font-mono uppercase text-[#4A5568]">Pending / Delayed Deliveries</div>
+          <div className="text-2xl font-bold font-mono text-[#172B3A] mt-1 tabular-nums">
+            {loading ? '—' : `${analytics?.pendingDeliveriesCount ?? 0} / ${analytics?.delayedDeliveriesCount ?? 0}`}
+          </div>
+          <Link href="/buyer/deliveries" className="text-[11px] text-[#0F6B50] font-semibold mt-1 inline-block">
+            Deliveries &amp; GRN &rarr;
+          </Link>
+        </div>
 
-                    <div className="text-xs text-[#6B7785]">
-                      Delivery to: <span className="text-[#243447] font-medium">{po.delivery?.siteName || po.delivery?.addressLine}</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3 font-mono text-xs">
-                      <span className="text-[#243447] font-bold">
-                        ₹{po.grandTotal.toLocaleString('en-IN')} (All-inclusive landed)
-                      </span>
-                      {po.dispatchDetails?.vehicleNumber && (
-                        <span className="text-[#315F91]">
-                          Vehicle: {po.dispatchDetails.vehicleNumber} ({po.dispatchDetails.driverName || 'Driver'})
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-[#E2E8EF]">
-                    <Link
-                      href={`/logistics/deliveries/${po.id}`}
-                      className="px-4 py-2 bg-white hover:bg-[#F4F7FA] border border-[#E2E8EF] hover:border-[#AEBBC6] text-[#243447] font-bold text-xs font-mono uppercase tracking-wider transition-colors flex items-center gap-1.5 rounded-xs"
-                    >
-                      <Truck className="w-3.5 h-3.5 text-[#315F91]" />
-                      <span>Track Delivery</span>
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="bg-white border border-[#D5DCE2] p-4 rounded-xs">
+          <div className="text-[10px] font-mono uppercase text-[#0F6B50]">Verified Realised Savings</div>
+          <div className="text-xl font-bold font-mono text-[#0F6B50] mt-1 tabular-nums">
+            {loading ? '—' : analytics?.realisedSavingsFormatted ?? '₹0.00'}
+          </div>
+          <Link href="/buyer/analytics" className="text-[11px] text-[#172B3A] font-semibold mt-1 inline-block">
+            Savings Intelligence &rarr;
+          </Link>
         </div>
       </div>
-    </div>
+
+      {/* Quick Operational Launchpads */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <Link href="/buyer/comparison" className="bg-white border border-[#D5DCE2] hover:border-[#0F6B50] p-5 rounded-xs space-y-2 transition-colors">
+          <Scale className="w-5 h-5 text-[#0F6B50]" />
+          <div className="text-sm font-bold text-[#172B3A]">Intelligent Comparison Centre</div>
+          <p className="text-xs text-[#4A5568]">
+            Compare quotations like-for-like across landed cost, GST, freight, delivery lead time, and BIS specification compliance.
+          </p>
+        </Link>
+
+        <Link href="/buyer/invoices" className="bg-white border border-[#D5DCE2] hover:border-[#0F6B50] p-5 rounded-xs space-y-2 transition-colors">
+          <Receipt className="w-5 h-5 text-[#0F6B50]" />
+          <div className="text-sm font-bold text-[#172B3A]">Invoices &amp; 3-Way Matching</div>
+          <p className="text-xs text-[#4A5568]">
+            Reconcile PO + Goods Receipt Note + Supplier Invoice in integer paise with automatic discrepancy holds.
+          </p>
+        </Link>
+
+        <Link href="/buyer/requirements" className="bg-white border border-[#D5DCE2] hover:border-[#0F6B50] p-5 rounded-xs space-y-2 transition-colors">
+          <FileSpreadsheet className="w-5 h-5 text-[#0F6B50]" />
+          <div className="text-sm font-bold text-[#172B3A]">Procurement Requirements</div>
+          <p className="text-xs text-[#4A5568]">
+            Log site material requirements against project budgets and convert approved items into multi-supplier RFQs.
+          </p>
+        </Link>
+      </div>
+
+      {/* Recent RFQs & Orders Split */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white border border-[#D5DCE2] rounded-xs">
+          <div className="p-4 border-b border-[#E9ECEF] flex items-center justify-between">
+            <h2 className="text-sm font-bold text-[#172B3A] flex items-center gap-2">
+              <FileSpreadsheet className="w-4 h-4 text-[#0F6B50]" />
+              <span>Recent RFQs</span>
+            </h2>
+            <Link href="/buyer/rfqs" className="text-xs font-semibold text-[#0F6B50] inline-flex items-center gap-1">
+              <span>All RFQs</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="divide-y divide-[#E9ECEF]">
+            {rfqs.length === 0 ? (
+              <div className="p-8 text-center text-xs text-[#4A5568]">
+                No RFQs found for your organisation yet. Click <strong>Create RFQ</strong> to launch one.
+              </div>
+            ) : (
+              rfqs.slice(0, 5).map((r) => (
+                <div key={r.id} className="p-4 flex items-center justify-between gap-3 text-xs">
+                  <div>
+                    <div className="font-bold text-[#172B3A]">{r.title}</div>
+                    <div className="text-[11px] font-mono text-[#4A5568] mt-0.5">
+                      {r.id} &bull; {r.items?.length || 0} line items
+                    </div>
+                  </div>
+                  <Link
+                    href={`/buyer/rfqs/${r.id}/compare`}
+                    className="px-2.5 py-1 bg-[#E9ECEF] hover:bg-[#172B3A] hover:text-white text-[#172B3A] font-semibold rounded-xs transition-colors"
+                  >
+                    Compare
+                  </Link>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="bg-white border border-[#D5DCE2] rounded-xs">
+          <div className="p-4 border-b border-[#E9ECEF] flex items-center justify-between">
+            <h2 className="text-sm font-bold text-[#172B3A] flex items-center gap-2">
+              <Package className="w-4 h-4 text-[#0F6B50]" />
+              <span>Recent Purchase Orders</span>
+            </h2>
+            <Link href="/buyer/orders" className="text-xs font-semibold text-[#0F6B50] inline-flex items-center gap-1">
+              <span>All Orders</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+          <div className="divide-y divide-[#E9ECEF]">
+            {orders.length === 0 ? (
+              <div className="p-8 text-center text-xs text-[#4A5568]">
+                No Purchase Orders issued yet. Awards automatically generate auditable POs here.
+              </div>
+            ) : (
+              orders.slice(0, 5).map((o) => (
+                <div key={o.id} className="p-4 flex items-center justify-between gap-3 text-xs">
+                  <div>
+                    <div className="font-bold font-mono text-[#172B3A]">{o.id}</div>
+                    <div className="text-[11px] text-[#4A5568] mt-0.5">{o.supplierName}</div>
+                  </div>
+                  <Link
+                    href={`/buyer/orders/${o.id}`}
+                    className="px-2.5 py-1 bg-[#E9ECEF] hover:bg-[#172B3A] hover:text-white text-[#172B3A] font-semibold rounded-xs transition-colors"
+                  >
+                    Track PO
+                  </Link>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </BuyerWorkspaceShell>
   );
 }
