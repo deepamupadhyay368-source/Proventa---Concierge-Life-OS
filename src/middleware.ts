@@ -60,6 +60,8 @@ const PUBLIC_ROUTES = [
   '/for-suppliers',
   '/supplier/register',
   '/onboarding/business',
+  '/showcase',
+  '/pilot/pacifica',
   '/partner/login',
   '/partner/signup',
   '/partner/dashboard',
@@ -94,6 +96,8 @@ export default auth(async (req) => {
       pathname.startsWith('/api/supplier/storefront') ||
       pathname.startsWith('/api/supplier/discovery') ||
       pathname === '/api/business/subscription' ||
+      pathname === '/api/procurement/pilot/pacifica' ||
+      pathname === '/api/procurement/catalogue' ||
       pathname === '/api/projects' ||
       pathname.startsWith('/api/projects/'));
 

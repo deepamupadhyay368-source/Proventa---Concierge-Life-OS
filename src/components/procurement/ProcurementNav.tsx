@@ -9,7 +9,7 @@ const NAV_LINKS = [
   { href: '/for-buyers', label: 'For Buyers' },
   { href: '/for-suppliers', label: 'For Suppliers' },
   { href: '/buyer/catalogue', label: 'Materials' },
-  { href: '/buyer/comparison', label: 'Comparison Engine' },
+  { href: '/showcase', label: 'Live Showcase' },
   { href: '/pilot/pacifica', label: 'Institutional Pilot' },
 ];
 
