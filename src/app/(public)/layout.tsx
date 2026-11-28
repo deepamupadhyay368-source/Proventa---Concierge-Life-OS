@@ -3,7 +3,7 @@ import { RealEstateTerminalFooter } from '@/components/real-estate/RealEstateTer
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0F172A] selection:bg-[#0F172A] selection:text-white font-sans antialiased">
+    <div className="min-h-screen flex flex-col bg-[#080E18] text-[#F5F7FA] selection:bg-[#4D9FFF] selection:text-[#080E18] font-sans antialiased">
       <RealEstateTerminalNav />
       <main className="flex-1">{children}</main>
       <RealEstateTerminalFooter />

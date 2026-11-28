@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import {
   Building2,
@@ -227,31 +228,44 @@ export default function PropertyIntelligencePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B12] text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-end">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
-              MODULE 01 // LIVING PROPERTY REGISTRY
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-              Property Intelligence &amp; Permanent Registry
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm text-slate-400">
-              Every property carries a permanent <span className="font-mono text-emerald-300">PV-PROP-...</span>{' '}
-              identity structured across Land &rarr; Project &rarr; Building &rarr; Unit &rarr; Property with duplicate
-              prevention and explicit verification provenance. Private owner passports are strictly isolated in{' '}
-              <Link href="/property-os" className="text-emerald-400 underline underline-offset-4 hover:text-emerald-300">
-                Property OS
-              </Link>
-              .
-            </p>
-          </div>
+    <div className="min-h-screen bg-[#080E18] text-[#F5F7FA]">
+      {/* Architectural Night Banner */}
+      <div className="relative h-44 sm:h-52 w-full overflow-hidden border-b border-[#29384B]">
+        <Image
+          src="/images/proventa-hero-night-skyline.webp"
+          alt="Illuminated modern urban skyline at night"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080E18]/95 via-[#080E18]/80 to-[#080E18]/55" />
+        <div className="relative z-10 mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#D7AD69]">
+            MODULE 01 // LIVING PROPERTY REGISTRY
+          </p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F7FA]">
+            Property Intelligence &amp; Permanent Registry
+          </h1>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header Actions */}
+        <div className="flex flex-col justify-between gap-4 border-b border-[#29384B] pb-6 md:flex-row md:items-end">
+          <p className="max-w-3xl text-sm text-[#AAB6C5]">
+            Every property carries a permanent <span className="font-mono text-[#4D9FFF]">PV-PROP-...</span>{' '}
+            identity structured across Land &rarr; Project &rarr; Building &rarr; Unit &rarr; Property with duplicate
+            prevention and explicit verification provenance. Private owner passports are strictly isolated in{' '}
+            <Link href="/property-os" className="text-[#4D9FFF] underline underline-offset-4 hover:text-[#F5F7FA]">
+              Property OS
+            </Link>
+            .
+          </p>
           <button
             type="button"
             onClick={() => setShowSubmit((v) => !v)}
-            className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+            className="inline-flex items-center gap-2 rounded-xs bg-[#4D9FFF] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-[#080E18] transition hover:bg-[#3B8EEE]"
           >
             <Plus className="h-4 w-4" />
             {showSubmit ? 'Close Submission Form' : 'Register Property'}

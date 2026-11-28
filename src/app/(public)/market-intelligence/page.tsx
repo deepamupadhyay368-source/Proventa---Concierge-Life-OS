@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
+import { SatelliteMapSection } from '@/components/real-estate/SatelliteMapSection';
 import {
   Activity,
   AlertCircle,
@@ -144,31 +146,44 @@ export default function MarketIntelligencePage() {
   const rightCorridor = corridors.find((c) => c.name === compareB);
 
   return (
-    <div className="min-h-screen bg-[#070B12] text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-end">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
-              MODULES 02 &amp; 05 // MARKET &amp; LOCATION INTELLIGENCE
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-              Ahmedabad &amp; Gandhinagar Market Terminal
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm text-slate-400">
-              13 tracked micro-markets across Ahmedabad and Gandhinagar. Benchmarks are calculated strictly from
-              verified and externally sourced database observations. Corridors with fewer than 3 qualifying records
-              explicitly display <span className="font-mono text-amber-300">INSUFFICIENT_DATA</span>.
-            </p>
-          </div>
-          <div className="flex rounded-lg border border-slate-800 bg-slate-900 p-1">
+    <div className="min-h-screen bg-[#080E18] text-[#F5F7FA]">
+      {/* Architectural Night Banner */}
+      <div className="relative h-44 sm:h-52 w-full overflow-hidden border-b border-[#29384B]">
+        <Image
+          src="/images/proventa-commercial-towers-night.webp"
+          alt="Illuminated Grade-A commercial towers at night"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080E18]/95 via-[#080E18]/80 to-[#080E18]/55" />
+        <div className="relative z-10 mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#D7AD69]">
+            MODULES 02 &amp; 05 // MARKET &amp; LOCATION INTELLIGENCE
+          </p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F7FA]">
+            Ahmedabad &amp; Gandhinagar Market Terminal
+          </h1>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Segment Filter & Disclosure */}
+        <div className="flex flex-col justify-between gap-4 border-b border-[#29384B] pb-6 md:flex-row md:items-end">
+          <p className="max-w-3xl text-sm text-[#AAB6C5]">
+            13 tracked micro-markets across Ahmedabad and Gandhinagar. Benchmarks are calculated strictly from
+            verified and externally sourced database observations. Corridors with fewer than 3 qualifying records
+            explicitly display <span className="font-mono text-[#D7AD69]">INSUFFICIENT_DATA</span>.
+          </p>
+          <div className="flex rounded-xs border border-[#29384B] bg-[#101A29] p-1">
             {(['RESIDENTIAL', 'COMMERCIAL', 'LAND'] as const).map((seg) => (
               <button
                 key={seg}
                 type="button"
                 onClick={() => setSegment(seg)}
-                className={`rounded-md px-3.5 py-1.5 font-mono text-xs font-medium transition ${
-                  segment === seg ? 'bg-emerald-500 text-slate-950' : 'text-slate-400 hover:text-white'
+                className={`rounded-xs px-3.5 py-1.5 font-mono text-xs font-medium transition ${
+                  segment === seg ? 'bg-[#4D9FFF] text-[#080E18]' : 'text-[#AAB6C5] hover:text-[#F5F7FA]'
                 }`}
               >
                 {seg}
@@ -176,6 +191,15 @@ export default function MarketIntelligencePage() {
             ))}
           </div>
         </div>
+
+        {/* Live Satellite Locality Map */}
+        <section className="mt-8">
+          <SatelliteMapSection
+            compact
+            heightClass="h-[400px] lg:h-[440px]"
+            onSelectLocality={(name) => setCompareA(name)}
+          />
+        </section>
 
         {/* Locality-vs-Locality Comparison */}
         <section className="mt-8 rounded-xl border border-slate-800 bg-slate-900/60 p-6">

@@ -86,7 +86,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#F2F0E9',
+  themeColor: '#080E18',
 };
 
 export default function RootLayout({
@@ -98,13 +98,13 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${sansFont.variable} ${displayFont.variable}`}
+      className={`${sansFont.variable} ${displayFont.variable} dark`}
     >
-      <body className="min-h-screen bg-[#F2F0E9] text-[#171A17] antialiased selection:bg-[#53634A] selection:text-white">
+      <body className="min-h-screen bg-[#080E18] text-[#F5F7FA] antialiased selection:bg-[#4D9FFF] selection:text-[#080E18]">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          forcedTheme="light"
+          defaultTheme="dark"
+          forcedTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >

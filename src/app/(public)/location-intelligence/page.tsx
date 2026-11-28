@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle2, Compass, MapPin, Train } from 'lucide-react';
+import { SatelliteMapSection } from '@/components/real-estate/SatelliteMapSection';
 
 interface CorridorData {
   slug: string;
@@ -58,27 +60,47 @@ export default function LocationIntelligencePage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#070B12] text-slate-100">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-end">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
-              MODULE 05 // LOCATION &amp; INFRASTRUCTURE INTELLIGENCE
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
-              Ahmedabad &amp; Gandhinagar Locality Dossiers
-            </h1>
-            <p className="mt-2 max-w-3xl text-sm text-slate-400">
-              Live database-backed locality profiles and infrastructure lifecycle tracking. Zero hardcoded prices or
-              fabricated transaction volumes.
-            </p>
-          </div>
+    <div className="min-h-screen bg-[#080E18] text-[#F5F7FA]">
+      {/* Aerial Corridor Night Banner */}
+      <div className="relative h-44 sm:h-52 w-full overflow-hidden border-b border-[#29384B]">
+        <Image
+          src="/images/proventa-aerial-corridor-night.webp"
+          alt="Aerial night view of illuminated metropolitan urban growth corridor"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#080E18]/95 via-[#080E18]/80 to-[#080E18]/55" />
+        <div className="relative z-10 mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-6">
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#D7AD69]">
+            MODULE 05 // LOCATION &amp; SATELLITE INTELLIGENCE
+          </p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-bold tracking-tight text-[#F5F7FA]">
+            Ahmedabad &amp; Gandhinagar Locality Dossiers
+          </h1>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex flex-col justify-between gap-4 border-b border-[#29384B] pb-6 md:flex-row md:items-end">
+          <p className="max-w-3xl text-sm text-[#AAB6C5]">
+            Live satellite imagery and database-backed locality profiles with infrastructure lifecycle tracking. Zero hardcoded prices or fabricated transaction volumes.
+          </p>
           <Link
             href="/market-intelligence"
-            className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20"
+            className="rounded-xs border border-[#29384B] bg-[#152235] px-4 py-2 text-xs font-semibold text-[#4D9FFF] hover:bg-[#1B2A3D] transition-colors"
           >
             Open Corridor Comparison &rarr;
           </Link>
+        </div>
+
+        {/* Interactive Gujarat Satellite Intelligence Map */}
+        <div className="mt-8">
+          <SatelliteMapSection
+            initialLocalitySlug={activeCorridor?.slug || 'bopal'}
+            onSelectLocality={(name) => setSelected(name)}
+          />
         </div>
 
         {loading ? (

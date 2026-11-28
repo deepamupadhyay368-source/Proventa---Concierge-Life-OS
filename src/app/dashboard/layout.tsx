@@ -18,7 +18,6 @@ import {
   ExternalLink,
   Menu,
   X,
-  ChevronRight
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -42,56 +41,56 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F5F3ED] text-[#202B3C] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#080E18] text-[#F5F7FA] font-sans flex flex-col">
       {/* Top Header */}
-      <header className="bg-white border-b border-[#C8C4BA] sticky top-0 z-40">
+      <header className="bg-[#101A29] border-b border-[#29384B] sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-[#202B3C] hover:bg-[#F5F3ED]"
+              className="lg:hidden p-2 text-[#F5F7FA] hover:bg-[#152235] border border-[#29384B]"
               aria-label="Toggle Navigation"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
 
             <Link href="/" className="flex flex-col">
-              <span className="font-editorial text-xl font-normal tracking-tight text-[#202B3C]">
+              <span className="text-base font-bold tracking-[0.18em] text-[#F5F7FA]">
                 PROVENTA
               </span>
-              <span className="text-[9px] font-mono tracking-widest text-[#547568] uppercase font-bold">
+              <span className="text-[9px] font-mono tracking-[0.16em] text-[#4D9FFF] uppercase font-bold">
                 Real Estate Intelligence
               </span>
             </Link>
 
-            <span className="hidden sm:inline-block text-xs font-mono px-2 py-0.5 bg-[#547568]/10 text-[#547568] border border-[#547568]/20 font-bold uppercase">
-              Member Workspace
+            <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 bg-[#152235] text-[#D7AD69] border border-[#29384B] font-bold uppercase tracking-wider">
+              Intelligence Terminal
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             <Link
-              href="/property-intelligence"
-              className="hidden md:inline-flex items-center gap-1 text-xs text-[#69717B] hover:text-[#202B3C] font-medium"
+              href="/market-intelligence"
+              className="hidden md:inline-flex items-center gap-1 text-xs text-[#AAB6C5] hover:text-[#4D9FFF] font-medium transition-colors"
             >
-              <span>Valuation Tool</span>
+              <span>Market Intelligence</span>
               <ExternalLink className="h-3 w-3" />
             </Link>
 
-            <div className="h-4 w-px bg-[#C8C4BA] hidden md:block" />
+            <div className="h-4 w-px bg-[#29384B] hidden md:block" />
 
             <Link
               href="/dashboard/alerts"
-              className="p-2 text-[#69717B] hover:text-[#202B3C] relative hover:bg-[#F5F3ED]"
+              className="p-2 text-[#AAB6C5] hover:text-[#F5F7FA] relative hover:bg-[#152235] transition-colors"
               title="Notifications"
             >
               <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-[#547568] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-[#4D9FFF] rounded-full" />
             </Link>
 
             <button
               onClick={() => signOut({ callbackUrl: '/' })}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#69717B] hover:text-[#202B3C] hover:bg-[#F5F3ED] transition-colors border border-transparent hover:border-[#C8C4BA]"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#AAB6C5] hover:text-[#F5F7FA] hover:bg-[#152235] transition-colors border border-transparent hover:border-[#29384B]"
             >
               <LogOut className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Sign Out</span>
@@ -103,26 +102,26 @@ export default function DashboardLayout({
       {/* Main Workspace with Sidebar */}
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex gap-8">
         {/* Left Desktop Sidebar */}
-        <aside className="w-64 shrink-0 hidden lg:block space-y-6">
-          {/* User Account Card */}
-          <div className="bg-white border border-[#C8C4BA] p-4 space-y-2 shadow-2xs">
+        <aside className="w-64 shrink-0 hidden lg:block space-y-5">
+          {/* Account Workspace Card */}
+          <div className="bg-[#152235] border border-[#29384B] p-4 space-y-2">
             <div className="flex items-center gap-2.5">
-              <div className="h-9 w-9 bg-[#202B3C] text-white flex items-center justify-center font-editorial text-sm">
+              <div className="h-9 w-9 bg-[#080E18] border border-[#29384B] text-[#D7AD69] flex items-center justify-center font-mono text-xs font-bold">
                 PR
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-[#202B3C] truncate">Member Portfolio</p>
-                <p className="text-[11px] text-[#547568] font-mono">Personal Plan Active</p>
+                <p className="text-xs font-bold text-[#F5F7FA] truncate">Member Terminal</p>
+                <p className="text-[11px] text-[#4D9FFF] font-mono">Authenticated Session</p>
               </div>
             </div>
-            <div className="pt-2 border-t border-[#C8C4BA]/40 flex justify-between text-[11px] text-[#69717B]">
-              <span>Vault Limit</span>
-              <span className="font-mono font-bold text-[#202B3C]">2 / 10 Units</span>
+            <div className="pt-2 border-t border-[#29384B] flex justify-between text-[11px] text-[#748398]">
+              <span>Workspace</span>
+              <span className="font-mono font-semibold text-[#AAB6C5]">Property OS</span>
             </div>
           </div>
 
           {/* Navigation Links */}
-          <nav className="bg-white border border-[#C8C4BA] p-2 space-y-1 shadow-2xs">
+          <nav className="bg-[#101A29] border border-[#29384B] p-2 space-y-1">
             {NAV_ITEMS.map((item) => {
               const active = pathname === item.href;
               const Icon = item.icon;
@@ -132,18 +131,20 @@ export default function DashboardLayout({
                   href={item.href}
                   className={`flex items-center justify-between px-3 py-2 text-xs font-medium transition-colors ${
                     active
-                      ? 'bg-[#202B3C] text-white shadow-xs'
-                      : 'text-[#69717B] hover:text-[#202B3C] hover:bg-[#F5F3ED]'
+                      ? 'bg-[#1B2A3D] text-[#F5F7FA] border-l-2 border-[#4D9FFF]'
+                      : 'text-[#AAB6C5] hover:text-[#F5F7FA] hover:bg-[#152235]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`h-4 w-4 ${active ? 'text-white' : 'text-[#547568]'}`} />
+                    <Icon className={`h-4 w-4 ${active ? 'text-[#4D9FFF]' : 'text-[#748398]'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge && (
                     <span
-                      className={`text-[9px] font-mono px-1.5 py-0.2 uppercase font-bold ${
-                        active ? 'bg-white/20 text-white' : 'bg-[#547568]/10 text-[#547568]'
+                      className={`text-[9px] font-mono px-1.5 py-0.5 uppercase font-bold ${
+                        active
+                          ? 'bg-[#080E18] text-[#D7AD69] border border-[#29384B]'
+                          : 'bg-[#152235] text-[#D7AD69]'
                       }`}
                     >
                       {item.badge}
@@ -155,28 +156,33 @@ export default function DashboardLayout({
           </nav>
 
           {/* Institutional Help Link */}
-          <div className="p-4 bg-white border border-[#C8C4BA] space-y-2">
-            <p className="text-xs font-bold text-[#202B3C]">Research Desk Support</p>
-            <p className="text-[11px] text-[#69717B] leading-relaxed">
-              Have questions about an Ahmedabad property valuation or RERA filing?
+          <div className="p-4 bg-[#101A29] border border-[#29384B] space-y-2">
+            <p className="text-xs font-bold text-[#F5F7FA]">Research Desk Support</p>
+            <p className="text-[11px] text-[#AAB6C5] leading-relaxed">
+              Questions about an Ahmedabad property valuation, Gujarat RERA filing, or satellite corridor record?
             </p>
             <a
               href="mailto:research@proventa.in"
-              className="text-xs font-semibold text-[#547568] hover:underline block pt-1"
+              className="text-xs font-mono text-[#4D9FFF] hover:underline block pt-1"
             >
-              Contact Analyst Desk →
+              Contact Analyst Desk &rarr;
             </a>
           </div>
         </aside>
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 bg-black/50 lg:hidden flex">
-            <div className="w-72 bg-white h-full p-4 space-y-4 shadow-xl flex flex-col justify-between">
+          <div className="fixed inset-0 z-50 bg-black/70 lg:hidden flex">
+            <div className="w-72 bg-[#101A29] border-r border-[#29384B] h-full p-4 space-y-4 shadow-xl flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="flex items-center justify-between border-b border-[#C8C4BA] pb-3">
-                  <span className="font-display font-bold text-base text-[#202B3C]">Dashboard Menu</span>
-                  <button onClick={() => setMobileMenuOpen(false)} className="text-sm font-bold p-1">
+                <div className="flex items-center justify-between border-b border-[#29384B] pb-3">
+                  <span className="font-mono font-bold text-xs uppercase tracking-wider text-[#F5F7FA]">
+                    Terminal Menu
+                  </span>
+                  <button
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-sm font-bold p-1 text-[#AAB6C5]"
+                  >
                     ✕
                   </button>
                 </div>
@@ -190,7 +196,9 @@ export default function DashboardLayout({
                         href={item.href}
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex items-center gap-2.5 px-3 py-2 text-xs font-medium ${
-                          active ? 'bg-[#202B3C] text-white' : 'text-[#69717B] hover:text-[#202B3C]'
+                          active
+                            ? 'bg-[#1B2A3D] text-[#F5F7FA] border-l-2 border-[#4D9FFF]'
+                            : 'text-[#AAB6C5] hover:text-[#F5F7FA]'
                         }`}
                       >
                         <Icon className="h-4 w-4" />
@@ -203,7 +211,7 @@ export default function DashboardLayout({
 
               <button
                 onClick={() => signOut({ callbackUrl: '/' })}
-                className="w-full py-2 bg-[#F5F3ED] text-[#202B3C] text-xs font-semibold border border-[#C8C4BA]"
+                className="w-full py-2 bg-[#152235] text-[#F5F7FA] text-xs font-semibold border border-[#29384B]"
               >
                 Sign Out
               </button>
