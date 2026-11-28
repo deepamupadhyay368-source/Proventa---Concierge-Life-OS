@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { Mail, Lock, KeyRound, Loader2, ArrowRight } from 'lucide-react';
 
 import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
 
@@ -32,35 +32,56 @@ export function HomeSignInForm({
   const router = useRouter();
   const safeCallback = sanitizeCallbackPath(callbackUrl);
 
+  const [mode, setMode] = useState<'password' | 'passkey'>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passKey, setPassKey] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
   const [error, setError] = useState<string | null>(() => formatAuthError(initialError));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError('Please provide both email and password.');
-      return;
+    if (mode === 'password') {
+      if (!email.trim() || !password.trim()) {
+        setError('Please provide both email and password.');
+        return;
+      }
+    } else {
+      if (!email.trim() || !passKey.trim()) {
+        setError('Please provide both email and your 12-digit PROVENTA Pass Key.');
+        return;
+      }
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      const res = await signIn('credentials', {
-        email: email.trim().toLowerCase(),
-        password: password.trim(),
-        redirect: false,
-        callbackUrl: safeCallback,
-      });
+      const res =
+        mode === 'password'
+          ? await signIn('credentials', {
+              email: email.trim().toLowerCase(),
+              password: password.trim(),
+              redirect: false,
+              callbackUrl: safeCallback,
+            })
+          : await signIn('passkey', {
+              email: email.trim().toLowerCase(),
+              passKey: passKey.trim(),
+              redirect: false,
+              callbackUrl: safeCallback,
+            });
 
       if (res?.error) {
         if (res.error === 'CredentialsSignin') {
-          setError('Invalid email or password. Please try again.');
+          setError(
+            mode === 'password'
+              ? 'Invalid email or password. Please try again.'
+              : 'Invalid email or PROVENTA Pass Key. Please try again.',
+          );
         } else {
-          setError(res.error);
+          setError(formatAuthError(res.error));
         }
       } else if (res?.ok) {
         router.push(safeCallback);
@@ -128,11 +149,37 @@ export function HomeSignInForm({
 
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#E8EBEF]/50" />
+          <div className="w-full border-t border-[#E8EBEF]" />
         </div>
         <div className="relative flex justify-center text-[10px] uppercase font-mono tracking-wider">
-          <span className="bg-white px-2 text-[#697586]">Or sign in with email</span>
+          <span className="bg-white px-2 text-[#697586]">Or sign in with credentials</span>
         </div>
+      </div>
+
+      {/* Mode Switcher: Email & Password vs 12-Digit PROVENTA Pass Key */}
+      <div className="grid grid-cols-2 border border-[#E8EBEF] bg-[#F7F8FA] p-0.5 text-[11px] font-semibold">
+        <button
+          type="button"
+          onClick={() => { setMode('password'); setError(null); }}
+          className={`py-1.5 transition-colors ${
+            mode === 'password'
+              ? 'bg-[#FFFFFF] text-[#202B38] border border-[#E8EBEF]'
+              : 'text-[#697586] hover:text-[#202B38]'
+          }`}
+        >
+          Email &amp; Password
+        </button>
+        <button
+          type="button"
+          onClick={() => { setMode('passkey'); setError(null); }}
+          className={`py-1.5 transition-colors ${
+            mode === 'passkey'
+              ? 'bg-[#FFFFFF] text-[#202B38] border border-[#E8EBEF]'
+              : 'text-[#697586] hover:text-[#202B38]'
+          }`}
+        >
+          PROVENTA Pass Key
+        </button>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,35 +195,63 @@ export function HomeSignInForm({
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@domain.com"
               required
-              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#929BA6] focus:outline-none focus:border-[#29465F]"
             />
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-xs font-semibold text-[#202B38]">
-              Password
-            </label>
-            <Link
-              href="/forgot-password"
-              className="text-[11px] text-[#29465F] hover:underline"
-            >
-              Forgot password?
-            </Link>
+        {mode === 'password' ? (
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-[#202B38]">
+                Password
+              </label>
+              <Link
+                href="/forgot-password"
+                className="text-[11px] text-[#29465F] hover:underline"
+              >
+                Forgot password?
+              </Link>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#929BA6] focus:outline-none focus:border-[#29465F]"
+              />
+            </div>
           </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
-            />
+        ) : (
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-[#202B38]">
+                12-Digit PROVENTA Pass Key
+              </label>
+              <Link
+                href="/recover-passkey"
+                className="text-[11px] text-[#29465F] hover:underline"
+              >
+                Recover pass key?
+              </Link>
+            </div>
+            <div className="relative">
+              <KeyRound className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
+              <input
+                type="password"
+                inputMode="numeric"
+                value={passKey}
+                onChange={(e) => setPassKey(e.target.value)}
+                placeholder="XXXX-XXXX-XXXX"
+                required
+                className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs font-mono text-[#202B38] placeholder-[#929BA6] focus:outline-none focus:border-[#29465F]"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <button
           type="submit"

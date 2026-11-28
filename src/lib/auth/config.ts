@@ -218,19 +218,9 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
 
         void createSecurityEvent('LOGIN_PASSWORD_SUCCESS', { userId: user.id });
 
-        // Validate Proventa Authentication Key if configured on the user profile
-        if (user.securityKeyHash) {
-          if (!authKey) {
-            void createSecurityEvent('AUTH_KEY_FAILED', {
-              userId: user.id,
-              data: { reason: 'missing_key' },
-            });
-            void createSecurityEvent('LOGIN_FAILED', {
-              userId: user.id,
-              data: { reason: 'missing_auth_key' },
-            });
-            return null;
-          }
+        // Validate Proventa Authentication Key when explicitly provided alongside password
+        let passKeyVerified = false;
+        if (user.securityKeyHash && authKey) {
           const isValidKey = await verifyAccessKey(authKey, user.securityKeyHash);
           if (!isValidKey) {
             void createSecurityEvent('AUTH_KEY_FAILED', {
@@ -243,9 +233,10 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
             });
             return null;
           }
+          passKeyVerified = true;
           resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
           void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
-        } else if (authKey) {
+        } else if (!user.securityKeyHash && authKey) {
           const newKeyHash = (await verifyPassword(authKey, '$2b$12$dummy'))
             ? null
             : await bcrypt.hash(normalizePassKey(authKey) || authKey, 12);
@@ -261,8 +252,9 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
               userId: user.id,
               data: { source: 'migration_login' },
             });
+            passKeyVerified = true;
             resetPassKeyRateLimit(`passkey:${normalizedEmail}`);
-          void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
+            void createSecurityEvent('AUTH_KEY_VERIFIED', { userId: user.id });
           }
         }
 
@@ -271,8 +263,8 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
         void createSecurityEvent('LOGIN_COMPLETED', { userId: user.id });
         void createSecurityEvent('LOGIN_SUCCESS', { userId: user.id });
         logger.info(
-          { userId: user.id },
-          'User logged in with Authentication Key',
+          { userId: user.id, passKeyVerified },
+          'User logged in with verified credentials',
         );
 
   return {
@@ -282,7 +274,7 @@ async function authorizeCredentialsOrPasskey(credentials: Record<string, unknown
     image: user.image,
     roles: user.userRoles.map((r) => r.role),
     emailVerified: user.emailVerified,
-    passKeyVerified: true,
+    passKeyVerified,
     needsRegistration: false,
   };
 }
@@ -582,25 +574,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               return '/login?error=account_suspended';
             }
 
-            // Existing registered customer cannot bypass 12-digit pass key login via Google OAuth
-            // (Unless specifically authenticating for pass key recovery)
-            if (linkedUser.securityKeyHash && !isRecoveryFlow) {
-              void createSecurityEvent('LOGIN_BLOCKED', {
-                userId: linkedUser.id,
-                data: {
-                  provider: account.provider,
-                  reason: 'passkey_required_for_existing_user',
-                },
-              });
-              return '/login?error=PassKeyRequired';
-            }
-
             user.id = linkedUser.id;
             (user as unknown as { roles: string[] }).roles =
               linkedUser.userRoles.map((r) => r.role);
-            // Needs registration if mobile number or security key is not yet established
-            (user as unknown as { needsRegistration: boolean }).needsRegistration =
-              !linkedUser.phone || !linkedUser.securityKeyHash;
+            (user as unknown as { needsRegistration: boolean }).needsRegistration = false;
 
             void createSecurityEvent('LOGIN_SUCCESS', {
               userId: linkedUser.id,
@@ -679,18 +656,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 data: { provider: account.provider, reason: 'suspended' },
               });
               return '/login?error=account_suspended';
-            }
-
-            // Existing registered customer cannot bypass 12-digit pass key login via Google OAuth
-            if (existingUser.securityKeyHash && !isRecoveryFlow) {
-              void createSecurityEvent('LOGIN_BLOCKED', {
-                userId: existingUser.id,
-                data: {
-                  provider: account.provider,
-                  reason: 'passkey_required_for_existing_user',
-                },
-              });
-              return '/login?error=PassKeyRequired';
             }
 
             // Never auto-link a privileged administrator account via email match alone
