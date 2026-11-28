@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { User, Mail, Phone, Lock, Loader2, ArrowRight } from 'lucide-react';
+import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
 
 export function HomeSignUpForm({ callbackUrl }: { callbackUrl?: string }) {
   const router = useRouter();
-  const safeCallback = callbackUrl || '/dashboard';
+  const safeCallback = sanitizeCallbackPath(callbackUrl);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');

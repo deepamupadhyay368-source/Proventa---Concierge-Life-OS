@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { auth } from '@/lib/auth/config';
+import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
 
 // Public routes — no auth needed
 const PUBLIC_ROUTES = [
@@ -161,15 +162,9 @@ export default auth(async (req) => {
 
   if (isAuthRoute && isLoggedIn) {
     const callbackUrl = nextUrl.searchParams.get('callbackUrl');
-    if (
-      callbackUrl &&
-      callbackUrl.startsWith('/') &&
-      !callbackUrl.startsWith('//') &&
-      !['/login', '/signup', '/sign-in', '/sign-up', '/register', '/register-details'].includes(
-        callbackUrl.split('?')[0].replace(/\/+$/, '') || '/'
-      )
-    ) {
-      return NextResponse.redirect(new URL(callbackUrl, nextUrl));
+    if (callbackUrl) {
+      const safePath = sanitizeCallbackPath(callbackUrl, nextUrl.origin);
+      return NextResponse.redirect(new URL(safePath, nextUrl.origin));
     }
     const defaultDashboard = userRoles.includes('SUPPLIER')
       ? '/supplier/dashboard'

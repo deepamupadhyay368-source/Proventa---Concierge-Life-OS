@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
 
 export interface WorkspaceOption {
   id: string;
@@ -32,8 +31,6 @@ const WorkspaceContext = createContext<WorkspaceContextType | null>(null);
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const pathname = usePathname();
 
   const userId = session?.user?.id || '';
   const userName = session?.user?.name || 'Personal Account';
@@ -51,16 +48,6 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [workspaces, setWorkspaces] = useState<WorkspaceOption[]>([defaultIndividualWorkspace]);
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string>(userId ? `ind_${userId}` : '');
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
-
-  // If new user needs registration, redirect to /register-details
-  useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
-      const needsReg = (session.user as unknown as { needsRegistration?: boolean }).needsRegistration;
-      if (needsReg && pathname !== '/register-details') {
-        router.replace('/register-details');
-      }
-    }
-  }, [status, session, pathname, router]);
 
   // Update current workspace when userId becomes available
   useEffect(() => {

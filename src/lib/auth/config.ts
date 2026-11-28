@@ -6,7 +6,7 @@ import MicrosoftEntraID from 'next-auth/providers/microsoft-entra-id';
 import type { UserRole } from '@prisma/client';
 import { db } from '@/lib/db';
 import { verifyPassword } from '@/lib/auth/password';
-import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
+import { sanitizeCallbackPath, sanitizeNextAuthRedirect } from '@/lib/auth/callback-url';
 import { loginSchema } from '@/lib/validation/schemas';
 import { logger } from '@/lib/logger';
 import { createSecurityEvent } from '@/lib/audit';
@@ -20,7 +20,7 @@ import {
 } from '@/lib/auth/access-key';
 import bcrypt from 'bcryptjs';
 
-export { sanitizeCallbackPath };
+export { sanitizeCallbackPath, sanitizeNextAuthRedirect };
 
 const googleClientId =
   process.env.GOOGLE_CLIENT_ID || process.env.AUTH_GOOGLE_ID || '';
@@ -776,10 +776,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (url.includes('/recover-passkey')) {
         return `${baseUrl}/recover-passkey`;
       }
-      const safePath = sanitizeCallbackPath(url, baseUrl);
-      if (safePath === '/' || safePath === '') {
-        return `${baseUrl}/dashboard`;
-      }
+      const safePath = sanitizeNextAuthRedirect(url, baseUrl);
       return `${baseUrl}${safePath}`;
     },
 
