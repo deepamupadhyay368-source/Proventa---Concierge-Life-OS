@@ -513,7 +513,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (account?.provider) {
         const rawEmail = user.email || (profile as { email?: string })?.email;
         if (!rawEmail) {
-          return '/sign-in?error=OAuthEmailMissing';
+          return '/login?error=OAuthEmailMissing';
         }
         const normalizedEmail = rawEmail.trim().toLowerCase();
 
@@ -530,7 +530,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 reason: 'unverified_provider_email',
               },
             });
-            return '/sign-in?error=unverified_oauth_email';
+            return '/login?error=unverified_oauth_email';
           }
         }
 
@@ -579,7 +579,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 userId: linkedUser.id,
                 data: { provider: account.provider, reason: 'account_suspended' },
               });
-              return '/sign-in?error=account_suspended';
+              return '/login?error=account_suspended';
             }
 
             // Existing registered customer cannot bypass 12-digit pass key login via Google OAuth
@@ -592,7 +592,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   reason: 'passkey_required_for_existing_user',
                 },
               });
-              return '/sign-in?error=PassKeyRequired';
+              return '/login?error=PassKeyRequired';
             }
 
             user.id = linkedUser.id;
@@ -678,7 +678,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 userId: existingUser.id,
                 data: { provider: account.provider, reason: 'suspended' },
               });
-              return '/sign-in?error=account_suspended';
+              return '/login?error=account_suspended';
             }
 
             // Existing registered customer cannot bypass 12-digit pass key login via Google OAuth
@@ -690,7 +690,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   reason: 'passkey_required_for_existing_user',
                 },
               });
-              return '/sign-in?error=PassKeyRequired';
+              return '/login?error=PassKeyRequired';
             }
 
             // Never auto-link a privileged administrator account via email match alone
@@ -705,7 +705,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   reason: 'admin_auto_link_blocked',
                 },
               });
-              return '/sign-in?error=OAuthAccountNotLinked';
+              return '/login?error=OAuthAccountNotLinked';
             }
 
             // Require existing user to be active/verified before linking
@@ -720,7 +720,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                   reason: 'unverified_existing_account',
                 },
               });
-              return '/sign-in?error=OAuthAccountNotLinked';
+              return '/login?error=OAuthAccountNotLinked';
             }
 
             // Link this OAuth account
@@ -766,7 +766,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             { error: e, provider: account.provider },
             '[auth/oauth/signIn] Failed during OAuth sync',
           );
-          return '/sign-in?error=OAuthCallback';
+          return '/login?error=OAuthCallback';
         }
       }
       return true;
@@ -776,12 +776,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (url.includes('/recover-passkey')) {
         return `${baseUrl}/recover-passkey`;
       }
-      if (url.includes('/register-details')) {
-        return `${baseUrl}/register-details`;
-      }
       const safePath = sanitizeCallbackPath(url, baseUrl);
       if (safePath === '/' || safePath === '') {
-        return baseUrl + '/customer/dashboard';
+        return `${baseUrl}/dashboard`;
       }
       return `${baseUrl}${safePath}`;
     },

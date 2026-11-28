@@ -49,7 +49,10 @@ export default async function LoginPage({
             </p>
           </div>
 
-          <HomeSignInForm callbackUrl={params.callbackUrl || '/dashboard'} />
+          <HomeSignInForm
+            callbackUrl={params.callbackUrl || '/dashboard'}
+            initialError={params.error}
+          />
         </div>
 
         <div className="border border-[#C8C4BA] bg-white p-4 text-xs text-[#202B3C] flex items-center justify-between shadow-xs">

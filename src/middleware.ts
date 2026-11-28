@@ -85,9 +85,18 @@ export default auth(async (req) => {
     return NextResponse.redirect(new URL(`/onboarding/business${search}`, nextUrl));
   }
 
-  if (pathname === '/register') {
+  if (pathname === '/register' || pathname === '/sign-up') {
     const search = nextUrl.search;
     return NextResponse.redirect(new URL(`/signup${search}`, nextUrl));
+  }
+
+  if (pathname === '/sign-in') {
+    const search = nextUrl.search;
+    return NextResponse.redirect(new URL(`/login${search}`, nextUrl));
+  }
+
+  if (pathname === '/register-details') {
+    return NextResponse.redirect(new URL(isLoggedIn ? '/dashboard' : '/login', nextUrl));
   }
 
   const isPublicGetApi =
@@ -150,12 +159,23 @@ export default auth(async (req) => {
   const isAuthRoute = AUTH_ROUTES.some((r) => pathname.startsWith(r));
   const conciergeToken = req.cookies.get('proventa_concierge_session')?.value;
 
-  if (isAuthRoute && pathname !== '/sign-in' && pathname !== '/sign-up' && isLoggedIn) {
+  if (isAuthRoute && isLoggedIn) {
     const callbackUrl = nextUrl.searchParams.get('callbackUrl');
-    if (callbackUrl && callbackUrl.startsWith('/') && !callbackUrl.startsWith('//')) {
+    if (
+      callbackUrl &&
+      callbackUrl.startsWith('/') &&
+      !callbackUrl.startsWith('//') &&
+      !['/login', '/signup', '/sign-in', '/sign-up', '/register', '/register-details'].includes(
+        callbackUrl.split('?')[0].replace(/\/+$/, '') || '/'
+      )
+    ) {
       return NextResponse.redirect(new URL(callbackUrl, nextUrl));
     }
-    const defaultDashboard = userRoles.includes('SUPPLIER') ? '/supplier/dashboard' : userRoles.includes('BUYER') ? '/buyer/dashboard' : '/dashboard';
+    const defaultDashboard = userRoles.includes('SUPPLIER')
+      ? '/supplier/dashboard'
+      : userRoles.includes('BUYER')
+        ? '/buyer/dashboard'
+        : '/dashboard';
     return NextResponse.redirect(new URL(defaultDashboard, nextUrl));
   }
 
@@ -245,20 +265,7 @@ export default auth(async (req) => {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Enforce mandatory registration completion and 12-digit pass key creation
-  const needsRegistration = Boolean(
-    (session?.user as { needsRegistration?: boolean } | undefined)?.needsRegistration,
-  );
-  if (
-    needsRegistration &&
-    !pathname.startsWith('/register-details') &&
-    !pathname.startsWith('/api/') &&
-    !pathname.startsWith('/sign-in') &&
-    !pathname.startsWith('/suppliers/') &&
-    !pathname.startsWith('/supplier/storefront/')
-  ) {
-    return NextResponse.redirect(new URL('/register-details', nextUrl));
-  }
+  // Authenticated users proceed cleanly to their requested route (removed legacy /register-details 404 redirect)
 
   const response = NextResponse.next();
   response.headers.set('X-Request-Id', crypto.randomUUID());

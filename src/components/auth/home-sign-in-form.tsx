@@ -6,15 +6,37 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 
-export function HomeSignInForm({ callbackUrl }: { callbackUrl?: string }) {
+import { sanitizeCallbackPath } from '@/lib/auth/callback-url';
+
+function formatAuthError(code?: string | null): string | null {
+  if (!code) return null;
+  const map: Record<string, string> = {
+    CredentialsSignin: 'Invalid email or password. Please try again.',
+    OAuthAccountNotLinked: 'This email is already registered. Please sign in with your email and password.',
+    PassKeyRequired: 'Please sign in with your email and password or PROVENTA pass key.',
+    account_suspended: 'Your account has been suspended. Please contact support.',
+    unverified_oauth_email: 'Your OAuth provider email is not verified.',
+    OAuthEmailMissing: 'Your OAuth provider did not return an email address.',
+    OAuthCallback: 'Google sign-in could not be completed. Please try again.',
+  };
+  return map[code] || 'Sign-in could not be completed. Please try again.';
+}
+
+export function HomeSignInForm({
+  callbackUrl,
+  initialError,
+}: {
+  callbackUrl?: string;
+  initialError?: string;
+}) {
   const router = useRouter();
-  const safeCallback = callbackUrl || '/dashboard';
+  const safeCallback = sanitizeCallbackPath(callbackUrl);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => formatAuthError(initialError));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
