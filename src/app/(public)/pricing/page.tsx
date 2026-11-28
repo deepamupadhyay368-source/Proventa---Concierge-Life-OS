@@ -47,29 +47,29 @@ export default function PricingPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 font-sans">
       {/* Hero Header */}
-      <section className="border-b border-[#C8C4BA] pb-10">
+      <section className="border-b border-[#E8EBEF] pb-10">
         <div className="max-w-3xl">
           <div className="inline-flex items-center gap-2 mb-3">
-            <span className="w-1.5 h-1.5 bg-[#547568]" />
-            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#547568] font-bold">
+            <span className="w-1.5 h-1.5 bg-[#29465F]" />
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[#29465F] font-bold">
               Transparent Membership Tiers
             </span>
           </div>
-          <h1 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight text-[#202B3C] leading-tight">
+          <h1 className="font-editorial text-3xl sm:text-5xl font-bold tracking-tight text-[#202B38] leading-tight">
             Institutional property intelligence, accessible to everyone.
           </h1>
-          <p className="mt-4 text-base md:text-lg text-[#69717B] leading-relaxed">
+          <p className="mt-4 text-base md:text-lg text-[#697586] leading-relaxed">
             Choose the membership tier aligned with your portfolio. From prospective homeowners evaluating an asking price to professional real estate advisory firms managing multi-client holdings.
           </p>
 
           {/* Billing Cycle Toggle */}
-          <div className="mt-8 inline-flex items-center p-1 bg-white border border-[#C8C4BA] shadow-xs">
+          <div className="mt-8 inline-flex items-center p-1 bg-white border border-[#E8EBEF] shadow-xs">
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`px-4 py-2 text-xs font-semibold transition-colors ${
                 billingCycle === 'monthly'
-                  ? 'bg-[#202B3C] text-white shadow-xs'
-                  : 'text-[#69717B] hover:text-[#202B3C]'
+                  ? 'bg-[#29465F] text-white shadow-xs'
+                  : 'text-[#697586] hover:text-[#202B38]'
               }`}
             >
               Monthly Billing
@@ -78,12 +78,12 @@ export default function PricingPage() {
               onClick={() => setBillingCycle('annual')}
               className={`px-4 py-2 text-xs font-semibold flex items-center gap-1.5 transition-colors ${
                 billingCycle === 'annual'
-                  ? 'bg-[#202B3C] text-white shadow-xs'
-                  : 'text-[#69717B] hover:text-[#202B3C]'
+                  ? 'bg-[#29465F] text-white shadow-xs'
+                  : 'text-[#697586] hover:text-[#202B38]'
               }`}
             >
               <span>Annual Billing</span>
-              <span className="bg-[#547568] text-white text-[10px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
+              <span className="bg-[#29465F] text-white text-[10px] px-1.5 py-0.5 font-bold uppercase tracking-wider">
                 Save ~17%
               </span>
             </button>
@@ -104,41 +104,41 @@ export default function PricingPage() {
               className={`relative bg-white border flex flex-col justify-between p-6 transition-shadow ${
                 plan.popular
                   ? 'border-[#202B3C] shadow-md ring-1 ring-[#202B3C]'
-                  : 'border-[#C8C4BA] hover:shadow-sm'
+                  : 'border-[#E8EBEF] hover:shadow-sm'
               }`}
             >
               {plan.badge && (
-                <div className="absolute -top-3 left-6 bg-[#202B3C] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1">
+                <div className="absolute -top-3 left-6 bg-[#29465F] text-white text-[10px] font-bold uppercase tracking-widest px-2.5 py-1">
                   {plan.badge}
                 </div>
               )}
 
               <div>
                 <div className="space-y-1">
-                  <h3 className="font-editorial text-2xl font-bold text-[#202B3C]">{plan.name}</h3>
-                  <p className="text-xs text-[#69717B] min-h-[32px]">{plan.tagline}</p>
+                  <h3 className="font-editorial text-2xl font-bold text-[#202B38]">{plan.name}</h3>
+                  <p className="text-xs text-[#697586] min-h-[32px]">{plan.tagline}</p>
                 </div>
 
-                <div className="mt-6 border-t border-[#C8C4BA]/50 pt-4">
+                <div className="mt-6 border-t border-[#E8EBEF]/50 pt-4">
                   <div className="flex items-baseline gap-1">
-                    <span className="font-mono text-3xl font-bold text-[#202B3C] tabular-nums">
+                    <span className="font-mono text-3xl font-bold text-[#202B38] tabular-nums">
                       ₹{price.toLocaleString('en-IN')}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#69717B] mt-0.5 font-mono">{billingLabel}</p>
+                  <p className="text-[11px] text-[#697586] mt-0.5 font-mono">{billingLabel}</p>
                 </div>
 
-                <div className="mt-4 p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40 text-[11px] text-[#202B3C]">
-                  <span className="font-semibold block text-[#547568] uppercase text-[10px] font-mono">Target Profile</span>
+                <div className="mt-4 p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40 text-[11px] text-[#202B38]">
+                  <span className="font-semibold block text-[#29465F] uppercase text-[10px] font-mono">Target Profile</span>
                   {plan.targetAudience}
                 </div>
 
                 <div className="mt-6 space-y-3">
-                  <p className="text-xs font-mono font-bold text-[#202B3C] uppercase tracking-wider">Plan Inclusions</p>
+                  <p className="text-xs font-mono font-bold text-[#202B38] uppercase tracking-wider">Plan Inclusions</p>
                   <ul className="space-y-2.5">
                     {plan.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start gap-2 text-xs text-[#202B3C] leading-snug">
-                        <Check className="h-4 w-4 text-[#547568] shrink-0 mt-0.5" />
+                      <li key={idx} className="flex items-start gap-2 text-xs text-[#202B38] leading-snug">
+                        <Check className="h-4 w-4 text-[#29465F] shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -146,13 +146,13 @@ export default function PricingPage() {
                 </div>
               </div>
 
-              <div className="mt-8 pt-6 border-t border-[#C8C4BA]/60">
+              <div className="mt-8 pt-6 border-t border-[#E8EBEF]/60">
                 <Link
                   href={plan.monthlyPrice === 0 ? '/signup' : `/signup?plan=${plan.id}&billing=${billingCycle}`}
                   className={`w-full h-10 px-4 text-xs font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1.5 transition-colors ${
                     plan.popular
-                      ? 'bg-[#202B3C] text-white hover:bg-[#151D29]'
-                      : 'bg-white border border-[#202B3C] text-[#202B3C] hover:bg-[#F5F3ED]'
+                      ? 'bg-[#29465F] text-white hover:bg-[#151D29]'
+                      : 'bg-white border border-[#202B3C] text-[#202B38] hover:bg-[#F7F8FA]'
                   }`}
                 >
                   <span>{plan.monthlyPrice === 0 ? 'Start Free Research' : `Subscribe to ${plan.name}`}</span>
@@ -165,9 +165,9 @@ export default function PricingPage() {
       </section>
 
       {/* Enterprise Custom Box */}
-      <section className="bg-[#202B3C] text-white p-8 md:p-10 border border-[#202B3C] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+      <section className="bg-[#29465F] text-white p-8 md:p-10 border border-[#202B3C] flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="space-y-2 max-w-2xl">
-          <div className="inline-flex items-center gap-1.5 text-xs text-[#547568] font-mono font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-1.5 text-xs text-[#29465F] font-mono font-semibold uppercase tracking-wider">
             <Building2 className="h-4 w-4" />
             <span>Institutional Data & Research</span>
           </div>
@@ -180,7 +180,7 @@ export default function PricingPage() {
         </div>
         <Link
           href="/about#contact"
-          className="whitespace-nowrap px-6 py-3 bg-white text-[#202B3C] font-semibold text-xs uppercase tracking-wider hover:bg-[#F5F3ED] transition-colors"
+          className="whitespace-nowrap px-6 py-3 bg-white text-[#202B38] font-semibold text-xs uppercase tracking-wider hover:bg-[#F7F8FA] transition-colors"
         >
           Contact Advisory Desk
         </Link>
@@ -188,34 +188,34 @@ export default function PricingPage() {
 
       {/* Feature Comparison Table */}
       <section className="space-y-6">
-        <div className="border-b border-[#C8C4BA] pb-3">
-          <h2 className="font-display text-2xl font-bold text-[#202B3C]">
+        <div className="border-b border-[#E8EBEF] pb-3">
+          <h2 className="font-display text-2xl font-bold text-[#202B38]">
             Detailed Feature Comparison
           </h2>
-          <p className="text-xs text-[#69717B] mt-1">
+          <p className="text-xs text-[#697586] mt-1">
             Compare analytical capabilities across individual, investor, and institutional tiers.
           </p>
         </div>
 
-        <div className="overflow-x-auto bg-white border border-[#C8C4BA]">
+        <div className="overflow-x-auto bg-white border border-[#E8EBEF]">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-[#F5F3ED] border-b border-[#C8C4BA] text-[#202B3C]">
+              <tr className="bg-[#F7F8FA] border-b border-[#E8EBEF] text-[#202B38]">
                 <th className="p-3.5 font-bold uppercase tracking-wider">Capability / Parameter</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider">Free</th>
-                <th className="p-3.5 font-bold uppercase tracking-wider bg-[#202B3C]/5">Personal</th>
+                <th className="p-3.5 font-bold uppercase tracking-wider bg-[#29465F]/5">Personal</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider">Investor</th>
                 <th className="p-3.5 font-bold uppercase tracking-wider">Professional</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#C8C4BA]/50">
               {comparisonFeatures.map((row, i) => (
-                <tr key={i} className="hover:bg-[#F5F3ED]/40 transition-colors">
-                  <td className="p-3.5 font-medium text-[#202B3C]">{row.name}</td>
-                  <td className="p-3.5 font-mono text-[#69717B]">{row.free}</td>
-                  <td className="p-3.5 font-mono font-medium text-[#202B3C] bg-[#202B3C]/5">{row.personal}</td>
-                  <td className="p-3.5 font-mono text-[#202B3C]">{row.investor}</td>
-                  <td className="p-3.5 font-mono font-semibold text-[#547568]">{row.professional}</td>
+                <tr key={i} className="hover:bg-[#F7F8FA]/40 transition-colors">
+                  <td className="p-3.5 font-medium text-[#202B38]">{row.name}</td>
+                  <td className="p-3.5 font-mono text-[#697586]">{row.free}</td>
+                  <td className="p-3.5 font-mono font-medium text-[#202B38] bg-[#29465F]/5">{row.personal}</td>
+                  <td className="p-3.5 font-mono text-[#202B38]">{row.investor}</td>
+                  <td className="p-3.5 font-mono font-semibold text-[#29465F]">{row.professional}</td>
                 </tr>
               ))}
             </tbody>
@@ -224,35 +224,35 @@ export default function PricingPage() {
       </section>
 
       {/* Regulatory & Methodology Guarantee */}
-      <section className="bg-white border border-[#C8C4BA] p-6 md:p-8 space-y-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-[#547568] uppercase tracking-wider">
+      <section className="bg-white border border-[#E8EBEF] p-6 md:p-8 space-y-4">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#29465F] uppercase tracking-wider">
           <Shield className="h-4 w-4" />
           <span>Independent Commercial Independence Pledge</span>
         </div>
-        <p className="text-xs md:text-sm text-[#69717B] leading-relaxed">
+        <p className="text-xs md:text-sm text-[#697586] leading-relaxed">
           PROVENTA accepts zero advertising fees, lead-generation bounties, or transaction commissions from property developers, real estate agents, or property portals. Our revenue is derived purely from reader subscriptions and institutional data licenses. This guarantees that our price models, valuation ranges, and locality comparisons remain completely unbiased and evidence-governed.
         </p>
       </section>
 
       {/* Frequently Asked Questions */}
       <section className="space-y-6">
-        <div className="border-b border-[#C8C4BA] pb-3">
-          <h2 className="font-display text-2xl font-bold text-[#202B3C]">
+        <div className="border-b border-[#E8EBEF] pb-3">
+          <h2 className="font-display text-2xl font-bold text-[#202B38]">
             Frequently Asked Questions
           </h2>
-          <p className="text-xs text-[#69717B] mt-1">
+          <p className="text-xs text-[#697586] mt-1">
             Essential operational and regulatory disclosures regarding PROVENTA memberships.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="bg-white border border-[#C8C4BA] p-5 space-y-2">
-              <h3 className="text-xs font-bold text-[#202B3C] flex items-start gap-2">
-                <HelpCircle className="h-4 w-4 text-[#547568] shrink-0 mt-0.5" />
+            <div key={idx} className="bg-white border border-[#E8EBEF] p-5 space-y-2">
+              <h3 className="text-xs font-bold text-[#202B38] flex items-start gap-2">
+                <HelpCircle className="h-4 w-4 text-[#29465F] shrink-0 mt-0.5" />
                 <span>{faq.q}</span>
               </h3>
-              <p className="text-xs text-[#69717B] leading-relaxed pl-6">
+              <p className="text-xs text-[#697586] leading-relaxed pl-6">
                 {faq.a}
               </p>
             </div>

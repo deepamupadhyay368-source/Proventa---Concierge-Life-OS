@@ -29,26 +29,26 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F3ED] text-[#202B3C] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#547568] selection:text-white">
+    <div className="min-h-screen bg-[#F7F8FA] text-[#202B38] flex items-center justify-center px-4 py-16 font-sans selection:bg-[#29465F] selection:text-white">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex flex-col items-center">
-            <span className="font-editorial text-3xl font-normal tracking-tight text-[#202B3C]">PROVENTA</span>
-            <span className="text-[10px] font-mono tracking-widest text-[#547568] uppercase font-bold">
+            <span className="font-editorial text-3xl font-normal tracking-tight text-[#202B38]">PROVENTA</span>
+            <span className="text-[10px] font-mono tracking-widest text-[#29465F] uppercase font-bold">
               Real Estate Intelligence
             </span>
           </Link>
-          <p className="text-xs text-[#69717B]">
+          <p className="text-xs text-[#697586]">
             Account Security & Recovery Desk
           </p>
         </div>
 
-        <div className="border border-[#C8C4BA] bg-white p-8 space-y-6">
-          <div className="border-b border-[#C8C4BA]/50 pb-4">
-            <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
+        <div className="border border-[#E8EBEF] bg-white p-8 space-y-6">
+          <div className="border-b border-[#E8EBEF]/50 pb-4">
+            <h1 className="font-editorial text-2xl font-normal text-[#202B38]">
               Password Recovery
             </h1>
-            <p className="text-xs text-[#69717B] mt-1">
+            <p className="text-xs text-[#697586] mt-1">
               Enter the email associated with your PROVENTA account.
             </p>
           </div>
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
               </div>
               <Link
                 href="/login"
-                className="w-full py-2.5 px-4 bg-[#202B3C] text-white text-xs font-semibold text-center block hover:bg-[#202B3C]/90"
+                className="w-full py-2.5 px-4 bg-[#29465F] text-white text-xs font-semibold text-center block hover:bg-[#29465F]/90"
               >
                 Return to Sign In
               </Link>
@@ -80,18 +80,18 @@ export default function ForgotPasswordPage() {
               )}
 
               <div>
-                <label className="block text-xs font-semibold text-[#202B3C] mb-1">
+                <label className="block text-xs font-semibold text-[#202B38] mb-1">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[#69717B]" />
+                  <Mail className="absolute left-3 top-2.5 h-4 w-4 text-[#697586]" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@domain.com"
                     required
-                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+                    className="w-full pl-9 pr-3 py-2 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
                   />
                 </div>
               </div>
@@ -99,7 +99,7 @@ export default function ForgotPasswordPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-2.5 px-4 bg-[#202B3C] text-white text-xs font-semibold hover:bg-[#202B3C]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-xs"
+                className="w-full py-2.5 px-4 bg-[#29465F] text-white text-xs font-semibold hover:bg-[#29465F]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-xs"
               >
                 {loading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -114,9 +114,9 @@ export default function ForgotPasswordPage() {
           )}
         </div>
 
-        <div className="border border-[#C8C4BA] bg-white p-4 text-xs text-[#202B3C] flex items-center justify-between shadow-xs">
-          <span className="text-[#69717B]">Remember your credentials?</span>
-          <Link href="/login" className="text-[#547568] hover:underline font-bold">
+        <div className="border border-[#E8EBEF] bg-white p-4 text-xs text-[#202B38] flex items-center justify-between shadow-xs">
+          <span className="text-[#697586]">Remember your credentials?</span>
+          <Link href="/login" className="text-[#29465F] hover:underline font-bold">
             Sign In →
           </Link>
         </div>

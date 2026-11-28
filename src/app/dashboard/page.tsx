@@ -1,240 +1,394 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import {
   Building,
   TrendingUp,
-  ShieldCheck,
+  Bookmark,
   FileText,
   Plus,
   ArrowUpRight,
   MapPin,
-  Calendar,
-  AlertCircle
+  ShieldCheck,
+  User,
 } from 'lucide-react';
 
-export default function DashboardOverviewPage() {
-  const trackedProperties = [
-    {
-      id: 'prop-01',
-      title: '3 BHK High-Floor Apartment',
-      locality: 'Shela, Ahmedabad',
-      project: 'Shilp Revanta',
-      carpetAreaSqFt: 1450,
-      estimatedValueLakhs: 98.5,
-      purchasePriceLakhs: 82.0,
-      purchaseYear: '2023',
-      unrealizedGainLakhs: 16.5,
-      gainPercent: 20.1,
-      lastValuationDate: '15-Oct-2026',
-      vaultDocumentsCount: 4,
-    },
-    {
-      id: 'prop-02',
-      title: '2 BHK Resale Unit',
-      locality: 'South Bopal, Ahmedabad',
-      project: 'Aarohi Elegance',
-      carpetAreaSqFt: 880,
-      estimatedValueLakhs: 64.2,
-      purchasePriceLakhs: 56.5,
-      purchaseYear: '2024',
-      unrealizedGainLakhs: 7.7,
-      gainPercent: 13.6,
-      lastValuationDate: '10-Oct-2026',
-      vaultDocumentsCount: 3,
-    },
-  ];
+interface PropertyOsRecord {
+  id: string;
+  title: string;
+  locality: string;
+  city: string;
+  propertyType: string;
+}
 
-  const totalPortfolioValueLakhs = trackedProperties.reduce((acc, p) => acc + p.estimatedValueLakhs, 0);
-  const totalCostLakhs = trackedProperties.reduce((acc, p) => acc + p.purchasePriceLakhs, 0);
-  const totalGainLakhs = totalPortfolioValueLakhs - totalCostLakhs;
+interface WatchlistRecord {
+  id: string;
+  targetType: string;
+  targetIdOrSlug: string;
+  targetLabel: string;
+  alertFrequency: string;
+}
+
+interface CorridorRecord {
+  slug: string;
+  name: string;
+  city: string;
+  benchmark: {
+    status: 'RELIABLE' | 'INSUFFICIENT_DATA';
+    formattedMedianPriceSqFt: string | null;
+    averageRentalYieldPct: number | null;
+    observationCount: number;
+    latestReportingPeriod: string | null;
+    sources: string[];
+  };
+}
+
+interface ReportRecord {
+  id: string;
+  reportType: string;
+  title: string;
+  createdAt: string;
+}
+
+export default function DashboardOverviewPage() {
+  const { data: session } = useSession();
+  const [properties, setProperties] = useState<PropertyOsRecord[]>([]);
+  const [watchlists, setWatchlists] = useState<WatchlistRecord[]>([]);
+  const [corridors, setCorridors] = useState<CorridorRecord[]>([]);
+  const [reports, setReports] = useState<ReportRecord[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      fetch('/api/real-estate/property-os').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch('/api/real-estate/watchlists').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch('/api/real-estate/market?segment=RESIDENTIAL').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+      fetch('/api/real-estate/reports').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+    ]).then(([osJson, wlJson, marketJson, repJson]) => {
+      if (!active) return;
+      if (Array.isArray(osJson?.properties)) setProperties(osJson.properties);
+      if (Array.isArray(wlJson?.watchlists)) setWatchlists(wlJson.watchlists);
+      if (Array.isArray(marketJson?.corridors)) setCorridors(marketJson.corridors);
+      if (Array.isArray(repJson?.reports)) setReports(repJson.reports);
+      setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const reliableCorridors = corridors.filter((c) => c.benchmark?.status === 'RELIABLE');
+  const firstName = session?.user?.name?.split(' ')[0] || 'Member';
 
   return (
     <div className="space-y-8">
-      {/* Page Title & Header Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA] pb-4">
+      {/* Welcome Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8EBEF] pb-5">
         <div>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
-            Account Dashboard
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#A58A61]">
+            Member Dashboard
           </span>
-          <h1 className="font-editorial text-2xl md:text-3xl font-normal text-[#202B3C]">
-            Portfolio Intelligence Overview
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#202B38] mt-1">
+            Welcome back, {firstName}
           </h1>
+          <p className="text-xs text-[#697586] mt-1">
+            Monitor your registered properties, saved watchlists, sourced market benchmarks, and persisted reports.
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Link
-            href="/dashboard/property-vault?action=new"
-            className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
+            href="/property-os"
+            className="h-10 px-4 bg-[#29465F] hover:bg-[#20384C] text-[#FFFFFF] text-xs font-semibold uppercase tracking-wider inline-flex items-center gap-2 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>Add Property to Vault</span>
+            <span>Open Property OS</span>
           </Link>
           <Link
-            href="/property-intelligence"
-            className="h-10 px-4 bg-white border border-[#C8C4BA] text-[#202B3C] text-xs font-bold uppercase tracking-wider inline-flex items-center hover:bg-[#F5F3ED]"
+            href="/price"
+            className="h-10 px-4 bg-[#FFFFFF] hover:bg-[#F3F5F7] border border-[#E8EBEF] text-[#202B38] text-xs font-semibold uppercase tracking-wider inline-flex items-center transition-colors"
           >
-            Instant Valuation
+            12-Factor Valuation
           </Link>
         </div>
       </div>
 
-      {/* Aggregate Metric Tiles */}
+      {/* Live API-Backed Metric Tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
-          <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
-            Total Monitored Portfolio
+        <div className="bg-[#FFFFFF] border border-[#E8EBEF] p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-[#697586] uppercase tracking-wider">
+            My Properties
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
-            ₹{(totalPortfolioValueLakhs / 100).toFixed(2)} Cr
+          <div className="font-mono text-2xl font-bold text-[#202B38] tabular-nums">
+            {loading ? '—' : properties.length}
           </div>
-          <p className="text-[11px] text-[#547568] font-mono">
-            {trackedProperties.length} active residential assets
-          </p>
+          <p className="text-[11px] text-[#929BA6]">Private Property OS vault</p>
         </div>
 
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
-          <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
-            Aggregate Unrealized Gain
+        <div className="bg-[#FFFFFF] border border-[#E8EBEF] p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-[#697586] uppercase tracking-wider">
+            Saved Watchlists
           </span>
-          <div className="font-mono text-2xl font-bold text-[#547568] tabular-nums">
-            +₹{totalGainLakhs.toFixed(1)} L
+          <div className="font-mono text-2xl font-bold text-[#29465F] tabular-nums">
+            {loading ? '—' : watchlists.length}
           </div>
-          <p className="text-[11px] text-[#547568] font-mono tabular-nums">
-            +{((totalGainLakhs / totalCostLakhs) * 100).toFixed(1)}% total holding gain
-          </p>
+          <p className="text-[11px] text-[#929BA6]">Tracked localities &amp; assets</p>
         </div>
 
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
-          <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
-            Average Gross Rental Yield
+        <div className="bg-[#FFFFFF] border border-[#E8EBEF] p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-[#697586] uppercase tracking-wider">
+            Verified Market Corridors
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
-            3.4%
+          <div className="font-mono text-2xl font-bold text-[#202B38] tabular-nums">
+            {loading ? '—' : `${reliableCorridors.length} / ${corridors.length}`}
           </div>
-          <p className="text-[11px] text-[#69717B] font-mono">
-            Benchmark: West Ahmedabad
-          </p>
+          <p className="text-[11px] text-[#929BA6]">Ahmedabad &amp; Gandhinagar</p>
         </div>
 
-        <div className="bg-white border border-[#C8C4BA] p-5 space-y-1">
-          <span className="text-[11px] font-mono text-[#69717B] uppercase tracking-wider">
-            Vault Documents Stored
+        <div className="bg-[#FFFFFF] border border-[#E8EBEF] p-5 space-y-1">
+          <span className="text-[10px] font-semibold text-[#697586] uppercase tracking-wider">
+            My Reports
           </span>
-          <div className="font-mono text-2xl font-bold text-[#202B3C] tabular-nums">
-            7 Deeds & Receipts
+          <div className="font-mono text-2xl font-bold text-[#202B38] tabular-nums">
+            {loading ? '—' : reports.length}
           </div>
-          <p className="text-[11px] text-[#547568] font-mono">
-            100% Encrypted & Private
-          </p>
+          <p className="text-[11px] text-[#929BA6]">Persisted PDF dossiers</p>
         </div>
       </div>
 
-      {/* Properties Table & Cards */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-editorial text-xl font-normal text-[#202B3C]">
-            Tracked Assets in Personal Vault
-          </h2>
-          <Link
-            href="/dashboard/properties"
-            className="text-xs text-[#547568] hover:underline font-semibold flex items-center gap-1"
-          >
-            <span>View All Properties</span>
-            <ArrowUpRight className="h-3 w-3" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {trackedProperties.map((prop) => (
-            <div
-              key={prop.id}
-              className="bg-white border border-[#C8C4BA] p-5 space-y-4"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-editorial text-lg font-normal text-[#202B3C]">
-                    {prop.title}
-                  </h3>
-                  <div className="flex items-center gap-1.5 text-xs text-[#69717B] mt-0.5">
-                    <MapPin className="h-3.5 w-3.5 text-[#547568]" />
-                    <span>{prop.project}, {prop.locality}</span>
-                  </div>
-                </div>
-                <span className="font-mono text-xs px-2 py-0.5 bg-[#547568]/10 text-[#547568] font-bold tabular-nums">
-                  {prop.carpetAreaSqFt} sq ft carpet
-                </span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 font-mono text-xs">
-                <div>
-                  <span className="text-[#69717B] block text-[10px]">Estimated Value</span>
-                  <span className="font-bold text-[#202B3C] tabular-nums">₹{prop.estimatedValueLakhs} Lakhs</span>
-                </div>
-                <div>
-                  <span className="text-[#69717B] block text-[10px]">Acquisition Cost</span>
-                  <span className="text-[#202B3C] tabular-nums">₹{prop.purchasePriceLakhs} Lakhs ({prop.purchaseYear})</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between text-xs pt-1">
-                <div className="flex items-center gap-1.5 text-[#547568] font-mono text-[11px]">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>{prop.vaultDocumentsCount} Deeds & Receipts</span>
-                </div>
-                <Link
-                  href={`/dashboard/property-vault?id=${prop.id}`}
-                  className="font-semibold text-[#202B3C] hover:text-[#547568] flex items-center gap-1"
-                >
-                  <span>Open Vault</span>
-                  <ArrowUpRight className="h-3 w-3" />
-                </Link>
-              </div>
+      {/* My Properties & Saved Watchlists */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section className="lg:col-span-7 bg-[#FFFFFF] border border-[#E8EBEF] p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E8EBEF] pb-3">
+            <div className="flex items-center gap-2">
+              <Building className="h-4 w-4 text-[#29465F]" />
+              <h2 className="text-sm font-bold text-[#202B38]">My Properties</h2>
             </div>
-          ))}
-        </div>
+            <Link
+              href="/property-os"
+              className="text-xs font-semibold text-[#29465F] hover:underline inline-flex items-center gap-1"
+            >
+              <span>Manage Vault</span>
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          {properties.length === 0 ? (
+            <div className="p-6 bg-[#F7F8FA] border border-[#E8EBEF] text-center space-y-3">
+              <ShieldCheck className="h-6 w-6 text-[#29465F] mx-auto" />
+              <p className="text-xs text-[#697586]">
+                No properties registered in your private Property OS vault yet.
+              </p>
+              <Link
+                href="/property-os"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#29465F] hover:bg-[#20384C] text-[#FFFFFF] text-xs font-semibold"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span>Add Property</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {properties.slice(0, 5).map((prop) => (
+                <div
+                  key={prop.id}
+                  className="p-4 bg-[#F7F8FA] border border-[#E8EBEF] flex items-center justify-between gap-4"
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="text-sm font-semibold text-[#202B38] truncate">{prop.title}</div>
+                    <div className="text-xs text-[#697586] flex items-center gap-1.5">
+                      <MapPin className="h-3 w-3 text-[#29465F]" />
+                      <span>
+                        {prop.locality}, {prop.city}
+                      </span>
+                      <span className="text-[#929BA6]">&bull;</span>
+                      <span>{prop.propertyType}</span>
+                    </div>
+                  </div>
+                  <Link
+                    href="/property-os"
+                    className="px-3 py-1.5 bg-[#FFFFFF] border border-[#E8EBEF] text-xs font-semibold text-[#29465F] hover:border-[#29465F] shrink-0"
+                  >
+                    Open
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="lg:col-span-5 bg-[#FFFFFF] border border-[#E8EBEF] p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E8EBEF] pb-3">
+            <div className="flex items-center gap-2">
+              <Bookmark className="h-4 w-4 text-[#A58A61]" />
+              <h2 className="text-sm font-bold text-[#202B38]">Saved Watchlists</h2>
+            </div>
+            <Link
+              href="/dashboard/watchlist"
+              className="text-xs font-semibold text-[#29465F] hover:underline"
+            >
+              View All
+            </Link>
+          </div>
+
+          {watchlists.length === 0 ? (
+            <div className="p-6 bg-[#F7F8FA] border border-[#E8EBEF] text-center space-y-3">
+              <p className="text-xs text-[#697586]">
+                Save any Gujarat locality, project, or Property ID to track verified market updates.
+              </p>
+              <Link
+                href="/market-intelligence"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#FFFFFF] hover:bg-[#F3F5F7] border border-[#E8EBEF] text-[#202B38] text-xs font-semibold"
+              >
+                <span>Browse Markets</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {watchlists.slice(0, 6).map((item) => (
+                <div
+                  key={item.id}
+                  className="p-3 bg-[#F7F8FA] border border-[#E8EBEF] flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-[#202B38] truncate">
+                      {item.targetLabel}
+                    </div>
+                    <div className="text-[11px] text-[#697586]">
+                      {item.targetType} &bull; {item.alertFrequency}
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 bg-[#FFFFFF] border border-[#E8EBEF] text-[#287A55]">
+                    ACTIVE
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* Ahmedabad Market Intelligence Dispatch */}
-      <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#C8C4BA]/50 pb-3">
-          <div className="space-y-0.5">
-            <span className="text-[10px] font-mono font-bold text-[#547568] uppercase">
-              Quarterly Market Digest
-            </span>
-            <h3 className="font-editorial text-lg font-normal text-[#202B3C]">
-              Ahmedabad & Gandhinagar Macro Trends (Q3 2026)
-            </h3>
+      {/* Market Intelligence Snapshot */}
+      <section className="bg-[#FFFFFF] border border-[#E8EBEF] p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E8EBEF] pb-3">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-[#29465F]" />
+            <h2 className="text-sm font-bold text-[#202B38]">Market Intelligence</h2>
           </div>
           <Link
-            href="/reports"
-            className="text-xs font-semibold text-[#202B3C] hover:underline flex items-center gap-1"
+            href="/market-intelligence"
+            className="text-xs font-semibold text-[#29465F] hover:underline"
           >
-            <span>All Reports</span>
-            <ArrowUpRight className="h-3 w-3" />
+            Full Benchmarks &rarr;
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 space-y-1">
-            <span className="font-semibold text-[#202B3C] block">Western Arc Acceleration</span>
-            <p className="text-[#69717B] leading-relaxed">
-              Shela and South Bopal capital values demonstrated +8.4% YoY appreciation driven by new AUDA commercial arterial road widening.
-            </p>
-          </div>
-          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 space-y-1">
-            <span className="font-semibold text-[#202B3C] block">GIFT City IFSC Leasing</span>
-            <p className="text-[#69717B] leading-relaxed">
-              Rental yields stabilized at 4.4% as international fintech and banking tenants increased employee housing absorption.
-            </p>
-          </div>
-          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 space-y-1">
-            <span className="font-semibold text-[#202B3C] block">Sub-Registrar Observations</span>
-            <p className="text-[#69717B] leading-relaxed">
-              Observed secondary resale negotiation discount held narrow at -6.8% below initial seller asking quotations in Bodakdev.
-            </p>
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-[#E8EBEF] bg-[#F3F5F7] text-[10px] font-semibold uppercase text-[#697586]">
+                <th className="py-2.5 px-4">Corridor</th>
+                <th className="py-2.5 px-4">Median Rate</th>
+                <th className="py-2.5 px-4">Rental Yield</th>
+                <th className="py-2.5 px-4">Observations</th>
+                <th className="py-2.5 px-4">Period &amp; Source</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E8EBEF]">
+              {corridors.slice(0, 6).map((c) => (
+                <tr key={c.slug} className="hover:bg-[#F7F8FA]">
+                  <td className="py-2.5 px-4 font-semibold text-[#202B38]">
+                    {c.name} <span className="text-[10px] font-normal text-[#929BA6]">({c.city})</span>
+                  </td>
+                  <td className="py-2.5 px-4 font-mono tabular-nums text-[#202B38]">
+                    {c.benchmark.status === 'RELIABLE' && c.benchmark.formattedMedianPriceSqFt
+                      ? c.benchmark.formattedMedianPriceSqFt
+                      : <span className="text-[#B17A30]">INSUFFICIENT_DATA</span>}
+                  </td>
+                  <td className="py-2.5 px-4 font-mono tabular-nums text-[#202B38]">
+                    {c.benchmark.averageRentalYieldPct !== null
+                      ? `${c.benchmark.averageRentalYieldPct.toFixed(2)}%`
+                      : '—'}
+                  </td>
+                  <td className="py-2.5 px-4 font-mono tabular-nums text-[#697586]">
+                    {c.benchmark.observationCount}
+                  </td>
+                  <td className="py-2.5 px-4 text-[#697586]">
+                    {c.benchmark.latestReportingPeriod || 'Awaiting verified observations'}
+                    {c.benchmark.sources?.length ? ` · ${c.benchmark.sources[0]}` : ''}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      </section>
+
+      {/* My Reports & Account Settings */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <section className="lg:col-span-8 bg-[#FFFFFF] border border-[#E8EBEF] p-6 space-y-3">
+          <div className="flex items-center justify-between border-b border-[#E8EBEF] pb-3">
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-[#29465F]" />
+              <h2 className="text-sm font-bold text-[#202B38]">My Reports</h2>
+            </div>
+            <Link href="/reports" className="text-xs font-semibold text-[#29465F] hover:underline">
+              Generate Report &rarr;
+            </Link>
+          </div>
+          {reports.length === 0 ? (
+            <p className="text-xs text-[#697586]">
+              No persisted intelligence reports yet. Generate any of the seven institutional report types with PDF export from the Reports page.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {reports.slice(0, 4).map((rep) => (
+                <Link
+                  key={rep.id}
+                  href="/reports"
+                  className="p-3 bg-[#F7F8FA] border border-[#E8EBEF] hover:border-[#29465F] flex items-center justify-between gap-3 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-[#202B38] truncate">{rep.title}</div>
+                    <div className="text-[11px] text-[#697586]">
+                      {rep.reportType} &bull; {new Date(rep.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-[#29465F] shrink-0" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="lg:col-span-4 bg-[#FFFFFF] border border-[#E8EBEF] p-6 space-y-3">
+          <div className="flex items-center gap-2 border-b border-[#E8EBEF] pb-3">
+            <User className="h-4 w-4 text-[#29465F]" />
+            <h2 className="text-sm font-bold text-[#202B38]">Profile &amp; Account</h2>
+          </div>
+          <p className="text-xs text-[#697586] leading-relaxed">
+            Manage your profile information, password &amp; passkey security, and notification preferences.
+          </p>
+          <div className="flex flex-col gap-2 pt-1">
+            <Link
+              href="/dashboard/profile"
+              className="px-3 py-2 bg-[#F7F8FA] hover:bg-[#F3F5F7] border border-[#E8EBEF] text-xs font-semibold text-[#202B38] flex items-center justify-between"
+            >
+              <span>Profile Settings</span>
+              <ArrowUpRight className="h-3.5 w-3.5 text-[#29465F]" />
+            </Link>
+            <Link
+              href="/dashboard/security"
+              className="px-3 py-2 bg-[#F7F8FA] hover:bg-[#F3F5F7] border border-[#E8EBEF] text-xs font-semibold text-[#202B38] flex items-center justify-between"
+            >
+              <span>Security &amp; Access</span>
+              <ArrowUpRight className="h-3.5 w-3.5 text-[#29465F]" />
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   );

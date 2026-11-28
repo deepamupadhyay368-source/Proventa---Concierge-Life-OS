@@ -24,86 +24,86 @@ export default function SecuritySettingsPage() {
 
   return (
     <div className="space-y-8 max-w-2xl pb-12">
-      <div className="border-b border-[#C8C4BA] pb-4">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
+      <div className="border-b border-[#E8EBEF] pb-4">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#29465F] font-bold">
           Account Security
         </span>
-        <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
+        <h1 className="font-editorial text-2xl font-normal text-[#202B38]">
           Security & Access Controls
         </h1>
-        <p className="text-xs text-[#69717B] mt-1">
+        <p className="text-xs text-[#697586] mt-1">
           Manage your credentials, session authorizations, and privacy data rights.
         </p>
       </div>
 
       {/* Change Password Form */}
-      <form onSubmit={handlePasswordChange} className="bg-white border border-[#C8C4BA] p-6 space-y-4 text-xs">
-        <h2 className="font-editorial text-lg font-normal text-[#202B3C] border-b border-[#C8C4BA]/50 pb-2">
+      <form onSubmit={handlePasswordChange} className="bg-white border border-[#E8EBEF] p-6 space-y-4 text-xs">
+        <h2 className="font-editorial text-lg font-normal text-[#202B38] border-b border-[#E8EBEF]/50 pb-2">
           Change Account Password
         </h2>
 
         {status && (
-          <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA] text-[#202B3C] font-medium">
+          <div className="p-3 bg-[#F7F8FA] border border-[#E8EBEF] text-[#202B38] font-medium">
             {status}
           </div>
         )}
 
         <div>
-          <label className="block font-semibold text-[#202B3C] mb-1">Current Password</label>
+          <label className="block font-semibold text-[#202B38] mb-1">Current Password</label>
           <input
             type="password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             required
-            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
           />
         </div>
 
         <div>
-          <label className="block font-semibold text-[#202B3C] mb-1">New Password (Min. 8 characters)</label>
+          <label className="block font-semibold text-[#202B38] mb-1">New Password (Min. 8 characters)</label>
           <input
             type="password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
           />
         </div>
 
         <div>
-          <label className="block font-semibold text-[#202B3C] mb-1">Confirm New Password</label>
+          <label className="block font-semibold text-[#202B38] mb-1">Confirm New Password</label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             minLength={8}
-            className="w-full h-10 px-3 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+            className="w-full h-10 px-3 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
           />
         </div>
 
         <button
           type="submit"
-          className="h-10 px-5 bg-[#202B3C] text-white font-bold uppercase tracking-wider text-xs hover:bg-[#202B3C]/90"
+          className="h-10 px-5 bg-[#29465F] text-white font-bold uppercase tracking-wider text-xs hover:bg-[#29465F]/90"
         >
           Update Password
         </button>
       </form>
 
       {/* Data Protection & Privacy Rights (DPDPA 2023) */}
-      <div className="bg-white border border-[#C8C4BA] p-6 space-y-4 text-xs">
-        <h2 className="font-editorial text-lg font-normal text-[#202B3C] border-b border-[#C8C4BA]/50 pb-2">
+      <div className="bg-white border border-[#E8EBEF] p-6 space-y-4 text-xs">
+        <h2 className="font-editorial text-lg font-normal text-[#202B38] border-b border-[#E8EBEF]/50 pb-2">
           Data Principal Rights (DPDPA 2023)
         </h2>
-        <p className="text-[#69717B] leading-relaxed">
+        <p className="text-[#697586] leading-relaxed">
           You hold the statutory right to export your complete Personal Property Vault dossier and transaction history, or to request the irrevocable erasure of your account.
         </p>
 
         <div className="flex flex-wrap gap-3 pt-2">
           <button
             onClick={() => alert('Dossier archive requested. An encrypted ZIP export will be generated and emailed within 15 minutes.')}
-            className="h-10 px-4 bg-white border border-[#202B3C] text-[#202B3C] font-bold uppercase tracking-wider text-xs flex items-center gap-2 hover:bg-[#F5F3ED]"
+            className="h-10 px-4 bg-white border border-[#202B3C] text-[#202B38] font-bold uppercase tracking-wider text-xs flex items-center gap-2 hover:bg-[#F7F8FA]"
           >
             <Download className="h-3.5 w-3.5" />
             <span>Export Personal Data Dossier</span>

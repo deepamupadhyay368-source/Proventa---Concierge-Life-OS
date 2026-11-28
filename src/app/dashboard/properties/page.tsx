@@ -44,29 +44,29 @@ export default function MyPropertiesPage() {
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8EBEF] pb-4">
         <div>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#29465F] font-bold">
             Asset Registry
           </span>
-          <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
+          <h1 className="font-editorial text-2xl font-normal text-[#202B38]">
             My Tracked Real Estate Portfolio
           </h1>
         </div>
 
         <Link
           href="/dashboard/property-vault?action=new"
-          className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
+          className="h-10 px-4 bg-[#29465F] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#29465F]/90"
         >
           <Plus className="h-3.5 w-3.5" />
           <span>Add Property</span>
         </Link>
       </div>
 
-      <div className="bg-white border border-[#C8C4BA] overflow-hidden">
+      <div className="bg-white border border-[#E8EBEF] overflow-hidden">
         <table className="w-full text-left text-xs border-collapse">
           <thead>
-            <tr className="bg-[#F5F3ED] border-b border-[#C8C4BA] text-[#202B3C]">
+            <tr className="bg-[#F7F8FA] border-b border-[#E8EBEF] text-[#202B38]">
               <th className="p-3.5 font-bold uppercase tracking-wider">Property & Project</th>
               <th className="p-3.5 font-bold uppercase tracking-wider">Locality</th>
               <th className="p-3.5 font-bold uppercase tracking-wider font-mono">Carpet Area</th>
@@ -77,19 +77,19 @@ export default function MyPropertiesPage() {
           </thead>
           <tbody className="divide-y divide-[#C8C4BA]/50">
             {properties.map((p) => (
-              <tr key={p.id} className="hover:bg-[#F5F3ED]/40 transition-colors">
+              <tr key={p.id} className="hover:bg-[#F7F8FA]/40 transition-colors">
                 <td className="p-3.5">
-                  <div className="font-bold text-[#202B3C]">{p.title}</div>
-                  <div className="text-[11px] text-[#69717B]">{p.project}</div>
+                  <div className="font-bold text-[#202B38]">{p.title}</div>
+                  <div className="text-[11px] text-[#697586]">{p.project}</div>
                 </td>
-                <td className="p-3.5 text-[#69717B]">{p.locality}</td>
-                <td className="p-3.5 font-mono text-[#202B3C] tabular-nums">{p.carpetAreaSqFt} sq ft</td>
-                <td className="p-3.5 font-mono font-bold text-[#547568] tabular-nums">₹{p.estimatedValueLakhs} L</td>
-                <td className="p-3.5 font-mono text-[#202B3C] tabular-nums">₹{p.purchasePriceLakhs} L</td>
+                <td className="p-3.5 text-[#697586]">{p.locality}</td>
+                <td className="p-3.5 font-mono text-[#202B38] tabular-nums">{p.carpetAreaSqFt} sq ft</td>
+                <td className="p-3.5 font-mono font-bold text-[#29465F] tabular-nums">₹{p.estimatedValueLakhs} L</td>
+                <td className="p-3.5 font-mono text-[#202B38] tabular-nums">₹{p.purchasePriceLakhs} L</td>
                 <td className="p-3.5 text-right space-x-2">
                   <Link
                     href={`/dashboard/property-vault?id=${p.id}`}
-                    className="inline-flex items-center gap-1 h-8 px-3 bg-[#202B3C] text-white text-[11px] font-bold uppercase tracking-wider hover:bg-[#202B3C]/90"
+                    className="inline-flex items-center gap-1 h-8 px-3 bg-[#29465F] text-white text-[11px] font-bold uppercase tracking-wider hover:bg-[#29465F]/90"
                   >
                     <span>Vault</span>
                     <ArrowUpRight className="h-3 w-3" />

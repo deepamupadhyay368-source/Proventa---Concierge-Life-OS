@@ -35,14 +35,14 @@ export default function MarketAlertsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="border-b border-[#C8C4BA] pb-4">
-        <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
+      <div className="border-b border-[#E8EBEF] pb-4">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#29465F] font-bold">
           Notifications Desk
         </span>
-        <h1 className="font-editorial text-2xl font-normal text-[#202B3C]">
+        <h1 className="font-editorial text-2xl font-normal text-[#202B38]">
           Property & Market Alerts
         </h1>
-        <p className="text-xs text-[#69717B] mt-1">
+        <p className="text-xs text-[#697586] mt-1">
           Automated regulatory, pricing, and infrastructure notices for your tracked assets.
         </p>
       </div>
@@ -52,24 +52,24 @@ export default function MarketAlertsPage() {
           <div
             key={alt.id}
             className={`p-5 bg-white border transition-colors ${
-              !alt.read ? 'border-[#202B3C]' : 'border-[#C8C4BA]'
+              !alt.read ? 'border-[#202B3C]' : 'border-[#E8EBEF]'
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-mono px-2 py-0.5 bg-[#547568]/10 text-[#547568] font-bold">
+                  <span className="text-[10px] font-mono px-2 py-0.5 bg-[#29465F]/10 text-[#29465F] font-bold">
                     {alt.type}
                   </span>
-                  <span className="text-xs font-mono text-[#69717B] tabular-nums">{alt.date}</span>
-                  <span className="text-xs font-mono text-[#202B3C]">• {alt.locality}</span>
+                  <span className="text-xs font-mono text-[#697586] tabular-nums">{alt.date}</span>
+                  <span className="text-xs font-mono text-[#202B38]">• {alt.locality}</span>
                 </div>
-                <h3 className="font-editorial text-lg font-normal text-[#202B3C]">{alt.title}</h3>
-                <p className="text-xs text-[#69717B] leading-relaxed max-w-2xl">{alt.summary}</p>
+                <h3 className="font-editorial text-lg font-normal text-[#202B38]">{alt.title}</h3>
+                <p className="text-xs text-[#697586] leading-relaxed max-w-2xl">{alt.summary}</p>
               </div>
 
               {!alt.read && (
-                <span className="h-2 w-2 rounded-full bg-[#547568] shrink-0 mt-1" />
+                <span className="h-2 w-2 rounded-full bg-[#29465F] shrink-0 mt-1" />
               )}
             </div>
           </div>

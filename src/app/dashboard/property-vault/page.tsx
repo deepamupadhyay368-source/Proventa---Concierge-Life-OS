@@ -250,10 +250,10 @@ export default function PropertyVaultPage() {
       </div>
 
       {/* Page Title & Action Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#C8C4BA] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E8EBEF] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#547568] font-bold">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#29465F] font-bold">
               Personal Property Vault
             </span>
             <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-800 border border-amber-300 font-bold flex items-center gap-1 font-mono">
@@ -261,7 +261,7 @@ export default function PropertyVaultPage() {
               <span>Prototype Session (In-Memory)</span>
             </span>
           </div>
-          <h1 className="font-editorial text-2xl md:text-3xl font-normal text-[#202B3C] mt-1">
+          <h1 className="font-editorial text-2xl md:text-3xl font-normal text-[#202B38] mt-1">
             Personal Property Vault
           </h1>
         </div>
@@ -269,7 +269,7 @@ export default function PropertyVaultPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowAddModal(true)}
-            className="h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#202B3C]/90"
+            className="h-10 px-4 bg-[#29465F] text-white text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 hover:bg-[#29465F]/90"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Add Property Asset</span>
@@ -278,20 +278,20 @@ export default function PropertyVaultPage() {
       </div>
 
       {/* Property Selector Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-[#C8C4BA]">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-[#E8EBEF]">
         {properties.map((p) => (
           <button
             key={p.id}
             onClick={() => setActivePropertyId(p.id)}
             className={`px-4 py-2 text-xs font-semibold transition-colors flex items-center gap-2 whitespace-nowrap border-b-2 ${
               activePropertyId === p.id
-                ? 'border-[#202B3C] text-[#202B3C] bg-white'
-                : 'border-transparent text-[#69717B] hover:text-[#202B3C]'
+                ? 'border-[#202B3C] text-[#202B38] bg-white'
+                : 'border-transparent text-[#697586] hover:text-[#202B38]'
             }`}
           >
-            <Building className="h-3.5 w-3.5 text-[#547568]" />
+            <Building className="h-3.5 w-3.5 text-[#29465F]" />
             <span>{p.name}</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.2 bg-[#F5F3ED] text-[#69717B]">
+            <span className="text-[10px] font-mono px-1.5 py-0.2 bg-[#F7F8FA] text-[#697586]">
               {p.documents.length} docs
             </span>
           </button>
@@ -302,31 +302,31 @@ export default function PropertyVaultPage() {
       {activeProperty && (
         <div className="space-y-8">
           {/* Top Summary Banner */}
-          <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#C8C4BA]/50 pb-4">
+          <div className="bg-white border border-[#E8EBEF] p-6 space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E8EBEF]/50 pb-4">
               <div>
-                <span className="text-[11px] font-mono text-[#547568] font-bold uppercase">
+                <span className="text-[11px] font-mono text-[#29465F] font-bold uppercase">
                   {activeProperty.propertyType}
                 </span>
-                <h2 className="font-editorial text-2xl font-normal text-[#202B3C]">
+                <h2 className="font-editorial text-2xl font-normal text-[#202B38]">
                   {activeProperty.name}
                 </h2>
-                <p className="text-xs text-[#69717B] flex items-center gap-1 mt-0.5">
-                  <MapPin className="h-3.5 w-3.5 text-[#547568]" />
+                <p className="text-xs text-[#697586] flex items-center gap-1 mt-0.5">
+                  <MapPin className="h-3.5 w-3.5 text-[#29465F]" />
                   <span>{activeProperty.address}</span>
                 </p>
               </div>
 
               <div className="flex items-center gap-3 font-mono">
-                <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 text-right">
-                  <span className="text-[10px] text-[#69717B] block uppercase">Current Valuation</span>
-                  <span className="text-lg font-bold text-[#202B3C]">
+                <div className="p-3 bg-[#F7F8FA] border border-[#E8EBEF]/40 text-right">
+                  <span className="text-[10px] text-[#697586] block uppercase">Current Valuation</span>
+                  <span className="text-lg font-bold text-[#202B38]">
                     ₹{activeProperty.currentEstimatedValueLakhs} Lakhs
                   </span>
                 </div>
-                <div className="p-3 bg-[#547568]/10 border border-[#547568]/20 text-right">
-                  <span className="text-[10px] text-[#547568] block uppercase">Unrealized Gain</span>
-                  <span className="text-lg font-bold text-[#547568]">
+                <div className="p-3 bg-[#29465F]/10 border border-[#547568]/20 text-right">
+                  <span className="text-[10px] text-[#29465F] block uppercase">Unrealized Gain</span>
+                  <span className="text-lg font-bold text-[#29465F]">
                     +₹{(activeProperty.currentEstimatedValueLakhs - activeProperty.purchasePriceLakhs).toFixed(1)} L
                   </span>
                 </div>
@@ -335,56 +335,56 @@ export default function PropertyVaultPage() {
 
             {/* Financial & Physical Attribute Matrix */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-xs font-mono">
-              <div className="p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40">
-                <span className="text-[10px] text-[#69717B] block">Usable Carpet</span>
-                <span className="font-bold text-[#202B3C]">{activeProperty.carpetAreaSqFt} sq ft</span>
+              <div className="p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40">
+                <span className="text-[10px] text-[#697586] block">Usable Carpet</span>
+                <span className="font-bold text-[#202B38]">{activeProperty.carpetAreaSqFt} sq ft</span>
               </div>
-              <div className="p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40">
-                <span className="text-[10px] text-[#69717B] block">Purchase Price</span>
-                <span className="text-[#202B3C]">₹{activeProperty.purchasePriceLakhs} L ({activeProperty.purchaseDate})</span>
+              <div className="p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40">
+                <span className="text-[10px] text-[#697586] block">Purchase Price</span>
+                <span className="text-[#202B38]">₹{activeProperty.purchasePriceLakhs} L ({activeProperty.purchaseDate})</span>
               </div>
-              <div className="p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40">
-                <span className="text-[10px] text-[#69717B] block">Stamp & Reg. Duty</span>
-                <span className="text-[#202B3C]">₹{activeProperty.registrationCostLakhs} Lakhs</span>
+              <div className="p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40">
+                <span className="text-[10px] text-[#697586] block">Stamp & Reg. Duty</span>
+                <span className="text-[#202B38]">₹{activeProperty.registrationCostLakhs} Lakhs</span>
               </div>
-              <div className="p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40">
-                <span className="text-[10px] text-[#69717B] block">Renovation Spent</span>
-                <span className="text-[#202B3C]">₹{activeProperty.renovationCostLakhs} Lakhs</span>
+              <div className="p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40">
+                <span className="text-[10px] text-[#697586] block">Renovation Spent</span>
+                <span className="text-[#202B38]">₹{activeProperty.renovationCostLakhs} Lakhs</span>
               </div>
-              <div className="p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40">
-                <span className="text-[10px] text-[#69717B] block">Monthly Rent</span>
-                <span className="text-[#202B3C]">₹{activeProperty.monthlyRentalIncome.toLocaleString('en-IN')}/mo</span>
+              <div className="p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40">
+                <span className="text-[10px] text-[#697586] block">Monthly Rent</span>
+                <span className="text-[#202B38]">₹{activeProperty.monthlyRentalIncome.toLocaleString('en-IN')}/mo</span>
               </div>
-              <div className="p-2.5 bg-[#F5F3ED] border border-[#C8C4BA]/40">
-                <span className="text-[10px] text-[#69717B] block">Loan Outstanding</span>
-                <span className="text-[#202B3C]">
+              <div className="p-2.5 bg-[#F7F8FA] border border-[#E8EBEF]/40">
+                <span className="text-[10px] text-[#697586] block">Loan Outstanding</span>
+                <span className="text-[#202B38]">
                   {activeProperty.loanOutstandingLakhs > 0 ? `₹${activeProperty.loanOutstandingLakhs} L` : 'Debt Free'}
                 </span>
               </div>
             </div>
 
             {activeProperty.notes && (
-              <div className="p-3 bg-[#F5F3ED] border border-[#C8C4BA]/40 text-xs text-[#69717B]">
-                <strong className="text-[#202B3C]">Private Owner Notes:</strong> {activeProperty.notes}
+              <div className="p-3 bg-[#F7F8FA] border border-[#E8EBEF]/40 text-xs text-[#697586]">
+                <strong className="text-[#202B38]">Private Owner Notes:</strong> {activeProperty.notes}
               </div>
             )}
           </div>
 
           {/* Secure Document Locker Section */}
-          <div className="bg-white border border-[#C8C4BA] p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#C8C4BA]/50 pb-3">
+          <div className="bg-white border border-[#E8EBEF] p-6 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E8EBEF]/50 pb-3">
               <div>
-                <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
+                <h3 className="font-editorial text-xl font-normal text-[#202B38]">
                   Stored Legal & Financial Records
                 </h3>
-                <p className="text-xs text-[#69717B]">
+                <p className="text-xs text-[#697586]">
                   Encrypted deeds, tax receipts, allotment certificates, and municipal documents.
                 </p>
               </div>
 
               <button
                 onClick={() => setShowUploadModal(true)}
-                className="px-3 py-1.5 bg-[#202B3C] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#202B3C]/90 shadow-xs"
+                className="px-3 py-1.5 bg-[#29465F] text-white text-xs font-semibold flex items-center gap-1.5 hover:bg-[#29465F]/90 shadow-xs"
               >
                 <Upload className="h-3.5 w-3.5" />
                 <span>Upload Document</span>
@@ -392,12 +392,12 @@ export default function PropertyVaultPage() {
             </div>
 
             {activeProperty.documents.length === 0 ? (
-              <div className="p-8 text-center text-xs text-[#69717B] border border-dashed border-[#C8C4BA] space-y-2">
+              <div className="p-8 text-center text-xs text-[#697586] border border-dashed border-[#E8EBEF] space-y-2">
                 <FolderOpen className="h-8 w-8 mx-auto text-[#C8C4BA]" />
                 <p>No legal records uploaded for this asset yet.</p>
                 <button
                   onClick={() => setShowUploadModal(true)}
-                  className="font-bold text-[#547568] hover:underline"
+                  className="font-bold text-[#29465F] hover:underline"
                 >
                   Upload your first sale deed or tax receipt →
                 </button>
@@ -407,19 +407,19 @@ export default function PropertyVaultPage() {
                 {activeProperty.documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F5F3ED]/40 px-2 transition-colors"
+                    className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#F7F8FA]/40 px-2 transition-colors"
                   >
                     <div className="flex items-start gap-3">
-                      <FileText className="h-5 w-5 text-[#547568] shrink-0 mt-0.5" />
+                      <FileText className="h-5 w-5 text-[#29465F] shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-xs font-bold text-[#202B3C]">{doc.name}</p>
-                        <div className="flex items-center gap-2 text-[10px] font-mono text-[#69717B] mt-0.5">
-                          <span className="px-1.5 py-0.2 bg-[#F5F3ED] border border-[#C8C4BA]">
+                        <p className="text-xs font-bold text-[#202B38]">{doc.name}</p>
+                        <div className="flex items-center gap-2 text-[10px] font-mono text-[#697586] mt-0.5">
+                          <span className="px-1.5 py-0.2 bg-[#F7F8FA] border border-[#E8EBEF]">
                             {doc.category.replace('_', ' ')}
                           </span>
                           <span>Uploaded: {doc.uploadedDate}</span>
                           <span>{doc.fileSize}</span>
-                          <span className="text-[#547568] font-bold">Encrypted</span>
+                          <span className="text-[#29465F] font-bold">Encrypted</span>
                         </div>
                       </div>
                     </div>
@@ -427,10 +427,10 @@ export default function PropertyVaultPage() {
                     <div className="flex items-center gap-2 self-end sm:self-center">
                       <button
                         onClick={() => alert(`Downloading verified encrypted copy: ${doc.name}`)}
-                        className="p-1.5 text-[#202B3C] hover:bg-[#F5F3ED] border border-[#C8C4BA] text-xs flex items-center gap-1"
+                        className="p-1.5 text-[#202B38] hover:bg-[#F7F8FA] border border-[#E8EBEF] text-xs flex items-center gap-1"
                         title="Download Document"
                       >
-                        <Download className="h-3.5 w-3.5 text-[#547568]" />
+                        <Download className="h-3.5 w-3.5 text-[#29465F]" />
                         <span className="text-[11px]">Download</span>
                       </button>
                       <button
@@ -453,8 +453,8 @@ export default function PropertyVaultPage() {
       {showAddModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#202B3C] max-w-lg w-full p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-[#C8C4BA] pb-3">
-              <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
+            <div className="flex justify-between items-center border-b border-[#E8EBEF] pb-3">
+              <h3 className="font-editorial text-xl font-normal text-[#202B38]">
                 Add Asset to Personal Property Vault
               </h3>
               <button onClick={() => setShowAddModal(false)} className="text-sm font-bold">
@@ -464,7 +464,7 @@ export default function PropertyVaultPage() {
 
             <form onSubmit={handleAddProperty} className="space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">
+                <label className="block font-semibold text-[#202B38] mb-1">
                   Property Asset Nickname
                 </label>
                 <input
@@ -473,17 +473,17 @@ export default function PropertyVaultPage() {
                   value={newProp.name}
                   onChange={(e) => setNewProp({ ...newProp, name: e.target.value })}
                   required
-                  className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                  className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#202B3C] mb-1">Locality</label>
+                  <label className="block font-semibold text-[#202B38] mb-1">Locality</label>
                   <select
                     value={newProp.locality}
                     onChange={(e) => setNewProp({ ...newProp, locality: e.target.value })}
-                    className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                    className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                   >
                     <option value="Shela, Ahmedabad">Shela</option>
                     <option value="South Bopal, Ahmedabad">South Bopal</option>
@@ -494,62 +494,62 @@ export default function PropertyVaultPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#202B3C] mb-1">Project / Society</label>
+                  <label className="block font-semibold text-[#202B38] mb-1">Project / Society</label>
                   <input
                     type="text"
                     placeholder="e.g. Shilp Revanta"
                     value={newProp.project}
                     onChange={(e) => setNewProp({ ...newProp, project: e.target.value })}
-                    className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                    className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#202B3C] mb-1">Usable Carpet Area (Sq Ft)</label>
+                  <label className="block font-semibold text-[#202B38] mb-1">Usable Carpet Area (Sq Ft)</label>
                   <input
                     type="number"
                     value={newProp.carpetAreaSqFt}
                     onChange={(e) => setNewProp({ ...newProp, carpetAreaSqFt: Number(e.target.value) })}
                     required
-                    className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                    className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#202B3C] mb-1">Acquisition Price (₹ Lakhs)</label>
+                  <label className="block font-semibold text-[#202B38] mb-1">Acquisition Price (₹ Lakhs)</label>
                   <input
                     type="number"
                     value={newProp.purchasePriceLakhs}
                     onChange={(e) => setNewProp({ ...newProp, purchasePriceLakhs: Number(e.target.value) })}
                     required
-                    className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                    className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">Private Notes</label>
+                <label className="block font-semibold text-[#202B38] mb-1">Private Notes</label>
                 <textarea
                   placeholder="Registry number, parking slot, loan details..."
                   rows={2}
                   value={newProp.notes}
                   onChange={(e) => setNewProp({ ...newProp, notes: e.target.value })}
-                  className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                  className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                 />
               </div>
 
               <div className="pt-2 flex gap-3">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-[#202B3C] text-white font-semibold text-xs hover:bg-[#202B3C]/90"
+                  className="flex-1 py-2.5 bg-[#29465F] text-white font-semibold text-xs hover:bg-[#29465F]/90"
                 >
                   Save Asset in Vault
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2.5 bg-white border border-[#C8C4BA] text-[#202B3C] font-semibold text-xs hover:bg-[#F5F3ED]"
+                  className="px-4 py-2.5 bg-white border border-[#E8EBEF] text-[#202B38] font-semibold text-xs hover:bg-[#F7F8FA]"
                 >
                   Cancel
                 </button>
@@ -563,8 +563,8 @@ export default function PropertyVaultPage() {
       {showUploadModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-[#202B3C] max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b border-[#C8C4BA] pb-3">
-              <h3 className="font-editorial text-xl font-normal text-[#202B3C]">
+            <div className="flex justify-between items-center border-b border-[#E8EBEF] pb-3">
+              <h3 className="font-editorial text-xl font-normal text-[#202B38]">
                 Upload Encrypted Record
               </h3>
               <button onClick={() => setShowUploadModal(false)} className="text-sm font-bold">
@@ -574,13 +574,13 @@ export default function PropertyVaultPage() {
 
             <form onSubmit={handleUploadDocument} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">
+                <label className="block font-semibold text-[#202B38] mb-1">
                   Document Category
                 </label>
                 <select
                   value={uploadCategory}
                   onChange={(e) => setUploadCategory(e.target.value as VaultDocument['category'])}
-                  className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                  className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                 >
                   <option value="SALE_DEED">Sale Deed / Sub-Registrar Conveyance</option>
                   <option value="TAX_RECEIPT">AUDA / AMC Municipal Property Tax Receipt</option>
@@ -592,7 +592,7 @@ export default function PropertyVaultPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-[#202B3C] mb-1">
+                <label className="block font-semibold text-[#202B38] mb-1">
                   Document Name / Title
                 </label>
                 <input
@@ -601,27 +601,27 @@ export default function PropertyVaultPage() {
                   value={uploadFileName}
                   onChange={(e) => setUploadFileName(e.target.value)}
                   required
-                  className="w-full p-2 border border-[#C8C4BA] bg-white text-[#202B3C] focus:outline-hidden"
+                  className="w-full p-2 border border-[#E8EBEF] bg-white text-[#202B38] focus:outline-hidden"
                 />
               </div>
 
-              <div className="p-4 border border-dashed border-[#C8C4BA] text-center space-y-1 bg-[#F5F3ED]">
-                <Upload className="h-6 w-6 mx-auto text-[#547568]" />
-                <p className="font-semibold text-[#202B3C]">Simulated Encrypted Upload</p>
-                <p className="text-[10px] text-[#69717B]">Supports PDF, PNG, JPEG up to 25 MB</p>
+              <div className="p-4 border border-dashed border-[#E8EBEF] text-center space-y-1 bg-[#F7F8FA]">
+                <Upload className="h-6 w-6 mx-auto text-[#29465F]" />
+                <p className="font-semibold text-[#202B38]">Simulated Encrypted Upload</p>
+                <p className="text-[10px] text-[#697586]">Supports PDF, PNG, JPEG up to 25 MB</p>
               </div>
 
               <div className="pt-2 flex gap-3">
                 <button
                   type="submit"
-                  className="flex-1 py-2.5 bg-[#202B3C] text-white font-semibold text-xs hover:bg-[#202B3C]/90"
+                  className="flex-1 py-2.5 bg-[#29465F] text-white font-semibold text-xs hover:bg-[#29465F]/90"
                 >
                   Store Document
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowUploadModal(false)}
-                  className="px-4 py-2.5 bg-white border border-[#C8C4BA] text-[#202B3C] font-semibold text-xs hover:bg-[#F5F3ED]"
+                  className="px-4 py-2.5 bg-white border border-[#E8EBEF] text-[#202B38] font-semibold text-xs hover:bg-[#F7F8FA]"
                 >
                   Cancel
                 </button>

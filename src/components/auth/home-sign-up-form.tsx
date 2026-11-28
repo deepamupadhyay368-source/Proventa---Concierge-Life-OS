@@ -99,10 +99,10 @@ export function HomeSignUpForm({ callbackUrl }: { callbackUrl?: string }) {
         type="button"
         onClick={handleGoogleSignIn}
         disabled={oauthLoading || loading}
-        className="w-full h-10 flex items-center justify-center gap-3 px-4 border border-[#C8C4BA] bg-white hover:bg-[#F5F3ED] text-xs font-bold uppercase tracking-wider text-[#202B3C] transition-colors disabled:opacity-60"
+        className="w-full h-10 flex items-center justify-center gap-3 px-4 border border-[#E8EBEF] bg-white hover:bg-[#F7F8FA] text-xs font-bold uppercase tracking-wider text-[#202B38] transition-colors disabled:opacity-60"
       >
         {oauthLoading ? (
-          <Loader2 className="h-4 w-4 animate-spin text-[#202B3C]" />
+          <Loader2 className="h-4 w-4 animate-spin text-[#202B38]" />
         ) : (
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path
@@ -128,71 +128,71 @@ export function HomeSignUpForm({ callbackUrl }: { callbackUrl?: string }) {
 
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-[#C8C4BA]/50" />
+          <div className="w-full border-t border-[#E8EBEF]/50" />
         </div>
         <div className="relative flex justify-center text-[10px] uppercase font-mono tracking-wider">
-          <span className="bg-white px-2 text-[#69717B]">Or sign up with details</span>
+          <span className="bg-white px-2 text-[#697586]">Or sign up with details</span>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <div>
-          <label className="block text-xs font-semibold text-[#202B3C] mb-1">
+          <label className="block text-xs font-semibold text-[#202B38] mb-1">
             Full Name
           </label>
           <div className="relative">
-            <User className="absolute left-3 top-3 h-4 w-4 text-[#69717B]" />
+            <User className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               placeholder="e.g. Rajiv Mehta"
               required
-              className="w-full h-10 pl-9 pr-3 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-[#202B3C] mb-1">
+          <label className="block text-xs font-semibold text-[#202B38] mb-1">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="absolute left-3 top-3 h-4 w-4 text-[#69717B]" />
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@domain.com"
               required
-              className="w-full h-10 pl-9 pr-3 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-[#202B3C] mb-1">
+          <label className="block text-xs font-semibold text-[#202B38] mb-1">
             Mobile Number
           </label>
           <div className="relative">
-            <Phone className="absolute left-3 top-3 h-4 w-4 text-[#69717B]" />
+            <Phone className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
             <input
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+91 98765 43210"
               required
-              className="w-full h-10 pl-9 pr-3 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-[#202B3C] mb-1">
+          <label className="block text-xs font-semibold text-[#202B38] mb-1">
             Password (Min. 8 characters)
           </label>
           <div className="relative">
-            <Lock className="absolute left-3 top-3 h-4 w-4 text-[#69717B]" />
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-[#697586]" />
             <input
               type="password"
               value={password}
@@ -200,7 +200,7 @@ export function HomeSignUpForm({ callbackUrl }: { callbackUrl?: string }) {
               placeholder="••••••••"
               required
               minLength={8}
-              className="w-full h-10 pl-9 pr-3 bg-white border border-[#C8C4BA] text-xs text-[#202B3C] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
+              className="w-full h-10 pl-9 pr-3 bg-white border border-[#E8EBEF] text-xs text-[#202B38] placeholder-[#69717B] focus:outline-hidden focus:border-[#202B3C]"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export function HomeSignUpForm({ callbackUrl }: { callbackUrl?: string }) {
         <button
           type="submit"
           disabled={loading || oauthLoading}
-          className="w-full h-10 px-4 bg-[#202B3C] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#202B3C]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+          className="w-full h-10 px-4 bg-[#29465F] text-white text-xs font-bold uppercase tracking-wider hover:bg-[#29465F]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />

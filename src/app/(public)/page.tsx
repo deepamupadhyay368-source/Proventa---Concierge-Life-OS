@@ -8,275 +8,320 @@ import {
   TrendingUp,
   Calculator,
   FolderLock,
-  ShieldCheck,
-  Database,
   FileText,
-  Layers,
+  ShieldCheck,
 } from 'lucide-react';
+import { CorporateMarketSnapshot } from '@/components/real-estate/CorporateMarketSnapshot';
 
-const AHMEDABAD_CORRIDORS = [
-  'Bopal',
-  'South Bopal',
-  'Gota',
-  'Science City',
-  'Thaltej',
-  'Bodakdev',
-  'Satellite',
-  'Prahlad Nagar',
-  'SG Highway',
-  'Shela',
-  'Sanand',
-  'Changodar',
-  'GIFT City',
-];
-
-const FIVE_LAYERS = [
+const INTELLIGENCE_CATEGORIES = [
   {
-    code: 'LAYER 01',
-    title: 'Living Property Registry',
+    title: 'Property Intelligence',
     href: '/property-intelligence',
-    icon: Database,
-    desc: 'Permanent PROVENTA Property IDs across Land → Project → Building → Unit → Property with source provenance, duplicate detection, and verification workflows.',
+    icon: Building2,
+    description:
+      'Permanent PROVENTA Property IDs linking land, project, building, and unit records with transparent source provenance and verification history.',
   },
   {
-    code: 'LAYER 02',
-    title: 'Market & Location Intelligence',
+    title: 'Market Intelligence',
     href: '/market-intelligence',
     icon: TrendingUp,
-    desc: 'Sourced locality price benchmarks, rental yields, infrastructure status (Operational vs Under Construction vs Proposed), and side-by-side corridor comparisons.',
+    description:
+      'Verified locality price benchmarks, rental yields, reporting periods, and side-by-side micro-market comparisons across Ahmedabad and Gandhinagar.',
   },
   {
-    code: 'LAYER 03',
-    title: 'Project & RERA Intelligence',
-    href: '/project-intelligence',
-    icon: Building2,
-    desc: 'Structured Gujarat RERA project profiles, developer records, construction milestones, and multi-project side-by-side comparison.',
+    title: 'Location Intelligence',
+    href: '/location-intelligence',
+    icon: MapPin,
+    description:
+      'Structured corridor dossiers detailing operational, under-construction, and proposed civic infrastructure without speculative claims.',
   },
-  {
-    code: 'LAYER 04',
-    title: 'Investment & Valuation Intelligence',
-    href: '/investment-intelligence',
-    icon: Calculator,
-    desc: '12-factor carpet-area valuation engine plus institutional IRR, net yield, equity multiple, sensitivity matrices, and Conservative/Base/Optimistic scenarios.',
-  },
-  {
-    code: 'LAYER 05',
-    title: 'Property OS — Digital Passport',
-    href: '/property-os',
-    icon: FolderLock,
-    desc: 'Strictly private owner portfolio management: property profiles, leases, tenants, expenses, maintenance logs, encrypted document vault, and lifecycle timelines.',
-  },
+];
+
+const TRACKED_LOCATIONS = [
+  { name: 'SG Highway', city: 'Ahmedabad', profile: 'Commercial & Mixed-Use Corridor' },
+  { name: 'Bodakdev', city: 'Ahmedabad', profile: 'Prime West Residential' },
+  { name: 'Thaltej', city: 'Ahmedabad', profile: 'Metro Terminus & Residential Hub' },
+  { name: 'Science City', city: 'Ahmedabad', profile: 'North-West Growth Belt' },
+  { name: 'Prahlad Nagar', city: 'Ahmedabad', profile: 'Grade-A Commercial & Residential' },
+  { name: 'Bopal & South Bopal', city: 'Ahmedabad', profile: 'SP Ring Road Residential Belt' },
+  { name: 'Shela', city: 'Ahmedabad', profile: 'South-West Residential Expansion' },
+  { name: 'GIFT City', city: 'Gandhinagar', profile: 'IFSC Financial & Institutional Hub' },
+  { name: 'Sanand & Changodar', city: 'Ahmedabad', profile: 'Industrial & Logistics Axis' },
 ];
 
 export default function RealEstateIntelligenceHomePage() {
   return (
-    <div className="font-sans text-[#0F172A]">
-      {/* 1. DARK INFRASTRUCTURE INSTITUTIONAL HERO */}
-      <section className="bg-[#0F172A] text-white border-b border-[#1E293B]">
+    <div className="font-sans bg-[#FFFFFF] text-[#202B38]">
+      {/* SECTION 2 — HERO (PURE WHITE CORPORATE + DAYTIME COMMERCIAL ARCHITECTURE) */}
+      <section className="bg-[#FFFFFF] border-b border-[#E8EBEF]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2.5 border border-[#0D9488]/50 bg-[#1E293B] px-3 py-1.5 rounded-xs">
-                <span className="w-2 h-2 bg-[#2DD4BF]" />
-                <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#2DD4BF]">
-                  Real Estate Intelligence Infrastructure &bull; Ahmedabad &amp; Gandhinagar
-                </span>
-              </div>
-
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.06] text-white">
-                Know Every Property.<br />
-                Understand Every Market.
-              </h1>
-
-              <p className="text-base sm:text-lg text-[#94A3B8] max-w-2xl leading-relaxed">
-                PROVENTA is not a property listing portal or broker directory. It is an institutional real estate intelligence terminal uniting permanent property records, sourced market benchmarks, RERA project verification, IRR investment modeling, and private Property OS lifecycle management.
+            <div className="lg:col-span-6 space-y-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A58A61]">
+                PROVENTA &bull; Real Estate Intelligence
               </p>
 
-              {/* Live Property Registry Search */}
-              <form action="/property-intelligence" method="GET" className="pt-2 max-w-xl flex flex-col sm:flex-row gap-2">
+              <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-[1.08] text-[#202B38]">
+                UNDERSTAND PROPERTY.
+                <br />
+                SEE BEYOND LOCATION.
+              </h1>
+
+              <p className="text-base text-[#697586] leading-relaxed max-w-xl">
+                Explore property intelligence, understand market movements and evaluate locations through reliable real-estate information.
+              </p>
+
+              {/* Primary & Secondary CTAs */}
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Link
+                  href="/property-intelligence"
+                  className="px-6 py-3 bg-[#29465F] hover:bg-[#20384C] text-[#FFFFFF] text-xs font-semibold uppercase tracking-[0.08em] rounded-xs inline-flex items-center gap-2 transition-colors"
+                >
+                  <span>Explore Intelligence</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                  href="/market-intelligence"
+                  className="px-6 py-3 bg-[#FFFFFF] hover:bg-[#F7F8FA] border border-[#E8EBEF] text-[#202B38] text-xs font-semibold uppercase tracking-[0.08em] rounded-xs transition-colors"
+                >
+                  Explore Markets
+                </Link>
+              </div>
+
+              {/* Clean Property Registry Search */}
+              <form
+                action="/property-intelligence"
+                method="GET"
+                className="pt-3 max-w-xl flex flex-col sm:flex-row gap-2"
+              >
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-[#64748B] absolute left-3.5 top-3.5" />
+                  <Search className="w-4 h-4 text-[#929BA6] absolute left-3.5 top-3.5" />
                   <input
                     type="text"
                     name="q"
                     placeholder="Search Property ID (PV-PROP-...), address, project, or locality"
-                    className="w-full h-11 pl-10 pr-3 bg-white text-[#0F172A] placeholder:text-[#64748B] text-xs rounded-xs focus:outline-hidden"
+                    className="w-full h-11 pl-10 pr-3 bg-[#F7F8FA] border border-[#E8EBEF] text-[#202B38] placeholder:text-[#929BA6] text-xs rounded-xs focus:outline-none focus:border-[#29465F] focus:bg-[#FFFFFF]"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="h-11 px-6 bg-[#0F766E] hover:bg-[#0D9488] text-white text-xs font-semibold uppercase tracking-[0.1em] rounded-xs transition-colors whitespace-nowrap"
+                  className="h-11 px-5 bg-[#F3F5F7] hover:bg-[#E8EBEF] border border-[#E8EBEF] text-[#202B38] text-xs font-semibold uppercase tracking-[0.08em] rounded-xs transition-colors whitespace-nowrap"
                 >
                   Search Registry
                 </button>
               </form>
-
-              <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
-                <Link
-                  href="/dashboard"
-                  className="px-5 py-2.5 bg-white text-[#0F172A] hover:bg-[#E2E8F0] font-semibold rounded-xs inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <span>Open Intelligence Terminal</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-                <Link
-                  href="/property-os"
-                  className="px-5 py-2.5 bg-[#1E293B] hover:bg-[#334155] border border-[#334155] text-white font-semibold rounded-xs transition-colors"
-                >
-                  Explore Property OS
-                </Link>
-                <Link
-                  href="/price"
-                  className="px-4 py-2.5 text-[#2DD4BF] hover:text-white font-mono uppercase tracking-wider underline underline-offset-4"
-                >
-                  12-Factor Valuation &rarr;
-                </Link>
-              </div>
             </div>
 
-            <div className="lg:col-span-5 space-y-2.5">
-              <div className="relative aspect-[4/3] w-full border border-[#334155] bg-[#1E293B] overflow-hidden rounded-xs">
+            <div className="lg:col-span-6">
+              <div className="relative aspect-[16/10] w-full border border-[#E8EBEF] bg-[#F7F8FA] overflow-hidden">
                 <Image
-                  src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80"
-                  alt="Institutional urban real estate and commercial skyline"
+                  src="/images/proventa-corporate-hero.webp"
+                  alt="Modern institutional commercial headquarters architecture in daylight"
                   fill
-                  sizes="(max-width: 1024px) 100vw, 42vw"
-                  className="object-cover"
                   priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-center"
                 />
-                <div className="absolute bottom-3 left-3 bg-[#0F172A]/95 border border-[#2DD4BF]/40 text-white px-3 py-1.5 text-[10px] font-mono uppercase tracking-[0.14em]">
-                  Ahmedabad &bull; Gandhinagar &bull; GIFT City
-                </div>
               </div>
-              <p className="text-[11px] font-mono text-[#64748B] text-right">
-                Every metric carries explicit source provenance, reporting period, and confidence classification.
-              </p>
+              <div className="mt-3 flex items-center justify-between text-[11px] text-[#929BA6]">
+                <span>Institutional Real Estate Registry &amp; Analytics</span>
+                <span>Ahmedabad &bull; Gandhinagar &bull; GIFT City</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. FIVE INTELLIGENCE LAYERS */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
-        <div className="border-b border-[#E2E8F0] pb-4">
-          <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#0F766E] font-bold">
-            Five-Layer Architecture
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold text-[#0F172A] mt-1">
-            Structured intelligence across the entire property lifecycle
-          </h2>
-        </div>
+      {/* SECTION 3 — THREE INTELLIGENCE CATEGORY CARDS */}
+      <section className="bg-[#F7F8FA] border-b border-[#E8EBEF] py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="max-w-2xl space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A58A61]">
+              Core Capabilities
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#202B38]">
+              Structured Real Estate Intelligence
+            </h2>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {FIVE_LAYERS.map((layer) => {
-            const Icon = layer.icon;
-            return (
-              <Link
-                key={layer.code}
-                href={layer.href}
-                className="bg-white border border-[#E2E8F0] hover:border-[#0F766E] p-6 rounded-xs flex flex-col justify-between gap-4 transition-colors"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0F766E]">
-                      {layer.code}
-                    </span>
-                    <Icon className="w-4 h-4 text-[#0F172A]" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {INTELLIGENCE_CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <Link
+                  key={cat.href}
+                  href={cat.href}
+                  className="group bg-[#FFFFFF] border border-[#E8EBEF] hover:border-[#29465F] p-8 flex flex-col justify-between gap-6 transition-colors"
+                >
+                  <div className="space-y-4">
+                    <div className="w-10 h-10 bg-[#F3F5F7] border border-[#E8EBEF] flex items-center justify-center">
+                      <Icon className="w-5 h-5 text-[#29465F]" />
+                    </div>
+                    <h3 className="text-lg font-bold text-[#202B38] group-hover:text-[#29465F] transition-colors">
+                      {cat.title}
+                    </h3>
+                    <p className="text-sm text-[#697586] leading-relaxed">{cat.description}</p>
                   </div>
-                  <h3 className="text-base font-bold text-[#0F172A]">{layer.title}</h3>
-                  <p className="text-xs text-[#475569] leading-relaxed">{layer.desc}</p>
-                </div>
-                <span className="text-xs font-semibold text-[#0F766E] inline-flex items-center gap-1">
-                  <span>Open Module</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </span>
-              </Link>
-            );
-          })}
-
-          <Link
-            href="/reports"
-            className="bg-[#0F172A] text-white border border-[#1E293B] hover:border-[#2DD4BF] p-6 rounded-xs flex flex-col justify-between gap-4 transition-colors"
-          >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#2DD4BF]">
-                  REPORTS ENGINE
-                </span>
-                <FileText className="w-4 h-4 text-[#2DD4BF]" />
-              </div>
-              <h3 className="text-base font-bold text-white">7 Institutional PDF Reports</h3>
-              <p className="text-xs text-[#94A3B8] leading-relaxed">
-                Generate Property, Project, Locality, Investment Feasibility, Valuation, Portfolio Performance, and Market Comparison reports with methodology and limitations disclosed.
-              </p>
-            </div>
-            <span className="text-xs font-semibold text-[#2DD4BF] inline-flex items-center gap-1">
-              <span>Explore Reports</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </span>
-          </Link>
+                  <div className="text-xs font-semibold text-[#29465F] inline-flex items-center gap-1.5">
+                    <span>Explore {cat.title}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* 3. PRIMARY COVERAGE: 13 AHMEDABAD & GANDHINAGAR CORRIDORS */}
-      <section className="bg-white border-y border-[#E2E8F0] py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <span className="text-[11px] font-mono uppercase tracking-[0.18em] text-[#0F766E] font-bold">
-                Primary Launch Geography
-              </span>
-              <h2 className="text-2xl font-bold text-[#0F172A] mt-1">
-                13 Ahmedabad, Gandhinagar &amp; Gujarat Growth Corridors
-              </h2>
+      {/* SECTIONS 4 & 5 — LIVE PROJECT INTELLIGENCE & MARKET INTELLIGENCE */}
+      <CorporateMarketSnapshot />
+
+      {/* SECTION 6 — LOCATION INTELLIGENCE (CLEAN TABLES & ARCHITECTURAL PHOTOGRAPHY — ZERO SATELLITE) */}
+      <section className="bg-[#FFFFFF] border-b border-[#E8EBEF] py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <div className="relative aspect-[16/10] w-full border border-[#E8EBEF] bg-[#F7F8FA] overflow-hidden">
+                <Image
+                  src="/images/proventa-corporate-district.webp"
+                  alt="Modern commercial business district boulevard in daylight"
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover object-center"
+                />
+              </div>
             </div>
-            <Link
-              href="/market-intelligence"
-              className="text-xs font-semibold uppercase tracking-wider text-[#0F172A] hover:text-[#0F766E] inline-flex items-center gap-1.5"
-            >
-              <span>Compare Localities</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="lg:col-span-6 order-1 lg:order-2 space-y-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A58A61]">
+                Location Intelligence
+              </p>
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#202B38]">
+                Corridor Profiles &amp; Civic Infrastructure Status
+              </h2>
+              <p className="text-sm text-[#697586] leading-relaxed">
+                Evaluate Ahmedabad, Gandhinagar, and GIFT City micro-markets through verified connectivity records, transit corridors, and clear separation between operational, under-construction, and proposed projects.
+              </p>
+              <div className="pt-2">
+                <Link
+                  href="/location-intelligence"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#FFFFFF] hover:bg-[#F7F8FA] border border-[#E8EBEF] text-[#202B38] text-xs font-semibold rounded-xs transition-colors"
+                >
+                  <span>Inspect Locality Dossiers</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#29465F]" />
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {AHMEDABAD_CORRIDORS.map((corridor) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {TRACKED_LOCATIONS.map((loc) => (
               <Link
-                key={corridor}
-                href={`/market-intelligence?locality=${encodeURIComponent(corridor)}`}
-                className="px-3.5 py-2 bg-[#F8FAFC] hover:bg-[#0F172A] hover:text-white border border-[#E2E8F0] text-xs font-medium text-[#0F172A] rounded-xs inline-flex items-center gap-1.5 transition-colors"
+                key={loc.name}
+                href={`/location-intelligence?locality=${encodeURIComponent(loc.name)}`}
+                className="bg-[#F7F8FA] hover:bg-[#F3F5F7] border border-[#E8EBEF] p-4 flex items-center justify-between gap-3 transition-colors"
               >
-                <MapPin className="w-3 h-3 text-[#0F766E]" />
-                <span>{corridor}</span>
+                <div>
+                  <div className="text-sm font-semibold text-[#202B38]">{loc.name}</div>
+                  <div className="text-xs text-[#697586] mt-0.5">
+                    {loc.city} &bull; {loc.profile}
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#29465F] shrink-0" />
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 4. DATA INTEGRITY & PRIVACY COMMITMENT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="bg-[#0F172A] text-white border border-[#1E293B] p-8 sm:p-10 rounded-xs grid grid-cols-1 md:grid-cols-3 gap-6 text-xs">
-          <div className="space-y-2">
-            <ShieldCheck className="w-5 h-5 text-[#2DD4BF]" />
-            <h3 className="text-sm font-bold text-white">Strict Privacy Isolation</h3>
-            <p className="text-[#94A3B8] leading-relaxed">
-              Personal Property OS passports, deeds, leases, and financial logs are strictly private to the owner and never enter the public property registry.
+      {/* SECTION 7 — INVESTMENT INTELLIGENCE, PROPERTY OS & REPORTS */}
+      <section className="bg-[#F7F8FA] border-b border-[#E8EBEF] py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+          <div className="max-w-2xl space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#A58A61]">
+              Investment &amp; Portfolio Management
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#202B38]">
+              Institutional Analysis &amp; Private Property OS
+            </h2>
+            <p className="text-sm text-[#697586]">
+              Transparent financial modeling, 12-factor carpet-area valuation, private portfolio governance, and persisted PDF dossiers.
             </p>
           </div>
-          <div className="space-y-2">
-            <Layers className="w-5 h-5 text-[#2DD4BF]" />
-            <h3 className="text-sm font-bold text-white">Source Provenance First</h3>
-            <p className="text-[#94A3B8] leading-relaxed">
-              Verified, unverified, user-submitted, and externally sourced records are always clearly distinguished. Insufficient data is stated honestly.
-            </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Link
+              href="/investment-intelligence"
+              className="bg-[#FFFFFF] border border-[#E8EBEF] hover:border-[#29465F] p-7 space-y-4 transition-colors"
+            >
+              <Calculator className="w-5 h-5 text-[#29465F]" />
+              <h3 className="text-base font-bold text-[#202B38]">Investment Intelligence</h3>
+              <p className="text-xs text-[#697586] leading-relaxed">
+                Model net rental yield, EMI schedules, IRR, equity multiples, and Conservative / Base / Optimistic scenarios with transparent assumptions.
+              </p>
+              <span className="inline-block text-xs font-semibold text-[#29465F]">
+                Open Calculator &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/property-os"
+              className="bg-[#FFFFFF] border border-[#E8EBEF] hover:border-[#29465F] p-7 space-y-4 transition-colors"
+            >
+              <FolderLock className="w-5 h-5 text-[#29465F]" />
+              <h3 className="text-base font-bold text-[#202B38]">Property OS</h3>
+              <p className="text-xs text-[#697586] leading-relaxed">
+                Strictly private owner workspace for properties, leases, expenses, maintenance logs, and encrypted binary document storage.
+              </p>
+              <span className="inline-block text-xs font-semibold text-[#29465F]">
+                Open Property OS &rarr;
+              </span>
+            </Link>
+
+            <Link
+              href="/reports"
+              className="bg-[#FFFFFF] border border-[#E8EBEF] hover:border-[#29465F] p-7 space-y-4 transition-colors"
+            >
+              <FileText className="w-5 h-5 text-[#29465F]" />
+              <h3 className="text-base font-bold text-[#202B38]">Institutional Reports</h3>
+              <p className="text-xs text-[#697586] leading-relaxed">
+                Generate and persist seven structured intelligence report types with audit-ready PDF export and source citations.
+              </p>
+              <span className="inline-block text-xs font-semibold text-[#29465F]">
+                View Reports &rarr;
+              </span>
+            </Link>
           </div>
-          <div className="space-y-2">
-            <Calculator className="w-5 h-5 text-[#2DD4BF]" />
-            <h3 className="text-sm font-bold text-white">Transparent Indicative Models</h3>
-            <p className="text-[#94A3B8] leading-relaxed">
-              Automated valuations and IRR investment scenarios disclose every formula, assumption, and limitation without claiming certified statutory status.
-            </p>
+        </div>
+      </section>
+
+      {/* SECTION 8 — FINAL CTA */}
+      <section className="bg-[#FFFFFF] py-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <div className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#287A55]">
+            <ShieldCheck className="w-4 h-4" />
+            <span>Evidence-Governed &bull; Independent &bull; Zero Broker Bias</span>
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#202B38]">
+            MAKE BETTER PROPERTY DECISIONS.
+          </h2>
+          <p className="text-sm sm:text-base text-[#697586] max-w-xl mx-auto">
+            Create a PROVENTA account to access your Member Dashboard, track Gujarat corridors, manage private Property OS assets, and generate institutional reports.
+          </p>
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href="/signup"
+              className="px-7 py-3 bg-[#29465F] hover:bg-[#20384C] text-[#FFFFFF] text-xs font-semibold uppercase tracking-[0.1em] rounded-xs inline-flex items-center gap-2 transition-colors"
+            >
+              <span>Explore PROVENTA</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/price"
+              className="px-7 py-3 bg-[#FFFFFF] hover:bg-[#F7F8FA] border border-[#E8EBEF] text-[#202B38] text-xs font-semibold uppercase tracking-[0.1em] rounded-xs transition-colors"
+            >
+              12-Factor Valuation
+            </Link>
           </div>
         </div>
       </section>

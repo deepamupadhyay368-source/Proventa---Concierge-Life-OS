@@ -354,18 +354,18 @@ export default function PropertyOsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070B12] text-slate-100">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#202B38]">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="flex flex-col justify-between gap-4 border-b border-slate-800 pb-6 md:flex-row md:items-end">
+        <div className="flex flex-col justify-between gap-4 border-b border-[#E8EBEF] pb-6 md:flex-row md:items-end">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-emerald-400">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#29465F]">
               MODULE 06 // PROPERTY OS &amp; DIGITAL PROPERTY PASSPORT
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#202B38]">
               Private Owner Portfolio &amp; Asset Vault
             </h1>
-            <p className="mt-2 max-w-3xl text-sm text-slate-400">
+            <p className="mt-2 max-w-3xl text-sm text-[#697586]">
               Full lifecycle management: passports, expense CRUD, lease CRUD, private binary documents, watchlists, and
               notifications. Strictly owner-isolated.
             </p>
@@ -374,7 +374,7 @@ export default function PropertyOsPage() {
             <button
               type="button"
               onClick={() => setShowCreate((v) => !v)}
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"
+              className="inline-flex items-center gap-2 rounded-xs bg-[#29465F] px-4 py-2.5 text-sm font-semibold text-[#FFFFFF] transition hover:bg-[#20384C]"
             >
               <Plus className="h-4 w-4" />
               {showCreate ? 'Close Form' : 'New Property Passport'}
@@ -383,8 +383,8 @@ export default function PropertyOsPage() {
         </div>
 
         {/* Privacy Guarantee Banner */}
-        <div className="mt-6 flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-xs text-emerald-200">
-          <Lock className="h-4 w-4 shrink-0 text-emerald-400" />
+        <div className="mt-6 flex items-center gap-3 rounded-xs border border-emerald-500/30 bg-emerald-500/5 px-4 py-3 text-xs text-[#287A55]">
+          <Lock className="h-4 w-4 shrink-0 text-[#29465F]" />
           <span>
             <strong>Strict Privacy Isolation:</strong> Every Property Passport, expense, lease, private binary document,
             watchlist, and notification is scoped exclusively to your authenticated account and never leaked publicly.
@@ -394,27 +394,27 @@ export default function PropertyOsPage() {
         {loading ? (
           <div className="mt-8 grid gap-4 md:grid-cols-4">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="h-28 animate-pulse rounded-xl border border-slate-800 bg-slate-900/40" />
+              <div key={n} className="h-28 animate-pulse rounded-xs border border-[#E8EBEF] bg-[#F7F8FA]" />
             ))}
           </div>
         ) : unauthenticated ? (
-          <div className="mt-10 rounded-xl border border-slate-800 bg-slate-900/60 p-10 text-center">
-            <ShieldCheck className="mx-auto h-12 w-12 text-emerald-400" />
-            <h2 className="mt-4 text-xl font-semibold text-white">Sign in to access your private Property OS</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-slate-400">
+          <div className="mt-10 rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-10 text-center">
+            <ShieldCheck className="mx-auto h-12 w-12 text-[#29465F]" />
+            <h2 className="mt-4 text-xl font-semibold text-[#202B38]">Sign in to access your private Property OS</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-[#697586]">
               Digital Property Passports, binary documents, watchlists, and notifications require authentication to
               enforce strict per-owner isolation.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Link
                 href="/login?callbackUrl=/property-os"
-                className="rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-slate-950 hover:bg-emerald-400"
+                className="rounded-xs bg-[#29465F] px-5 py-2.5 text-sm font-semibold text-[#FFFFFF] hover:bg-[#20384C]"
               >
                 Sign In to Property OS
               </Link>
               <Link
                 href="/property-intelligence"
-                className="rounded-lg border border-slate-700 px-5 py-2.5 text-sm text-slate-200 hover:bg-slate-800"
+                className="rounded-xs border border-[#E8EBEF] px-5 py-2.5 text-sm text-[#202B38] hover:bg-[#F3F5F7]"
               >
                 Browse Public Registry
               </Link>
@@ -423,7 +423,7 @@ export default function PropertyOsPage() {
         ) : (
           <>
             {feedback && (
-              <div className="mt-4 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="mt-4 rounded-xs border border-[#287A55]/30 bg-emerald-500/10 px-4 py-3 text-sm text-[#287A55]">
                 {feedback}
               </div>
             )}
@@ -432,26 +432,26 @@ export default function PropertyOsPage() {
             {showCreate && (
               <form
                 onSubmit={handleCreatePassport}
-                className="mt-6 rounded-xl border border-slate-800 bg-slate-900/70 p-6"
+                className="mt-6 rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-6"
               >
-                <h2 className="text-base font-semibold text-white">Create Private Digital Property Passport</h2>
+                <h2 className="text-base font-semibold text-[#202B38]">Create Private Digital Property Passport</h2>
                 <div className="mt-4 grid gap-4 md:grid-cols-3">
                   <div>
-                    <label className="block text-xs text-slate-400">Asset Nickname *</label>
+                    <label className="block text-xs text-[#697586]">Asset Nickname *</label>
                     <input
                       required
                       value={newPassport.nickname}
                       onChange={(e) => setNewPassport({ ...newPassport, nickname: e.target.value })}
                       placeholder="e.g. Bopal 3BHK Rental"
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                      className="mt-1 w-full rounded border border-[#E8EBEF] bg-[#F7F8FA] px-3 py-2 text-sm text-[#202B38]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400">Locality *</label>
+                    <label className="block text-xs text-[#697586]">Locality *</label>
                     <select
                       value={newPassport.locality}
                       onChange={(e) => setNewPassport({ ...newPassport, locality: e.target.value })}
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                      className="mt-1 w-full rounded border border-[#E8EBEF] bg-[#F7F8FA] px-3 py-2 text-sm text-[#202B38]"
                     >
                       {AHMEDABAD_GANDHINAGAR_LOCALITIES.map((l) => (
                         <option key={l.slug} value={l.name}>
@@ -461,11 +461,11 @@ export default function PropertyOsPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400">Occupancy Status</label>
+                    <label className="block text-xs text-[#697586]">Occupancy Status</label>
                     <select
                       value={newPassport.occupancyStatus}
                       onChange={(e) => setNewPassport({ ...newPassport, occupancyStatus: e.target.value })}
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                      className="mt-1 w-full rounded border border-[#E8EBEF] bg-[#F7F8FA] px-3 py-2 text-sm text-[#202B38]"
                     >
                       <option value="OWNER_OCCUPIED">Owner Occupied</option>
                       <option value="RENTED">Rented</option>
@@ -473,37 +473,37 @@ export default function PropertyOsPage() {
                     </select>
                   </div>
                   <div className="md:col-span-3">
-                    <label className="block text-xs text-slate-400">Full Address *</label>
+                    <label className="block text-xs text-[#697586]">Full Address *</label>
                     <input
                       required
                       value={newPassport.address}
                       onChange={(e) => setNewPassport({ ...newPassport, address: e.target.value })}
                       placeholder="Flat 904, Tower B, South Bopal, Ahmedabad"
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                      className="mt-1 w-full rounded border border-[#E8EBEF] bg-[#F7F8FA] px-3 py-2 text-sm text-[#202B38]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400">Purchase Price (INR)</label>
+                    <label className="block text-xs text-[#697586]">Purchase Price (INR)</label>
                     <input
                       type="number"
                       value={newPassport.purchasePriceRupees}
                       onChange={(e) => setNewPassport({ ...newPassport, purchasePriceRupees: e.target.value })}
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-sm text-white"
+                      className="mt-1 w-full rounded border border-[#E8EBEF] bg-[#F7F8FA] px-3 py-2 font-mono text-sm text-[#202B38]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400">Current Estimated Value (INR)</label>
+                    <label className="block text-xs text-[#697586]">Current Estimated Value (INR)</label>
                     <input
                       type="number"
                       value={newPassport.currentEstimatedRupees}
                       onChange={(e) => setNewPassport({ ...newPassport, currentEstimatedRupees: e.target.value })}
-                      className="mt-1 w-full rounded border border-slate-700 bg-slate-950 px-3 py-2 font-mono text-sm text-white"
+                      className="mt-1 w-full rounded border border-[#E8EBEF] bg-[#F7F8FA] px-3 py-2 font-mono text-sm text-[#202B38]"
                     />
                   </div>
                   <div className="flex items-end">
                     <button
                       type="submit"
-                      className="w-full rounded-lg bg-emerald-500 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-400"
+                      className="w-full rounded-xs bg-emerald-500 py-2 text-sm font-semibold text-slate-950 hover:bg-[#20384C]"
                     >
                       Create Private Passport
                     </button>
@@ -515,55 +515,55 @@ export default function PropertyOsPage() {
             {/* Portfolio KPIs */}
             {summary && (
               <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                  <span className="font-mono text-[11px] text-slate-400">PORTFOLIO VALUE</span>
-                  <p className="mt-1 font-mono text-2xl font-bold text-white">
+                <div className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-4">
+                  <span className="font-mono text-[11px] text-[#697586]">PORTFOLIO VALUE</span>
+                  <p className="mt-1 font-mono text-2xl font-bold text-[#202B38]">
                     {summary.totalEstimatedValueFormatted}
                   </p>
-                  <span className="text-xs text-emerald-400">
+                  <span className="text-xs text-[#29465F]">
                     Appreciation: {summary.appreciationPercent}% ({summary.appreciationFormatted})
                   </span>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                  <span className="font-mono text-[11px] text-slate-400">ANNUAL RENTAL INCOME</span>
-                  <p className="mt-1 font-mono text-2xl font-bold text-emerald-400">
+                <div className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-4">
+                  <span className="font-mono text-[11px] text-[#697586]">ANNUAL RENTAL INCOME</span>
+                  <p className="mt-1 font-mono text-2xl font-bold text-[#29465F]">
                     {summary.annualRentalIncomeFormatted}
                   </p>
-                  <span className="text-xs text-slate-400">Net Yield: {summary.netRentalYieldPercent}%</span>
+                  <span className="text-xs text-[#697586]">Net Yield: {summary.netRentalYieldPercent}%</span>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                  <span className="font-mono text-[11px] text-slate-400">TRAILING 12M EXPENSES</span>
-                  <p className="mt-1 font-mono text-2xl font-bold text-amber-300">
+                <div className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-4">
+                  <span className="font-mono text-[11px] text-[#697586]">TRAILING 12M EXPENSES</span>
+                  <p className="mt-1 font-mono text-2xl font-bold text-[#B17A30]">
                     {summary.annualExpensesFormatted}
                   </p>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-[#697586]">
                     Properties: {summary.totalProperties} ({summary.vacantProperties} vacant)
                   </span>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                  <span className="font-mono text-[11px] text-slate-400">NOTIFICATIONS &amp; ALERTS</span>
-                  <p className="mt-1 font-mono text-2xl font-bold text-sky-300">
+                <div className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-4">
+                  <span className="font-mono text-[11px] text-[#697586]">NOTIFICATIONS &amp; ALERTS</span>
+                  <p className="mt-1 font-mono text-2xl font-bold text-[#29465F]">
                     {unreadCount} unread / {summary.upcomingAlerts.length} alerts
                   </p>
-                  <span className="text-xs text-slate-400">Watchlists: {watchlists.length}</span>
+                  <span className="text-xs text-[#697586]">Watchlists: {watchlists.length}</span>
                 </div>
               </div>
             )}
 
             {/* Watchlists & Notification Centre */}
             <div className="mt-6 grid gap-4 lg:grid-cols-2">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                    <Bookmark className="h-4 w-4 text-emerald-400" />
+              <div className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-5">
+                <div className="flex items-center justify-between border-b border-[#E8EBEF] pb-3">
+                  <h2 className="flex items-center gap-2 text-sm font-semibold text-[#202B38]">
+                    <Bookmark className="h-4 w-4 text-[#29465F]" />
                     Your Watchlists ({watchlists.length})
                   </h2>
-                  <Link href="/property-intelligence" className="text-xs text-emerald-400 hover:underline">
+                  <Link href="/property-intelligence" className="text-xs text-[#29465F] hover:underline">
                     + Browse Registry
                   </Link>
                 </div>
                 {watchlists.length === 0 ? (
-                  <p className="mt-4 text-xs text-slate-500">
+                  <p className="mt-4 text-xs text-[#929BA6]">
                     No watchlisted properties or corridors yet. Click &ldquo;+ Watch&rdquo; on any property in the
                     Living Property Registry.
                   </p>
@@ -572,16 +572,16 @@ export default function PropertyOsPage() {
                     {watchlists.map((w) => (
                       <li
                         key={w.id}
-                        className="flex items-center justify-between rounded bg-slate-950 px-3 py-2"
+                        className="flex items-center justify-between rounded bg-[#F7F8FA] px-3 py-2"
                       >
                         <div>
-                          <span className="font-mono text-[10px] text-emerald-400">{w.targetType}</span>
-                          <p className="font-medium text-white">{w.targetLabel}</p>
+                          <span className="font-mono text-[10px] text-[#29465F]">{w.targetType}</span>
+                          <p className="font-medium text-[#202B38]">{w.targetLabel}</p>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleRemoveWatchlist(w.id)}
-                          className="text-rose-400 hover:text-rose-300"
+                          className="text-rose-400 hover:text-[#B94343]"
                           title="Remove from watchlist"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -592,24 +592,24 @@ export default function PropertyOsPage() {
                 )}
               </div>
 
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                  <h2 className="flex items-center gap-2 text-sm font-semibold text-white">
-                    <Bell className="h-4 w-4 text-emerald-400" />
+              <div className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-5">
+                <div className="flex items-center justify-between border-b border-[#E8EBEF] pb-3">
+                  <h2 className="flex items-center gap-2 text-sm font-semibold text-[#202B38]">
+                    <Bell className="h-4 w-4 text-[#29465F]" />
                     Notification Centre ({unreadCount} unread)
                   </h2>
                   {unreadCount > 0 && (
                     <button
                       type="button"
                       onClick={() => handleMarkNotificationRead()}
-                      className="inline-flex items-center gap-1 text-xs text-emerald-400 hover:underline"
+                      className="inline-flex items-center gap-1 text-xs text-[#29465F] hover:underline"
                     >
                       <CheckCheck className="h-3.5 w-3.5" /> Mark all read
                     </button>
                   )}
                 </div>
                 {notifications.length === 0 ? (
-                  <p className="mt-4 text-xs text-slate-500">
+                  <p className="mt-4 text-xs text-[#929BA6]">
                     No notifications yet. PDF report completions and registry moderation updates appear here.
                   </p>
                 ) : (
@@ -618,18 +618,18 @@ export default function PropertyOsPage() {
                       <li
                         key={n.id}
                         className={`flex items-start justify-between gap-2 rounded px-3 py-2 ${
-                          n.isRead ? 'bg-slate-950/50 text-slate-400' : 'border border-emerald-500/30 bg-slate-950 text-white'
+                          n.isRead ? 'bg-[#F7F8FA]/50 text-[#697586]' : 'border border-emerald-500/30 bg-[#F7F8FA] text-[#202B38]'
                         }`}
                       >
                         <div>
                           <p className="font-semibold">{n.title}</p>
-                          <p className="text-[11px] text-slate-400">{n.message}</p>
+                          <p className="text-[11px] text-[#697586]">{n.message}</p>
                         </div>
                         {!n.isRead && (
                           <button
                             type="button"
                             onClick={() => handleMarkNotificationRead(n.id)}
-                            className="shrink-0 font-mono text-[10px] text-emerald-400 hover:underline"
+                            className="shrink-0 font-mono text-[10px] text-[#29465F] hover:underline"
                           >
                             Mark read
                           </button>
@@ -644,22 +644,22 @@ export default function PropertyOsPage() {
             {/* Passports List */}
             <div className="mt-8 space-y-4">
               {passports.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-800 bg-slate-900/30 p-10 text-center">
+                <div className="rounded-xs border border-dashed border-[#E8EBEF] bg-[#FFFFFF]/30 p-10 text-center">
                   <Building className="mx-auto h-10 w-10 text-slate-600" />
-                  <h3 className="mt-3 text-base font-medium text-white">No Digital Property Passports yet</h3>
-                  <p className="mt-1 text-sm text-slate-400">
+                  <h3 className="mt-3 text-base font-medium text-[#202B38]">No Digital Property Passports yet</h3>
+                  <p className="mt-1 text-sm text-[#697586]">
                     Create your first private Property Passport above to manage expenses, leases, private documents,
                     and timelines.
                   </p>
                 </div>
               ) : (
                 passports.map((p) => (
-                  <div key={p.id} className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+                  <div key={p.id} className="rounded-xs border border-[#E8EBEF] bg-[#FFFFFF] p-6">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <span className="font-mono text-xs text-emerald-400">{p.passportCode}</span>
-                        <h3 className="mt-1 text-lg font-semibold text-white">{p.nickname}</h3>
-                        <p className="text-xs text-slate-400">
+                        <span className="font-mono text-xs text-[#29465F]">{p.passportCode}</span>
+                        <h3 className="mt-1 text-lg font-semibold text-[#202B38]">{p.nickname}</h3>
+                        <p className="text-xs text-[#697586]">
                           {p.address} &middot; {p.locality}, {p.city}
                         </p>
                       </div>
@@ -669,11 +669,11 @@ export default function PropertyOsPage() {
                           onClick={() =>
                             setActiveActionPassportId(activeActionPassportId === p.id ? null : p.id)
                           }
-                          className="rounded border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20"
+                          className="rounded border border-[#287A55]/30 bg-emerald-500/10 px-2.5 py-1 font-mono text-xs font-semibold text-[#287A55] hover:bg-emerald-500/20"
                         >
                           {activeActionPassportId === p.id ? 'Close Records' : '+ Add Record / Upload'}
                         </button>
-                        <span className="rounded border border-slate-700 bg-slate-950 px-2.5 py-1 font-mono text-xs text-slate-200">
+                        <span className="rounded border border-[#E8EBEF] bg-[#F7F8FA] px-2.5 py-1 font-mono text-xs text-[#202B38]">
                           {p.occupancyStatus}
                         </span>
                       </div>
@@ -682,7 +682,7 @@ export default function PropertyOsPage() {
                     {activeActionPassportId === p.id && (
                       <form
                         onSubmit={(e) => submitChildAction(e, p.id)}
-                        className="mt-4 space-y-3 rounded-lg border border-slate-700 bg-slate-950 p-4 text-xs"
+                        className="mt-4 space-y-3 rounded-xs border border-[#E8EBEF] bg-[#F7F8FA] p-4 text-xs"
                       >
                         <div className="flex flex-wrap gap-1.5">
                           {(['EXPENSE', 'LEASE', 'MAINTENANCE', 'DOCUMENT', 'TIMELINE'] as const).map((tab) => (
@@ -693,7 +693,7 @@ export default function PropertyOsPage() {
                               className={`rounded px-2.5 py-1 font-mono text-[11px] ${
                                 actionTab === tab
                                   ? 'bg-emerald-500 font-semibold text-slate-950'
-                                  : 'bg-slate-900 text-slate-400'
+                                  : 'bg-[#FFFFFF] text-[#697586]'
                               }`}
                             >
                               {tab}
@@ -706,7 +706,7 @@ export default function PropertyOsPage() {
                             <select
                               value={expForm.category}
                               onChange={(e) => setExpForm({ ...expForm, category: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             >
                               <option value="PROPERTY_TAX">Property Tax</option>
                               <option value="MAINTENANCE">Maintenance</option>
@@ -720,21 +720,21 @@ export default function PropertyOsPage() {
                               placeholder="Amount (INR)"
                               value={expForm.amountRupees}
                               onChange={(e) => setExpForm({ ...expForm, amountRupees: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               required
                               type="date"
                               value={expForm.expenseDate}
                               onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               required
                               placeholder="Description"
                               value={expForm.description}
                               onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                           </div>
                         )}
@@ -746,7 +746,7 @@ export default function PropertyOsPage() {
                               placeholder="Tenant Name"
                               value={leaseForm.tenantName}
                               onChange={(e) => setLeaseForm({ ...leaseForm, tenantName: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               required
@@ -754,21 +754,21 @@ export default function PropertyOsPage() {
                               placeholder="Monthly Rent (INR)"
                               value={leaseForm.monthlyRentRupees}
                               onChange={(e) => setLeaseForm({ ...leaseForm, monthlyRentRupees: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               required
                               type="date"
                               value={leaseForm.leaseStartDate}
                               onChange={(e) => setLeaseForm({ ...leaseForm, leaseStartDate: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               required
                               type="date"
                               value={leaseForm.leaseEndDate}
                               onChange={(e) => setLeaseForm({ ...leaseForm, leaseEndDate: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                           </div>
                         )}
@@ -780,20 +780,20 @@ export default function PropertyOsPage() {
                               placeholder="Task Title"
                               value={maintForm.title}
                               onChange={(e) => setMaintForm({ ...maintForm, title: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               type="number"
                               placeholder="Est. Cost (INR)"
                               value={maintForm.costRupees}
                               onChange={(e) => setMaintForm({ ...maintForm, costRupees: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               type="date"
                               value={maintForm.scheduledDate}
                               onChange={(e) => setMaintForm({ ...maintForm, scheduledDate: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                           </div>
                         )}
@@ -805,9 +805,9 @@ export default function PropertyOsPage() {
                               type="file"
                               accept="application/pdf,image/png,image/jpeg,image/webp"
                               onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-                              className="w-full rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="w-full rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
-                            <span className="shrink-0 font-mono text-[10px] text-slate-400">
+                            <span className="shrink-0 font-mono text-[10px] text-[#697586]">
                               PDF/PNG/JPEG/WEBP &le; 10MB
                             </span>
                           </div>
@@ -818,7 +818,7 @@ export default function PropertyOsPage() {
                             <select
                               value={timelineForm.eventType}
                               onChange={(e) => setTimelineForm({ ...timelineForm, eventType: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             >
                               <option value="RENOVATION">Renovation</option>
                               <option value="REGISTRATION">Registration</option>
@@ -830,21 +830,21 @@ export default function PropertyOsPage() {
                               type="date"
                               value={timelineForm.eventDate}
                               onChange={(e) => setTimelineForm({ ...timelineForm, eventDate: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                             <input
                               required
                               placeholder="Event Summary"
                               value={timelineForm.title}
                               onChange={(e) => setTimelineForm({ ...timelineForm, title: e.target.value })}
-                              className="rounded border border-slate-700 bg-slate-900 px-2 py-1.5 text-white"
+                              className="rounded border border-[#E8EBEF] bg-[#FFFFFF] px-2 py-1.5 text-[#202B38]"
                             />
                           </div>
                         )}
 
                         <button
                           type="submit"
-                          className="inline-flex items-center gap-1.5 rounded bg-emerald-500 px-3.5 py-1.5 font-semibold text-slate-950 hover:bg-emerald-400"
+                          className="inline-flex items-center gap-1.5 rounded bg-[#29465F] px-3.5 py-1.5 font-semibold text-[#FFFFFF] hover:bg-[#20384C]"
                         >
                           {actionTab === 'DOCUMENT' ? <Upload className="h-3.5 w-3.5" /> : null}
                           Save {actionTab}
@@ -853,53 +853,53 @@ export default function PropertyOsPage() {
                     )}
 
                     <div className="mt-4 grid gap-3 text-xs sm:grid-cols-4">
-                      <div className="rounded bg-slate-950 p-3">
-                        <span className="text-slate-500">Purchase Price</span>
-                        <p className="mt-1 font-mono text-sm font-semibold text-white">
+                      <div className="rounded bg-[#F7F8FA] p-3">
+                        <span className="text-[#929BA6]">Purchase Price</span>
+                        <p className="mt-1 font-mono text-sm font-semibold text-[#202B38]">
                           {formatPaise(p.purchasePricePaise)}
                         </p>
                       </div>
-                      <div className="rounded bg-slate-950 p-3">
-                        <span className="text-slate-500">Est. Value</span>
-                        <p className="mt-1 font-mono text-sm font-semibold text-emerald-300">
+                      <div className="rounded bg-[#F7F8FA] p-3">
+                        <span className="text-[#929BA6]">Est. Value</span>
+                        <p className="mt-1 font-mono text-sm font-semibold text-[#287A55]">
                           {formatPaise(p.currentEstimatedPaise)}
                         </p>
                       </div>
-                      <div className="rounded bg-slate-950 p-3">
-                        <span className="flex items-center gap-1 text-slate-500">
+                      <div className="rounded bg-[#F7F8FA] p-3">
+                        <span className="flex items-center gap-1 text-[#929BA6]">
                           <Users className="h-3 w-3" /> Active Leases
                         </span>
-                        <p className="mt-1 font-mono text-sm font-semibold text-white">{p.leases.length}</p>
+                        <p className="mt-1 font-mono text-sm font-semibold text-[#202B38]">{p.leases.length}</p>
                       </div>
-                      <div className="rounded bg-slate-950 p-3">
-                        <span className="flex items-center gap-1 text-slate-500">
+                      <div className="rounded bg-[#F7F8FA] p-3">
+                        <span className="flex items-center gap-1 text-[#929BA6]">
                           <Receipt className="h-3 w-3" /> Expenses / <Wrench className="h-3 w-3" /> Maint.
                         </span>
-                        <p className="mt-1 font-mono text-sm font-semibold text-white">
+                        <p className="mt-1 font-mono text-sm font-semibold text-[#202B38]">
                           {p.expenses.length} / {p.maintenanceRecords.length}
                         </p>
                       </div>
                     </div>
 
                     {/* Expenses, Leases & Private Binary Documents Lists */}
-                    <div className="mt-4 grid gap-4 border-t border-slate-800 pt-4 text-xs md:grid-cols-3">
+                    <div className="mt-4 grid gap-4 border-t border-[#E8EBEF] pt-4 text-xs md:grid-cols-3">
                       <div>
-                        <p className="font-mono text-[11px] text-slate-400">EXPENSES ({p.expenses.length})</p>
+                        <p className="font-mono text-[11px] text-[#697586]">EXPENSES ({p.expenses.length})</p>
                         {p.expenses.length === 0 ? (
                           <p className="mt-1 text-slate-600">None recorded</p>
                         ) : (
                           <ul className="mt-2 space-y-1.5">
                             {p.expenses.map((exp) => (
-                              <li key={exp.id} className="flex items-center justify-between rounded bg-slate-950 px-2.5 py-1.5">
+                              <li key={exp.id} className="flex items-center justify-between rounded bg-[#F7F8FA] px-2.5 py-1.5">
                                 <div>
-                                  <p className="text-white">{exp.description}</p>
-                                  <p className="font-mono text-[10px] text-amber-300">{formatPaise(exp.amountPaise)}</p>
+                                  <p className="text-[#202B38]">{exp.description}</p>
+                                  <p className="font-mono text-[10px] text-[#B17A30]">{formatPaise(exp.amountPaise)}</p>
                                 </div>
                                 <div className="flex gap-1.5">
-                                  <button type="button" onClick={() => handleEditExpense(exp)} title="Edit expense" className="text-sky-400 hover:text-sky-300">
+                                  <button type="button" onClick={() => handleEditExpense(exp)} title="Edit expense" className="text-sky-400 hover:text-[#29465F]">
                                     <Pencil className="h-3.5 w-3.5" />
                                   </button>
-                                  <button type="button" onClick={() => handleDeleteChild('EXPENSE', exp.id)} title="Delete expense" className="text-rose-400 hover:text-rose-300">
+                                  <button type="button" onClick={() => handleDeleteChild('EXPENSE', exp.id)} title="Delete expense" className="text-rose-400 hover:text-[#B94343]">
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </button>
                                 </div>
@@ -910,24 +910,24 @@ export default function PropertyOsPage() {
                       </div>
 
                       <div>
-                        <p className="font-mono text-[11px] text-slate-400">LEASES ({p.leases.length})</p>
+                        <p className="font-mono text-[11px] text-[#697586]">LEASES ({p.leases.length})</p>
                         {p.leases.length === 0 ? (
                           <p className="mt-1 text-slate-600">None recorded</p>
                         ) : (
                           <ul className="mt-2 space-y-1.5">
                             {p.leases.map((l) => (
-                              <li key={l.id} className="flex items-center justify-between rounded bg-slate-950 px-2.5 py-1.5">
+                              <li key={l.id} className="flex items-center justify-between rounded bg-[#F7F8FA] px-2.5 py-1.5">
                                 <div>
-                                  <p className="text-white">{l.tenantName}</p>
-                                  <p className="font-mono text-[10px] text-emerald-300">
+                                  <p className="text-[#202B38]">{l.tenantName}</p>
+                                  <p className="font-mono text-[10px] text-[#287A55]">
                                     {formatPaise(l.monthlyRentPaise)}/mo &middot; ends {new Date(l.leaseEndDate).toISOString().split('T')[0]}
                                   </p>
                                 </div>
                                 <div className="flex gap-1.5">
-                                  <button type="button" onClick={() => handleEditLease(l)} title="Edit lease" className="text-sky-400 hover:text-sky-300">
+                                  <button type="button" onClick={() => handleEditLease(l)} title="Edit lease" className="text-sky-400 hover:text-[#29465F]">
                                     <Pencil className="h-3.5 w-3.5" />
                                   </button>
-                                  <button type="button" onClick={() => handleDeleteChild('LEASE', l.id)} title="Delete lease" className="text-rose-400 hover:text-rose-300">
+                                  <button type="button" onClick={() => handleDeleteChild('LEASE', l.id)} title="Delete lease" className="text-rose-400 hover:text-[#B94343]">
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </button>
                                 </div>
@@ -938,7 +938,7 @@ export default function PropertyOsPage() {
                       </div>
 
                       <div>
-                        <p className="font-mono text-[11px] text-slate-400">
+                        <p className="font-mono text-[11px] text-[#697586]">
                           PRIVATE DOCUMENTS ({p.documents?.length ?? 0})
                         </p>
                         {!p.documents?.length ? (
@@ -946,13 +946,13 @@ export default function PropertyOsPage() {
                         ) : (
                           <ul className="mt-2 space-y-1.5">
                             {p.documents.map((doc) => (
-                              <li key={doc.id} className="flex items-center justify-between rounded bg-slate-950 px-2.5 py-1.5">
-                                <span className="truncate pr-2 text-white">{doc.fileName}</span>
+                              <li key={doc.id} className="flex items-center justify-between rounded bg-[#F7F8FA] px-2.5 py-1.5">
+                                <span className="truncate pr-2 text-[#202B38]">{doc.fileName}</span>
                                 <div className="flex shrink-0 gap-2">
-                                  <a href={doc.downloadUrl} title="Download private document" className="text-emerald-400 hover:text-emerald-300">
+                                  <a href={doc.downloadUrl} title="Download private document" className="text-[#29465F] hover:text-[#287A55]">
                                     <Download className="h-3.5 w-3.5" />
                                   </a>
-                                  <button type="button" onClick={() => handleDeleteDocument(doc.id)} title="Delete document" className="text-rose-400 hover:text-rose-300">
+                                  <button type="button" onClick={() => handleDeleteDocument(doc.id)} title="Delete document" className="text-rose-400 hover:text-[#B94343]">
                                     <Trash2 className="h-3.5 w-3.5" />
                                   </button>
                                 </div>
@@ -964,17 +964,17 @@ export default function PropertyOsPage() {
                     </div>
 
                     {p.timelineEvents.length > 0 && (
-                      <div className="mt-4 border-t border-slate-800 pt-3">
-                        <p className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
+                      <div className="mt-4 border-t border-[#E8EBEF] pt-3">
+                        <p className="flex items-center gap-1.5 font-mono text-[11px] text-[#697586]">
                           <FileText className="h-3.5 w-3.5" /> RECENT TIMELINE
                         </p>
-                        <ul className="mt-2 space-y-1 text-xs text-slate-300">
+                        <ul className="mt-2 space-y-1 text-xs text-[#202B38]">
                           {p.timelineEvents.slice(0, 3).map((ev) => (
                             <li key={ev.id}>
-                              <span className="font-mono text-slate-500">
+                              <span className="font-mono text-[#929BA6]">
                                 {new Date(ev.eventDate).toISOString().split('T')[0]}
                               </span>{' '}
-                              &middot; <span className="text-emerald-300">{ev.eventType}</span> &mdash; {ev.title}
+                              &middot; <span className="text-[#287A55]">{ev.eventType}</span> &mdash; {ev.title}
                             </li>
                           ))}
                         </ul>

@@ -12,9 +12,9 @@ const sansFont = { variable: '--font-sans' };
 const displayFont = { variable: '--font-display' };
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://proventa.in'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://www.proventa.in'),
   title: {
-    default: 'PROVENTA — Real Estate Intelligence | Know your property. Know its value.',
+    default: 'PROVENTA — Real Estate Intelligence | Understand Property. See Beyond Location.',
     template: '%s | PROVENTA Real Estate Intelligence',
   },
   description:
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     'independent real estate data',
   ],
   alternates: {
-    canonical: 'https://proventa.in',
+    canonical: 'https://www.proventa.in',
   },
   authors: [{ name: 'PROVENTA Real Estate Intelligence' }],
   creator: 'PROVENTA Real Estate Intelligence',
@@ -86,7 +86,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#F2F0E9',
+  themeColor: '#FFFFFF',
 };
 
 export default function RootLayout({
@@ -100,7 +100,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${sansFont.variable} ${displayFont.variable}`}
     >
-      <body className="min-h-screen bg-[#F2F0E9] text-[#171A17] antialiased selection:bg-[#53634A] selection:text-white">
+      <body className="min-h-screen bg-[#FFFFFF] text-[#202B38] antialiased selection:bg-[#29465F] selection:text-white">
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

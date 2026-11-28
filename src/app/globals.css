@@ -4,75 +4,76 @@
 
 @layer base {
   :root {
-    /* PROVENTA — INDUSTRIAL CORPORATE CONSTRUCTION PROCUREMENT PALETTE */
-    /* Deep Navy: #172B3A | Charcoal: #292F3D | Industrial Green: #0F6B50 */
-    /* Muted Gold: #C9A45B | Light Stone: #E9ECEF | White: #FFFFFF */
+    /* PROVENTA — PURE WHITE CORPORATE REAL ESTATE INTELLIGENCE DESIGN SYSTEM */
+    /* Primary BG: #FFFFFF | Secondary BG: #F7F8FA | Subtle: #F3F5F7 */
+    /* Primary Text: #202B38 | Secondary: #697586 | Muted: #929BA6 */
+    /* Primary Navy: #29465F | Secondary Accent: #A58A61 | Borders: #E8EBEF */
+    /* Success: #287A55 | Warning: #B17A30 | Error: #B94343 */
 
-    --background: 210 16% 96%;      /* #F3F5F7 / Light Stone canvas */
-    --foreground: 206 43% 16%;      /* #172B3A Deep Navy */
+    --background: 0 0% 100%;          /* #FFFFFF */
+    --foreground: 213 27% 17%;        /* #202B38 */
 
-    --card: 0 0% 100%;              /* #FFFFFF */
-    --card-foreground: 206 43% 16%; /* #172B3A */
+    --card: 0 0% 100%;                /* #FFFFFF */
+    --card-foreground: 213 27% 17%;   /* #202B38 */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 206 43% 16%;
+    --popover-foreground: 213 27% 17%;
 
-    /* Primary: Deep Navy (#172B3A) */
-    --primary: 206 43% 16%;
+    /* Primary Navy: #29465F */
+    --primary: 208 40% 26%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary: Light Stone (#E9ECEF) */
-    --secondary: 210 16% 93%;
-    --secondary-foreground: 222 20% 20%; /* #292F3D Charcoal */
+    /* Secondary Background: #F7F8FA */
+    --secondary: 220 20% 97%;
+    --secondary-foreground: 213 27% 17%;
 
-    /* Muted Typography */
-    --muted: 210 16% 93%;
-    --muted-foreground: 215 14% 40%;
+    /* Subtle Sections: #F3F5F7 */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 12% 47%;  /* #697586 */
 
-    /* Accent: Industrial Green (#0F6B50) */
-    --accent: 162 75% 24%;
+    /* Secondary Accent: #A58A61 */
+    --accent: 36 28% 51%;
     --accent-foreground: 0 0% 100%;
 
-    /* Brand Highlight: Muted Gold (#C9A45B) */
-    --gold: 40 50% 57%;
+    --gold: 36 28% 51%;
 
-    /* Destructive / Error: #B91C1C */
-    --destructive: 0 72% 42%;
+    /* Error: #B94343 */
+    --destructive: 0 47% 49%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Structural Border (#D5DCE2) */
-    --border: 210 16% 85%;
-    --input: 210 16% 82%;
-    --ring: 206 43% 16%;
+    /* Borders: #E8EBEF */
+    --border: 214 19% 92%;
+    --input: 214 19% 88%;
+    --ring: 208 40% 26%;
 
     --radius: 2px;
 
-    /* Typographic System */
+    /* Consistent Professional Sans-Serif System */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-serif: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'Geist Mono', 'SFMono-Regular', 'Roboto Mono', 'Menlo', monospace;
   }
 
   .dark {
-    --background: 210 16% 96%;
-    --foreground: 206 43% 16%;
+    --background: 0 0% 100%;
+    --foreground: 213 27% 17%;
     --card: 0 0% 100%;
-    --card-foreground: 206 43% 16%;
+    --card-foreground: 213 27% 17%;
     --popover: 0 0% 100%;
-    --popover-foreground: 206 43% 16%;
-    --primary: 206 43% 16%;
+    --popover-foreground: 213 27% 17%;
+    --primary: 208 40% 26%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 16% 93%;
-    --secondary-foreground: 222 20% 20%;
-    --muted: 210 16% 93%;
-    --muted-foreground: 215 14% 40%;
-    --accent: 162 75% 24%;
+    --secondary: 220 20% 97%;
+    --secondary-foreground: 213 27% 17%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 12% 47%;
+    --accent: 36 28% 51%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 42%;
+    --destructive: 0 47% 49%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 16% 85%;
-    --input: 210 16% 82%;
-    --ring: 206 43% 16%;
+    --border: 214 19% 92%;
+    --input: 214 19% 88%;
+    --ring: 208 40% 26%;
   }
 }
 
@@ -83,32 +84,30 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: #F3F5F7;
-    color: #172B3A;
+    background-color: #FFFFFF;
+    color: #202B38;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    background-color: #F3F5F7;
-    color: #172B3A;
+    background-color: #FFFFFF;
+    color: #202B38;
     font-family: var(--font-sans);
     min-height: 100vh;
     letter-spacing: -0.011em;
   }
 
   ::selection {
-    background-color: #172B3A;
+    background-color: #29465F;
     color: #FFFFFF;
   }
 
-  /* Universal Tabular Numerals for Financial Data & Tables */
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 }
 
-/* Enterprise Industrial Design System Utilities */
 @layer utilities {
   .font-editorial {
     font-family: var(--font-sans);
@@ -117,13 +116,13 @@
 
   .editorial-rule {
     height: 1px;
-    background-color: #D5DCE2;
+    background-color: #E8EBEF;
     width: 100%;
   }
 
   .editorial-rule-subtle {
     height: 1px;
-    background-color: #E9ECEF;
+    background-color: #F3F5F7;
     width: 100%;
   }
 }
