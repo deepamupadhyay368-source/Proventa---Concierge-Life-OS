@@ -458,9 +458,45 @@ export async function POST(req: NextRequest) {
   }
 }
 
+const updateExpenseSchema = z.object({
+  action: z.literal('UPDATE_EXPENSE'),
+  id: z.string().trim().min(1),
+  category: z
+    .enum([
+      'ACQUISITION',
+      'STAMP_DUTY_REGISTRATION',
+      'PROPERTY_TAX',
+      'MAINTENANCE',
+      'RENOVATION',
+      'UTILITIES',
+      'INSURANCE',
+      'BROKERAGE',
+      'OTHER',
+    ])
+    .optional(),
+  amountRupees: z.number().finite().positive().max(1_000_000_000).optional(),
+  expenseDate: z
+    .string()
+    .refine((v) => !Number.isNaN(new Date(v).getTime()), 'Invalid expenseDate')
+    .optional(),
+  description: z.string().trim().min(2).max(300).optional(),
+});
+
+const updateLeaseSchema = z.object({
+  action: z.literal('UPDATE_LEASE'),
+  id: z.string().trim().min(1),
+  tenantName: z.string().trim().min(2).max(120).optional(),
+  monthlyRentRupees: z.number().finite().positive().max(100_000_000).optional(),
+  leaseEndDate: z
+    .string()
+    .refine((v) => !Number.isNaN(new Date(v).getTime()), 'Invalid leaseEndDate')
+    .optional(),
+  status: z.enum(['ACTIVE', 'EXPIRING_SOON', 'ENDED']).optional(),
+});
+
 /**
  * PATCH /api/real-estate/property-os
- * Owner-isolated edit for PropertyExpense and PropertyLease records (403 on IDOR).
+ * Strictly Zod-validated, owner-isolated edit for PropertyExpense and PropertyLease records (403 on IDOR).
  */
 export async function PATCH(req: NextRequest) {
   try {
@@ -473,10 +509,16 @@ export async function PATCH(req: NextRequest) {
     const action = body?.action;
 
     if (action === 'UPDATE_EXPENSE') {
-      const id = String(body?.id || '').trim();
-      if (!id) return NextResponse.json({ error: 'Expense id is required.' }, { status: 400 });
+      const parsed = updateExpenseSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: 'Invalid expense update payload.', details: parsed.error.flatten().fieldErrors },
+          { status: 400 }
+        );
+      }
+      const d = parsed.data;
       const existing = await db.propertyExpense.findUnique({
-        where: { id },
+        where: { id: d.id },
         select: { id: true, ownerUserId: true },
       });
       if (!existing) return NextResponse.json({ error: 'Expense not found.' }, { status: 404 });
@@ -484,16 +526,14 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden: You do not own this expense.' }, { status: 403 });
       }
       const updated = await db.propertyExpense.update({
-        where: { id },
+        where: { id: d.id },
         data: {
-          ...(body.category ? { category: body.category } : {}),
-          ...(typeof body.amountRupees === 'number' && body.amountRupees > 0
-            ? { amountPaise: BigInt(Math.round(body.amountRupees * 100)) }
+          ...(d.category ? { category: d.category } : {}),
+          ...(d.amountRupees !== undefined
+            ? { amountPaise: BigInt(Math.round(d.amountRupees * 100)) }
             : {}),
-          ...(body.expenseDate ? { expenseDate: new Date(body.expenseDate) } : {}),
-          ...(typeof body.description === 'string' && body.description.trim()
-            ? { description: body.description.trim() }
-            : {}),
+          ...(d.expenseDate ? { expenseDate: new Date(d.expenseDate) } : {}),
+          ...(d.description ? { description: d.description } : {}),
         },
       });
       return NextResponse.json({
@@ -502,10 +542,16 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (action === 'UPDATE_LEASE') {
-      const id = String(body?.id || '').trim();
-      if (!id) return NextResponse.json({ error: 'Lease id is required.' }, { status: 400 });
+      const parsed = updateLeaseSchema.safeParse(body);
+      if (!parsed.success) {
+        return NextResponse.json(
+          { error: 'Invalid lease update payload.', details: parsed.error.flatten().fieldErrors },
+          { status: 400 }
+        );
+      }
+      const d = parsed.data;
       const existing = await db.propertyLease.findUnique({
-        where: { id },
+        where: { id: d.id },
         select: { id: true, ownerUserId: true },
       });
       if (!existing) return NextResponse.json({ error: 'Lease not found.' }, { status: 404 });
@@ -513,18 +559,14 @@ export async function PATCH(req: NextRequest) {
         return NextResponse.json({ error: 'Forbidden: You do not own this lease.' }, { status: 403 });
       }
       const updated = await db.propertyLease.update({
-        where: { id },
+        where: { id: d.id },
         data: {
-          ...(typeof body.tenantName === 'string' && body.tenantName.trim()
-            ? { tenantName: body.tenantName.trim() }
+          ...(d.tenantName ? { tenantName: d.tenantName } : {}),
+          ...(d.monthlyRentRupees !== undefined
+            ? { monthlyRentPaise: BigInt(Math.round(d.monthlyRentRupees * 100)) }
             : {}),
-          ...(typeof body.monthlyRentRupees === 'number' && body.monthlyRentRupees > 0
-            ? { monthlyRentPaise: BigInt(Math.round(body.monthlyRentRupees * 100)) }
-            : {}),
-          ...(body.leaseEndDate ? { leaseEndDate: new Date(body.leaseEndDate) } : {}),
-          ...(body.status && ['ACTIVE', 'EXPIRING_SOON', 'ENDED'].includes(body.status)
-            ? { status: body.status }
-            : {}),
+          ...(d.leaseEndDate ? { leaseEndDate: new Date(d.leaseEndDate) } : {}),
+          ...(d.status ? { status: d.status } : {}),
         },
       });
       return NextResponse.json({

@@ -68,11 +68,17 @@ export async function resolveUserRealEstatePlan(
     return REAL_ESTATE_PLAN_LIMITS.ENTERPRISE;
   }
 
-  const sub = await db.homeSubscription.findFirst({
-    where: { userId, status: 'ACTIVE' },
-    include: { plan: { select: { id: true, name: true } } },
-    orderBy: { createdAt: 'desc' },
-  });
+  let sub = null;
+  try {
+    sub = await db.homeSubscription.findFirst({
+      where: { userId, status: 'ACTIVE' },
+      include: { plan: { select: { id: true, name: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch {
+    // Gracefully fail closed to FREE tier limits if HomeSubscription table is not provisioned
+    return REAL_ESTATE_PLAN_LIMITS.FREE;
+  }
 
   if (!sub) return REAL_ESTATE_PLAN_LIMITS.FREE;
 
